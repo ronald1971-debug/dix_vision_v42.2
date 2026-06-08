@@ -1,0 +1,28 @@
+# registry/agent_orchestrator.yaml
+# Peer agent orchestration config (Wave 2).
+
+version: v1
+
+orchestrator:
+  ring_capacity: 128
+  fusion: majority_confidence
+
+pools:
+  default:
+    - AGT-01-scalper
+    - AGT-02-swing
+    - AGT-03-macro
+    - AGT-04-lp
+    - AGT-05-adversarial
+    - AGT-07-adversary
+  trend_pool:
+    - AGT-01-scalper
+    - AGT-02-swing
+    - AGT-05-adversarial
+  range_pool:
+    - AGT-04-lp
+    - AGT-03-macro
+  vol_pool:
+    - AGT-05-adversarial
+    - AGT-07-adversary
+    - AGT-03-macro

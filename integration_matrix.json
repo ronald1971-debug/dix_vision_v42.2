@@ -1,0 +1,15 @@
+{
+  "integrations": {
+    "event_fabric": ["kafka_bus", "nats_bus", "pulsar_bus", "faust_bus"],
+    "state": ["redis_store", "clickhouse_store", "ledger"],
+    "governance": ["promotion_gates", "state_transition_manager", "invariant_verifier"],
+    "dashboard": ["signals", "adapters", "hazards", "orders", "ledger"]
+  },
+  "cross_engine_dependencies": {
+    "ui.cockpit_routes_phase11_1": {
+      "reads_from": ["state.ledger.reader", "execution.adapter_router", "governance.hazard_router"],
+      "writes_to": [],
+      "event_feed": ["HAZARD", "GOVERNANCE", "SYSTEM", "EXECUTION"]
+    }
+  }
+}

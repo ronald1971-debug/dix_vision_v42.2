@@ -1,0 +1,14 @@
+{
+  "modules": {
+    "governance_engine/control_plane/promotion_gates.py": ["hashlib", "collections", "pathlib", "governance_engine.control_plane.ledger_authority_writer"],
+    "governance_engine/control_plane/state_transition_manager.py": ["threading", "typing", "core.coherence.system_intent", "core.contracts.governance", "core.contracts.operator_consent", "governance_engine.control_plane.ledger_authority_writer", "governance_engine.control_plane.policy_engine", "governance_engine.control_plane.promotion_gates"],
+    "governance_engine/control_plane/invariant_verifier.py": ["dataclasses", "enum", "collections", "types", "z3"],
+    "execution/adapter_router.py": ["threading", "dataclasses", "execution.adapters.base"],
+    "state/cache/redis_store.py": ["dataclasses", "hashlib", "json", "collections", "typing"],
+    "state/analytics/clickhouse_store.py": ["collections", "dataclasses", "typing", "clickhouse_connect"],
+    "intelligence_engine/closed_feedback_loop.py": ["dataclasses", "enum", "collections", "threading", "typing", "time", "secrets"],
+    "learning_engine/learning_audit_trails.py": ["dataclasses", "enum", "collections", "threading", "typing"],
+    "ui/cockpit_routes_phase11_1.py": ["fastapi", "pydantic", "json", "execution.adapter_router", "execution.trade_executor", "execution.confirmations.fill_tracker", "execution.engine", "governance.hazard_router", "governance.mode_manager", "state.ledger.reader", "state.ledger.hash_chain", "runtime.replay.session_replayer"]
+  },
+  "circular_dependencies": []
+}

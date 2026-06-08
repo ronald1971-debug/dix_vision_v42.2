@@ -1,0 +1,15 @@
+{
+  "runtime_paths": {
+    "event_fabric": ["threading", "multiprocessing"],
+    "state_cache": ["threading"],
+    "governance": ["threading", "z3"],
+    "dashboard": ["threading", "asyncio"],
+    "deployment": ["subprocess"]
+  },
+  "concurrent_modules": ["system_engine/streaming", "state/cache", "state/ledger", "runtime/replay"],
+  "event_flows": {
+    "market_data_flow": ["sensory", "streaming", "intelligence_engine", "execution"],
+    "governance_flow": ["runtime", "governance_engine", "state/ledger"],
+    "event_fabric_flow": ["system_engine/streaming", "state/ledger", "runtime/fabric"]
+  }
+}

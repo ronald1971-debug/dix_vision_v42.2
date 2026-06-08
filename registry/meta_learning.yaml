@@ -1,0 +1,9 @@
+# registry/meta_learning.yaml
+# Meta-learning control panel (Wave 2).
+
+version: v1
+
+meta_learning:
+  enabled: true
+  tick_interval: 50
+  outcome_pnl_default: 0.0

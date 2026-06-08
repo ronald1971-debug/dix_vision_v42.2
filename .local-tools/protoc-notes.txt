@@ -1,0 +1,24 @@
+market.proto:46:3: "dixvision.v42_2.BUY" is already defined in file "events.proto".
+market.proto:46:3: Note that enum values use C++ scoping rules, meaning that enum values are siblings of their type, not children of it.  Therefore, "BUY" must be unique within "dixvision.v42_2", not just within "Side".
+market.proto:47:3: "dixvision.v42_2.SELL" is already defined in file "events.proto".
+market.proto:47:3: Note that enum values use C++ scoping rules, meaning that enum values are siblings of their type, not children of it.  Therefore, "SELL" must be unique within "dixvision.v42_2", not just within "Side".
+market.proto:44:6: "dixvision.v42_2.Side" is already defined in file "events.proto".
+market.proto:123:3: "dixvision.v42_2.Side" seems to be defined in "events.proto", which is not imported by "market.proto".  To use it here, please add the necessary import.
+execution.proto:20:1: Import "market.proto" was not found or had errors.
+execution.proto:44:3: "dixvision.v42_2.SUBMITTED" is already defined in file "events.proto".
+execution.proto:44:3: Note that enum values use C++ scoping rules, meaning that enum values are siblings of their type, not children of it.  Therefore, "SUBMITTED" must be unique within "dixvision.v42_2", not just within "OrderLifecycle".
+execution.proto:45:3: "dixvision.v42_2.PARTIALLY_FILLED" is already defined in file "events.proto".
+execution.proto:45:3: Note that enum values use C++ scoping rules, meaning that enum values are siblings of their type, not children of it.  Therefore, "PARTIALLY_FILLED" must be unique within "dixvision.v42_2", not just within "OrderLifecycle".
+execution.proto:46:3: "dixvision.v42_2.FILLED" is already defined in file "events.proto".
+execution.proto:46:3: Note that enum values use C++ scoping rules, meaning that enum values are siblings of their type, not children of it.  Therefore, "FILLED" must be unique within "dixvision.v42_2", not just within "OrderLifecycle".
+execution.proto:47:3: "dixvision.v42_2.CANCELLED" is already defined in file "events.proto".
+execution.proto:47:3: Note that enum values use C++ scoping rules, meaning that enum values are siblings of their type, not children of it.  Therefore, "CANCELLED" must be unique within "dixvision.v42_2", not just within "OrderLifecycle".
+execution.proto:48:3: "dixvision.v42_2.REJECTED" is already defined in file "events.proto".
+execution.proto:48:3: Note that enum values use C++ scoping rules, meaning that enum values are siblings of their type, not children of it.  Therefore, "REJECTED" must be unique within "dixvision.v42_2", not just within "OrderLifecycle".
+execution.proto:65:3: "dixvision.v42_2.APPROVED" is already defined in file "events.proto".
+execution.proto:65:3: Note that enum values use C++ scoping rules, meaning that enum values are siblings of their type, not children of it.  Therefore, "APPROVED" must be unique within "dixvision.v42_2", not just within "ExecutionGateStatus".
+execution.proto:66:3: "dixvision.v42_2.REJECTED" is already defined in file "events.proto".
+execution.proto:66:3: Note that enum values use C++ scoping rules, meaning that enum values are siblings of their type, not children of it.  Therefore, "REJECTED" must be unique within "dixvision.v42_2", not just within "ExecutionGateStatus".
+execution.proto:176:3: "dixvision.v42_2.market.Venue" is not defined.
+execution.proto:178:3: "dixvision.v42_2.market.Side" is not defined.
+execution.proto:240:3: "dixvision.v42_2.market.Venue" is not defined.

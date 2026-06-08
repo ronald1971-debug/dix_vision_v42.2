@@ -1,0 +1,851 @@
+=============================================================================
+DIX VISION v42.2 – FULL CANONICAL MANIFEST (EXTENDED • FINAL LOCK)
+=============================================================================
+
+version: 42.2.0
+codename: "Janus-Interrupt"
+cognitive_aor: docs/manifest_v42.2_cognitive_expansion.md (supersedes narrative below)
+system: DIX_VISION_WINDOWS_PRODUCTION
+status: PRODUCTION_READY_DEPLOYABLE_FINAL
+integrity: LEAN4_VERIFIED_HASH_LOCKED
+architecture: Cognitive OS + Dual-Domain + Governance + Ledger + INDIRA Execution-Adjacent Fast Path + Hazard Interrupt
+platform: Windows 10/11 (64-bit only)
+deployment: PowerShell + NSSM + Python venv + Tray Service + CI/CD
+root: C:\dix_vision_v42\
+
+=============================================================================
+0. CORE ARCHITECTURAL TRUTH (FINAL LOCK)
+=============================================================================
+
+INDIRA = Market Intelligence + Execution-Adjacent Intent Formation (hot path)
+DYON   = System Monitoring + Hazard Detection + Infrastructure Maintenance
+
+GOVERNANCE = Control Plane (rules + constraints + emergency policies)
+EXECUTION  = Action layer (adapters, order lifecycle) — downstream of cognition
+LEDGER     = Immutable Memory (all events, all time)
+
+CRITICAL SEPARATION (see docs/manifest_v42.2_cognitive_expansion.md):
+
+- Indira operates in MARKET REALITY (execution-adjacent, not architecture)
+- Dyon operates in SYSTEM REALITY
+- Governance defines rules for BOTH; governs cross-domain channels only:
+    SYSTEM_HAZARD (Dyon→Governance)
+    GOVERNED_MARKET_CONTEXT (Dyon/Risk→Governance→Indira read-only)
+- Execution layer enforces actions; does not govern cognition
+- Capital layer governs exposure; does not govern cognition
+- Ledger records everything
+
+Primary product: governed intelligence. Trading is downstream.
+
+Shared knowledge ≠ Shared authority
+
+-----------------------------------------------------------------------------
+
+FINAL PRINCIPLE:
+
+Triggers are NOT authority.
+Policies ARE authority.
+
+-----------------------------------------------------------------------------
+
+=============================================================================
+1. IMMUTABLE GOVERNANCE AXIOMS (LEAN4 VERIFIED)
+=============================================================================
+
+max_drawdown        = 4% (hard stop; operator override up to 15%)
+max_loss_per_trade  = 5%
+fail_closed         = true (no data → no execution)
+credentials never leave machine
+all events must be deterministic + replayable
+
+forbidden_behaviors:
+  - martingale strategies
+  - unbounded leverage
+  - runtime core mutation
+  - unauthorized network access
+  - silent state mutation
+
+required_behaviors:
+  - full event traceability
+  - deterministic replay
+  - governance-defined constraints
+  - pre-approved emergency handling
+
+-----------------------------------------------------------------------------
+
+=============================================================================
+2. FAST PATH EXECUTION (INDIRA – EXECUTION-ADJACENT MARKET DOMAIN)
+=============================================================================
+
+DEFINITION:
+Ultra-low latency market cognition pipeline adjacent to execution. INDIRA forms
+ExecutionIntent; ExecutionEngine and adapters perform ACTION under precomputed
+governance constraints (async governance never blocks the hot path).
+
+FLOW:
+
+Market Data
+    ↓
+Indira (analysis + decision + intent)
+    ↓
+Precomputed governance constraints
+    ↓
+Execution adapters (exchange APIs)
+    ↓
+Event Ledger
+
+-----------------------------------------------------------------------------
+
+INDIRA RESPONSIBILITIES:
+
+✓ market analysis
+✓ signal generation
+✓ strategy selection
+✓ execution intent formation (governance-gated)
+✓ order intent via ExecutionEngine (create / cancel / modify)
+✓ coordination with exchange adapters on the hot path
+
+-----------------------------------------------------------------------------
+
+CRITICAL RULES:
+
+✔ Indira is execution-adjacent — intents on hot path, ACTION in execution layer
+✔ No runtime governance blocking on hot path (precomputed constraints only)
+✔ All actions obey PRECOMPUTED constraints
+✔ Execution must be deterministic
+
+-----------------------------------------------------------------------------
+
+INDIRA LIMITS:
+
+✗ cannot modify system infrastructure
+✗ cannot deploy patches
+✗ cannot manage OS/services
+✗ cannot override governance constraints
+
+-----------------------------------------------------------------------------
+
+=============================================================================
+3. GOVERNANCE CONTROL PLANE (ASYNC AUTHORITY)
+=============================================================================
+
+Governance is NOT in execution loop.
+
+ROLE:
+Define rules, not execute actions.
+
+-----------------------------------------------------------------------------
+
+GOVERNANCE OUTPUTS:
+
+- EXECUTION_CONSTRAINT_SET
+- RISK_PROFILE
+- EMERGENCY_ACTION_POLICY
+- SYSTEM_POLICY_RULES
+
+-----------------------------------------------------------------------------
+
+RESPONSIBILITIES:
+
+✓ risk modeling (global + portfolio)
+✓ constraint definition
+✓ emergency policy definition
+✓ validation of system changes (Dyon path)
+
+-----------------------------------------------------------------------------
+
+CRITICAL RULE:
+
+"Governance defines rules BEFORE execution, never during."
+
+-----------------------------------------------------------------------------
+
+=============================================================================
+4. DYON SYSTEM DOMAIN (MONITOR + DETECT ONLY)
+=============================================================================
+
+PRIMARY ROLE:
+System awareness and hazard detection.
+
+-----------------------------------------------------------------------------
+
+RESPONSIBILITIES:
+
+✓ system health monitoring
+✓ exchange connectivity tracking
+✓ websocket heartbeat validation
+✓ process supervision
+✓ anomaly detection
+✓ performance diagnostics
+
+-----------------------------------------------------------------------------
+
+DYON LIMITS (STRICT):
+
+✗ cannot execute trades
+✗ cannot call trading APIs
+✗ cannot place/cancel orders
+✗ cannot make market decisions
+
+-----------------------------------------------------------------------------
+
+NEW CAPABILITY:
+
+Dyon emits:
+
+  SYSTEM_HAZARD_EVENT
+
+-----------------------------------------------------------------------------
+
+EXAMPLES:
+
+- websocket_timeout
+- exchange_unreachable
+- stale_market_data
+- process_crash
+- data_integrity_failure
+- clock_drift_detected
+
+-----------------------------------------------------------------------------
+
+CRITICAL RULE:
+
+"Dyon is a SENSOR. Not an executor."
+
+-----------------------------------------------------------------------------
+
+=============================================================================
+5. HAZARD INTERRUPT SYSTEM (DETERMINISTIC SAFETY PATH)
+=============================================================================
+
+PURPOSE:
+Immediate response to system failure WITHOUT latency penalty.
+
+-----------------------------------------------------------------------------
+
+FLOW:
+
+STEP 1 — Detection
+  Dyon → SYSTEM_HAZARD_EVENT
+
+STEP 2 — Mapping
+  Event → EMERGENCY_ACTION_POLICY (precomputed)
+
+STEP 3 — Execution (instant)
+  System executes:
+
+    CANCEL_ALL_ORDERS
+    CLOSE_POSITIONS (optional)
+    HALT_TRADING
+
+-----------------------------------------------------------------------------
+
+PROPERTIES:
+
+✔ pre-authorized
+✔ constant-time execution
+✔ no runtime deliberation
+✔ non-blocking
+
+-----------------------------------------------------------------------------
+
+CRITICAL DISTINCTION:
+
+Dyon does NOT decide actions.
+It triggers pre-approved policies.
+
+-----------------------------------------------------------------------------
+
+=============================================================================
+6. EXECUTION AUTHORITY MODEL (FINAL)
+=============================================================================
+
+INDIRA:
+  ✓ executes trades
+  ✓ controls market actions
+
+DYON:
+  ✓ detects hazards
+  ✗ no execution authority
+
+GOVERNANCE:
+  ✓ defines all rules
+  ✗ no execution
+
+EXECUTION LAYER:
+  ✓ executes:
+      - trade actions (Indira)
+      - emergency actions (policy)
+
+-----------------------------------------------------------------------------
+
+AUTHORITY FLOW:
+
+Governance → defines
+Indira → executes (market)
+Dyon → detects (system)
+System → executes emergency
+
+-----------------------------------------------------------------------------
+
+=============================================================================
+7. EVENT-SOURCED LEDGER (GLOBAL MEMORY)
+=============================================================================
+
+Single append-only system:
+
+state/ledger/event_store.py
+
+-----------------------------------------------------------------------------
+
+STORES:
+
+- trade executions (Indira)
+- system events (Dyon)
+- hazard events
+- emergency actions
+- governance outputs
+- snapshots
+
+-----------------------------------------------------------------------------
+
+PROPERTIES:
+
+✔ append-only
+✔ cryptographically chained
+✔ replayable
+✔ auditable
+
+-----------------------------------------------------------------------------
+
+=============================================================================
+8. PERFORMANCE & LATENCY MODEL
+=============================================================================
+
+✔ Fast path bypasses governance
+✔ Risk constraints cached in memory
+✔ Hazard path constant-time
+✔ Async ledger writes
+
+-----------------------------------------------------------------------------
+
+TARGETS:
+
+trade execution latency:      < 5 ms
+hazard detection latency:     < 10 ms
+emergency execution latency:  < 20 ms
+
+-----------------------------------------------------------------------------
+
+=============================================================================
+9. ENFORCEMENT SYSTEM
+=============================================================================
+
+runtime_guardian.py
+policy_enforcer.py
+resource_enforcer.py
+kill_switch.py
+
+-----------------------------------------------------------------------------
+
+ENFORCES:
+
+✓ domain separation
+✓ constraint compliance
+✓ compute budgets
+✓ fail-closed behavior
+
+-----------------------------------------------------------------------------
+
+=============================================================================
+10. OBSERVABILITY SYSTEM
+=============================================================================
+
+✓ structured JSON logging
+✓ trace_id propagation
+✓ Prometheus metrics
+✓ distributed tracing
+✓ anomaly alerts
+✓ immutable audit trail
+
+-----------------------------------------------------------------------------
+
+=============================================================================
+11. SECURITY MODEL
+=============================================================================
+
+✓ DPAPI / OS keyring
+✓ encrypted credential storage
+✓ no secrets in logs
+✓ role-based access control
+✓ audit logging
+
+-----------------------------------------------------------------------------
+
+=============================================================================
+12. DATABASE SYSTEM (EVENT + STATE)
+=============================================================================
+
+Primary:
+
+ledger.db (event store)
+
+Logical streams:
+
+audit.db
+trade_events.db
+system_state.db
+incidents.db
+governance.db
+snapshot.db
+attribution.db
+
+Aux:
+
+faiss_index/
+research_cache/
+snapshots/
+logs/
+
+-----------------------------------------------------------------------------
+
+=============================================================================
+13. WINDOWS DISTRIBUTION LAYER
+=============================================================================
+
+✓ NSSM service integration
+✓ PowerShell installer
+✓ system tray interface
+✓ auto-start + recovery
+✓ update + rollback system
+
+-----------------------------------------------------------------------------
+
+=============================================================================
+14. ENGINEERING TOOLING
+=============================================================================
+
+pyproject.toml
+requirements*.txt
+Makefile
+build.ps1 / run.ps1
+
+Tools:
+
+ruff
+mypy
+pytest
+coverage
+tox (optional)
+
+-----------------------------------------------------------------------------
+
+=============================================================================
+15. CI/CD PIPELINE
+=============================================================================
+
+.github/workflows/
+
+✓ lint
+✓ type-check
+✓ unit tests
+✓ integration tests
+✓ shadow trading validation
+✓ build + release
+
+-----------------------------------------------------------------------------
+
+=============================================================================
+16. FINAL GUARANTEE
+=============================================================================
+
+✔ Indira owns ALL market execution
+✔ Dyon owns ALL system monitoring
+✔ Governance defines ALL rules
+✔ Hazard response is deterministic and instant
+✔ Fast path is never blocked
+✔ Ledger captures everything
+
+-----------------------------------------------------------------------------
+
+FINAL LOCK STATEMENT:
+
+Indira operates the market.
+Dyon observes the system.
+Governance defines the rules.
+The system executes emergency actions instantly.
+The ledger remembers everything.
+
+-----------------------------------------------------------------------------
+
+END OF MANIFEST – DIX VISION v42.2
+=============================================================================
+
+=============================================================================
+DIX VISION v42.2 – FULL CANONICAL SYSTEM DIRECTORY TREE (FINAL LOCK)
+Hybrid Architecture: Dual-Domain + Fast Path + Hazard Interrupt + Event Ledger
+Root: C:\dix_vision_v42\
+=============================================================================
+
+1. ROOT ENTRY LAYER (BOOT + CONTROL)
+=============================================================================
+
+C:\dix_vision_v42\
+│
+├── bootstrap_kernel.py          # Integrity check → registry bind → policy load → start graph
+├── main.py                      # Runtime launcher (service + CLI modes)
+├── dix.py                       # Primary CLI interface
+├── cockpit.py                   # FastAPI backend for UI
+├── start.py                     # Simplified entrypoint wrapper
+├── VERSION                      # Version source of truth
+│
+├── pyproject.toml               # Build system + tooling config
+├── requirements.txt
+├── requirements-dev.txt
+├── requirements-windows.txt
+├── Makefile
+├── build.ps1
+├── run.ps1
+├── .pre-commit-config.yaml
+├── .gitignore
+└── README.md
+
+=============================================================================
+2. IMMUTABLE CORE (TRUST ROOT)
+=============================================================================
+
+immutable_core/
+│
+├── safety_axioms.lean           # Lean4 verified axioms
+├── system_identity.py           # hard constraints + forbidden behaviors
+├── kill_switch.py               # global kill (hardware-level logic)
+├── constants.py                 # system invariants
+├── genesis.json                 # initial system state
+└── foundation.hash              # cryptographic integrity anchor
+
+=============================================================================
+3. CORE CONTRACTS + REGISTRY (SYSTEM SKELETON)
+=============================================================================
+
+core/
+│
+├── registry.py                  # Lazy DI container + hard lock after boot
+├── bootstrap/
+│   ├── loader.py
+│   ├── lifecycle.py
+│   ├── startup_sequence.py
+│   ├── shutdown_sequence.py
+│   └── dependency_graph.py
+│
+├── runtime/
+│   ├── execution_context.py
+│   ├── runtime_state.py
+│   ├── async_runtime.py
+│   └── coroutine_manager.py
+│
+├── single_instance.py
+├── exceptions.py
+├── secrets.py
+│
+└── contracts/
+    ├── state.py
+    ├── logger.py
+    ├── time.py
+    ├── governance.py
+    ├── execution.py
+    ├── intelligence.py
+    ├── persistence.py
+    └── observability.py
+
+=============================================================================
+4. INDIRA – MARKET DOMAIN (FAST PATH ENGINE)
+=============================================================================
+
+mind/
+│
+├── engine.py                    # Indira core (analysis + decision + execution)
+├── intent_producer.py           # signals → execution events
+├── execution_router.py          # routes orders to adapters (FAST PATH)
+├── risk_cache.py                # in-memory constraints (precomputed)
+├── portfolio_manager.py
+├── order_manager.py
+│
+├── knowledge/
+│   ├── knowledge_validator.py
+│   ├── source_conflict_graph.py
+│   ├── memory_index.py
+│   ├── edge_case_memory.py
+│   └── drift_monitor.py
+│
+├── sources/
+│   ├── market_streams.py
+│   ├── websocket_client.py
+│   ├── rest_client.py
+│   ├── news_streams.py
+│   ├── sentiment_streams.py
+│   └── onchain_streams.py
+│
+└── plugins/
+    ├── liquidity.py
+    ├── sentiment.py
+    ├── macro.py
+    ├── technical.py
+    ├── arbitrage.py
+    └── regime.py
+
+=============================================================================
+5. EXECUTION LAYER (SHARED – ACTION ENGINE)
+=============================================================================
+
+execution/
+│
+├── engine.py                    # unified execution dispatcher
+├── trade_executor.py            # executes Indira orders (FAST PATH)
+├── emergency_executor.py        # executes CANCEL_ALL / HALT (interrupt path)
+├── adapter_router.py
+│
+├── adapters/
+│   ├── base.py
+│   ├── binance.py
+│   ├── coinbase.py
+│   ├── kraken.py
+│   ├── uniswap_v3.py
+│   └── raydium.py
+│
+└── confirmations/
+    ├── fill_tracker.py
+    └── reconciliation.py
+
+=============================================================================
+6. DYON – SYSTEM DOMAIN (MONITOR + HAZARD SENSOR)
+=============================================================================
+
+system_monitor/
+│
+├── engine.py                    # Dyon core monitoring loop
+├── hazard_detector.py           # anomaly detection logic
+├── telemetry_ingest.py          # system + exchange telemetry
+├── heartbeat_monitor.py         # websocket/API health
+├── anomaly_models.py
+│
+├── checks/
+│   ├── connectivity_check.py
+│   ├── latency_check.py
+│   ├── data_integrity_check.py
+│   ├── clock_sync_check.py
+│   └── process_health_check.py
+│
+└── emitters/
+    └── hazard_event_emitter.py  # emits SYSTEM_HAZARD_EVENT
+
+=============================================================================
+7. GOVERNANCE (CONTROL PLANE – ASYNC)
+=============================================================================
+
+governance/
+│
+├── kernel.py                    # central arbiter (policy engine)
+├── risk_engine.py               # portfolio + global constraints
+├── policy_engine.py             # evaluates rules
+├── constraint_compiler.py       # builds risk cache for fast path
+├── emergency_policy.py          # defines hazard → action mapping
+│
+├── oracle/
+│   ├── tier_l1_fast.py
+│   ├── tier_l2_balanced.py
+│   └── tier_l3_deep.py
+│
+└── mode/
+    ├── mode_manager.py
+    ├── safe_mode.py
+    ├── degraded_mode.py
+    └── halted_mode.py
+
+=============================================================================
+8. HAZARD INTERRUPT SYSTEM (CRITICAL PATH)
+=============================================================================
+
+interrupt/
+│
+├── dispatcher.py                # routes hazard events instantly
+├── policy_cache.py              # preloaded emergency rules
+├── resolver.py                  # maps hazard → action
+└── interrupt_executor.py        # invokes emergency_executor
+
+=============================================================================
+9. EVENT-SOURCED LEDGER (SINGLE SOURCE OF TRUTH)
+=============================================================================
+
+state/
+│
+├── ledger/
+│   ├── event_store.py           # append-only log (SQLite WAL)
+│   ├── hash_chain.py            # cryptographic chaining
+│   ├── stream_router.py         # logical stream separation
+│   └── writer.py                # async write pipeline
+│
+├── projectors/
+│   ├── market_state.py
+│   ├── portfolio_state.py
+│   ├── system_state.py
+│   └── governance_state.py
+│
+└── snapshots/
+    ├── snapshot_manager.py
+    └── checkpoint_index.py
+
+=============================================================================
+10. ENFORCEMENT SYSTEM (NON-BYPASSABLE)
+=============================================================================
+
+enforcement/
+│
+├── runtime_guardian.py          # monitors all flows
+├── policy_enforcer.py
+├── resource_enforcer.py
+├── decorators.py
+└── kill_switch.py
+
+=============================================================================
+11. OBSERVABILITY (FULL VISIBILITY STACK)
+=============================================================================
+
+observability/
+│
+├── logs/
+│   ├── system.log
+│   ├── trading.log
+│   ├── hazard.log
+│   └── audit.log
+│
+├── metrics/
+│   ├── prometheus_exporter.py
+│   └── metrics_registry.py
+│
+├── tracing/
+│   └── trace_manager.py
+│
+├── alerts/
+│   └── alert_engine.py
+│
+└── dashboards/
+    └── cockpit_adapter.py
+
+=============================================================================
+12. SECURITY LAYER
+=============================================================================
+
+security/
+│
+├── secrets_manager.py
+├── keyring_adapter.py
+├── encryption.py
+├── authentication.py
+├── authorization.py
+└── audit_trail.py
+
+=============================================================================
+13. DATA STORAGE (PHYSICAL LAYER)
+=============================================================================
+
+data/
+│
+├── sqlite/
+│   ├── ledger.db
+│   ├── trades.db
+│   ├── system.db
+│   ├── governance.db
+│   ├── incidents.db
+│   └── attribution.db
+│
+├── faiss/
+├── snapshots/
+├── caches/
+├── replay/
+└── logs/
+
+=============================================================================
+14. WINDOWS RUNTIME LAYER
+=============================================================================
+
+windows/
+│
+├── service/
+│   ├── nssm_config.xml
+│   ├── service_wrapper.py
+│   ├── watchdog.ps1
+│   └── recovery.ps1
+│
+├── tray/
+│   ├── tray_app.py
+│   ├── tray_ui.py
+│   ├── tray_actions.py
+│   └── icons/
+│
+├── installer/
+│   ├── setup.ps1
+│   ├── uninstall.ps1
+│   ├── env_setup.ps1
+│   └── registry.ps1
+│
+└── updater/
+    ├── update_engine.py
+    ├── rollback_update.py
+    └── version_check.py
+
+=============================================================================
+15. CI/CD + TOOLING
+=============================================================================
+
+.github/
+└── workflows/
+    ├── ci.yml
+    ├── test.yml
+    ├── shadow.yml
+    ├── release.yml
+    └── security.yml
+
+tools/
+├── lint/
+├── format/
+├── typecheck/
+├── test_runner/
+├── chaos_engine/
+└── simulation/
+
+=============================================================================
+16. FINAL ARCHITECTURAL BOUNDARY (ENFORCED)
+=============================================================================
+
+INDIRA DOMAIN:
+  - market reasoning
+  - trade execution (FAST PATH)
+  - exchange API interaction
+
+DYON DOMAIN:
+  - system monitoring
+  - hazard detection
+  - telemetry analysis
+
+GOVERNANCE:
+  - defines all rules and emergency policies
+
+INTERRUPT SYSTEM:
+  - executes emergency actions instantly
+
+LEDGER:
+  - records everything immutably
+
+-----------------------------------------------------------------------------
+
+FINAL LOCK STATEMENT:
+
+Indira executes trades.
+Dyon detects hazards.
+Governance defines policies.
+Interrupt system executes emergencies instantly.
+Ledger records everything.
+
+=============================================================================
+END OF DIRECTORY TREE – DIX VISION v42.2
+=============================================================================

@@ -1,0 +1,180 @@
+# Ownership Registry — Architectural Domain Ownership
+#
+# This is the executable declaration of which engine owns which domain.
+# Used by authority_lint.py to enforce INV-DIX-03, INV-DIX-04, INV-DIX-05.
+# Also used by runtime_graph_validator.py and policy_compiler.py.
+#
+# Format:
+#   engines:
+#     <engine_name>:
+#       owns:
+#         - <domain_name>
+#       owns_truth: [positive charter - what this engine's cognition defines]
+#       may_import: [optional list of domains it may import]
+#       may_not_import: [optional list of domains it may NOT import]
+
+version: "v42.2-arch"
+
+# DYON positive charter: What DYON owns as Truth
+dyon_charter:
+  owns_truth:
+    - repository_intelligence
+    - architecture_intelligence
+    - runtime_intelligence
+    - infrastructure_intelligence
+  truth_names:
+    repository_intelligence: "Repository Truth"
+    architecture_intelligence: "Architecture Truth"
+    runtime_intelligence: "Runtime Truth"
+    infrastructure_intelligence: "Infrastructure Truth"
+
+engines:
+  indira:
+    module: intelligence_engine
+    owns:
+      - market_intelligence
+      - trader_intelligence
+      - strategy_intelligence
+      - portfolio_intelligence
+      - allocation_intelligence
+      - position_intelligence
+      - execution_feedback_intelligence
+    may_generate:
+      - SignalEvent
+      - BeliefState updates for owned domains
+    may_not_import:
+      - strategy_engine
+      - learning_engine (except read-only)
+    notes: |
+      INDIRA is the cognitive decider. All trading strategy cognition flows
+      through her. She may NOT import DYON modules for strategy generation.
+
+  dyon:
+    module: system_engine
+    owns:
+      - repository_intelligence
+      - architecture_intelligence
+      - runtime_intelligence
+      - infrastructure_intelligence
+    owns_truth:
+      - Repository Truth
+      - Architecture Truth
+      - Runtime Truth
+      - Infrastructure Truth
+    may_generate:
+      - SystemHazard
+      - PatchProposal
+      - TopologyScan
+    may_not_import:
+      - strategy_engine
+      - market_intelligence
+    may_not_modify:
+      - governance
+      - invariants
+      - authority_boundaries
+    notes: |
+      DYON owns Repository Truth (what exists), Architecture Truth (how it connects),
+      Runtime Truth (how it performs), and Infrastructure Truth (how it evolves).
+      DYON may refactor, optimize, and test. DYON may NOT change governance,
+      invariants, or authority boundaries without operator approval.
+
+  governance:
+    module: governance_engine
+    owns:
+      - policy
+      - approval
+      - audit
+    may_generate:
+      - Decision records
+      - Mode transitions
+    may_not_import:
+      - execution_engine
+    notes: |
+      Governance is order-blind. She approves, rejects, constrains but never
+      trades. Triad Lock (INV-DIX-012) enforcement.
+
+  execution:
+    module: execution_engine
+    owns:
+      - routing
+      - broker_access
+      - exchange_access
+    may_generate:
+      - ExecutionEvent
+      - OrderIntent
+    may_not_import:
+      - strategy_engine
+    notes: |
+      Execution engine owns market interaction, not decision creation (INV-DIX-06).
+
+  learning:
+    module: learning_engine
+    owns:
+      - experience_transformation
+      - calibration
+      - distillation
+    may_generate:
+      - LearningUpdate
+      - CalibrationReport
+    may_not_import:
+      - runtime_engines
+    notes: |
+      Offline only. Never touches hot path directly.
+
+  evolution:
+    module: evolution_engine
+    owns:
+      - parameter_proposal
+      - patch_evolution
+      - strategy_genome
+    may_generate:
+      - PatchProposal
+      - StrategyGenome
+    may_not_import:
+      - execution_engine.hot_path
+    notes: |
+      Offline evolution. Submits to Governance for approval.
+
+  belief_engine:
+    module: core.belief_engine
+    owns:
+      - belief_updates
+      - belief_validation
+      - belief_consistency
+      - belief_replay
+      - belief_snapshots
+      - belief_versioning
+    may_generate:
+      - BeliefState
+      - BeliefUpdate
+    may_not_import:
+      - strategy_engine
+      - execution_engine
+    notes: |
+      Belief State is central. This engine owns all belief operations.
+
+# Domain graph — who may talk to whom
+domain_edges:
+  # INDIRA may provide to BeliefState
+  - from: indira
+    to: belief_engine
+    allowed: true
+    purpose: belief_updates
+
+  # DYON may NOT talk to strategy domains
+  - from: dyon
+    to: strategy_intelligence
+    allowed: false
+    reason: INV-DIX-05 violation
+
+  # Execution may consume BeliefState
+  - from: execution
+    to: belief_engine
+    allowed: true
+    purpose: decision context
+
+  # Governance mediates all cross-domain proposals
+  - from: any
+    to: any
+    via: governance
+    purpose: approval

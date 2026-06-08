@@ -1,0 +1,267 @@
+syntax = "proto3";
+
+// Canonical governance contract. Mirror of core/contracts/governance.py
+// (Phase 1, GOV-CP-01..07, SAFE-01..27, INV-11 no direct cross-engine calls).
+//
+// Refs:
+//  - manifest.md §0.1 (ENGINE-06 governance authority), §2 (INV-11)
+//  - governance_engine/control_plane/ (Python implementation)
+//  - docs/total_recall_index.md §SAFE-01..27
+//  - build_plan.md Phase 1 (governance core)
+//
+// Governance is the ONLY authority that can:
+//  1. Change system mode (AUTO / SEMI_AUTO / MANUAL / SAFE_LOCKED)
+//  2. Activate or deactivate plugins
+//  3. Approve patches to strategies
+//  4. Write hazard records
+//  5. Override risk limits (in MANUAL mode, with HITL consent)
+//
+// All governance decisions are ledgered as immutable records (INV-08).
+// No other engine may write system state.
+
+package dixvision.v42_2;
+
+option java_package = "ai.dixvision.v42_2";
+
+enum SystemMode {
+  SAFE = 0;            // Initial boot / recovery state
+  PAPER = 1;           // Paper trading, no real funds at risk
+  CANARY = 3;          // Limited live exposure
+  LIVE = 4;            // Full live trading within risk limits
+  AUTO = 5;            // Autonomous trading, no operator approval per-trade
+  LOCKED = 99;         // Emergency lockdown; no orders, readonly monitoring
+}
+
+enum AuthorityRole {
+  ROLE_UNSPECIFIED = 0;
+  GOVERNANCE_ENGINE = 1;   // ENGINE-06 — system authority (single writer)
+  LEARNING_ENGINE = 2;     // ENGINE-03 — submits update proposals (GOV-G18)
+  EVOLUTION_ENGINE = 3;    // ENGINE-05 — submits patch proposals (GOV-G18)
+  OPERATOR = 4;            // HITL gateway (via cockpit/operator_interface_bridge.py)
+  SAFETY_GUARDIAN = 5;      // immutable_core/runtime_guardian.py — kill-switch only
+}
+
+// Immutable policy value-object. Defines how the system should behave.
+// Produced once at boot; transitions via PolicyUpdateProposal only.
+message Policy {
+  // Unique policy version (incrementing int).
+  int32 version = 1;
+
+  // Current system mode.
+  SystemMode mode = 2;
+
+  // Learning freeze state (v3.3 POLICY_STATE event).
+  // If frozen, learning_engine produces no updates even if available.
+  bool learning_frozen = 3;
+
+  // Evolution freeze state.
+  // If frozen, evolution_engine produces no patches even if passing sandbox.
+  bool evolution_frozen = 4;
+
+  // Plugin allow-list (active plugin names).
+  // Only plugins listed here will execute; others remain dormant.
+  repeated string active_plugins = 5;
+
+  // Risk budget multipliers per asset class (SPOT / FUTURES / FOREX).
+  // e.g., "SPOT": 1.0, "FUTURES": 0.5 (half budget for leveraged products).
+  map<string, double> risk_budget_multipliers = 6;
+
+  // Max position size per instrument (in base currency).
+  double max_position_size = 7;
+
+  // Daily drawdown limit. If breach, system enters SAFE_LOCKED.
+  double max_daily_drawdown_pct = 8;
+
+  // Operator override flag (MANUAL mode only).
+  // Set by cockpit when operator approves a manual order that exceeds limits.
+  bool operator_override_active = 9;
+
+  // Timestamp when override expires (ns). After, revert to standard limits.
+  int64 override_expires_ns = 10;
+
+  // Timestamp when policy was installed (ns).
+  // Used to correlate ledger events to policy epoch.
+  int64 installed_ts_ns = 11;
+
+  // HARDEN-03: provenance (ENGINE-06)
+  string produced_by_engine = 12;
+}
+
+// Governance state transition record. Written to ledger on every mode change.
+message ModeTransition {
+  int64 ts_ns = 1;
+  SystemMode from_mode = 2;
+  SystemMode to_mode = 3;
+  string reason = 4;  // why was the transition triggered?
+  AuthorityRole initiated_by = 5;  // who triggered it?
+  map<string, string> context = 6;  // diagnostic context (e.g., hazard code)
+
+  // HARDEN-03: provenance (ENGINE-06)
+  string produced_by_engine = 7;
+}
+
+// Update proposal from learning_engine (LearningUpdate in Python).
+// Submitted to governance for approval (GOV-CP-02 risk_evaluator).
+message LearningUpdateProposal {
+  int64 proposed_ts_ns = 1;
+  string proposal_id = 2;  // deterministic hash of the update content
+
+  // What component should be updated?
+  enum UpdateTarget {
+    TARGET_UNSPECIFIED = 0;
+    CONFIDENCE_CALIBRATION = 1;  // meta_controller confidence params
+    REWARD_SHAPING = 2;           // learning_engine reward weights
+    SIGNAL_WEIGHTS = 3;           // plugin signal importance
+    RISK_PARAMS = 4;              // governance risk evaluator params
+  }
+  UpdateTarget target = 3;
+
+  // New parameter set (serialized JSON, version-tagged).
+  string new_params_json = 4;
+  string params_schema_version = 5;  // e.g., "confidence_v3.1"
+
+  // Ledgered metrics that justify this proposal.
+  double historical_sharpe = 6;      // pre-update Sharpe ratio
+  double proposed_sharpe = 7;        // projected Sharpe post-update
+  double confidence_in_improvement = 8;  // (0.0..1.0) learning engine's belief
+
+  // Approval decision (filled in by governance before ledgering).
+  enum ProposalStatus {
+    STATUS_UNSPECIFIED = 0;
+    PROPOSED = 1;     // just submitted
+    APPROVED = 2;     // governance accepted
+    REJECTED = 3;     // governance declined
+    ACTIVATED = 4;    // approved + now in force
+  }
+  ProposalStatus status = 9;
+
+  // HARDEN-03: provenance
+  string produced_by_engine = 10;  // always learning_engine
+}
+
+// Patch proposal from evolution_engine (PatchProposal in Python).
+// Routed through sandbox, canary, shadow, rollback pipeline (GOV-G18).
+message PatchProposal {
+  int64 proposed_ts_ns = 1;
+  string patch_id = 2;  // deterministic hash of the patch content
+
+  // Patch type: structural mutation, parameter tweak, new plugin, etc.
+  enum PatchKind {
+    KIND_UNSPECIFIED = 0;
+    PARAMETER_TWEAK = 1;       // parameter-only change
+    PLUGIN_ACTIVATION = 2;     // new plugin or plugin update
+    STRATEGY_STRUCTURAL = 3;   // FSM / logic mutation
+    RECOVERY_PATCH = 4;        // in-market fix for detected anomaly
+  }
+  PatchKind kind = 3;
+
+  // Diff of the change (human-readable or serialized).
+  string change_summary = 4;
+
+  // Sandbox test results (filled by patch_pipeline before forwarding).
+  bool sandbox_passed = 5;
+  double sandbox_backtest_sharpe = 6;
+  int32 sandbox_scenario_count = 7;  // how many scenarios tested
+
+  // Approval decision (by governance after all pipeline stages).
+  enum PatchStatus {
+    STATUS_UNSPECIFIED = 0;
+    PROPOSED = 1;       // just submitted
+    SANDBOX_TESTING = 2;  // in sandbox pipeline
+    CANARY_LIVE = 3;    // live on canary strategy
+    SHADOW_LIVE = 4;    // live as shadow (non-executing)
+    APPROVED = 5;       // ready for primary promotion
+    REJECTED = 6;       // failed at some stage
+    ROLLED_BACK = 7;    // was active, now reverted
+  }
+  PatchStatus status = 8;
+
+  // HARDEN-03: provenance
+  string produced_by_engine = 9;  // always evolution_engine
+}
+
+// Hazard event record (mirrors HazardEvent from events.proto but with more governance context).
+// Written by system_engine, read by governance for escalation decisions.
+message HazardRecord {
+  int64 ts_ns = 1;
+  string code = 2;            // e.g., "HAZ-01", "HAZ-05"
+
+  enum HazardSeverity {
+    SEVERITY_UNSPECIFIED = 0;
+    INFO = 1;
+    LOW = 2;
+    MEDIUM = 3;
+    HIGH = 4;
+    CRITICAL = 5;
+  }
+  HazardSeverity severity = 3;
+
+  string source = 4;          // which engine / sensor detected it
+  string detail = 5;          // human-readable description
+  map<string, string> meta = 6;  // diagnostic data
+
+  // Governance response (filled by governance_engine after risk_evaluator.py).
+  enum HazardResponse {
+    RESPONSE_UNSPECIFIED = 0;
+    ACKNOWLEDGED = 1;    // logged, no action
+    THROTTLE = 2;        // reduce order size or frequency
+    PAUSE = 3;           // hold orders until next review
+    SAFE_LOCK = 4;       // enter SAFE_LOCKED mode immediately
+  }
+  HazardResponse response = 7;
+
+  // If response == SAFE_LOCK, this is the reason ledgered.
+  string safe_lock_reason = 8;
+
+  // HARDEN-03: provenance
+  string produced_by_engine = 9;  // system_engine or governance_engine
+}
+
+// Governance decision record (audit trail).
+// Ledgered after every significant governance action (mode change, policy update, patch approval, etc.).
+message GovernanceDecision {
+  int64 decision_ts_ns = 1;
+  string decision_id = 2;      // unique identifier for auditing
+
+  enum DecisionKind {
+    KIND_UNSPECIFIED = 0;
+    MODE_TRANSITION = 1;       // SystemMode change
+    POLICY_UPDATE = 2;         // Policy installed
+    HAZARD_RESPONSE = 3;       // HazardRecord acknowledged + response set
+    PATCH_APPROVAL = 4;        // PatchProposal approved
+    UPDATE_APPROVAL = 5;       // LearningUpdateProposal approved
+    OVERRIDE_GRANT = 6;        // operator override approved (HITL)
+    PLUGIN_ACTIVATION = 7;     // plugin lifecycle change
+  }
+  DecisionKind kind = 3;
+
+  // What triggered the decision?
+  string trigger_event_id = 4;  // e.g., hazard_record.code or patch_id
+
+  // Who approved it? (GOVERNANCE_ENGINE, OPERATOR, SAFETY_GUARDIAN, etc.)
+  AuthorityRole approved_by = 5;
+
+  // Decision outcome (APPROVED, REJECTED, ESCALATED, etc.).
+  string outcome = 6;
+
+  // Rationale (why was this decision made?).
+  string rationale = 7;
+
+  // HARDEN-03: provenance (ENGINE-06)
+  string produced_by_engine = 8;
+}
+
+message ExecutionRejectReasonProto {
+  REASON_UNSPECIFIED = 0;
+  REJECTED_LIMIT = 1;
+  REJECTED_RISK_STALE = 2;
+  REJECTED_NO_MARK = 3;
+  REJECTED_LOW_CONFIDENCE = 4;
+  REJECTED_HOLD = 5;
+}
+
+message ExecutionGateStatusProto {
+  GATE_STATUS_UNSPECIFIED = 0;
+  APPROVED = 1;
+  REJECTED = 2;
+}

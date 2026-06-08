@@ -1,0 +1,173 @@
+syntax = "proto3";
+
+// LEDGER messages. The ledger is the authoritative, append-only,
+// hash-chained event log. Every decision the system makes must be
+// reconstructable from this stream alone (Core Guarantee #2).
+//
+// The ledger lives in Go (`state/ledger/`). Producers in Rust and
+// Python write via the gRPC facade; readers attach via cursors.
+
+package dixvision.v42_2.ledger;
+
+option java_package = "ai.dixvision.v42_2.ledger";
+
+// EventType is the top-level envelope type. Sub-types live inside
+// `payload`, which is the canonical-encoded bytes of one of the
+// concrete domain messages defined in the other .proto files.
+enum EventType {
+  UNKNOWN_EVENT_TYPE = 0;
+  MARKET_TICK        = 1;   // market.Tick
+  MARKET_QUOTE       = 2;   // market.Quote
+  MARKET_FRAME       = 3;   // market.MarketFrame
+  ORDER_INTENT       = 4;   // execution.OrderIntent
+  ORDER_EVENT        = 5;   // execution.OrderEvent
+  FILL               = 6;   // execution.Fill
+  ADAPTER_STATE      = 7;   // execution.AdapterState
+  POLICY_DECISION    = 8;   // governance.PolicyDecision
+  APPROVAL_REQUEST   = 9;   // governance.ApprovalRequest
+  APPROVAL_RESPONSE  = 10;  // governance.ApprovalResponse
+  MODE_TRANSITION    = 11;  // governance.ModeTransition
+  SYSTEM_HAZARD      = 12;  // system.SystemHazard
+  KILL_SWITCH_EVENT  = 13;  // system.KillSwitchEvent
+  CONFIG_CHANGE      = 14;  // system.ConfigChangeEvent
+  FEATURE_FLAG_DELTA = 15;  // system.FeatureFlagDelta
+  HEARTBEAT          = 16;  // system.HeartBeat
+}
+
+// LedgerEvent is the envelope written to disk. It is the unit of
+// atomicity for hash-chaining: `hash_prev` is the sha256 of the
+// preceding event's canonical bytes.
+//
+// INVARIANT: once persisted, no field may change. The ledger is
+// append-only.
+message LedgerEvent {
+  uint64    sequence     = 1;   // strictly increasing from 1
+  int64     wall_ns      = 2;
+  EventType event_type   = 3;
+  string    sub_type     = 4;   // free-form sub-classification
+  string    source       = 5;   // domain-qualified producer name
+  bytes     payload      = 6;   // proto-encoded concrete message
+  bytes     hash_prev    = 7;   // sha256 of previous LedgerEvent
+  bytes     hash_self    = 8;   // sha256 of canonical self-encoding excluding this field
+}
+
+// Cursor is a stable position marker for snapshot boundaries and
+// replay resume-points. Both fields are required: sequence alone is
+// not sufficient because wall-time-driven rebuilds need wall_ns.
+message Cursor {
+  uint64 sequence = 1;
+  int64  wall_ns  = 2;
+}
+
+// Snapshot is the periodic state capture described in Tier-0 Step 0.
+// The snapshot engine captures every N events OR T seconds and stores
+// snapshots separately from the ledger; on boot the reconstructor
+// loads the latest and replays the delta to catch up.
+message Snapshot {
+  string snapshot_id              = 1;
+  Cursor cursor                   = 2;
+  int64  created_at_ns            = 3;
+  uint64 event_count              = 4;
+  // Per-projector serialised view. The format inside each bytes
+  // payload is the projector's own canonical encoding — the ledger
+  // is agnostic to projector internals.
+  map<string, bytes> projector_views = 5;
+  // Reproducibility stamps: active versions at capture time.
+  string risk_version_id          = 6;
+  map<string, string> config_version_ids  = 7;
+  map<string, string> plugin_version_ids  = 8;
+  bytes  hash_self                = 9;
+}
+
+// LedgerHead is the summary the writer publishes on every flush so
+// readers can stay caught up without scanning the whole log.
+message LedgerHead {
+  Cursor cursor         = 1;
+  uint64 event_count    = 2;
+  bytes  hash_self      = 3;   // hash of latest event
+  int64  updated_at_ns  = 4;
+}
+
+// Ledger snapshot (LEDGER-08). Periodic checkpoints for fast-forward replay.
+// Written every N rows (configurable, default 1000) or on phase boundaries.
+message LedgerSnapshot {
+  // Which ledger_index this snapshot represents (the last event before snapshot).
+  int64 snapshot_ledger_index = 1;
+
+  // Timestamp of that event.
+  int64 snapshot_ts_ns = 2;
+
+  // Serialized state of all engines at this point (JSON or binary).
+  // Format: {"intelligence_engine": {...}, "execution_engine": {...}, ...}
+  bytes system_state_blob = 3;
+
+  // Hash of the system_state_blob (for integrity).
+  string state_blob_hash = 4;
+
+  // Version of the snapshot schema (for compatibility).
+  string snapshot_schema_version = 5;
+
+  // HARDEN-03: provenance (governance_engine or core/reconstructor.py)
+  string produced_by_engine = 6;
+}
+
+// Risk snapshot record (mirrors execution.proto RiskSnapshot but ledgered for replay).
+// Appended to ledger after every execution gate decision.
+message LedgerRiskSnapshot {
+  int64 ledger_index = 1;  // reference to the corresponding LedgerEvent
+  bytes risk_snapshot = 2;  // proto-encoded execution.RiskSnapshot
+  bytes decision = 3;  // proto-encoded execution.ExecutionGateDecision
+}
+
+// ILedger interface contract (from core/contracts/ledger.py).
+// Describes the operations available on the ledger.
+message LedgerInterface {
+  // Can we append new events?
+  bool supports_append = 1;
+
+  // Can we read by ledger_index?
+  bool supports_read_by_index = 2;
+
+  // Can we scan by timestamp range?
+  bool supports_read_by_time_range = 3;
+
+  // Can we read snapshots?
+  bool supports_snapshots = 4;
+
+  // Total rows ledgered so far.
+  int64 total_rows = 5;
+
+  // Size (bytes) of the ledger on disk.
+  int64 size_bytes = 6;
+
+  // Last verified hash for integrity check (LEDGER-05).
+  string last_verified_row_hash = 7;
+
+  // HARDEN-03: provenance (always core/reconstructor.py or governance_engine)
+  string produced_by_engine = 8;
+}
+
+// Ledger integrity report (LEDGER-06, LEDGER-07).
+// Produced by tools/contract_diff.py on every ledger read.
+message LedgerIntegrityReport {
+  int64 report_ts_ns = 1;
+  int64 report_ledger_index = 2;
+
+  // Was the hash chain valid?
+  bool hash_chain_valid = 3;
+
+  // How many rows were verified?
+  int64 rows_verified = 4;
+
+  // If invalid, where did the chain break?
+  int64 integrity_breach_index = 5;  // -1 if no breach
+
+  // Breach details (if applicable).
+  string breach_reason = 6;
+
+  // Which rows had mismatches?
+  repeated int64 mismatched_indices = 7;
+
+  // HARDEN-03: provenance (tools/contract_diff.py)
+  string produced_by_engine = 8;
+}
