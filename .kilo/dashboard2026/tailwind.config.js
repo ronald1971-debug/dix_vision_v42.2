@@ -1,8 +1,14 @@
 /** @type {import('tailwindcss').Config} */
-// DIX MEME consumes the same theme tokens as dashboard2026. Both apps
-// reference CSS custom properties (declared in `src/theme/tokens.css`)
-// through the `rgb(var(--name) / <alpha-value>)` bridge so theme
-// switching is a one-attribute mutation on `<html data-theme="…">`.
+
+/*
+ * dash-pro.B.0 — colors resolve through CSS variables defined in
+ * src/theme/tokens.css. Each token is a space-separated RGB triplet
+ * so Tailwind opacity utilities such as `bg-surface/40` keep working.
+ *
+ * Theme switching is a one-attribute mutation on <html data-theme="…">
+ * (see src/theme/tokens.css). No bespoke `bg-bg` / `bg-surface`
+ * override CSS is required anymore — the variables drive everything.
+ */
 const withVar = (name) => `rgb(var(${name}) / <alpha-value>)`;
 
 export default {
