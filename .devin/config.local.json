@@ -46,7 +46,8 @@
       "Exec(pip install)",
       "Exec(amp)",
       "Exec(.venv\\Scripts\\python.exe)",
-      "Exec(.venv\\Scripts\\ruff.exe check)"
+      "Exec(.venv\\Scripts\\ruff.exe check)",
+      "Exec(python3)"
     ]
   }
 }

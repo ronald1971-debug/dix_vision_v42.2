@@ -22,6 +22,8 @@ set "VENV_PY=%VENV_DIR%\Scripts\python.exe"
 set "VENV_MARKER=%VENV_DIR%\.dixvision_installed"
 set "DASH2_DIR=%REPO_ROOT%\dashboard2026"
 set "DASH2_DIST=%DASH2_DIR%\dist\index.html"
+set "MEME_DIR=%REPO_ROOT%\dash_meme"
+set "MEME_DIST=%MEME_DIR%\dist\index.html"
 REM DASH_URL stays at / on purpose: ui/server.py's GET / handler 307s
 REM to /dash2/ when the React build is present, and falls back to the
 REM Phase E1 stub when it is not. Pointing the launcher directly at
@@ -207,6 +209,40 @@ if %errorlevel%==0 (
 )
 :skip_dash2_build
 
+REM --- build dash_meme React SPA if Node is installed --------------------
+REM dash_meme/dist is gitignored, so we build it on every launch like dashboard2026
+REM This enables /meme/ route alongside /dash2/
+set "MEME_DIR=%REPO_ROOT%\dash_meme"
+set "MEME_DIST=%MEME_DIR%\dist\index.html"
+where npm >nul 2>&1
+if %errorlevel%==0 (
+    if exist "%MEME_DIR%\package.json" (
+        echo Building DIX MEME dashboard ^(dash_meme^)...
+        pushd "%MEME_DIR%" >nul
+        if not exist "node_modules" (
+            call npm ci --silent
+            if errorlevel 1 (
+                echo [WARN] npm ci failed in dash_meme; /meme/ will not be available.
+                popd >nul
+                goto :skip_meme_build
+            )
+        )
+        call npm run build --silent
+        if errorlevel 1 (
+            echo [WARN] dash_meme build failed; /meme/ will not be available.
+            popd >nul
+            goto :skip_meme_build
+        )
+        popd >nul
+        echo DIX MEME built: %MEME_DIST%
+    ) else (
+        echo [WARN] dash_meme/package.json missing; /meme/ will not be available.
+    )
+) else (
+    echo [WARN] npm not found; dash_meme will not be available.
+)
+:skip_meme_build
+
 REM --- ensure the desktop shortcut is in place (idempotent, self-healing) ------
 REM Calls install_desktop_shortcut.ps1 in -Quiet mode every launch. The PS
 REM script overwrites any existing "DIX VISION.lnk" on the user's desktop,
@@ -230,6 +266,8 @@ start "" /b cmd /c "timeout /t 3 /nobreak >nul && start "" "%DASH_URL%""
 
 echo.
 echo Starting FastAPI harness on %DASH_URL% ^(Ctrl+C to stop^)
+echo DIX VISION cockpit: http://127.0.0.1:%DASH_PORT%/dash2/
+echo DIX MEME dashboard: http://127.0.0.1:%DASH_PORT%/meme/
 echo All output is tee'd to %LAUNCHER_LOG% — paste it back if you hit issues.
 echo Tip: run scripts\windows\stop_dixvision.bat to force-kill if needed.
 echo.
