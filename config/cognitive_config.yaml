@@ -1,0 +1,97 @@
+# Cognitive System Configuration
+# DIX VISION v42.2 - Cognitive Subsystems Configuration
+
+cognitive:
+  # Master enable switch for cognitive systems
+  enabled: true
+  
+  # Operating mode: observation (read-only), shadow (recommendations only), active (full integration)
+  mode: "active"  # ALL FEATURES ENABLED AND ACTIVE
+  
+  # Cognitive orchestrator settings
+  orchestrator:
+    initialization_timeout_seconds: 30
+    enrichment_latency_target_ms: 10
+    enrichment_latency_p99_threshold_ms: 20
+    
+  # Cognitive simulator settings
+  simulator:
+    enabled: true
+    cache_ttl_seconds: 300
+    max_concurrent_simulations: 10
+    default_scenarios:
+      - volatility_explosion
+      - liquidity_collapse
+      - fed_surprise
+      - exchange_failure
+    
+  # Hypothesis engine settings
+  hypothesis:
+    enabled: true
+    auto_generate: true
+    validation_window_days: 7
+    min_confidence_for_action: 0.7
+    max_active_hypotheses: 100
+    
+  # Knowledge graph settings
+  knowledge_graph:
+    enabled: true
+    auto_populate: true
+    persistence_interval_seconds: 60
+    max_nodes: 10000
+    max_edges: 50000
+    seed_common_conditions: true
+    
+  # Narrative engine settings
+  narrative:
+    enabled: true
+    auto_detect: true
+    impact_threshold: 0.7
+    sentiment_update_interval_seconds: 300
+    common_narratives:
+      - rate_hike_cycle
+      - crypto_adoption
+      - regulatory_crackdown
+      - tech_bull_market
+    
+  # Curiosity engine settings
+  curiosity:
+    enabled: true
+    investigation_queue_size: 100
+    priority_threshold: 0.6
+    auto_investigate: true  # ALL FEATURES ENABLED AND ACTIVE
+    
+  # Attention engine settings
+  attention:
+    enabled: true
+    resource_allocation_budget: 0.3  # 30% of cognitive resources
+    focus_policy: "importance_driven"
+    
+  # Meta-governance settings
+  meta_governance:
+    enabled: true
+    override_authority: true  # ALL FEATURES ENABLED AND ACTIVE
+    review_interval_seconds: 30
+    kill_switch_on_critical: true
+    
+  # Performance settings
+  performance:
+    async_processing: true
+    cache_enabled: true
+    priority_queue_enabled: true
+    max_async_operations: 20
+    
+  # Safety settings
+  safety:
+    kill_switch_enabled: true
+    fallback_to_non_cognitive: true
+    max_resource_usage_percent: 50
+    health_check_interval_seconds: 60
+    
+  # Monitoring settings
+  monitoring:
+    metrics_enabled: true
+    track_enrichment_latency: true
+    track_simulation_accuracy: true
+    track_hypothesis_validation_rate: true
+    log_level: "INFO"

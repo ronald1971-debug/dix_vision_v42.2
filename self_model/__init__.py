@@ -1,24 +1,20 @@
-"""Self Model — DIXVISION's meta-cognitive awareness.
+"""
+self_model
+DIX VISION v42.2 — Self-Model
 
-Eventually DIXVISION understands:
-    - What it knows
-    - What it does not know
-    - Where it is weak
-    - Where it is strong
+Production-grade self-modeling capabilities including identity representation,
+capability modeling, performance tracking, learning state modeling, mental state
+representation, and self-awareness capabilities.
 """
 
-from self_model.capability_map import (
-    BlindSpotDetector,
-    CapabilityMap,
-    ConfidenceMap,
-    SelfModel,
-    UncertaintyMap,
+from self_model.orchestrator import (
+    SelfModelState,
+    SelfModelOrchestrator,
+    get_self_model_orchestrator,
 )
 
 __all__ = [
-    "BlindSpotDetector",
-    "CapabilityMap",
-    "ConfidenceMap",
-    "SelfModel",
-    "UncertaintyMap",
+    "SelfModelState",
+    "SelfModelOrchestrator",
+    "get_self_model_orchestrator",
 ]

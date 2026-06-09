@@ -1,0 +1,30 @@
+[package]
+name = "komorebi-voice"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[features]
+default = []
+# Enables real Whisper.cpp STT via `whisper-rs`. Requires CMake + a C++ toolchain.
+stt = ["dep:whisper-rs", "dep:num_cpus"]
+
+[dependencies]
+tokio = { workspace = true, features = ["process", "io-util", "sync", "rt", "macros"] }
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+anyhow.workspace = true
+rodio = { version = "0.22", default-features = false, features = ["playback", "wav"] }
+cpal = "0.17"
+parking_lot = "0.12"
+reqwest = { workspace = true, default-features = false, features = ["rustls-tls", "json", "multipart"] }
+base64 = "0.22"
+
+# Optional: pulled in only when the `stt` feature is enabled.
+whisper-rs = { version = "0.16", optional = true }
+num_cpus = { version = "1.16", optional = true }
+
+# Phase 2 deps (not yet wired):
+# webrtc-vad = "0.4"

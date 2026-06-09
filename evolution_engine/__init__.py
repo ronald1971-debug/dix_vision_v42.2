@@ -1,12 +1,21 @@
-"""OFFLINE-ENGINE-02 Evolution (Phase E0 shell).
+"""
+evolution_engine
+DIX VISION v42.2 — Evolution Engine
 
-Scheduler-driven. Hosts skill graph, intelligence loops, and the patch
-pipeline (GOV-G18). Emits ``UPDATE_PROPOSED`` only.
-
-**Lint rule L1 forbids importing from ``learning_engine``** even though
-both engines share a single offline Python process.
+Production-grade evolution capabilities including strategy evolution,
+parameter tuning, adaptation, selection, and fitness evaluation.
 """
 
-from evolution_engine.engine import EvolutionEngine
+from evolution_engine.orchestrator import (
+    EvolutionOperation,
+    EvolutionState,
+    EvolutionOrchestrator,
+    get_evolution_orchestrator,
+)
 
-__all__ = ["EvolutionEngine"]
+__all__ = [
+    "EvolutionOperation",
+    "EvolutionState",
+    "EvolutionOrchestrator",
+    "get_evolution_orchestrator",
+]

@@ -1,30 +1,20 @@
-"""Reasoning engine."""
-from reasoning_engine.abductive import AbductiveReasoner, AbductiveResult, Hypothesis
-from reasoning_engine.causal import CausalEdge, CausalEngine, CausalNode
-from reasoning_engine.deductive import DeductiveConclusion, DeductiveEngine, Rule
-from reasoning_engine.evidence_graph import (
-    EvidenceGraph,
-    EvidenceNode,
-    Explanation,
-    ExplanationBuilder,
+"""
+reasoning_engine
+DIX VISION v42.2 — Reasoning Engine
+
+Production-grade advanced reasoning capabilities including logical reasoning,
+probabilistic reasoning, causal reasoning, temporal reasoning, spatial reasoning,
+counterfactual reasoning, and meta-reasoning.
+"""
+
+from reasoning_engine.orchestrator import (
+    ReasoningOperation,
+    ReasoningOrchestrator,
+    get_reasoning_orchestrator,
 )
-from reasoning_engine.inductive import InductiveEngine, InductivePattern, ObservedInstance
 
 __all__ = [
-    "AbductiveReasoner",
-    "AbductiveResult",
-    "CausalEdge",
-    "CausalEngine",
-    "CausalNode",
-    "DeductiveConclusion",
-    "DeductiveEngine",
-    "EvidenceGraph",
-    "EvidenceNode",
-    "Explanation",
-    "ExplanationBuilder",
-    "Hypothesis",
-    "InductiveEngine",
-    "InductivePattern",
-    "ObservedInstance",
-    "Rule",
+    "ReasoningOperation",
+    "ReasoningOrchestrator",
+    "get_reasoning_orchestrator",
 ]

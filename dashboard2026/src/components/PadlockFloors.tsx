@@ -1,4 +1,4 @@
-import { Lock, ShieldAlert, ShieldCheck, Timer, KeyRound, Layers, FileLock } from "lucide-react";
+import { Lock, ShieldAlert, ShieldCheck, Timer, KeyRound, Layers } from "lucide-react";
 
 /**
  * Manifest-pinned safety floors (PR-#2 spec §7).

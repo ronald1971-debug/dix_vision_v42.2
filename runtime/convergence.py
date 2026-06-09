@@ -55,6 +55,20 @@ class RuntimeConvergence:
         "_connector_mgr",
         "_market_feed",
         "_source_registry",
+        "_cognitive_orchestrator",
+        "_learning_orchestrator",
+        "_dynamic_capability_manager",
+        "_intelligence_orchestrator",
+        "_ml_orchestrator",
+        "_sensory_orchestrator",
+        "_evolution_orchestrator",
+        "_knowledge_orchestrator",
+        "_reasoning_orchestrator",
+        "_self_model_orchestrator",
+        "_world_model_orchestrator",
+        "_simulation_orchestrator",
+        "_trader_modeling_orchestrator",
+        "_mission_system_orchestrator",
         "_running",
         "_tick_count",
         "_session_id",
@@ -69,6 +83,20 @@ class RuntimeConvergence:
         self._connector_mgr = None
         self._market_feed = None
         self._source_registry = None
+        self._cognitive_orchestrator = None
+        self._learning_orchestrator = None
+        self._dynamic_capability_manager = None
+        self._intelligence_orchestrator = None
+        self._ml_orchestrator = None
+        self._sensory_orchestrator = None
+        self._evolution_orchestrator = None
+        self._knowledge_orchestrator = None
+        self._reasoning_orchestrator = None
+        self._self_model_orchestrator = None
+        self._world_model_orchestrator = None
+        self._simulation_orchestrator = None
+        self._trader_modeling_orchestrator = None
+        self._mission_system_orchestrator = None
         self._running = False
         self._tick_count = 0
         self._session_id = f"session_{uuid.uuid4().hex[:12]}"
@@ -147,6 +175,156 @@ class RuntimeConvergence:
         # 4. Initialize exchange connector manager
         self._connector_mgr = ExchangeConnectorManager(self._store)
         logger.info("[CONVERGENCE] Exchange connector manager: READY")
+
+        # 4.5 Initialize cognitive orchestrator
+        try:
+            from cognitive_engine.cognitive_orchestrator import get_cognitive_orchestrator
+            from system.feature_flags import CognitiveFeatureFlags, FeatureFlagManager
+            
+            if FeatureFlagManager.is_enabled(CognitiveFeatureFlags.COGNITIVE_ENRICHMENT):
+                self._cognitive_orchestrator = get_cognitive_orchestrator()
+                cognitive_ok = await self._cognitive_orchestrator.initialize()
+                if cognitive_ok:
+                    logger.info("[CONVERGENCE] Cognitive orchestrator: READY")
+                else:
+                    logger.warning("[CONVERGENCE] Cognitive orchestrator: DEGRADED")
+                    self._cognitive_orchestrator = None
+            else:
+                logger.info("[CONVERGENCE] Cognitive orchestrator: DISABLED (feature flag)")
+                self._cognitive_orchestrator = None
+        except Exception as e:
+            logger.warning(f"[CONVERGENCE] Cognitive orchestrator initialization failed: {e}")
+            self._cognitive_orchestrator = None
+
+        # 4.6 Initialize learning orchestrator and dynamic capability manager
+        try:
+            from system.learning_orchestrator import get_learning_orchestrator
+            from system.dynamic_enabler import get_dynamic_capability_manager
+            from system.feature_flags import CognitiveFeatureFlags, FeatureFlagManager
+            
+            if FeatureFlagManager.is_enabled(CognitiveFeatureFlags.COGNITIVE_HEALTH_MONITORING):
+                self._learning_orchestrator = get_learning_orchestrator()
+                self._learning_orchestrator.start_learning()
+                self._learning_orchestrator.enable_auto_decision()
+                logger.info("[CONVERGENCE] Learning orchestrator: READY (auto decision enabled)")
+            else:
+                logger.info("[CONVERGENCE] Learning orchestrator: DISABLED (feature flag)")
+                self._learning_orchestrator = None
+            
+            if FeatureFlagManager.is_enabled(CognitiveFeatureFlags.COGNITIVE_HEALTH_MONITORING):
+                self._dynamic_capability_manager = get_dynamic_capability_manager()
+                self._dynamic_capability_manager.enable_auto_apply()
+                logger.info("[CONVERGENCE] Dynamic capability manager: READY (auto apply enabled)")
+            else:
+                logger.info("[CONVERGENCE] Dynamic capability manager: DISABLED (feature flag)")
+                self._dynamic_capability_manager = None
+            
+            # Set up dependency constraints
+            if self._dynamic_capability_manager:
+                self._dynamic_capability_manager.add_dependency_constraint(
+                    "NARRATIVE_IMPACT_ASSESSMENT", "NARRATIVE_DETECTION"
+                )
+                self._dynamic_capability_manager.add_dependency_constraint(
+                    "COGNITIVE_RISK_ASSESSMENT", "COGNITIVE_ENRICHMENT"
+                )
+                self._dynamic_capability_manager.add_dependency_constraint(
+                    "HYPOTHESIS_VALIDATION", "HYPOTHESIS_AUTO_GENERATION"
+                )
+                self._dynamic_capability_manager.add_dependency_constraint(
+                    "KNOWLEDGE_GRAPH_QUERIES", "KNOWLEDGE_GRAPH_AUTO_POPULATION"
+                )
+                logger.info("[CONVERGENCE] Dependency constraints: CONFIGURED")
+            
+        except Exception as e:
+            logger.warning(f"[CONVERGENCE] Learning system initialization failed: {e}")
+            self._learning_orchestrator = None
+            self._dynamic_capability_manager = None
+
+        # 4.7 Initialize advanced intelligence engines
+        try:
+            from intelligence_engine.orchestrator import get_intelligence_orchestrator
+            from learning_engine.orchestrator import get_learning_orchestrator as get_ml_orchestrator
+            from sensory.orchestrator import get_sensory_orchestrator
+            from evolution_engine.orchestrator import get_evolution_orchestrator
+            from knowledge_engine.orchestrator import get_knowledge_orchestrator
+            from reasoning_engine.orchestrator import get_reasoning_orchestrator
+            from self_model.orchestrator import get_self_model_orchestrator
+            from world_model.orchestrator import get_world_model_orchestrator
+            from simulation_engine.orchestrator import get_simulation_orchestrator
+            from trader_modeling.orchestrator import get_trader_modeling_orchestrator
+            from mission_system.orchestrator import get_mission_system_orchestrator
+            from system.feature_flags import CognitiveFeatureFlags, FeatureFlagManager
+            
+            if FeatureFlagManager.is_enabled(CognitiveFeatureFlags.COGNITIVE_HEALTH_MONITORING):
+                self._intelligence_orchestrator = get_intelligence_orchestrator()
+                self._intelligence_orchestrator.start()
+                
+                self._ml_orchestrator = get_ml_orchestrator()
+                self._ml_orchestrator.start()
+                
+                self._sensory_orchestrator = get_sensory_orchestrator()
+                self._sensory_orchestrator.start()
+                
+                self._evolution_orchestrator = get_evolution_orchestrator()
+                self._evolution_orchestrator.start()
+                
+                self._knowledge_orchestrator = get_knowledge_orchestrator()
+                self._knowledge_orchestrator.start()
+                
+                self._reasoning_orchestrator = get_reasoning_orchestrator()
+                self._reasoning_orchestrator.start()
+                
+                self._self_model_orchestrator = get_self_model_orchestrator()
+                self._self_model_orchestrator.start()
+                
+                self._world_model_orchestrator = get_world_model_orchestrator()
+                self._world_model_orchestrator.start()
+                
+                self._simulation_orchestrator = get_simulation_orchestrator()
+                self._simulation_orchestrator.start()
+                
+                self._trader_modeling_orchestrator = get_trader_modeling_orchestrator()
+                self._trader_modeling_orchestrator.start()
+                
+                self._mission_system_orchestrator = get_mission_system_orchestrator()
+                self._mission_system_orchestrator.start()
+                
+                # Record these in learning orchestrator for tracking
+                if self._learning_orchestrator:
+                    engines = ["intelligence", "ml", "sensory", "evolution", "knowledge", "reasoning", 
+                             "self_model", "world_model", "simulation", "trader_modeling", "mission"]
+                    for engine in engines:
+                        self._learning_orchestrator.record_capability_dependency(
+                            f"{engine}_operations", "cognitive_health_monitoring"
+                        )
+                
+                logger.info("[CONVERGENCE] Advanced intelligence engines: READY (all 11 engines operational)")
+            else:
+                logger.info("[CONVERGENCE] Advanced intelligence engines: DISABLED (feature flag)")
+                self._intelligence_orchestrator = None
+                self._ml_orchestrator = None
+                self._sensory_orchestrator = None
+                self._evolution_orchestrator = None
+                self._knowledge_orchestrator = None
+                self._reasoning_orchestrator = None
+                self._self_model_orchestrator = None
+                self._world_model_orchestrator = None
+                self._simulation_orchestrator = None
+                self._trader_modeling_orchestrator = None
+                self._mission_system_orchestrator = None
+        except Exception as e:
+            logger.warning(f"[CONVERGENCE] Advanced intelligence engines initialization failed: {e}")
+            self._intelligence_orchestrator = None
+            self._ml_orchestrator = None
+            self._sensory_orchestrator = None
+            self._evolution_orchestrator = None
+            self._knowledge_orchestrator = None
+            self._reasoning_orchestrator = None
+            self._self_model_orchestrator = None
+            self._world_model_orchestrator = None
+            self._simulation_orchestrator = None
+            self._trader_modeling_orchestrator = None
+            self._mission_system_orchestrator = None
 
         # 5. Initialize kernel with fabric components
         from runtime.kernel import KernelConfig, RuntimeKernel

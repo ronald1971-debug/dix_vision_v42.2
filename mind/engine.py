@@ -59,6 +59,18 @@ class IndiraEngine:
         self._metrics = get_metrics()
         self._on_execution = on_execution
         self._portfolio_usd = 100_000.0  # Updated by execution feedback
+        
+        # Cognitive orchestrator integration
+        self._cognitive_orchestrator = None
+        try:
+            from cognitive_engine.cognitive_orchestrator import get_cognitive_orchestrator
+            from system.feature_flags import CognitiveFeatureFlags, FeatureFlagManager
+            
+            if FeatureFlagManager.is_enabled(CognitiveFeatureFlags.COGNITIVE_RISK_ASSESSMENT):
+                self._cognitive_orchestrator = get_cognitive_orchestrator()
+        except Exception:
+            # Cognitive integration optional - fail gracefully
+            pass
 
     def process_tick(self, market_data: dict[str, Any]) -> ExecutionEvent:
         """
@@ -105,6 +117,25 @@ class IndiraEngine:
                     self._portfolio_usd * constraints.circuit_breaker_loss_pct,
                     constraints.max_order_size_usd,
                 )
+                
+                # Cognitive risk assessment (if available)
+                if self._cognitive_orchestrator:
+                    try:
+                        cognitive_enrichment = self._cognitive_orchestrator.enrich_market_data(market_data)
+                        
+                        # Apply cognitive risk adjustments if in active mode
+                        cognitive_risk = cognitive_enrichment.risk_assessment or {}
+                        risk_level = cognitive_risk.get("level", "LOW")
+                        
+                        if risk_level == "HIGH":
+                            size_usd *= 0.7  # Reduce position size for high cognitive risk
+                        elif risk_level == "EXTREME":
+                            size_usd *= 0.5  # Significantly reduce for extreme risk
+                            
+                    except Exception:
+                        # Cognitive assessment fails - proceed without it
+                        pass
+                
                 ok, reason = constraints.allows_trade(size_usd, self._portfolio_usd)
                 ev = self._make_event(
                     "TRADE_EXECUTION",

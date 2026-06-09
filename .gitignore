@@ -78,7 +78,7 @@ rust/target/
 launcher.log
 
 # Total validation report artefacts (regenerated in CI)
-analysis/
+/analysis/
 
 # Wave-02 React/Vite operator dashboard build artefacts
 dashboard2026/node_modules/

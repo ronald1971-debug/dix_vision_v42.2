@@ -1,0 +1,284 @@
+name: Release build
+
+# Builds downloadable Komorebi installers for Windows and Linux.
+#
+# Triggers:
+#   * push of a tag like v0.1.0  -> draft GitHub release + latest.json
+#   * manual workflow_dispatch   -> per-run artifacts
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  CARGO_INCREMENTAL: "0"
+  CARGO_NET_RETRY: "10"
+
+jobs:
+  build:
+    name: Build (${{ matrix.platform.name }})
+    runs-on: ${{ matrix.platform.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - name: windows
+            os: windows-latest
+            rust-target: x86_64-pc-windows-msvc
+            artifact: komorebi-windows
+            bundle-dir: src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis
+          - name: linux
+            os: ubuntu-24.04
+            rust-target: x86_64-unknown-linux-gnu
+            artifact: komorebi-linux
+            bundle-dir: src-tauri/target/x86_64-unknown-linux-gnu/release/bundle
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform.rust-target }}
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+          key: release-${{ matrix.platform.name }}
+          cache-all-crates: true
+
+      - name: Install LLVM (Windows)
+        if: matrix.platform.name == 'windows'
+        run: |
+          choco install llvm --yes --no-progress
+          "LIBCLANG_PATH=C:\Program Files\LLVM\bin" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Install Linux system deps
+        if: matrix.platform.name == 'linux'
+        run: |
+          sudo apt-get update
+          # libfuse2t64 is required by linuxdeploy AppImages on ubuntu-24.04.
+          # appstream + desktop-file-utils + zsync are needed by
+          # linuxdeploy-plugin-appimage and linuxdeploy-plugin-gtk.
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            librsvg2-dev \
+            libssl-dev \
+            libgtk-3-dev \
+            libayatana-appindicator3-dev \
+            patchelf \
+            cmake \
+            clang \
+            libclang-dev \
+            libasound2-dev \
+            libpipewire-0.3-dev \
+            libspa-0.2-dev \
+            libgbm-dev \
+            libxdo-dev \
+            libfuse2t64 \
+            fuse \
+            desktop-file-utils \
+            appstream \
+            zsync \
+            file \
+            pkg-config
+
+      - name: Install frontend deps
+        run: pnpm install --frozen-lockfile
+
+      - name: Fetch bundled Piper binary
+        run: pnpm fetch:piper -- --target=${{ matrix.platform.rust-target }}
+
+      - name: Verify Piper binary
+        shell: bash
+        run: |
+          set -eu
+          dir="src-tauri/binaries/piper"
+          if [ ! -d "$dir" ]; then
+            echo "::error::Missing $dir after fetch:piper"
+            exit 1
+          fi
+          count=$(find "$dir" -mindepth 1 | wc -l)
+          if [ "$count" -lt 1 ]; then
+            echo "::error::Empty $dir after fetch:piper"
+            exit 1
+          fi
+          echo "Piper contents ($count entries, first 20):"
+          find "$dir" -maxdepth 3 -print > /tmp/piper-list.txt
+          head -n 20 /tmp/piper-list.txt
+
+      - name: Build Tauri bundle
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          # whisper-rs-sys and llama-cpp-sys-2 both statically vendor ggml/gguf.cpp.
+          # On Linux (ELF) rust-lld errors on duplicate symbols; MSVC dedupes via COMDAT.
+          # The duplicated objects come from the same upstream sources, so allowing
+          # multiple definitions is safe and lets the linker pick the first.
+          CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUSTFLAGS: ${{ matrix.platform.name == 'linux' && '-C link-arg=-Wl,--allow-multiple-definition' || '' }}
+          # Tell AppImage launchers (linuxdeploy + plugins) to self-extract
+          # instead of mounting via FUSE, which is unreliable on ubuntu-24.04.
+          APPIMAGE_EXTRACT_AND_RUN: "1"
+          # Suppress linuxdeploy's noisy "Could not find copyright files ...
+          # using dpkg-query" warnings. They are emitted because linuxdeploy
+          # queries dpkg with paths inside AppDir, which dpkg cannot resolve.
+          DISABLE_COPYRIGHT_FILES_DEPLOYMENT: "1"
+          # linuxdeploy resolves transitive ELF deps via ld.so search path.
+          # The Piper binary `espeak-ng` links against `libespeak-ng.so.1` that
+          # ships next to it under src-tauri/binaries/piper/, so make linuxdeploy
+          # see it. Empty on Windows; only set on Linux runs.
+          LD_LIBRARY_PATH: ${{ matrix.platform.name == 'linux' && format('{0}/src-tauri/binaries/piper:{0}/src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/Komorebi.AppDir/usr/lib/Komorebi/binaries/piper', github.workspace) || '' }}
+        run: pnpm tauri build --target ${{ matrix.platform.rust-target }} -- --features full
+
+      - name: Verify Windows bundle output
+        if: matrix.platform.name == 'windows'
+        shell: pwsh
+        run: |
+          $dir = "${{ matrix.platform.bundle-dir }}"
+          if (-not (Test-Path $dir)) {
+            throw "NSIS bundle directory not found: $dir."
+          }
+          $exe = Get-ChildItem $dir -Filter '*-setup.exe' -ErrorAction SilentlyContinue
+          if (-not $exe) { throw "No *-setup.exe found in $dir." }
+          $sig = Get-ChildItem $dir -Filter '*-setup.exe.sig' -ErrorAction SilentlyContinue
+          if (-not $sig) {
+            throw "No *-setup.exe.sig found. TAURI_SIGNING_PRIVATE_KEY secret is likely missing or invalid."
+          }
+          Get-ChildItem $dir | ForEach-Object { Write-Host "  $($_.Name) ($($_.Length) bytes)" }
+
+      - name: Verify Linux bundle output
+        if: matrix.platform.name == 'linux'
+        shell: bash
+        run: |
+          dir="${{ matrix.platform.bundle-dir }}"
+          if [ ! -d "$dir" ]; then
+            echo "::error::Bundle directory not found: $dir"
+            exit 1
+          fi
+          appimage=$(find "$dir/appimage" -name '*.AppImage' 2>/dev/null | head -n1 || true)
+          if [ -z "$appimage" ]; then
+            echo "::error::No *.AppImage found under $dir/appimage"
+            ls -R "$dir" || true
+            exit 1
+          fi
+          if [ ! -f "${appimage}.sig" ]; then
+            echo "::error::Missing ${appimage}.sig (signing key likely absent)."
+            exit 1
+          fi
+          echo "Linux bundle:"
+          ls -la "$dir/appimage" "$dir/deb" 2>/dev/null || true
+
+      - name: Stage installer (Windows)
+        if: matrix.platform.name == 'windows'
+        shell: pwsh
+        run: |
+          $src = "${{ matrix.platform.bundle-dir }}"
+          $dst = "staging/${{ matrix.platform.artifact }}"
+          New-Item -ItemType Directory -Path $dst -Force | Out-Null
+          Copy-Item "$src/*" $dst -Force
+          Get-ChildItem $dst | ForEach-Object { Write-Host "  $($_.Name) ($($_.Length) bytes)" }
+
+      - name: Stage installer (Linux)
+        if: matrix.platform.name == 'linux'
+        shell: bash
+        run: |
+          src="${{ matrix.platform.bundle-dir }}"
+          dst="staging/${{ matrix.platform.artifact }}"
+          mkdir -p "$dst"
+          cp "$src"/appimage/*.AppImage "$dst/" 2>/dev/null || true
+          cp "$src"/appimage/*.AppImage.sig "$dst/" 2>/dev/null || true
+          cp "$src"/deb/*.deb "$dst/" 2>/dev/null || true
+          ls -la "$dst"
+
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ matrix.platform.artifact }}
+          path: staging/${{ matrix.platform.artifact }}/*
+          if-no-files-found: error
+
+      - name: Attach to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v3
+        with:
+          draft: true
+          files: staging/${{ matrix.platform.artifact }}/*
+
+  updater-manifest:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Download Windows installer
+        uses: actions/download-artifact@v8
+        with:
+          name: komorebi-windows
+          path: bundles/komorebi-windows
+
+      - name: Download Linux installer
+        uses: actions/download-artifact@v8
+        with:
+          name: komorebi-linux
+          path: bundles/komorebi-linux
+
+      - name: List downloaded artifacts
+        run: |
+          echo "== bundles/ tree =="
+          find bundles -maxdepth 4 -print || true
+
+      - name: Build latest.json
+        env:
+          TAG: ${{ github.ref_name }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          win=$(find bundles/komorebi-windows -name '*-setup.exe' | head -n1 || true)
+          lin=$(find bundles/komorebi-linux -name '*.AppImage' | head -n1 || true)
+          version="${TAG#v}"
+          base="https://github.com/${REPO}/releases/download/${TAG}"
+          sig() { [ -n "${1:-}" ] && [ -f "${1}.sig" ] && cat "${1}.sig" || echo ""; }
+          url() { [ -n "${1:-}" ] && echo "${base}/$(basename "$1")" || echo ""; }
+
+          if [ -z "$win" ] || [ ! -f "${win}.sig" ]; then
+            echo "::error::Missing NSIS installer or .sig (win='$win')."
+            ls -R bundles/komorebi-windows || true
+            exit 1
+          fi
+          if [ -z "$lin" ] || [ ! -f "${lin}.sig" ]; then
+            echo "::error::Missing AppImage or .sig (lin='$lin')."
+            ls -R bundles/komorebi-linux || true
+            exit 1
+          fi
+
+          cat > latest.json <<EOF
+          {
+            "version": "${version}",
+            "notes": "See release notes on GitHub.",
+            "pub_date": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "platforms": {
+              "windows-x86_64": { "signature": "$(sig "$win")", "url": "$(url "$win")" },
+              "linux-x86_64":   { "signature": "$(sig "$lin")", "url": "$(url "$lin")" }
+            }
+          }
+          EOF
+          cat latest.json
+
+      - name: Attach latest.json to release
+        uses: softprops/action-gh-release@v3
+        with:
+          draft: true
+          files: latest.json

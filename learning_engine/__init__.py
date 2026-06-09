@@ -1,13 +1,21 @@
-"""OFFLINE-ENGINE-01 Learning (Phase E0 shell).
+"""
+learning_engine
+DIX VISION v42.2 — Learning Engine
 
-Scheduler-driven. Reads ledger via ``state.ledger.reader``. Emits
-``UPDATE_PROPOSED`` (sub-type of ``SystemEvent``) only.
-
-**Lint rule L1 forbids importing from ``evolution_engine``** even though
-both engines share a single offline Python process. Sharing a process
-boundary does NOT mean sharing a domain boundary.
+Production-grade machine learning capabilities including supervised learning,
+unsupervised learning, reinforcement learning, and adaptive learning.
 """
 
-from learning_engine.engine import LearningEngine
+from learning_engine.orchestrator import (
+    LearningOperation,
+    ModelState,
+    LearningOrchestrator,
+    get_learning_orchestrator,
+)
 
-__all__ = ["LearningEngine"]
+__all__ = [
+    "LearningOperation",
+    "ModelState",
+    "LearningOrchestrator",
+    "get_learning_orchestrator",
+]

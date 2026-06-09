@@ -200,6 +200,22 @@ class IngestionBus:
         self._queue: asyncio.Queue[IngestedTick] = asyncio.Queue(maxsize=queue_size)
         self._metrics = IngestionMetrics()
         self._running = False
+        
+        # Cognitive enrichment integration
+        self._cognitive_orchestrator = None
+        self._init_cognitive_integration()
+
+    def _init_cognitive_integration(self) -> None:
+        """Initialize cognitive enrichment integration."""
+        try:
+            from cognitive_engine.cognitive_orchestrator import get_cognitive_orchestrator
+            from system.feature_flags import CognitiveFeatureFlags, FeatureFlagManager
+            
+            if FeatureFlagManager.is_enabled(CognitiveFeatureFlags.COGNITIVE_ENRICHMENT):
+                self._cognitive_orchestrator = get_cognitive_orchestrator()
+        except Exception:
+            # Cognitive enrichment optional - fail gracefully
+            pass
 
     @property
     def metrics(self) -> IngestionMetrics:
@@ -211,7 +227,47 @@ class IngestionBus:
         Returns False if queue is full (backpressure).
         """
         try:
-            self._queue.put_nowait(tick)
+            # Apply cognitive enrichment if enabled
+            enriched_tick = tick
+            if self._cognitive_orchestrator:
+                try:
+                    # Convert tick to market data format for cognitive enrichment
+                    market_data = {
+                        "symbol": tick.symbol,
+                        "price": tick.price,
+                        "volume": tick.volume,
+                        "source": str(tick.source),
+                        "timestamp_ns": tick.ts_ns,
+                        **tick.raw_payload
+                    }
+                    
+                    # Get cognitive enrichment
+                    enrichment = self._cognitive_orchestrator.enrich_market_data(market_data)
+                    
+                    # Add cognitive context to tick
+                    if enrichment and enrichment.processing_time_ms < 10.0:  # Only use if fast enough
+                        enriched_payload = dict(tick.raw_payload)
+                        enriched_payload.update({
+                            "cognitive_enrichment": {
+                                "narratives": [n.name for n in enrichment.narratives] if enrichment.narratives else [],
+                                "knowledge_context": enrichment.knowledge_context,
+                                "risk_assessment": enrichment.risk_assessment,
+                                "enrichment_time_ms": enrichment.processing_time_ms
+                            }
+                        })
+                        enriched_tick = IngestedTick(
+                            source=tick.source,
+                            symbol=tick.symbol,
+                            price=tick.price,
+                            volume=tick.volume,
+                            ts_ns=tick.ts_ns,
+                            raw_payload=enriched_payload
+                        )
+                except Exception:
+                    # Cognitive enrichment fails - proceed without it
+                    pass
+            
+            self._queue.put_nowait(enriched_tick)
             self._metrics = IngestionMetrics(
                 ticks_received=self._metrics.ticks_received + 1,
                 ticks_dropped=self._metrics.ticks_dropped,

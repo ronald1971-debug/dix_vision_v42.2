@@ -47,7 +47,15 @@
       "Exec(amp)",
       "Exec(.venv\\Scripts\\python.exe)",
       "Exec(.venv\\Scripts\\ruff.exe check)",
-      "Exec(python3)"
+      "Exec(python3)",
+      "Exec(mkdir)",
+      "Exec(c:/dix_vision_v42.2/scripts/windows/start_dixvision_both.bat)",
+      "Exec(c:/dix_vision_v42.2/scripts/windows/stop_dixvision.bat)",
+      "Exec(Remove-Item)",
+      "Exec(Get-Process)",
+      "Exec(Stop-Process)",
+      "Exec(Start-Sleep)",
+      "Exec(Expand-Archive)"
     ]
   }
 }

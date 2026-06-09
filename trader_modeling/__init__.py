@@ -1,40 +1,18 @@
-"""trader_modeling — Behavioral trader intelligence pipeline.
+"""
+trader_modeling
+DIX VISION v42.2 — Trader Modeling
 
-Three-stage pipeline:
-  ProfileExtractor → BehavioralClassifier → ArchetypePublisher
-
-Orchestrated by TraderModelingRuntime.
+Production-grade trader modeling capabilities including trader profiling,
+behavior analysis, strategy detection, performance tracking, classification,
+and prediction.
 """
 
-from trader_modeling.archetype_publisher import ArchetypePublisher, get_archetype_publisher
-from trader_modeling.behavioral_classifier import (
-    ALL_ARCHETYPES,
-    BehavioralClassifier,
-    ClassificationResult,
-    get_behavioral_classifier,
-)
-from trader_modeling.profile_extractor import (
-    ProfileExtractor,
-    SignalBatch,
-    TraderSignal,
-    get_profile_extractor,
-)
-from trader_modeling.trader_modeling_runtime import (
-    TraderModelingRuntime,
-    get_trader_modeling_runtime,
+from trader_modeling.orchestrator import (
+    TraderModelingOrchestrator,
+    get_trader_modeling_orchestrator,
 )
 
 __all__ = [
-    "ALL_ARCHETYPES",
-    "ArchetypePublisher",
-    "BehavioralClassifier",
-    "ClassificationResult",
-    "ProfileExtractor",
-    "SignalBatch",
-    "TraderModelingRuntime",
-    "TraderSignal",
-    "get_archetype_publisher",
-    "get_behavioral_classifier",
-    "get_profile_extractor",
-    "get_trader_modeling_runtime",
+    "TraderModelingOrchestrator",
+    "get_trader_modeling_orchestrator",
 ]
