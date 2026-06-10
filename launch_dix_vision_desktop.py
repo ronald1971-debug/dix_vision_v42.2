@@ -13,7 +13,12 @@ import logging
 from pathlib import Path
 
 # Add desktop_agent to path
-sys.path.insert(0, str(Path(__file__).parent))
+project_root = str(Path(__file__).parent)
+sys.path.insert(0, project_root)
+os.chdir(project_root)
+
+# Set Python path environment variable
+os.environ['PYTHONPATH'] = project_root
 
 from desktop_agent.runtime import AgentRuntime
 from desktop_agent.environment import EnvironmentManager, EnvironmentRegistry
@@ -21,8 +26,21 @@ from desktop_agent.browser import BrowserCognitiveBridge
 from desktop_agent.agents import INDIRAAgent, DYONAgent
 from desktop_agent.memory import INDIRAMemory, DYONMemory
 from desktop_agent.skills import SkillRegistry
-from desktop_agent.hud import INDIRAHUD, DYONHUD
-from desktop_agent.telemetry import TelemetrySystem
+
+# Optional imports with graceful handling
+try:
+    from desktop_agent.hud import INDIRAHUD, DYONHUD
+    HUD_AVAILABLE = True
+except ImportError as e:
+    HUD_AVAILABLE = False
+    print(f"[WARNING] HUD components not available: {e}")
+
+try:
+    from desktop_agent.telemetry import TelemetrySystem
+    TELEMETRY_AVAILABLE = True
+except ImportError as e:
+    TELEMETRY_AVAILABLE = False
+    print(f"[WARNING] Telemetry system not available: {e}")
 
 # Configure logging
 logging.basicConfig(
@@ -88,14 +106,21 @@ class DesktopAgentOSLauncher:
         skill_registry = SkillRegistry(self.runtime)
         
         # Create HUD systems
-        indira_hud = INDIRAHUD()
-        dyon_hud = DYONHUD()
-        await indira_hud.initialize()
-        await dyon_hud.initialize()
-        
+        if HUD_AVAILABLE:
+            indira_hud = INDIRAHUD()
+            dyon_hud = DYONHUD()
+            await indira_hud.initialize()
+            await dyon_hud.initialize()
+        else:
+            indira_hud = None
+            dyon_hud = None
+            
         # Create telemetry system
-        self.telemetry = TelemetrySystem()
-        await self.telemetry.initialize()
+        if TELEMETRY_AVAILABLE:
+            self.telemetry = TelemetrySystem()
+            await self.telemetry.initialize()
+        else:
+            self.telemetry = None
         
         logger.info("Backend components initialized successfully")
         
@@ -109,18 +134,18 @@ class DesktopAgentOSLauncher:
         """Launch the Tauri desktop application."""
         logger.info("Launching DIX VISION Desktop Application...")
         
-        komorebi_path = Path(__file__).parent / "komorebi_desktop"
+        dix_path = Path(__file__).parent / "dix_desktop"
         
-        if not komorebi_path.exists():
-            logger.error(f"Desktop app path not found: {komorebi_path}")
+        if not dix_path.exists():
+            logger.error(f"Desktop app path not found: {dix_path}")
             return False
             
         try:
             # Change to the desktop app directory
-            os.chdir(komorebi_path)
+            os.chdir(dix_path)
             
             # Check if node_modules exists, if not install dependencies
-            if not (komorebi_path / "node_modules").exists():
+            if not (dix_path / "node_modules").exists():
                 logger.info("Installing dependencies...")
                 subprocess.run(["npm", "install"], check=True)
                 

@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from ..environment.interface import EnvironmentInterface, Element, StateSnapshot
+from .automation import BrowserConfig, BrowserType, create_browser_automation
 
 
 @dataclass
@@ -51,6 +52,20 @@ class BrowserCognitiveBridge(EnvironmentInterface):
         self.headless = self.config.get("headless", True)
         self.timeout = self.config.get("timeout", 30)
         self.user_agent = self.config.get("user_agent", "DesktopAgentOS/42.2")
+        self.use_playwright = self.config.get("use_playwright", False)
+        
+        # Browser automation
+        browser_type = BrowserType(self.config.get("browser_type", "chrome"))
+        self.browser_config = BrowserConfig(
+            browser_type=browser_type,
+            headless=self.headless,
+            timeout=self.timeout,
+            user_agent=self.user_agent,
+        )
+        self.automation = create_browser_automation(
+            self.browser_config,
+            self.use_playwright,
+        )
         
         self.tabs: Dict[str, TabInfo] = {}
         self.cookies: Dict[str, Cookie] = {}
@@ -67,12 +82,17 @@ class BrowserCognitiveBridge(EnvironmentInterface):
             True if successful, False otherwise
         """
         try:
-            # Initialize browser session
-            self.session_id = f"browser_{datetime.utcnow().timestamp()}"
-            self.is_connected = True
-            
-            self.logger.info(f"Browser connected: {self.session_id}")
-            return True
+            # Initialize browser automation
+            if await self.automation.initialize():
+                # Initialize browser session
+                self.session_id = f"browser_{datetime.utcnow().timestamp()}"
+                self.is_connected = True
+                
+                self.logger.info(f"Browser connected: {self.session_id}")
+                return True
+            else:
+                self.logger.error("Failed to initialize browser automation")
+                return False
             
         except Exception as e:
             self.logger.error(f"Browser connection error: {e}")

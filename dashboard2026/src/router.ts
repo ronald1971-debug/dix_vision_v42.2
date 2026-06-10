@@ -30,6 +30,7 @@ export type SystemRoute =
   | "chat"
   | "indira"
   | "dyon"
+  | "agent-ops"
   | "observatory"
   | "testing"
   | "onchain"
@@ -75,6 +76,7 @@ const SYSTEM_ROUTES: readonly SystemRoute[] = [
   "chat",
   "indira",
   "dyon",
+  "agent-ops",
   "observatory",
   "testing",
   "onchain",

@@ -55,7 +55,11 @@
       "Exec(Get-Process)",
       "Exec(Stop-Process)",
       "Exec(Start-Sleep)",
-      "Exec(Expand-Archive)"
+      "Exec(Expand-Archive)",
+      "Exec(cmd)",
+      "Exec(Select-String)",
+      "Exec(Rename-Item)",
+      "Exec(pip show)"
     ]
   }
 }

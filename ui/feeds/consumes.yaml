@@ -25,3 +25,9 @@ inputs:
     required: false
   - source_id: SRC-MACRO-BLS-001
     required: false
+  - source_id: SRC-MARKET-RAYDIUM-001
+    required: false
+  - source_id: SRC-ONCHAIN-SOLANA-001
+    required: false
+  - source_id: SRC-ALT-PUMPFUN-001
+    required: false

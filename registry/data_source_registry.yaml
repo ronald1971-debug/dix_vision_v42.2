@@ -61,6 +61,9 @@ sources:
     auth: none
     enabled: false
     critical: false
+    notes: >-
+      Execution adapter exists (execution/adapters/coinbase.py).
+      UI feed implementation pending - enable when UI feed layer is complete.
   - id: SRC-MARKET-KRAKEN-001
     name: "Kraken WS+REST"
     category: market
@@ -70,6 +73,9 @@ sources:
     auth: none
     enabled: false
     critical: false
+    notes: >-
+      Execution adapter exists (execution/adapters/kraken.py).
+      UI feed implementation pending - enable when UI feed layer is complete.
 
   # -----------------------------------------------------------------
   # Market — decentralised exchanges (DEX) + derivatives
@@ -92,6 +98,42 @@ sources:
     auth: none
     enabled: false
     critical: false
+  - id: SRC-MARKET-RAYDIUM-001
+    name: "Raydium pools HTTP"
+    category: market
+    provider: raydium
+    endpoint: "https://api.raydium.io/v2/sdk/liquidity/mainnet.json"
+    schema: "core.contracts.market.MarketTick"
+    auth: none
+    enabled: true
+    critical: false
+    notes: >-
+      Raydium pool data consumed by ui.feeds.raydium_pools
+      (see ui/feeds/consumes.yaml). Provides Solana DEX liquidity data.
+  - id: SRC-ONCHAIN-SOLANA-001
+    name: "Solana launch WS"
+    category: onchain
+    provider: solana
+    endpoint: "wss://api.mainnet-beta.solana.com"
+    schema: "sensory.onchain.contracts.OnChainMetric"
+    auth: none
+    enabled: true
+    critical: false
+    notes: >-
+      Solana launch monitoring consumed by ui.feeds.solana_launch_ws
+      (see ui/feeds/consumes.yaml). Real-time on-chain event tracking.
+  - id: SRC-ALT-PUMPFUN-001
+    name: "PumpFun WS"
+    category: alt
+    provider: pumpfun
+    endpoint: "wss://api.pump.fun"
+    schema: "sensory.alt.contracts.PredictionMarket"
+    auth: none
+    enabled: true
+    critical: false
+    notes: >-
+      PumpFun meme coin tracking consumed by ui.feeds.pumpfun_ws
+      (see ui/feeds/consumes.yaml). Alternative market data source.
 
   # -----------------------------------------------------------------
   # News

@@ -9,10 +9,25 @@ and other cognitive environments through governed and observable interfaces.
 __version__ = "42.2.0"
 __author__ = "DIXVISION"
 
-from .runtime import AgentRuntime
-from .agents import INDIRAAgent, DYONAgent
-from .browser import BrowserCognitiveBridge
-from .desktop import DesktopCognitiveBridge
+# Lazy imports to avoid circular dependencies
+def __getattr__(name):
+    if name == "AgentRuntime":
+        from .runtime import AgentRuntime
+        return AgentRuntime
+    elif name == "INDIRAAgent":
+        from .agents import INDIRAAgent
+        return INDIRAAgent
+    elif name == "DYONAgent":
+        from .agents import DYONAgent
+        return DYONAgent
+    elif name == "BrowserCognitiveBridge":
+        from .browser import BrowserCognitiveBridge
+        return BrowserCognitiveBridge
+    elif name == "DesktopCognitiveBridge":
+        from .desktop import DesktopCognitiveBridge
+        return DesktopCognitiveBridge
+    else:
+        raise AttributeError(f"module {__name__} has no attribute {name}")
 
 __all__ = [
     "AgentRuntime",

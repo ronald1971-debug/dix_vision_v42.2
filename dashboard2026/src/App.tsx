@@ -45,6 +45,8 @@ import { TestingPage } from "@/pages/TestingPage";
 import { TradingPage } from "@/pages/TradingPage";
 import { SimulationPage } from "@/pages/SimulationPage";
 import { ObservatoryPage } from "@/pages/ObservatoryPage";
+import { AgentOpsPage } from "@/pages/AgentOpsPage";
+import { AgentOpsProvider } from "@/context/AgentOpsContext";
 import { DexPage } from "@/pages/asset/DexPage";
 import { ForexPage } from "@/pages/asset/ForexPage";
 import { NftPage } from "@/pages/asset/NftPage";
@@ -80,6 +82,8 @@ function renderRoute(route: Route) {
       return <IndiraLearningPage />;
     case "dyon":
       return <DyonLearningPage />;
+    case "agent-ops":
+      return <AgentOpsPage />;
     case "observatory":
       return <ObservatoryPage />;
     case "testing":
@@ -191,63 +195,65 @@ export function App() {
   }
 
   return (
-    <div className="flex h-full flex-col">
-      <MockDataBanner />
-      <header
-        data-layout-glow
-        className="flex flex-col gap-2 border-b border-border bg-surface px-4 py-2"
-      >
-        <div className="flex items-center gap-3">
-          <span className="text-base font-semibold tracking-tight">
-            DIX VISION
-          </span>
-          <span className="font-mono text-[10px] uppercase tracking-widest text-slate-500">
-            /{route}
-          </span>
-          <div className="ml-4 flex-1 overflow-x-auto">
-            <ModeRibbon />
+    <AgentOpsProvider>
+      <div className="flex h-full flex-col">
+        <MockDataBanner />
+        <header
+          data-layout-glow
+          className="flex flex-col gap-2 border-b border-border bg-surface px-4 py-2"
+        >
+          <div className="flex items-center gap-3">
+            <span className="text-base font-semibold tracking-tight">
+              DIX VISION
+            </span>
+            <span className="font-mono text-[10px] uppercase tracking-widest text-slate-500">
+              /{route}
+            </span>
+            <div className="ml-4 flex-1 overflow-x-auto">
+              <ModeRibbon />
+            </div>
+            <AutonomyRibbon />
+            <KillSwitchPill />
+            <DomainIndicator />
+            <TradingStatusPill />
+            <LiveStatusPill />
+            <PreferencesBar />
           </div>
-          <AutonomyRibbon />
-          <KillSwitchPill />
-          <DomainIndicator />
-          <TradingStatusPill />
-          <LiveStatusPill />
-          <PreferencesBar />
+          <div className="flex flex-wrap items-center gap-3">
+            <PromoteChain />
+            <div className="flex-1" />
+            <PadlockFloors />
+          </div>
+        </header>
+        <div className="flex flex-1 overflow-hidden">
+          <Sidebar
+            active={route}
+            collapsed={sidebarCollapsed}
+            onToggle={() => setSidebarCollapsed((c) => !c)}
+          />
+          <main className="flex-1 overflow-auto px-4 py-3">
+            {renderRoute(route)}
+          </main>
         </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <PromoteChain />
-          <div className="flex-1" />
-          <PadlockFloors />
-        </div>
-      </header>
-      <div className="flex flex-1 overflow-hidden">
-        <Sidebar
-          active={route}
-          collapsed={sidebarCollapsed}
-          onToggle={() => setSidebarCollapsed((c) => !c)}
+        <CommandPalette
+          open={paletteOpen}
+          onClose={() => setPaletteOpen(false)}
+          onNavigate={(r) => {
+            window.location.hash = `#/${r}`;
+          }}
+          extraActions={[
+            {
+              id: "sys:toggle-sidebar",
+              group: "System",
+              label: sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar",
+              hint: "\u2318B",
+              run: () => setSidebarCollapsed((c) => !c),
+            },
+          ]}
         />
-        <main className="flex-1 overflow-auto px-4 py-3">
-          {renderRoute(route)}
-        </main>
+        <WidgetTogglePanel />
+        <ToastHost />
       </div>
-      <CommandPalette
-        open={paletteOpen}
-        onClose={() => setPaletteOpen(false)}
-        onNavigate={(r) => {
-          window.location.hash = `#/${r}`;
-        }}
-        extraActions={[
-          {
-            id: "sys:toggle-sidebar",
-            group: "System",
-            label: sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar",
-            hint: "\u2318B",
-            run: () => setSidebarCollapsed((c) => !c),
-          },
-        ]}
-      />
-      <WidgetTogglePanel />
-      <ToastHost />
-    </div>
+    </AgentOpsProvider>
   );
 }

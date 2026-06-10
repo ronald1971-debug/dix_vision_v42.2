@@ -2,12 +2,21 @@
 Cognitive Environment Layer - Universal environment abstraction
 """
 
-from .interface import EnvironmentInterface
-from .registry import EnvironmentRegistry
-from .manager import EnvironmentManager
-
 __all__ = [
     "EnvironmentInterface",
-    "EnvironmentRegistry",
+    "EnvironmentRegistry", 
     "EnvironmentManager",
 ]
+
+def __getattr__(name):
+    if name == "EnvironmentInterface":
+        from .interface import EnvironmentInterface
+        return EnvironmentInterface
+    elif name == "EnvironmentRegistry":
+        from .registry import EnvironmentRegistry
+        return EnvironmentRegistry
+    elif name == "EnvironmentManager":
+        from .manager import EnvironmentManager
+        return EnvironmentManager
+    else:
+        raise AttributeError(f"module {__name__} has no attribute {name}")

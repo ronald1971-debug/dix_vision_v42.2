@@ -2,7 +2,7 @@
 
 $DesktopPath = [Environment]::GetFolderPath("Desktop")
 $ProjectPath = "C:\dix_vision_v42.2"
-$ShortcutPath = "$DesktopPath\DIX VISION Desktop.lnk"
+$ShortcutPath = "$DesktopPath\DIX DESKTOP.lnk"
 $PythonScript = "$ProjectPath\launch_dix_vision_desktop.py"
 $PythonExe = "python"
 

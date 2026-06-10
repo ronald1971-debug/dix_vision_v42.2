@@ -1,44 +1,37 @@
-# DIX VISION v42.2 — BASE runtime dependencies.
-#
-# ─────────────────────────────────────────────────────────────────
-# AUDIT-P0.1 — ML/research dependency extraction
-# ─────────────────────────────────────────────────────────────────
-# Heavy ML packages (torch, jax, nengo, tianshou, causalml, …) have
-# been removed from this file.  They were causing ~5 GB installs and
-# 30-minute first-run times on Windows.
-#
-# Install ONLY what the base operator harness (ui.server) needs at
-# import time — FastAPI, pydantic, websockets, the cognitive layer.
-# Everything else is opt-in through pyproject.toml extras:
-#
-#   pip install -e ".[neuromorphic]"   torch / snntorch / bindsnet / brian2
-#   pip install -e ".[ml]"             jax / jaxlib / nengo / tianshou
-#   pip install -e ".[causal]"         causalml / dowhy / econml
-#   pip install -e ".[memory_tensor]"  qdrant-client
-#   pip install -e ".[parquet]"        pyarrow
-#   pip install -e ".[observability]"  hydra-core / jaeger-client
-#   pip install -e ".[evm]"            eth-account (UniswapX adapter)
-#
-# Base install target: ~100 MB, <2 minutes on a fresh Windows machine.
-# ──────────────────────────────────────────────────────────────────
-#
-# Pins here must stay in sync with pyproject.toml
-# [project.dependencies] — bump both in the same commit.
+# DIX VISION Desktop AgentOS - Python Dependencies
 
-PyYAML>=6.0
-fastapi>=0.110
-uvicorn>=0.27
-pydantic>=2.0
-websockets>=12.0
-httpx>=0.25
+# Core dependencies
+asyncio
+logging
+pathlib
+dataclasses
 
-# wave-03 cognitive layer is imported unconditionally by
-# ui.cognitive_chat_runtime (loaded at module-import time by ui.server),
-# so these belong in the base runtime, not the cognitive extras.
-langchain-core>=0.3
-langgraph>=0.2
+# Browser automation (enhanced with both engines)
+selenium>=4.44.0
+playwright>=1.60.0
 
-# Runtime deps also required by base install — keep in sync with
-# pyproject.toml [project.dependencies].
-numpy>=1.24
-alpaca-py>=0.30
+# Vision and OCR
+pytesseract>=0.3.10
+pillow>=10.0.0
+opencv-python>=4.8.0
+
+# System monitoring (now installed)
+psutil>=5.9.0
+
+# Data processing
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Configuration
+pyyaml>=6.0
+python-dotenv>=1.0.0
+
+# API clients
+requests>=2.31.0
+httpx>=0.25.0
+
+# Database
+sqlite3
+
+# Utilities
+python-dateutil>=2.8.0

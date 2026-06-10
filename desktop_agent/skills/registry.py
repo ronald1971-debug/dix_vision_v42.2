@@ -3,7 +3,7 @@ Skill Registry - Skill management and discovery
 """
 
 import logging
-from typing import Dict, List, Optional, Type
+from typing import Dict, List, Optional, Type, Any
 from .skill import Skill, SkillMetadata
 
 

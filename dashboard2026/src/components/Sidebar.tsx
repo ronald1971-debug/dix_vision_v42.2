@@ -32,6 +32,7 @@ import {
   Zap,
   FileText,
   AlertTriangle,
+  Users,
 } from "lucide-react";
 import { type ComponentType } from "react";
 
@@ -66,6 +67,10 @@ const DYON_NAV: Record<string, NavItem<SystemRoute>> = {
   syshealth: { key: "syshealth", label: "Sys Health", href: "#/syshealth", icon: Heart },
 };
 
+const AGENT_OPS_NAV: Record<string, NavItem<SystemRoute>> = {
+  "agent-ops": { key: "agent-ops", label: "Agent Ops", href: "#/agent-ops", icon: Users },
+};
+
 const INDIRA_NAV: Record<string, NavItem<SystemRoute>> = {
   forms: { key: "forms", label: "Forms", href: "#/forms", icon: Layers },
   trading: { key: "trading", label: "Trading", href: "#/trading", icon: Target },
@@ -90,6 +95,7 @@ const SYSTEM_NAV: Record<SystemRoute, NavItem<SystemRoute>> = {
   chat: { key: "chat", label: "Chat", href: "#/chat", icon: MessageSquare },
   indira: { key: "indira", label: "Indira learn", href: "#/indira", icon: Brain },
   dyon: { key: "dyon", label: "Dyon learn", href: "#/dyon", icon: Wrench },
+  "agent-ops": { key: "agent-ops", label: "Agent Ops", href: "#/agent-ops", icon: Users },
   observatory: { key: "observatory", label: "Observatory", href: "#/observatory", icon: Telescope },
   testing: { key: "testing", label: "Testing & Eval", href: "#/testing", icon: CheckSquare },
   onchain: { key: "onchain", label: "On-chain", href: "#/onchain", icon: Coins },
@@ -149,6 +155,17 @@ export function Sidebar({ active, collapsed, onToggle }: SidebarProps) {
 
       <SidebarSection title="DYON (System)" collapsed={collapsed}>
         {Object.values(DYON_NAV).map((item) => (
+          <SidebarLink
+            key={item.key}
+            item={item}
+            isActive={active === item.key}
+            collapsed={collapsed}
+          />
+        ))}
+      </SidebarSection>
+
+      <SidebarSection title="AGENT OPERATIONS" collapsed={collapsed}>
+        {Object.values(AGENT_OPS_NAV).map((item) => (
           <SidebarLink
             key={item.key}
             item={item}
