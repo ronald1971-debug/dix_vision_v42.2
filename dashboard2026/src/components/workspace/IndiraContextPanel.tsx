@@ -6,8 +6,7 @@
  */
 
 import { useState } from 'react';
-import { Panel, PanelSection, ActivityItem } from '../agent/Panel';
-import { useIndiraActivities } from '@/context/AgentOpsContext';
+import { Panel, PanelSection } from '../agent/Panel';
 import type {
   Objective,
   Research,
@@ -36,8 +35,6 @@ interface IndiraContextPanelProps {
 }
 
 export function IndiraContextPanel({ className }: IndiraContextPanelProps) {
-  const activities = useIndiraActivities();
-  
   const [showAllObjectives, setShowAllObjectives] = useState(false);
   const [showAllResearch, setShowAllResearch] = useState(false);
   const [showAllModels, setShowAllModels] = useState(false);
@@ -396,7 +393,7 @@ export function IndiraContextPanel({ className }: IndiraContextPanelProps) {
           onExpand={() => setShowAllObjectives(!showAllObjectives)}
         >
           <div className="space-y-2">
-            {mockObjectives.slice(0, showAllObject ? undefined : 3).map(objective => (
+            {mockObjectives.slice(0, showAllObjectives ? undefined : 3).map(objective => (
               <ObjectiveItem key={objective.id} objective={objective} />
             ))}
           </div>

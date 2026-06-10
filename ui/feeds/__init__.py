@@ -21,10 +21,52 @@ from ui.feeds.binance_public_ws import (
     parse_24hr_ticker,
 )
 
+from ui.feeds.coinbase_public_ws import (
+    COINBASE_PUBLIC_WS_BASE,
+    CoinbasePublicWSPump,
+)
+
+from ui.feeds.kraken_public_ws import (
+    KRAKEN_PUBLIC_WS_BASE,
+    KrakenPublicWSPump,
+)
+
+from ui.feeds.uniswap_http import (
+    UNISWAP_SUBGRAPH_URL,
+    UniswapHTTPPoller,
+)
+
+from ui.feeds.reddit_http import (
+    REDDIT_API_URL,
+    RedditHTTPPoller,
+)
+
+from ui.feeds.sec_edgar_http import (
+    SEC_EDGAR_URL,
+    SECEDGARHTTPPoller,
+)
+
+from ui.feeds.polymarket_http import (
+    POLYMARKET_URL,
+    PolymarketHTTPPoller,
+)
+
 __all__ = [
     "BINANCE_PUBLIC_WS_BASE",
     "BinancePublicWSPump",
     "FeedStatus",
     "make_combined_stream_url",
     "parse_24hr_ticker",
+    "COINBASE_PUBLIC_WS_BASE",
+    "CoinbasePublicWSPump",
+    "KRAKEN_PUBLIC_WS_BASE",
+    "KrakenPublicWSPump",
+    "UNISWAP_SUBGRAPH_URL",
+    "UniswapHTTPPoller",
+    "REDDIT_API_URL",
+    "RedditHTTPPoller",
+    "SEC_EDGAR_URL",
+    "SECEDGARHTTPPoller",
+    "POLYMARKET_URL",
+    "PolymarketHTTPPoller",
 ]

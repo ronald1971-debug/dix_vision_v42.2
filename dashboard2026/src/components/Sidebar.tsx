@@ -71,6 +71,12 @@ const AGENT_OPS_NAV: Record<string, NavItem<SystemRoute>> = {
   "agent-ops": { key: "agent-ops", label: "Agent Ops", href: "#/agent-ops", icon: Users },
 };
 
+const WORKSPACE_NAV: Record<string, NavItem<SystemRoute>> = {
+  "indira-workspace": { key: "indira-workspace", label: "INDIRA Workspace", href: "#/indira-workspace", icon: Brain },
+  "dyon-workspace": { key: "dyon-workspace", label: "DYON Workspace", href: "#/dyon-workspace", icon: Wrench },
+  "operator-workspace": { key: "operator-workspace", label: "Operator Workspace", href: "#/operator-workspace", icon: Bot },
+};
+
 const INDIRA_NAV: Record<string, NavItem<SystemRoute>> = {
   forms: { key: "forms", label: "Forms", href: "#/forms", icon: Layers },
   trading: { key: "trading", label: "Trading", href: "#/trading", icon: Target },
@@ -96,6 +102,9 @@ const SYSTEM_NAV: Record<SystemRoute, NavItem<SystemRoute>> = {
   indira: { key: "indira", label: "Indira learn", href: "#/indira", icon: Brain },
   dyon: { key: "dyon", label: "Dyon learn", href: "#/dyon", icon: Wrench },
   "agent-ops": { key: "agent-ops", label: "Agent Ops", href: "#/agent-ops", icon: Users },
+  "indira-workspace": { key: "indira-workspace", label: "INDIRA Workspace", href: "#/indira-workspace", icon: Brain },
+  "dyon-workspace": { key: "dyon-workspace", label: "DYON Workspace", href: "#/dyon-workspace", icon: Wrench },
+  "operator-workspace": { key: "operator-workspace", label: "Operator Workspace", href: "#/operator-workspace", icon: Bot },
   observatory: { key: "observatory", label: "Observatory", href: "#/observatory", icon: Telescope },
   testing: { key: "testing", label: "Testing & Eval", href: "#/testing", icon: CheckSquare },
   onchain: { key: "onchain", label: "On-chain", href: "#/onchain", icon: Coins },
@@ -155,6 +164,17 @@ export function Sidebar({ active, collapsed, onToggle }: SidebarProps) {
 
       <SidebarSection title="DYON (System)" collapsed={collapsed}>
         {Object.values(DYON_NAV).map((item) => (
+          <SidebarLink
+            key={item.key}
+            item={item}
+            isActive={active === item.key}
+            collapsed={collapsed}
+          />
+        ))}
+      </SidebarSection>
+
+      <SidebarSection title="WORKSPACES" collapsed={collapsed}>
+        {Object.values(WORKSPACE_NAV).map((item) => (
           <SidebarLink
             key={item.key}
             item={item}

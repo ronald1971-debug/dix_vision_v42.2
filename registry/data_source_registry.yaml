@@ -59,11 +59,12 @@ sources:
     endpoint: "wss://advanced-trade-ws.coinbase.com"
     schema: "core.contracts.market.MarketTick"
     auth: none
-    enabled: false
+    enabled: true
     critical: false
     notes: >-
-      Execution adapter exists (execution/adapters/coinbase.py).
-      UI feed implementation pending - enable when UI feed layer is complete.
+      Public WebSocket feed consumed by ui.feeds.coinbase_public_ws
+      (see ui/feeds/consumes.yaml). Provides real-time market data from Coinbase.
+      Execution adapter also exists (execution/adapters/coinbase.py).
   - id: SRC-MARKET-KRAKEN-001
     name: "Kraken WS+REST"
     category: market
@@ -71,11 +72,12 @@ sources:
     endpoint: "wss://ws.kraken.com"
     schema: "core.contracts.market.MarketTick"
     auth: none
-    enabled: false
+    enabled: true
     critical: false
     notes: >-
-      Execution adapter exists (execution/adapters/kraken.py).
-      UI feed implementation pending - enable when UI feed layer is complete.
+      Public WebSocket feed consumed by ui.feeds.kraken_public_ws
+      (see ui/feeds/consumes.yaml). Provides real-time market data from Kraken.
+      Execution adapter also exists (execution/adapters/kraken.py).
 
   # -----------------------------------------------------------------
   # Market — decentralised exchanges (DEX) + derivatives
@@ -87,8 +89,12 @@ sources:
     endpoint: "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3"
     schema: "core.contracts.market.MarketTick"
     auth: none
-    enabled: false
+    enabled: true
     critical: false
+    notes: >-
+      DEX pool data consumed by ui.feeds.uniswap_http
+      (see ui/feeds/consumes.yaml). Provides liquidity and price data from Uniswap V3.
+      Execution adapter also exists (execution/adapters/uniswap_v3.py).
   - id: SRC-MARKET-DERIBIT-001
     name: "Deribit WS"
     category: market
@@ -176,8 +182,12 @@ sources:
     endpoint: "https://www.reddit.com"
     schema: "sensory.web_autolearn.contracts.SocialPost"
     auth: none
-    enabled: false
+    enabled: true
     critical: false
+    notes: >-
+      Social sentiment data consumed by ui.feeds.reddit_http
+      (see ui/feeds/consumes.yaml). Monitors cryptocurrency and financial subreddits
+      for sentiment analysis and crowd intelligence.
 
   # -----------------------------------------------------------------
   # On-chain intelligence
@@ -233,8 +243,12 @@ sources:
     endpoint: "https://efts.sec.gov/LATEST/search-index"
     schema: "sensory.regulatory.contracts.Filing"
     auth: none
-    enabled: false
+    enabled: true
     critical: false
+    notes: >-
+      Regulatory filings consumed by ui.feeds.sec_edgar_http
+      (see ui/feeds/consumes.yaml). Monitors SEC filings for cryptocurrency and
+      digital asset regulatory developments.
 
   # -----------------------------------------------------------------
   # Developer / technical / code
@@ -259,8 +273,12 @@ sources:
     endpoint: "https://clob.polymarket.com"
     schema: "sensory.alt.contracts.PredictionMarket"
     auth: none
-    enabled: false
+    enabled: true
     critical: false
+    notes: >-
+      Prediction market data consumed by ui.feeds.polymarket_http
+      (see ui/feeds/consumes.yaml). Provides prediction market prices and
+      probabilities for cryptocurrency, politics, and economic events.
 
   # -----------------------------------------------------------------
   # Trader feeds (Trader-Intelligence layer — Wave-04 PR-2)

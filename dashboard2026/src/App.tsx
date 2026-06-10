@@ -46,6 +46,7 @@ import { TradingPage } from "@/pages/TradingPage";
 import { SimulationPage } from "@/pages/SimulationPage";
 import { ObservatoryPage } from "@/pages/ObservatoryPage";
 import { AgentOpsPage } from "@/pages/AgentOpsPage";
+import { IndiraWorkspacePage } from "@/pages/IndiraWorkspacePage";
 import { AgentOpsProvider } from "@/context/AgentOpsContext";
 import { DexPage } from "@/pages/asset/DexPage";
 import { ForexPage } from "@/pages/asset/ForexPage";
@@ -84,6 +85,8 @@ function renderRoute(route: Route) {
       return <DyonLearningPage />;
     case "agent-ops":
       return <AgentOpsPage />;
+    case "indira-workspace":
+      return <IndiraWorkspacePage />;
     case "observatory":
       return <ObservatoryPage />;
     case "testing":

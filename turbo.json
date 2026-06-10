@@ -24,5 +24,15 @@
     "clean": {
       "cache": false
     }
+  },
+  "globalEnv": [
+    "NODE_ENV",
+    "CI",
+    "TURBO_REMOTE_ONLY"
+  ],
+  "env": {
+    "GOVERNANCEConstraints": {
+      "fallback": "governance-core"
+    }
   }
 }

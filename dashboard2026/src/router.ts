@@ -31,6 +31,9 @@ export type SystemRoute =
   | "indira"
   | "dyon"
   | "agent-ops"
+  | "indira-workspace"
+  | "dyon-workspace"
+  | "operator-workspace"
   | "observatory"
   | "testing"
   | "onchain"
@@ -77,6 +80,9 @@ const SYSTEM_ROUTES: readonly SystemRoute[] = [
   "indira",
   "dyon",
   "agent-ops",
+  "indira-workspace",
+  "dyon-workspace",
+  "operator-workspace",
   "observatory",
   "testing",
   "onchain",

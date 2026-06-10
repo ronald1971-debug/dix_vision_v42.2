@@ -17,17 +17,58 @@
 
 module: ui.feeds
 inputs:
+  # Market data sources
   - source_id: SRC-MARKET-BINANCE-001
     required: false
+  - source_id: SRC-MARKET-COINBASE-001
+    required: false
+  - source_id: SRC-MARKET-KRAKEN-001
+    required: false
+  - source_id: SRC-MARKET-RAYDIUM-001
+    required: false
+  - source_id: SRC-MARKET-UNISWAP-001
+    required: false
+  
+  # News sources
   - source_id: SRC-NEWS-COINDESK-001
     required: false
+  
+  # Macro/policy sources
   - source_id: SRC-MACRO-FRED-001
     required: false
   - source_id: SRC-MACRO-BLS-001
     required: false
-  - source_id: SRC-MARKET-RAYDIUM-001
-    required: false
+  
+  # On-chain sources
   - source_id: SRC-ONCHAIN-SOLANA-001
     required: false
+  
+  # Alternative data sources
   - source_id: SRC-ALT-PUMPFUN-001
+    required: false
+  - source_id: SRC-ALT-POLYMARKET-001
+    required: false
+  
+  # Social sentiment sources
+  - source_id: SRC-SOCIAL-REDDIT-001
+    required: false
+  
+  # Regulatory sources
+  - source_id: SRC-REG-SEC-EDGAR-001
+    required: false
+  
+  # Trader intelligence sources
+  - source_id: SRC-TRADER-TRADINGVIEW-001
+    required: false
+  
+  # AI providers (consumed by cognitive chat)
+  - source_id: SRC-AI-OPENAI-001
+    required: false
+  - source_id: SRC-AI-GEMINI-001
+    required: false
+  - source_id: SRC-AI-GROK-001
+    required: false
+  - source_id: SRC-AI-DEEPSEEK-001
+    required: false
+  - source_id: SRC-AI-DEVIN-001
     required: false
