@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import AvatarStage from "./components/AvatarStage";
 import ChatBubble from "./components/ChatBubble";
 import InputField from "./components/InputField";
 import ModelWizard from "./components/ModelWizard";
@@ -13,6 +12,7 @@ import { avatarState } from "./avatarState";
 import { lipSync } from "./lipsync";
 import { checkForUpdatesQuietly } from "./updater";
 import { bootstrapLocale, useLocale } from "./i18n";
+import RobotAvatar from "./components/RobotAvatar";
 import {
   cancelGeneration,
   cancelImageGeneration,
@@ -70,6 +70,17 @@ export default function App() {
 
   // ── Backend snapshot ───────────────────────────────────────────────
   const [settings, setSettings] = useState<PublicSettings | null>(null);
+  
+  // ── Window size for 3D avatar ─────────────────────────────────────────────
+  const [windowSize, setWindowSize] = useState({ w: window.innerWidth, h: window.innerHeight });
+  
+  useEffect(() => {
+    const onResize = () => {
+      setWindowSize({ w: window.innerWidth, h: window.innerHeight });
+    };
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
   // ── Refs ───────────────────────────────────────────────────────────
   const activeImageIdRef = useRef<string | null>(null);
@@ -444,13 +455,9 @@ export default function App() {
 
   return (
     <>
-      <AvatarStage
-        modelUrl={
-          settings?.live2d_model_url ?? "/live2d/mao_pro/mao_pro.model3.json"
-        }
-        zoom={settings?.avatar_zoom ?? 1}
-        offsetX={settings?.avatar_offset_x ?? 0}
-        offsetY={settings?.avatar_offset_y ?? 0}
+      <RobotAvatar
+        width={Math.max(220, Math.min(windowSize.w - 24, Math.round(Math.max(260, windowSize.h - 120) * 0.7)))}
+        height={Math.max(260, windowSize.h - 120)}
       />
       <ChatBubble
         text={bubbleText}

@@ -64,7 +64,11 @@
       "Exec(.\\node_modules\\.bin\\turbo.cmd)",
       "Exec(.\\node_modules\\.bin\\turbo build)",
       "Exec(.\\node_modules\\.bin\\tsc.cmd)",
-      "Exec(node)"
+      "Exec(node)",
+      "Exec(curl)",
+      "Exec(Invoke-WebRequest)",
+      "Exec(git clone)",
+      "Exec(Get-Item)"
     ]
   }
 }

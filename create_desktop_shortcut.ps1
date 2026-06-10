@@ -1,6 +1,6 @@
 # Create Desktop Shortcut for DIX VISION Desktop AgentOS
 
-$DesktopPath = [Environment]::GetFolderPath("Desktop")
+$DesktopPath = "C:\Users\prive\Desktop"
 $ProjectPath = "C:\dix_vision_v42.2"
 $ShortcutPath = "$DesktopPath\DIX DESKTOP.lnk"
 $PythonScript = "$ProjectPath\launch_dix_vision_desktop.py"
