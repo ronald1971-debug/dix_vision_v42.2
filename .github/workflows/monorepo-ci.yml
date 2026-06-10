@@ -1,0 +1,350 @@
+name: DIX VISION Monorepo CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+env:
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+
+jobs:
+  # ============================================================================
+  # VALIDATION JOB
+  # ============================================================================
+  validate:
+    name: Validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Install Turborepo CLI
+        run: npm install turbo@latest
+
+      - name: Validate monorepo structure
+        run: |
+          turbo lint --filter="..." --dry-run
+          turbo build --filter="..." --dry-run
+
+  # ============================================================================
+  # BUILD JOB
+  # ============================================================================
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      packages: ${{ steps.build.outputs.packages }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          npm install
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Build packages
+        id: build
+        run: |
+          turbo build --filter="...^[HEAD]"
+          echo "packages=$(turbo run build --filter="...^[HEAD]" --dry-run 2>&1 | grep -c 'package')" >> $GITHUB_OUTPUT
+
+  # ============================================================================
+  # TEST JOB
+  # ============================================================================
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: build
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          npm install
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Run tests
+        run: |
+          turbo test --filter="...^[HEAD]"
+          
+      - name: Run Python pytest
+        run: |
+          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
+          pytest -q
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+
+  # ============================================================================
+  # LINT JOB
+  # ============================================================================
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          npm install
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
+
+      - name: Run TypeScript lint
+        run: turbo lint --filter="...^[HEAD]"
+
+      - name: Run Python Ruff
+        run: ruff check .
+
+      - name: Run authority lint
+        run: python tools/authority_lint.py --strict .
+        continue-on-error: true
+
+      - name: Run SCVS lint
+        run: python tools/scvs_lint.py .
+        continue-on-error: true
+
+  # ============================================================================
+  # TYPECHECK JOB
+  # ============================================================================
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          npm install
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Run TypeScript typecheck
+        run: turbo typecheck --filter="...^[HEAD]"
+
+      - name: Run Pyre typecheck
+        run: pyre --source-directory .
+        continue-on-error: true
+
+  # ============================================================================
+  # SECURITY JOB
+  # ============================================================================
+  security:
+    name: Security
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run npm audit
+        run: npm audit
+        continue-on-error: true
+
+      - name: Run Python security checks
+        run: |
+          pip install safety bandit
+          safety check
+          bandit -r .
+        continue-on-error: true
+
+  # ============================================================================
+  # DEPENDENCY RULE VALIDATION
+  # ============================================================================
+  dependency-rules:
+    name: Dependency Rules
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Turborepo CLI
+        run: npm install turbo@latest
+
+      - name: Validate dependency rules
+        run: |
+          # Check for circular dependencies
+          turbo build --dry-run
+          
+          # Validate package structure
+          node -e "const pkg = require('./package.json'); console.log('Workspaces:', pkg.workspaces)"
+
+  # ============================================================================
+  # APPLICATION BUILDS
+  # ============================================================================
+  build-desktop:
+    name: Build Desktop App
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: dix_desktop/package-lock.json
+
+      - name: Install desktop dependencies
+        run: |
+          cd dix_desktop
+          npm install
+
+      - name: Build desktop app
+        run: |
+          cd dix_desktop
+          npm run build
+
+      - name: Upload desktop build
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-build
+          path: dix_desktop/dist/
+          retention-days: 7
+
+  build-dashboard:
+    name: Build Dashboard
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: dashboard2026/package-lock.json
+
+      - name: Install dashboard dependencies
+        run: |
+          cd dashboard2026
+          npm install
+
+      - name: Build dashboard
+        run: |
+          cd dashboard2026
+          npm run build
+
+      - name: Upload dashboard build
+        uses: actions/upload-artifact@v4
+        with:
+          name: dashboard-build
+          path: dashboard2026/dist/
+          retention-days: 7

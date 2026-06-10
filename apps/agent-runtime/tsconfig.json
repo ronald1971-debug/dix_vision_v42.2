@@ -1,0 +1,21 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"],
+  "references": [
+    { "path": "../../packages/shared-types" },
+    { "path": "../../packages/shared-config" },
+    { "path": "../../packages/governance-core" },
+    { "path": "../../packages/observability" },
+    { "path": "../../packages/indira" },
+    { "path": "../../packages/dyon" },
+    { "path": "../../packages/execution-engine" }
+  ]
+}

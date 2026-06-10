@@ -1,0 +1,237 @@
+/**
+ * Shared Configuration for DIX VISION System
+ * 
+ * This package contains common configuration patterns, defaults, and utilities
+ * used across all modules in the DIX VISION system.
+ */
+
+import type { GovernanceConstraints, RiskLevel, SystemStatus } from '@dix-vision/shared-types';
+
+// ============================================================================
+// SYSTEM CONFIGURATION
+// ============================================================================
+
+export const SYSTEM_CONFIG = {
+  version: '42.2.0',
+  codename: 'Janus-Interrupt',
+  platform: 'windows',
+  environment: process.env.NODE_ENV || 'development',
+} as const;
+
+export const RUNTIME_CONFIG = {
+  maxConcurrentTasks: 10,
+  taskTimeoutMs: 30000,
+  eventBusMaxSize: 10000,
+  healthCheckIntervalMs: 5000,
+} as const;
+
+// ============================================================================
+// NETWORK CONFIGURATION
+// ============================================================================
+
+export const NETWORK_CONFIG = {
+  defaultTimeoutMs: 10000,
+  maxRetries: 3,
+  retryDelayMs: 1000,
+  websocketTimeoutMs: 30000,
+  heartbeatIntervalMs: 15000,
+} as const;
+
+// ============================================================================
+// DEFAULT GOVERNANCE CONSTRAINTS
+// ============================================================================
+
+export const DEFAULT_GOVERNANCE_CONSTRAINTS: GovernanceConstraints = {
+  maxDrawdown: 4,
+  maxLossPerTrade: 5,
+  failClosed: true,
+  forbiddenBehaviors: [
+    'martingale_strategies',
+    'unbounded_leverage',
+    'runtime_core_mutation',
+    'unauthorized_network_access',
+    'silent_state_mutation',
+  ],
+  requiredBehaviors: [
+    'full_event_traceability',
+    'deterministic_replay',
+    'governance_defined_constraints',
+    'pre_approved_emergency_handling',
+  ],
+};
+
+// ============================================================================
+// AGENT CONFIGURATION
+// ============================================================================
+
+export const AGENT_CONFIG = {
+  indira: {
+    enabled: true,
+    maxAnalysisDepth: 5,
+    signalConfidenceThreshold: 0.7,
+    analysisTimeoutMs: 15000,
+  },
+  dyon: {
+    enabled: true,
+    healthCheckIntervalMs: 10000,
+    anomalyThreshold: 0.8,
+    hazardDetectionSensitivity: 'medium' as const,
+  },
+} as const;
+
+// ============================================================================
+// MEMORY CONFIGURATION
+// ============================================================================
+
+export const MEMORY_CONFIG = {
+  maxMemorySize: 1000,
+  retentionDays: 30,
+  compressionEnabled: true,
+  indexingEnabled: true,
+  ragChunkSize: 500,
+  ragOverlap: 50,
+} as const;
+
+// ============================================================================
+// OBSERVABILITY CONFIGURATION
+// ============================================================================
+
+export const OBSERVABILITY_CONFIG = {
+  logging: {
+    level: (process.env.LOG_LEVEL || 'info') as 'debug' | 'info' | 'warn' | 'error',
+    enableConsole: true,
+    enableFile: true,
+    maxFileSize: 10 * 1024 * 1024, // 10MB
+    maxFiles: 5,
+  },
+  metrics: {
+    enabled: true,
+    port: 9090,
+    path: '/metrics',
+    collectIntervalMs: 1000,
+  },
+  tracing: {
+    enabled: process.env.ENABLE_TRACING === 'true',
+    sampleRate: 0.1,
+    exportIntervalMs: 5000,
+  },
+} as const;
+
+// ============================================================================
+// EXECUTION CONFIGURATION
+// ============================================================================
+
+export const EXECUTION_CONFIG = {
+  maxOrdersPerSecond: 10,
+  orderTimeoutMs: 5000,
+  maxConcurrentOrders: 50,
+  enableSimulation: process.env.ENABLE_SIMULATION === 'true',
+  simulationSlippagePercent: 0.1,
+} as const;
+
+// ============================================================================
+// API CONFIGURATION
+// ============================================================================
+
+export const API_CONFIG = {
+  openRouter: {
+    baseUrl: process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1',
+    timeoutMs: 30000,
+    maxRetries: 3,
+  },
+  deepgram: {
+    baseUrl: process.env.DEEPGRAM_BASE_URL || 'https://api.deepgram.com',
+    timeoutMs: 15000,
+    maxRetries: 2,
+  },
+} as const;
+
+// ============================================================================
+// CONFIGURATION UTILITIES
+// ============================================================================
+
+export function loadConfig<T>(configPath: string, defaults: T): T {
+  try {
+    // In a real implementation, this would load from a config file
+    // For now, return defaults
+    return defaults;
+  } catch (error) {
+    console.warn(`Failed to load config from ${configPath}, using defaults`);
+    return defaults;
+  }
+}
+
+export function mergeConfig<T extends Record<string, any>>(
+  base: T,
+  overrides: Partial<T>
+): T {
+  return { ...base, ...overrides };
+}
+
+export function validateConfig<T>(
+  config: T,
+  schema: Record<keyof T, (value: any) => boolean>
+): boolean {
+  for (const [key, validator] of Object.entries(schema)) {
+    if (!validator(config[key as keyof T])) {
+      console.error(`Config validation failed for key: ${key}`);
+      return false;
+    }
+  }
+  return true;
+}
+
+// ============================================================================
+// ENVIRONMENT VARIABLE HELPERS
+// ============================================================================
+
+export function getEnvVar(key: string, defaultValue?: string): string {
+  const value = process.env[key];
+  if (value === undefined && defaultValue === undefined) {
+    throw new Error(`Environment variable ${key} is required but not set`);
+  }
+  return value || defaultValue || '';
+}
+
+export function getEnvBool(key: string, defaultValue: boolean): boolean {
+  const value = process.env[key];
+  if (value === undefined) return defaultValue;
+  return value === 'true' || value === '1';
+}
+
+export function getEnvNumber(key: string, defaultValue: number): number {
+  const value = process.env[key];
+  if (value === undefined) return defaultValue;
+  const num = parseInt(value, 10);
+  if (isNaN(num)) {
+    throw new Error(`Environment variable ${key} must be a number`);
+  }
+  return num;
+}
+
+// ============================================================================
+// PATH CONFIGURATION
+// ============================================================================
+
+export const PATH_CONFIG = {
+  root: process.env.DIX_VISION_ROOT || 'C:\\dix_vision_v42.2',
+  data: process.env.DIX_VISION_DATA || 'C:\\dix_vision_v42.2\\data',
+  models: process.env.DIX_VISION_MODELS || 'C:\\dix_vision_v42.2\\models',
+  voices: process.env.DIX_VISION_VOICES || 'C:\\dix_vision_v42.2\\voices',
+  logs: process.env.DIX_VISION_LOGS || 'C:\\dix_vision_v42.2\\logs',
+  cache: process.env.DIX_VISION_CACHE || 'C:\\dix_vision_v42.2\\cache',
+} as const;
+
+// ============================================================================
+// FEATURE FLAGS
+// ============================================================================
+
+export const FEATURE_FLAGS = {
+  enableVoice: getEnvBool('DIX_ENABLE_VOICE', true),
+  enableVision: getEnvBool('DIX_ENABLE_VISION', true),
+  enableLive2D: getEnvBool('DIX_ENABLE_LIVE2D', true),
+  enableRag: getEnvBool('DIX_ENABLE_RAG', true),
+  enableDesktopAutomation: getEnvBool('DIX_ENABLE_DESKTOP_AUTOMATION', true),
+  enableBrowserAutomation: getEnvBool('DIX_ENABLE_BROWSER_AUTOMATION', true),
+  enableProactiveAgent: getEnvBool('DIX_ENABLE_PROACTIVE_AGENT', true),
+} as const;

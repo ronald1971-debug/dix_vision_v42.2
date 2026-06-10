@@ -1,0 +1,60 @@
+# Pre-commit hooks for Turborepo monorepo
+# Install with: pre-commit install
+# Update with: pre-commit autoupdate
+
+repos:
+  # General checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: ^(packages|apps)/
+      - id: end-of-file-fixer
+        exclude: ^(packages|apps)/
+      - id: check-yaml
+      - id: check-json
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+      - id: check-merge-conflict
+
+  # TypeScript/JavaScript
+  - repo: https://github.com/pre-commit/mirrors-eslint
+    rev: v8.55.0
+    hooks:
+      - id: eslint
+        files: ^(packages|apps)/.*\.(ts|tsx|js|jsx)$
+        args: [--fix]
+        additional_dependencies:
+          - eslint@8.55.0
+          - '@typescript-eslint/eslint-plugin@6.15.0'
+          - '@typescript-eslint/parser@6.15.0'
+
+  # Python
+  - repo: https://github.com/psf/black
+    rev: 23.12.1
+    hooks:
+      - id: black
+        language_version: python3.12
+
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.1.9
+    hooks:
+      - id: ruff
+        args: [--fix]
+
+  # Custom dependency validation
+  - repo: local
+    hooks:
+      - id: dependency-rules
+        name: Validate dependency rules
+        entry: node scripts/validate-dependency-rules.js
+        language: node
+        files: ^(packages|apps)/package\.json$
+        pass_filenames: false
+
+      - id: turbo-check
+        name: Turborepo check
+        entry: turbo run lint --filter="...[HEAD]"
+        language: system
+        pass_filenames: false
+        always_run: true

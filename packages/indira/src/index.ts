@@ -1,0 +1,346 @@
+/**
+ * INDIRA - Market Intelligence Agent
+ * 
+ * INDIRA operates in MARKET REALITY (execution-adjacent, not architecture)
+ * Responsibilities: market analysis, signal generation, strategy selection, execution intent formation
+ * 
+ * CRITICAL RULES:
+ * - Indira is execution-adjacent — intents on hot path, ACTION in execution layer
+ * - No runtime governance blocking on hot path (precomputed constraints only)
+ * - All actions obey PRECOMPUTED constraints
+ * - Execution must be deterministic
+ * 
+ * LIMITS:
+ * - Cannot modify system infrastructure
+ * - Cannot deploy patches
+ * - Cannot manage OS/services
+ * - Cannot override governance constraints
+ */
+
+import type {
+  MarketAnalysis,
+  TradingSignal,
+  OrderIntent,
+  ExecutionResult,
+  CognitiveEvent,
+  SystemEvent
+} from '@dix-vision/shared-types';
+import type { ValidationResult, ConstraintSet } from '@dix-vision/governance-core';
+import { AGENT_CONFIG } from '@dix-vision/shared-config';
+
+// ============================================================================
+// INDIRA AGENT CLASS
+// ============================================================================
+
+export class IndiraAgent {
+  private config = AGENT_CONFIG.indira;
+  private governanceConstraints: ConstraintSet | null = null;
+  private eventBus: EventBus;
+
+  constructor(eventBus: EventBus) {
+    this.eventBus = eventBus;
+    this.initialize();
+  }
+
+  private initialize(): void {
+    console.log('INDIRA Agent initialized');
+    console.log(`Max analysis depth: ${this.config.maxAnalysisDepth}`);
+    console.log(`Signal confidence threshold: ${this.config.signalConfidenceThreshold}`);
+  }
+
+  // ============================================================================
+  // MARKET ANALYSIS
+  // ============================================================================
+
+  /**
+   * Perform comprehensive market analysis for a symbol
+   * This is the core cognitive function of Indira
+   */
+  public async analyzeMarket(symbol: string): Promise<MarketAnalysis> {
+    const startTime = Date.now();
+    
+    try {
+      // Collect market data
+      const marketData = await this.collectMarketData(symbol);
+      
+      // Perform technical analysis
+      const technicalSignals = await this.performTechnicalAnalysis(marketData);
+      
+      // Perform sentiment analysis
+      const sentiment = await this.analyzeSentiment(symbol);
+      
+      // Generate trading signals
+      const signals = await this.generateSignals(technicalSignals, sentiment);
+      
+      // Calculate overall confidence
+      const confidence = this.calculateConfidence(signals);
+      
+      const analysis: MarketAnalysis = {
+        symbol,
+        sentiment: sentiment.overall,
+        signals,
+        confidence,
+        reasoning: [
+          'Technical analysis completed',
+          'Sentiment analysis completed',
+          'Signal generation completed',
+        ],
+      };
+
+      // Emit cognitive event
+      await this.emitCognitiveEvent('market_analysis_complete', analysis, confidence);
+
+      console.log(`INDIRA analysis for ${symbol} completed in ${Date.now() - startTime}ms`);
+      return analysis;
+    } catch (error) {
+      console.error('INDIRA market analysis failed:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Collect market data from various sources
+   */
+  private async collectMarketData(symbol: string): Promise<MarketData> {
+    // Implementation would fetch from exchanges, news feeds, etc.
+    return {
+      symbol,
+      price: 0,
+      volume: 0,
+      timestamp: new Date(),
+      // Additional market data fields
+    };
+  }
+
+  /**
+   * Perform technical analysis on market data
+   */
+  private async performTechnicalAnalysis(data: MarketData): Promise<TechnicalIndicator[]> {
+    // Implementation would calculate RSI, MACD, moving averages, etc.
+    return [];
+  }
+
+  /**
+   * Analyze market sentiment from news, social media, etc.
+   */
+  private async analyzeSentiment(symbol: string): Promise<SentimentAnalysis> {
+    // Implementation would analyze news, social media sentiment
+    return {
+      overall: 'neutral',
+      news: 0,
+      social: 0,
+      sources: [],
+    };
+  }
+
+  /**
+   * Generate trading signals based on analysis
+   */
+  private async generateSignals(
+    technical: TechnicalIndicator[],
+    sentiment: SentimentAnalysis
+  ): Promise<TradingSignal[]> {
+    const signals: TradingSignal[] = [];
+
+    // Generate signals based on technical indicators
+    for (const indicator of technical) {
+      if (indicator.strength > this.config.signalConfidenceThreshold) {
+        signals.push({
+          type: indicator.signalType,
+          strength: indicator.strength,
+          timeframe: indicator.timeframe,
+          metadata: { indicator: indicator.name },
+        });
+      }
+    }
+
+    return signals;
+  }
+
+  /**
+   * Calculate overall confidence from signals
+   */
+  private calculateConfidence(signals: TradingSignal[]): number {
+    if (signals.length === 0) return 0;
+    
+    const avgStrength = signals.reduce((sum, signal) => sum + signal.strength, 0) / signals.length;
+    return Math.min(avgStrength, 1.0);
+  }
+
+  // ============================================================================
+  // EXECUTION INTENT FORMATION
+  // ============================================================================
+
+  /**
+   * Form execution intent based on analysis
+   * This is execution-adjacent - intent formation, not execution
+   */
+  public async formExecutionIntent(
+    analysis: MarketAnalysis,
+    signal: TradingSignal
+  ): Promise<OrderIntent> {
+    if (!this.governanceConstraints) {
+      throw new Error('Governance constraints not loaded');
+    }
+
+    const intent: OrderIntent = {
+      side: signal.type === 'entry' ? 'buy' : 'sell',
+      type: 'limit',
+      symbol: analysis.symbol,
+      quantity: this.calculatePositionSize(analysis),
+      price: this.calculateEntryPrice(analysis, signal),
+      timeInForce: 'GTC',
+      metadata: {
+        signalId: `${Date.now()}`,
+        analysisConfidence: analysis.confidence,
+        signalStrength: signal.strength,
+      },
+    };
+
+    console.log(`INDIRA formed execution intent for ${analysis.symbol}`);
+    return intent;
+  }
+
+  /**
+   * Calculate position size based on risk parameters
+   */
+  private calculatePositionSize(analysis: MarketAnalysis): number {
+    // Implementation would calculate based on governance constraints
+    return 1; // Placeholder
+  }
+
+  /**
+   * Calculate entry price based on analysis
+   */
+  private calculateEntryPrice(analysis: MarketAnalysis, signal: TradingSignal): number {
+    // Implementation would calculate optimal entry price
+    return 0; // Placeholder
+  }
+
+  /**
+   * Submit execution intent to execution engine
+   * This is the critical execution-adjacent operation
+   */
+  public async submitExecutionIntent(intent: OrderIntent): Promise<ExecutionResult> {
+    // This would call the execution engine
+    // For now, this is a placeholder
+    
+    const result: ExecutionResult = {
+      orderId: `order_${Date.now()}`,
+      status: 'pending',
+      filledQuantity: intent.quantity,
+      averagePrice: intent.price || 0,
+      fees: 0,
+      timestamp: new Date(),
+    };
+
+    console.log(`INDIRA submitted execution intent: ${intent.side} ${intent.quantity} ${intent.symbol}`);
+    return result;
+  }
+
+  // ============================================================================
+  // GOVERNANCE INTEGRATION
+  // ============================================================================
+
+  /**
+   * Update governance constraints (precomputed, not blocking)
+   */
+  public updateGovernanceConstraints(constraints: ConstraintSet): void {
+    this.governanceConstraints = constraints;
+    console.log('INDIRA updated governance constraints');
+  }
+
+  /**
+   * Validate intent against precomputed constraints
+   */
+  public validateIntent(intent: OrderIntent): ValidationResult {
+    if (!this.governanceConstraints) {
+      throw new Error('Governance constraints not loaded');
+    }
+
+    // Implementation would validate against constraints
+    // This is non-blocking - constraints are precomputed
+    
+    return {
+      passed: true,
+      checks: [],
+      constraintSet: this.governanceConstraints,
+    };
+  }
+
+  // ============================================================================
+  // EVENT SYSTEM
+  // ============================================================================
+
+  /**
+   * Emit cognitive event
+   */
+  private async emitCognitiveEvent(
+    type: string,
+    data: unknown,
+    confidence: number
+  ): Promise<void> {
+    const event: CognitiveEvent = {
+      type,
+      agent: 'indira',
+      timestamp: new Date(),
+      data,
+      confidence,
+    };
+
+    await this.eventBus.publish('cognitive_event', event);
+  }
+
+  /**
+   * Subscribe to system events
+   */
+  public async subscribeToEvents(eventType: string, handler: (event: SystemEvent) => void): Promise<void> {
+    await this.eventBus.subscribe(eventType, handler);
+  }
+
+  // ============================================================================
+  // LIFECYCLE
+  // ============================================================================
+
+  public async start(): Promise<void> {
+    console.log('INDIRA Agent starting');
+    // Implementation would start background tasks
+  }
+
+  public async stop(): Promise<void> {
+    console.log('INDIRA Agent stopping');
+    // Implementation would stop background tasks
+  }
+}
+
+// ============================================================================
+// SUPPORTING TYPES
+// ============================================================================
+
+export interface MarketData {
+  symbol: string;
+  price: number;
+  volume: number;
+  timestamp: Date;
+  [key: string]: unknown;
+}
+
+export interface TechnicalIndicator {
+  name: string;
+  signalType: 'entry' | 'exit' | 'hold';
+  strength: number;
+  timeframe: string;
+  value: number;
+}
+
+export interface SentimentAnalysis {
+  overall: 'bullish' | 'bearish' | 'neutral';
+  news: number;
+  social: number;
+  sources: string[];
+}
+
+export interface EventBus {
+  publish(eventType: string, event: SystemEvent): Promise<void>;
+  subscribe(eventType: string, handler: (event: SystemEvent) => void): Promise<void>;
+}

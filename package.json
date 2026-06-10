@@ -13,7 +13,10 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "release": "turbo run build --filter=...^[HEAD] && changeset publish"
+    "release": "turbo run build --filter=...^[HEAD] && changeset publish",
+    "validate": "node scripts/validate-dependency-rules.js && node scripts/validate-boundary-rules.js",
+    "validate:deps": "node scripts/validate-dependency-rules.js",
+    "validate:boundaries": "node scripts/validate-boundary-rules.js"
   },
   "devDependencies": {
     "turbo": "^1.11.0",
