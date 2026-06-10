@@ -59,7 +59,12 @@
       "Exec(cmd)",
       "Exec(Select-String)",
       "Exec(Rename-Item)",
-      "Exec(pip show)"
+      "Exec(pip show)",
+      "Exec(npx turbo)",
+      "Exec(.\\node_modules\\.bin\\turbo.cmd)",
+      "Exec(.\\node_modules\\.bin\\turbo build)",
+      "Exec(.\\node_modules\\.bin\\tsc.cmd)",
+      "Exec(node)"
     ]
   }
 }

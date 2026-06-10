@@ -1,5 +1,4 @@
 {
-  "$schema": "https://turbo.build/schema.json",
   "globalDependencies": ["**/.env.*local"],
   "pipeline": {
     "build": {
@@ -29,10 +28,5 @@
     "NODE_ENV",
     "CI",
     "TURBO_REMOTE_ONLY"
-  ],
-  "env": {
-    "GOVERNANCEConstraints": {
-      "fallback": "governance-core"
-    }
-  }
+  ]
 }
