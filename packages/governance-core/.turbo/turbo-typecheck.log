@@ -1,0 +1,4 @@
+
+> @dix-vision/governance-core@42.2.0 typecheck
+> tsc --noEmit
+

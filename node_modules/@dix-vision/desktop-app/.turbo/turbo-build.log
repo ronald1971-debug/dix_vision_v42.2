@@ -1,8 +1,0 @@
-
-> @dix-vision/desktop-app@42.2.0 build
-> cd ../../dix_desktop && npm run build
-
-
-> dix-vision-desktop@42.2.0 build
-> tsc -b && vite build
-

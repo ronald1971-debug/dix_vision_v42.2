@@ -6,7 +6,7 @@ echo Starting DIX VISION Desktop AgentOS...
 echo.
 
 REM Change to project directory
-cd /d "C:\dix_vision_vision_v42.2"
+cd /d "C:\dix_vision_v42.2"
 
 REM Change to dix_desktop directory
 cd dix_desktop

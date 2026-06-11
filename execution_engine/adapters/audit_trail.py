@@ -12,9 +12,13 @@ import dataclasses
 import enum
 import hashlib
 import json
+import logging
+import requests
+import sqlite3
 from collections import deque
 from collections.abc import Callable
 from datetime import datetime
+from pathlib import Path
 from threading import Lock
 from typing import Any, Final
 
@@ -484,9 +488,144 @@ class ExecutionAuditTrail:
         return hashlib.sha256(canonical.encode()).hexdigest()
     
     def _persist_event(self, event: AuditEvent) -> None:
-        """Persist event to storage (placeholder)."""
-        # Placeholder - would implement actual persistence to file, database, etc.
-        pass
+        """Persist event to storage with compliance level integration."""
+        try:
+            # Fetch current compliance weights from the API
+            response = requests.get("http://localhost:8080/api/compliance/weights", timeout=1.0)
+            if response.status_code == 200:
+                weights = response.json()
+                audit_weight = weights.get("audit", 1.0)
+            else:
+                audit_weight = 1.0
+        except Exception as e:
+            logging.getLogger("audit_trail").warning(
+                f"Failed to fetch compliance weights, using full audit: {e}"
+            )
+            audit_weight = 1.0
+        
+        # If audit weight is very low, skip persistence (memory only)
+        if audit_weight < 0.3:
+            logging.getLogger("audit_trail").info(
+                f"Audit compliance weight {audit_weight:.2f} < 0.3, skipping persistence (memory only)"
+            )
+            return
+        
+        # Determine persistence method based on compliance level
+        if audit_weight >= 0.7:
+            # High compliance: Use both file and database persistence
+            self._persist_to_file(event)
+            self._persist_to_database(event)
+        elif audit_weight >= 0.5:
+            # Medium compliance: Use file persistence only
+            self._persist_to_file(event)
+        else:
+            # Low compliance: Use database persistence only (faster)
+            self._persist_to_database(event)
+        
+        logging.getLogger("audit_trail").debug(
+            f"Event {event.event_id} persisted with audit weight {audit_weight:.2f}"
+        )
+    
+    def _persist_to_file(self, event: AuditEvent) -> None:
+        """Persist event to file-based audit log."""
+        try:
+            audit_dir = Path("data/audit")
+            audit_dir.mkdir(parents=True, exist_ok=True)
+            
+            # Use daily log files
+            date_str = datetime.fromtimestamp(event.timestamp_ns / 1_000_000_000).strftime("%Y-%m-%d")
+            audit_file = audit_dir / f"audit_{date_str}.log"
+            
+            # Serialize event to JSON
+            event_data = {
+                "event_id": event.event_id,
+                "event_type": event.event_type.value,
+                "severity": event.severity.value,
+                "adapter_name": event.adapter_name,
+                "timestamp_ns": event.timestamp_ns,
+                "timestamp_iso": datetime.fromtimestamp(event.timestamp_ns / 1_000_000_000).isoformat(),
+                "order_id": event.order_id,
+                "symbol": event.symbol,
+                "side": event.side.value if event.side else None,
+                "quantity": event.quantity,
+                "price": event.price,
+                "execution_price": event.execution_price,
+                "fill_quantity": event.fill_quantity,
+                "message": event.message,
+                "error_message": event.error_message,
+                "signature": event.signature,
+            }
+            
+            # Append to file
+            with open(audit_file, "a", encoding="utf-8") as f:
+                f.write(json.dumps(event_data) + "\n")
+                
+        except Exception as e:
+            logging.getLogger("audit_trail").error(f"Failed to persist event to file: {e}")
+    
+    def _persist_to_database(self, event: AuditEvent) -> None:
+        """Persist event to SQLite database."""
+        try:
+            db_dir = Path("data/audit")
+            db_dir.mkdir(parents=True, exist_ok=True)
+            db_file = db_dir / "audit.db"
+            
+            conn = sqlite3.connect(db_file)
+            cursor = conn.cursor()
+            
+            # Create table if not exists
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS audit_events (
+                    event_id TEXT PRIMARY KEY,
+                    event_type TEXT,
+                    severity TEXT,
+                    adapter_name TEXT,
+                    timestamp_ns INTEGER,
+                    timestamp_iso TEXT,
+                    order_id TEXT,
+                    symbol TEXT,
+                    side TEXT,
+                    quantity REAL,
+                    price REAL,
+                    execution_price REAL,
+                    fill_quantity REAL,
+                    message TEXT,
+                    error_message TEXT,
+                    signature TEXT
+                )
+            """)
+            
+            # Insert event
+            cursor.execute("""
+                INSERT OR REPLACE INTO audit_events 
+                (event_id, event_type, severity, adapter_name, timestamp_ns, timestamp_iso,
+                 order_id, symbol, side, quantity, price, execution_price, fill_quantity,
+                 message, error_message, signature)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                event.event_id,
+                event.event_type.value,
+                event.severity.value,
+                event.adapter_name,
+                event.timestamp_ns,
+                datetime.fromtimestamp(event.timestamp_ns / 1_000_000_000).isoformat(),
+                event.order_id,
+                event.symbol,
+                event.side.value if event.side else None,
+                event.quantity,
+                event.price,
+                event.execution_price,
+                event.fill_quantity,
+                event.message,
+                event.error_message,
+                event.signature,
+            ))
+            
+            conn.commit()
+            conn.close()
+            
+        except Exception as e:
+            logging.getLogger("audit_trail").error(f"Failed to persist event to database: {e}")
     
     def _export_json(self) -> str:
         """Export as JSON."""

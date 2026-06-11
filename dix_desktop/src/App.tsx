@@ -53,6 +53,20 @@ export default function App() {
     screen: ScreenInfo | null;
   } | null>(null);
 
+  // ── Compliance control ────────────────────────────────────────────────
+  const [complianceLevel, setComplianceLevel] = useState(100);
+
+  const handleComplianceChange = useCallback(async (level: number) => {
+    setComplianceLevel(level);
+    // Here we would call the backend API to update compliance level
+    // For now, we'll just update local state
+    try {
+      await invoke("set_compliance_level", { level });
+    } catch (err) {
+      console.error("Failed to set compliance level:", err);
+    }
+  }, []);
+
   // ── Bubble / chat-turn state ───────────────────────────────────────
   const [bubbleText, setBubbleText] = useState<string | null>(null);
   const [userEcho, setUserEcho] = useState<string | null>(null);
@@ -455,18 +469,6 @@ export default function App() {
 
   return (
     <>
-      <div
-        data-tauri-drag-region
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: 50,
-          zIndex: 1000,
-          pointerEvents: 'auto',
-        }}
-      />
       <RobotAvatar
         width={Math.max(220, Math.min(windowSize.w - 24, Math.round(Math.max(260, windowSize.h - 120) * 0.7)))}
         height={Math.max(260, windowSize.h - 120)}
@@ -554,6 +556,8 @@ export default function App() {
         showRelationshipBadge={
           (settings?.relationship_visibility ?? "indicator") !== "hidden"
         }
+        complianceLevel={complianceLevel}
+        onComplianceChange={handleComplianceChange}
       />
       <RegionPicker
         open={pickerOpen}

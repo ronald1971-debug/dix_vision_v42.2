@@ -2506,6 +2506,128 @@ def _project_loop_result(result: LoopTickResult) -> dict[str, Any]:
     }
 
 
+# ============================================================================
+# COMPLIANCE CONTROL
+# ============================================================================
+
+class ComplianceLevelRequest(BaseModel):
+    """Request model for setting compliance level."""
+    level: int = Field(..., ge=0, le=100, description="Compliance level from 0-100%")
+
+class ComplianceConfig(BaseModel):
+    """Current compliance configuration."""
+    level: int
+    regulatory_weight: float
+    audit_weight: float
+    trading_weight: float
+    data_weight: float
+    label: str
+
+# Global compliance state
+_compliance_level: int = 100
+_compliance_lock = threading.Lock()
+
+def _get_compliance_weights(level: int) -> dict[str, float]:
+    """Calculate per-component compliance weights based on overall level."""
+    if level >= 75:
+        return {
+            "regulatory": 1.0,
+            "audit": 1.0,
+            "trading": 1.0,
+            "data": 1.0,
+        }
+    elif level >= 50:
+        return {
+            "regulatory": 0.75,
+            "audit": 0.8,
+            "trading": 0.7,
+            "data": 0.6,
+        }
+    elif level >= 25:
+        return {
+            "regulatory": 0.5,
+            "audit": 0.5,
+            "trading": 0.4,
+            "data": 0.3,
+        }
+    else:
+        return {
+            "regulatory": 0.1,
+            "audit": 0.2,
+            "trading": 0.2,
+            "data": 0.1,
+        }
+
+def _get_compliance_label(level: int) -> str:
+    """Get human-readable compliance label."""
+    if level >= 75:
+        return "FULL"
+    elif level >= 50:
+        return "HIGH"
+    elif level >= 25:
+        return "MEDIUM"
+    else:
+        return "LOW"
+
+@app.get("/api/compliance/config")
+def get_compliance_config() -> ComplianceConfig:
+    """Get current compliance configuration."""
+    with _compliance_lock:
+        weights = _get_compliance_weights(_compliance_level)
+        return ComplianceConfig(
+            level=_compliance_level,
+            regulatory_weight=weights["regulatory"],
+            audit_weight=weights["audit"],
+            trading_weight=weights["trading"],
+            data_weight=weights["data"],
+            label=_get_compliance_label(_compliance_level),
+        )
+
+@app.post("/api/compliance/set")
+def set_compliance_level(body: ComplianceLevelRequest) -> dict[str, Any]:
+    """Set the global compliance level (0-100%).
+    
+    This affects all compliance checks throughout the system:
+    - Regulatory validation weight
+    - Audit persistence requirements
+    - Trading calculation strictness
+    - Data source validation requirements
+    
+    Returns the updated compliance configuration.
+    """
+    with _compliance_lock:
+        global _compliance_level
+        _compliance_level = body.level
+        weights = _get_compliance_weights(_compliance_level)
+        
+        logger = logging.getLogger("compliance")
+        logger.info(
+            f"Compliance level set to {_compliance_level}% "
+            f"({_get_compliance_label(_compliance_label)}). "
+            f"Weights: regulatory={weights['regulatory']}, "
+            f"audit={weights['audit']}, "
+            f"trading={weights['trading']}, "
+            f"data={weights['data']}"
+        )
+        
+        return {
+            "ok": True,
+            "level": _compliance_level,
+            "label": _get_compliance_label(_compliance_level),
+            "weights": weights,
+        }
+
+@app.get("/api/compliance/weights")
+def get_compliance_weights() -> dict[str, float]:
+    """Get current per-component compliance weights.
+    
+    These weights can be used by various components to adjust
+    their behavior based on the current compliance level.
+    """
+    with _compliance_lock:
+        return _get_compliance_weights(_compliance_level)
+
+
 def _project_structural_result(
     result: StructuralLoopTickResult,
 ) -> dict[str, Any]:

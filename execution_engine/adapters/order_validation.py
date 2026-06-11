@@ -9,6 +9,8 @@ from __future__ import annotations
 
 import dataclasses
 import enum
+import logging
+import requests
 from threading import Lock
 from typing import Any, Final
 
@@ -596,15 +598,90 @@ class OrderValidator:
         return errors
     
     def _validate_regulatory(self, order: Order) -> list[ValidationError]:
-        """Validate regulatory requirements."""
+        """Validate regulatory requirements with compliance level integration."""
         errors = []
         
-        # Placeholder for regulatory validation
-        # In production, this would check:
-        # - Position limits
-        # - Concentration limits
-        # - Market abuse detection
-        # - KYC/AML requirements
+        try:
+            # Fetch current compliance weights from the API
+            response = requests.get("http://localhost:8080/api/compliance/weights", timeout=1.0)
+            if response.status_code == 200:
+                weights = response.json()
+                regulatory_weight = weights.get("regulatory", 1.0)
+            else:
+                # Default to full compliance if API unavailable
+                regulatory_weight = 1.0
+        except Exception as e:
+            logging.getLogger("order_validation").warning(
+                f"Failed to fetch compliance weights, using full compliance: {e}"
+            )
+            regulatory_weight = 1.0
+        
+        # If regulatory weight is very low, skip most checks
+        if regulatory_weight < 0.2:
+            logging.getLogger("order_validation").info(
+                "Regulatory compliance weight < 0.2, skipping detailed checks"
+            )
+            return errors
+        
+        # Position Limits Validation
+        if regulatory_weight >= 0.5:
+            max_position_size = self._config.max_position_size if hasattr(self._config, 'max_position_size') else 1000000
+            if order.quantity and order.quantity > max_position_size:
+                severity = ValidationSeverity.ERROR if regulatory_weight >= 0.8 else ValidationSeverity.WARNING
+                errors.append(ValidationError(
+                    error_type=ValidationErrorType.REGULATORY_ERROR,
+                    severity=severity,
+                    message=f"Order quantity {order.quantity} exceeds maximum position size {max_position_size}",
+                    field="quantity",
+                    expected=f"<= {max_position_size}",
+                    actual=order.quantity,
+                ))
+        
+        # Concentration Limits Validation
+        if regulatory_weight >= 0.7:
+            max_concentration = self._config.max_concentration if hasattr(self._config, 'max_concentration') else 0.3
+            if hasattr(order, 'portfolio_value') and order.portfolio_value:
+                concentration = (order.quantity * (order.price or 0)) / order.portfolio_value
+                if concentration > max_concentration:
+                    severity = ValidationSeverity.ERROR if regulatory_weight >= 0.9 else ValidationSeverity.WARNING
+                    errors.append(ValidationError(
+                        error_type=ValidationErrorType.REGULATORY_ERROR,
+                        severity=severity,
+                        message=f"Order concentration {concentration:.2%} exceeds maximum {max_concentration:.2%}",
+                        field="concentration",
+                        expected=f"<= {max_concentration:.2%}",
+                        actual=f"{concentration:.2%}",
+                    ))
+        
+        # Market Abuse Detection
+        if regulatory_weight >= 0.8:
+            # Check for suspicious patterns
+            if hasattr(order, 'time_since_last_order') and order.time_since_last_order and order.time_since_last_order < 1.0:
+                errors.append(ValidationError(
+                    error_type=ValidationErrorType.REGULATORY_ERROR,
+                    severity=ValidationSeverity.WARNING,
+                    message=f"Rapid order detected (time since last: {order.time_since_last_order:.2f}s)",
+                    field="timing",
+                    expected=">= 1.0s between orders",
+                    actual=f"{order.time_since_last_order:.2f}s",
+                ))
+        
+        # KYC/AML Requirements
+        if regulatory_weight >= 0.9:
+            if hasattr(order, 'kyc_verified') and not order.kyc_verified:
+                errors.append(ValidationError(
+                    error_type=ValidationErrorType.REGULATORY_ERROR,
+                    severity=ValidationSeverity.ERROR,
+                    message="KYC verification required for this order",
+                    field="kyc_status",
+                    expected="verified",
+                    actual="unverified",
+                ))
+        
+        logging.getLogger("order_validation").info(
+            f"Regulatory validation completed with weight {regulatory_weight:.2f}: "
+            f"{len(errors)} errors found"
+        )
         
         return errors
     

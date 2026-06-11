@@ -59,6 +59,7 @@ Thumbs.db
 apikeys.env
 secrets.yaml
 secrets.json
+.dix_secrets.env
 
 # Coverage / test
 .coverage

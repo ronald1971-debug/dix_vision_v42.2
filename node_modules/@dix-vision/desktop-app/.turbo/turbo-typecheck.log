@@ -1,0 +1,8 @@
+
+> @dix-vision/desktop-app@42.2.0 typecheck
+> cd ../../dix_desktop && npm run typecheck
+
+
+> dix-vision-desktop@42.2.0 typecheck
+> tsc -b
+

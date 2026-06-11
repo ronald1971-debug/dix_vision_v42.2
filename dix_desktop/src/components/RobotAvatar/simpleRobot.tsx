@@ -1,6 +1,7 @@
-// Simple 3D Robot Avatar - Code-Based Generation
-// This creates a basic robot using Three.js primitives
+// Normal Proportioned Robot Avatar - Code-Based Generation
+// This creates a normal-sized robot using Three.js primitives
 // Sonny-inspired design from I, Robot
+// Includes a sign that the robot can hold
 
 import * as THREE from 'three';
 
@@ -12,6 +13,53 @@ export interface RobotParts {
     chestLight: THREE.Mesh;
     leftEyebrow: THREE.Mesh;
     rightEyebrow: THREE.Mesh;
+    leftArm: THREE.Mesh;
+    rightArm: THREE.Mesh;
+    leftHand: THREE.Mesh;
+    rightHand: THREE.Mesh;
+    torso: THREE.Mesh;
+    sign: THREE.Mesh;
+    signText: THREE.Mesh;
+}
+
+export interface GestureState {
+    type: 'idle' | 'talking' | 'explaining' | 'greeting' | 'thinking' | 'excited' | 'questioning';
+    intensity: number;
+    startTime: number;
+}
+
+export function analyzeGesture(text: string): GestureState {
+    const lowerText = text.toLowerCase();
+    
+    if (lowerText.match(/^(hello|hi|hey|good morning|good evening|greetings)/i)) {
+        return { type: 'greeting', intensity: 0.8, startTime: Date.now() };
+    }
+    
+    if (lowerText.includes('?') || lowerText.match(/(what|how|why|when|where|who|which|can you|could you)/i)) {
+        return { type: 'questioning', intensity: 0.7, startTime: Date.now() };
+    }
+    
+    if (lowerText.match(/(excellent|great|amazing|wonderful|fantastic|awesome|exciting|!+)/i)) {
+        return { type: 'excited', intensity: 0.9, startTime: Date.now() };
+    }
+    
+    if (lowerText.match(/(let me explain|basically|essentially|in other words|what i mean|think about|consider)/i)) {
+        return { type: 'explaining', intensity: 0.6, startTime: Date.now() };
+    }
+    
+    if (lowerText.match(/(let me think|hmm|interesting|i wonder|perhaps|maybe)/i)) {
+        return { type: 'thinking', intensity: 0.5, startTime: Date.now() };
+    }
+    
+    return { type: 'talking', intensity: 0.4, startTime: Date.now() };
+}
+
+let currentGesture: GestureState = { type: 'idle', intensity: 0, startTime: 0 };
+let targetRotations: { [key: string]: THREE.Euler } = {};
+let currentRotations: { [key: string]: THREE.Euler } = {};
+
+export function setGesture(gesture: GestureState) {
+    currentGesture = gesture;
 }
 
 export function createSimpleRobot(): THREE.Group {
@@ -37,6 +85,20 @@ export function createSimpleRobot(): THREE.Group {
         metalness: 0.5,
     });
 
+    const mouthMaterial = new THREE.MeshStandardMaterial({
+        color: 0x2a2a2a, // Dark gray for contrast
+        emissive: 0x000000,
+        emissiveIntensity: 0.0,
+        metalness: 0.6,
+        roughness: 0.4,
+    });
+
+    const signMaterial = new THREE.MeshStandardMaterial({
+        color: 0xFFFFFF, // White sign
+        metalness: 0.1,
+        roughness: 0.2,
+    });
+
     // Head
     const headGeometry = new THREE.SphereGeometry(0.5, 32, 32);
     const head = new THREE.Mesh(headGeometry, bodyMaterial);
@@ -44,7 +106,7 @@ export function createSimpleRobot(): THREE.Group {
     head.name = 'head';
     robot.add(head);
 
-    // Eyes (Sonny-style glowing blue)
+    // Eyes (Sonny-style glowing blue - normal size)
     const eyeGeometry = new THREE.SphereGeometry(0.08, 16, 16);
     const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
     leftEye.position.set(-0.15, 1.75, 0.4);
@@ -68,9 +130,9 @@ export function createSimpleRobot(): THREE.Group {
     rightEyebrow.name = 'rightEyebrow';
     robot.add(rightEyebrow);
 
-    // Mouth (initially closed, will animate when talking)
-    const mouthGeometry = new THREE.BoxGeometry(0.12, 0.02, 0.02);
-    const mouth = new THREE.Mesh(mouthGeometry, darkMaterial);
+    // Mouth (normal proportion, visible but not exaggerated)
+    const mouthGeometry = new THREE.BoxGeometry(0.12, 0.04, 0.03);
+    const mouth = new THREE.Mesh(mouthGeometry, mouthMaterial);
     mouth.position.set(0, 1.6, 0.45);
     mouth.name = 'mouth';
     robot.add(mouth);
@@ -85,6 +147,7 @@ export function createSimpleRobot(): THREE.Group {
     const torsoGeometry = new THREE.CylinderGeometry(0.4, 0.35, 0.8, 32);
     const torso = new THREE.Mesh(torsoGeometry, bodyMaterial);
     torso.position.y = 0.9;
+    torso.name = 'torso';
     robot.add(torso);
 
     // Chest button (Sonny feature - the "brain" indicator)
@@ -109,22 +172,40 @@ export function createSimpleRobot(): THREE.Group {
     const leftArm = new THREE.Mesh(armGeometry, bodyMaterial);
     leftArm.position.set(-0.65, 0.8, 0);
     leftArm.rotation.z = 0.2;
+    leftArm.name = 'leftArm';
     robot.add(leftArm);
 
     const rightArm = new THREE.Mesh(armGeometry, bodyMaterial);
     rightArm.position.set(0.65, 0.8, 0);
     rightArm.rotation.z = -0.2;
+    rightArm.name = 'rightArm';
     robot.add(rightArm);
 
     // Hands
     const handGeometry = new THREE.SphereGeometry(0.12, 16, 16);
     const leftHand = new THREE.Mesh(handGeometry, darkMaterial);
     leftHand.position.set(-0.75, 0.45, 0);
+    leftHand.name = 'leftHand';
     robot.add(leftHand);
 
     const rightHand = new THREE.Mesh(handGeometry, darkMaterial);
     rightHand.position.set(0.75, 0.45, 0);
+    rightHand.name = 'rightHand';
     robot.add(rightHand);
+
+    // SIGN - white sign that the robot can hold
+    const signGeometry = new THREE.BoxGeometry(0.6, 0.4, 0.02);
+    const sign = new THREE.Mesh(signGeometry, signMaterial);
+    sign.position.set(0.9, 1.0, 0.2);
+    sign.name = 'sign';
+    robot.add(sign);
+
+    // Sign text (simple stripe)
+    const textGeometry = new THREE.BoxGeometry(0.5, 0.1, 0.03);
+    const text = new THREE.Mesh(textGeometry, darkMaterial);
+    text.position.set(0.9, 1.1, 0.25);
+    text.name = 'signText';
+    robot.add(text);
 
     // Hips
     const hipGeometry = new THREE.SphereGeometry(0.25, 16, 16);
@@ -161,7 +242,25 @@ export function createSimpleRobot(): THREE.Group {
         chestLight,
         leftEyebrow,
         rightEyebrow,
+        leftArm,
+        rightArm,
+        leftHand,
+        rightHand,
+        torso,
+        sign,
+        signText,
     } as RobotParts;
+
+    // Initialize rotation tracking
+    currentRotations = {
+        head: new THREE.Euler(),
+        torso: new THREE.Euler(),
+        leftArm: new THREE.Euler(),
+        rightArm: new THREE.Euler(),
+        leftHand: new THREE.Euler(),
+        rightHand: new THREE.Euler(),
+        sign: new THREE.Euler(),
+    };
 
     return robot;
 }
@@ -169,7 +268,7 @@ export function createSimpleRobot(): THREE.Group {
 // Animation state for talking
 let isTalking = false;
 let talkStartTime = 0;
-let expression = 'neutral'; // neutral, happy, sad, angry, surprised
+let expression = 'neutral';
 
 export function setTalking(talking: boolean) {
     isTalking = talking;
@@ -195,25 +294,141 @@ export function setChestButtonColor(red: boolean, robot: THREE.Group) {
     }
 }
 
-// Animation function for idle movement and talking
+// Smooth interpolation
+function lerp(start: number, end: number, t: number): number {
+    return start + (end - start) * t;
+}
+
+function lerpEuler(current: THREE.Euler, target: THREE.Euler, t: number): THREE.Euler {
+    return new THREE.Euler(
+        lerp(current.x, target.x, t),
+        lerp(current.y, target.y, t),
+        lerp(current.z, target.z, t)
+    );
+}
+
+// Get target rotations based on gesture
+function getTargetRotationsForGesture(gesture: GestureState): { [key: string]: THREE.Euler } {
+    const intensity = gesture.intensity;
+    const targets: { [key: string]: THREE.Euler } = {};
+
+    switch (gesture.type) {
+        case 'greeting':
+            targets.leftArm = new THREE.Euler(0.3, 0.3, 0.5);
+            targets.rightArm = new THREE.Euler(0.3, -0.3, -0.5);
+            targets.sign = new THREE.Euler(0, 0, 0.5);
+            targets.head = new THREE.Euler(0.1, 0.2, 0);
+            break;
+        case 'questioning':
+            targets.rightArm = new THREE.Euler(0.4, -0.2, -0.3);
+            targets.leftArm = new THREE.Euler(0.1, 0.1, 0.2);
+            targets.sign = new THREE.Euler(0, 0, 0.3);
+            targets.head = new THREE.Euler(0.2, 0.3, 0.1);
+            break;
+        case 'excited':
+            targets.leftArm = new THREE.Euler(0.5, 0.5, 0.8);
+            targets.rightArm = new THREE.Euler(0.5, -0.5, -0.8);
+            targets.sign = new THREE.Euler(0, 0, 0.8);
+            targets.head = new THREE.Euler(0.2, 0, 0);
+            break;
+        case 'explaining':
+            targets.rightArm = new THREE.Euler(0.3, -0.3, -0.4);
+            targets.leftArm = new THREE.Euler(0.1, 0.1, 0.2);
+            targets.sign = new THREE.Euler(0, 0, 0.4);
+            targets.head = new THREE.Euler(0.1, 0.1, 0);
+            break;
+        case 'thinking':
+            targets.rightArm = new THREE.Euler(0.6, -0.2, -0.2);
+            targets.sign = new THREE.Euler(0.3, 0, 0.5);
+            targets.leftArm = new THREE.Euler(0.1, 0.1, 0.1);
+            targets.head = new THREE.Euler(0.3, 0, 0);
+            break;
+        case 'talking':
+        default:
+            targets.leftArm = new THREE.Euler(0.1 + intensity * 0.2, 0.1 + intensity * 0.1, 0.2 + intensity * 0.1);
+            targets.rightArm = new THREE.Euler(-0.1 - intensity * 0.2, -0.1 - intensity * 0.1, -0.2 - intensity * 0.1);
+            targets.sign = new THREE.Euler(0, 0, 0.2);
+            targets.head = new THREE.Euler(0.05, 0.05, 0);
+            break;
+    }
+
+    return targets;
+}
+
+// Animation function
 export function animateRobot(robot: THREE.Group, time: number): void {
     const parts = (robot as any).robotParts as RobotParts;
     if (!parts) return;
 
-    // Subtle breathing (robot doesn't really breathe, but subtle movement)
-    robot.position.y = Math.sin(time * 2) * 0.02;
+    const timeSeconds = time / 1000;
+    const gestureAge = (Date.now() - currentGesture.startTime) / 1000;
 
-    // Head movement (tracking/awareness)
+    // Breathing - subtle full-body movement
+    const breathDepth = 0.02;
+    const breathSpeed = 1.5;
+    robot.position.y = Math.sin(timeSeconds * breathSpeed) * breathDepth;
+    robot.scale.y = 1 + Math.sin(timeSeconds * breathSpeed) * 0.01;
+
+    // Get target rotations based on current gesture
+    const targets = getTargetRotationsForGesture(currentGesture);
+
+    // Smoothly interpolate to target rotations
+    const lerpSpeed = 0.05;
+    Object.keys(targets).forEach(key => {
+        if (!currentRotations[key]) {
+            currentRotations[key] = new THREE.Euler();
+        }
+        currentRotations[key] = lerpEuler(currentRotations[key], targets[key], lerp);
+    });
+
+    // Apply rotations to body parts
     if (parts.head) {
-        parts.head.rotation.y = Math.sin(time * 0.5) * 0.1;
-        parts.head.rotation.x = Math.sin(time * 0.7) * 0.05;
+        parts.head.rotation.x = currentRotations.head.x + Math.sin(timeSeconds * 0.8) * 0.03;
+        parts.head.rotation.y = currentRotations.head.y + Math.sin(timeSeconds * 0.6) * 0.05;
+        parts.head.rotation.z = currentRotations.head.z + Math.sin(timeSeconds * 0.7) * 0.02;
     }
 
-    // Eye glow pulsing (Sonny's eyes glow)
+    if (parts.torso) {
+        parts.torso.rotation.x = currentRotations.torso.x + Math.sin(timeSeconds * 1.2) * 0.02;
+        parts.torso.rotation.y = currentRotations.torso.y + Math.sin(timeSeconds * 0.9) * 0.03;
+    }
+
+    if (parts.leftArm) {
+        parts.leftArm.rotation.x = currentRotations.leftArm.x + Math.sin(timeSeconds * 1.5) * 0.05;
+        parts.leftArm.rotation.y = currentRotations.leftArm.y + Math.sin(timeSeconds * 1.3) * 0.03;
+        parts.leftArm.rotation.z = currentRotations.leftArm.z + Math.sin(timeSeconds * 1.1) * 0.04;
+    }
+
+    if (parts.rightArm) {
+        parts.rightArm.rotation.x = currentRotations.rightArm.x + Math.sin(timeSeconds * 1.4) * 0.05;
+        parts.rightArm.rotation.y = currentRotations.rightArm.y + Math.sin(timeSeconds * 1.2) * 0.03;
+        parts.rightArm.rotation.z = currentRotations.rightArm.z + Math.sin(timeSeconds * 1.0) * 0.04;
+    }
+
+    // Sign animation
+    if (parts.sign) {
+        parts.sign.rotation.x = currentRotations.sign.x + Math.sin(timeSeconds * 0.8) * 0.05;
+        parts.sign.rotation.y = currentRotations.sign.y + Math.sin(timeSeconds * 0.6) * 0.05;
+    }
+
+    // Hand movements
+    if (parts.leftHand) {
+        const handWave = isTalking ? Math.sin(timeSeconds * 8) * 0.1 : 0;
+        parts.leftHand.position.y = 0.45 + handWave;
+    }
+
+    if (parts.rightHand) {
+        const handWave = isTalking ? Math.sin(timeSeconds * 8 + Math.PI) * 0.1 : 0;
+        parts.rightHand.position.y = 0.45 + handWave;
+    }
+
+    // Eye glow pulsing
     [parts.leftEye, parts.rightEye].forEach(eye => {
         if (eye && eye instanceof THREE.Mesh) {
+            const baseIntensity = 0.6;
+            const pulseAmount = currentGesture.type === 'excited' ? 0.4 : 0.2;
             (eye.material as THREE.MeshStandardMaterial).emissiveIntensity = 
-                0.6 + Math.sin(time * 3) * 0.2;
+                baseIntensity + Math.sin(timeSeconds * 3) * pulseAmount;
         }
     });
 
@@ -221,14 +436,15 @@ export function animateRobot(robot: THREE.Group, time: number): void {
     if (parts.mouth) {
         if (isTalking) {
             const talkTime = (Date.now() - talkStartTime) / 1000;
-            // Open and close mouth based on sine wave
-            const mouthOpen = Math.abs(Math.sin(talkTime * 10)) * 0.08;
+            const mouthOpen = Math.abs(Math.sin(talkTime * 12)) * 0.08 + 
+                            Math.abs(Math.sin(talkTime * 7)) * 0.04;
             parts.mouth.scale.y = 1 + mouthOpen;
-            parts.mouth.position.y = 1.6 - mouthOpen * 0.5;
+            parts.mouth.position.y = 1.6 - mouthOpen * 0.3;
+            parts.mouth.rotation.x = mouthOpen * 0.1;
         } else {
-            // Closed mouth
             parts.mouth.scale.y = 1;
             parts.mouth.position.y = 1.6;
+            parts.mouth.rotation.x = 0;
         }
     }
 
@@ -236,10 +452,10 @@ export function animateRobot(robot: THREE.Group, time: number): void {
     if (parts.leftEyebrow && parts.rightEyebrow) {
         switch (expression) {
             case 'happy':
-                parts.leftEyebrow.rotation.z = -0.2;
-                parts.rightEyebrow.rotation.z = 0.2;
-                parts.leftEyebrow.position.y = 1.83;
-                parts.rightEyebrow.position.y = 1.83;
+                parts.leftEyebrow.rotation.z = -0.2 + Math.sin(timeSeconds * 2) * 0.02;
+                parts.rightEyebrow.rotation.z = 0.2 - Math.sin(timeSeconds * 2) * 0.02;
+                parts.leftEyebrow.position.y = 1.83 + Math.sin(timeSeconds * 3) * 0.01;
+                parts.rightEyebrow.position.y = 1.83 + Math.sin(timeSeconds * 3) * 0.01;
                 break;
             case 'sad':
                 parts.leftEyebrow.rotation.z = 0.3;
@@ -267,20 +483,31 @@ export function animateRobot(robot: THREE.Group, time: number): void {
         }
     }
 
-    // Eye shape changes based on expression
+    // Eye shape changes
     if (parts.leftEye && parts.rightEye) {
         const eyeScaleX = expression === 'happy' ? 1.3 : 
                          expression === 'sad' ? 0.8 : 
                          expression === 'surprised' ? 1.2 : 1;
-        parts.leftEye.scale.x = eyeScaleX;
-        parts.rightEye.scale.x = eyeScaleX;
+        const blinkRate = expression === 'surprised' ? 4 : 2;
+        const blink = Math.sin(timeSeconds * blinkRate) > 0.95 ? 0.1 : 1;
+        parts.leftEye.scale.x = eyeScaleX * blink;
+        parts.rightEye.scale.x = eyeScaleX * blink;
     }
 
-    // Arm sway (subtle natural movement)
-    const leftArm = robot.children[10];
-    const rightArm = robot.children[11];
-    if (leftArm && rightArm) {
-        leftArm.rotation.z = 0.2 + Math.sin(time * 1) * 0.05;
-        rightArm.rotation.z = -0.2 - Math.sin(time * 1) * 0.05;
+    // Weight shifting
+    const weightShift = Math.sin(timeSeconds * 0.8) * 0.02;
+    robot.position.x = weightShift;
+
+    // Subtle knee bend
+    const leftLeg = robot.children[robot.children.length - 4];
+    const rightLeg = robot.children[robot.children.length - 3];
+    if (leftLeg && rightLeg) {
+        leftLeg.rotation.x = weightShift * 0.1;
+        rightLeg.rotation.x = -weightShift * 0.1;
+    }
+
+    // Gesture timeout
+    if (currentGesture.type !== 'idle' && gestureAge > 8) {
+        currentGesture = { type: 'idle', intensity: 0, startTime: Date.now() };
     }
 }

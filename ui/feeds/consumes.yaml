@@ -49,6 +49,142 @@ inputs:
   - source_id: SRC-ALT-POLYMARKET-001
     required: false
   
+  # Geopolitical / global events
+  - source_id: SRC-GEO-GDELT-001
+    required: false
+  
+  # Crypto sources (Top 30 Free Forex + Crypto + Additional)
+  - source_id: SRC-CRYPTO-COINGECKO-001
+    required: false
+  - source_id: SRC-CRYPTO-COINMARKETCAP-001
+    required: false
+  - source_id: SRC-CRYPTO-BINANCE-001
+    required: false
+  - source_id: SRC-CRYPTO-KRAKEN-001
+    required: false
+  - source_id: SRC-CRYPTO-COINBASE-001
+    required: false
+  - source_id: SRC-CRYPTO-COINPAPRIKA-001
+    required: false
+  - source_id: SRC-CRYPTO-CRYPTOCOMPARE-001
+    required: false
+  - source_id: SRC-CRYPTO-COINCAP-001
+    required: false
+  - source_id: SRC-CRYPTO-NOMICS-001
+    required: false
+  - source_id: SRC-CRYPTO-GLASSNODE-001
+    required: false
+  - source_id: SRC-CRYPTO-MESSARI-001
+    required: false
+  - source_id: SRC-CRYPTO-SANTIMENT-001
+    required: false
+  - source_id: SRC-CRYPTO-INTOTHEBLOCK-001
+    required: false
+  - source_id: SRC-CRYPTO-COINMETRICS-001
+    required: false
+  - source_id: SRC-CRYPTO-DEXSCREENER-001
+    required: false
+  - source_id: SRC-CRYPTO-COINSTATS-001
+    required: false
+  - source_id: SRC-CRYPTO-COINLORE-001
+    required: false
+  - source_id: SRC-CRYPTO-BRAVENEWCOIN-001
+    required: false
+  - source_id: SRC-CRYPTO-DEXTOOLS-001
+    required: false
+  - source_id: SRC-CRYPTO-BYBIT-001
+    required: false
+  
+  # Forex sources
+  - source_id: SRC-FOREX-EXCHANGERATE-001
+    required: false
+  - source_id: SRC-FOREX-FRANKFURTER-001
+    required: false
+  - source_id: SRC-FOREX-ALPHAVANTAGE-001
+    required: false
+  - source_id: SRC-FOREX-TRUEFX-001
+    required: false
+  - source_id: SRC-FOREX-XE-001
+    required: false
+  - source_id: SRC-FOREX-OANDA-001
+    required: false
+  - source_id: SRC-FOREX-OPENEXCHANGERATES-001
+    required: false
+  - source_id: SRC-FOREX-FIXER-001
+    required: false
+  - source_id: SRC-FOREX-CURRENCYLAYER-001
+    required: false
+  - source_id: SRC-FOREX-FINAGE-001
+    required: false
+  
+  # Additional worldwide sources (US + Global)
+  - source_id: SRC-ALPHA-TIINGO-001
+    required: false
+  - source_id: SRC-ALPHA-IEX-001
+    required: false
+  - source_id: SRC-ALPHA-POLYGON-001
+    required: false
+  - source_id: SRC-ALPHA-FMP-001
+    required: false
+  - source_id: SRC-ALPHA-YAHOO-001
+    required: false
+  - source_id: SRC-ALPHA-QUANDL-001
+    required: false
+  - source_id: SRC-ALPHA-SEC-001
+    required: false
+  - source_id: SRC-MACRO-FRED-001
+    required: false
+  - source_id: SRC-MACRO-BLS-001
+    required: false
+  - source_id: SRC-MACRO-TREASURY-001
+    required: false
+  - source_id: SRC-MACRO-CFTC-001
+    required: false
+  - source_id: SRC-MACRO-CME-001
+    required: false
+  - source_id: SRC-MACRO-CBOE-001
+    required: false
+  - source_id: SRC-STOCKS-MORNINGSTAR-001
+    required: false
+  - source_id: SRC-GLOBAL-EODHD-001
+    required: false
+  - source_id: SRC-GLOBAL-INVESTING-001
+    required: false
+  - source_id: SRC-GLOBAL-REFINITIV-001
+    required: false
+  - source_id: SRC-GLOBAL-BLOOMBERG-001
+    required: false
+  - source_id: SRC-GLOBAL-OPENFIGI-001
+    required: false
+  - source_id: SRC-GLOBAL-WFE-001
+    required: false
+  - source_id: SRC-GLOBAL-YAHOO-001
+    required: false
+  - source_id: SRC-GLOBAL-MSCI-001
+    required: false
+  - source_id: SRC-GLOBAL-STOXX-001
+    required: false
+  - source_id: SRC-GLOBAL-NIKKEI-001
+    required: false
+  - source_id: SRC-FXCOMMODITIES-LBMA-001
+    required: false
+  - source_id: SRC-FXCOMMODITIES-EIA-001
+    required: false
+  - source_id: SRC-FXCOMMODITIES-WB-001
+    required: false
+  - source_id: SRC-FXCOMMODITIES-IMF-001
+    required: false
+  - source_id: SRC-MACRO-WORLDBANK-001
+    required: false
+  - source_id: SRC-MACRO-IMF-001
+    required: false
+  - source_id: SRC-MACRO-OECD-001
+    required: false
+  - source_id: SRC-MACRO-UN-001
+    required: false
+  - source_id: SRC-MACRO-EUROSTAT-001
+    required: false
+  
   # Social sentiment sources
   - source_id: SRC-SOCIAL-REDDIT-001
     required: false

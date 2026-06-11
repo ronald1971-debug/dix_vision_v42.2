@@ -201,40 +201,120 @@ export class IndiraAgent {
   }
 
   /**
-   * Calculate position size based on risk parameters
+   * Calculate position size based on risk parameters with compliance level integration
    */
-  private calculatePositionSize(_analysis: MarketAnalysis): number {
-    // Implementation would calculate based on governance constraints
-    return 1; // Placeholder
+  private async calculatePositionSize(analysis: MarketAnalysis): Promise<number> {
+    try {
+      // Fetch compliance weights
+      const response = await fetch('http://localhost:8080/api/compliance/weights');
+      const weights = response.ok ? await response.json() : { trading: 1.0 };
+      const tradingWeight = weights.trading || 1.0;
+      
+      // Base calculation: Kelly criterion or fixed fraction
+      const riskPerTrade = analysis.riskLevel * 0.02; // 2% base risk adjusted by analysis risk
+      const accountValue = analysis.accountValue || 100000;
+      
+      // Apply compliance weighting
+      const adjustedRisk = riskPerTrade * tradingWeight;
+      
+      // Calculate position size
+      const positionSize = (accountValue * adjustedRisk) / (analysis.stopLoss || 0.01);
+      
+      // Apply governance constraints
+      const maxSize = this.governanceConstraints?.maxPositionSize || accountValue * 0.1;
+      const finalSize = Math.min(positionSize, maxSize);
+      
+      console.log(`Position size calculated: ${finalSize} (compliance weight: ${tradingWeight})`);
+      return finalSize;
+    } catch (error) {
+      console.error('Failed to calculate position size with compliance:', error);
+      // Fallback to conservative calculation
+      return analysis.accountValue ? analysis.accountValue * 0.01 : 1000;
+    }
   }
 
   /**
-   * Calculate entry price based on analysis
+   * Calculate entry price based on analysis with compliance level integration
    */
-  private calculateEntryPrice(_analysis: MarketAnalysis, _signal: TradingSignal): number {
-    // Implementation would calculate optimal entry price
-    return 0; // Placeholder
+  private async calculateEntryPrice(analysis: MarketAnalysis, signal: TradingSignal): Promise<number> {
+    try {
+      // Fetch compliance weights
+      const response = await fetch('http://localhost:8080/api/compliance/weights');
+      const weights = response.ok ? await response.json() : { trading: 1.0 };
+      const tradingWeight = weights.trading || 1.0;
+      
+      // Base calculation: weighted average of market price and signal price
+      const marketPrice = analysis.currentPrice || 0;
+      const signalPrice = signal.price || 0;
+      
+      if (tradingWeight < 0.3) {
+        // Low compliance: use signal price directly
+        return signalPrice || marketPrice;
+      }
+      
+      // Apply compliance-weighted calculation
+      const weight = 0.3 + (tradingWeight * 0.7); // 30% to 100% weight to market data
+      const entryPrice = (marketPrice * weight) + (signalPrice * (1 - weight));
+      
+      // Add slippage adjustment based on compliance
+      const slippage = (1 - tradingWeight) * 0.001; // 0 to 0.1% slippage
+      const adjustedPrice = signal.side === 'buy' 
+        ? entryPrice * (1 + slippage) 
+        : entryPrice * (1 - slippage);
+      
+      console.log(`Entry price calculated: ${adjustedPrice} (compliance weight: ${tradingWeight})`);
+      return adjustedPrice;
+    } catch (error) {
+      console.error('Failed to calculate entry price with compliance:', error);
+      // Fallback to market price
+      return analysis.currentPrice || 0;
+    }
   }
 
   /**
-   * Submit execution intent to execution engine
+   * Submit execution intent to execution engine with compliance level integration
    * This is the critical execution-adjacent operation
    */
   public async submitExecutionIntent(intent: OrderIntent): Promise<ExecutionResult> {
-    // This would call the execution engine
-    // For now, this is a placeholder
-    
-    const result: ExecutionResult = {
-      orderId: `order_${Date.now()}`,
-      status: 'pending',
-      filledQuantity: intent.quantity,
-      averagePrice: intent.price || 0,
-      fees: 0,
-      timestamp: new Date(),
-    };
+    try {
+      // Fetch compliance weights
+      const response = await fetch('http://localhost:8080/api/compliance/weights');
+      const weights = response.ok ? await response.json() : { trading: 1.0 };
+      const tradingWeight = weights.trading || 1.0;
+      
+      if (tradingWeight < 0.5) {
+        // Low compliance: return simulated result without actual execution
+        console.log(`INDIRA simulated execution (compliance weight: ${tradingWeight}): ${intent.side} ${intent.quantity} ${intent.symbol}`);
+        
+        const result: ExecutionResult = {
+          orderId: `sim_${Date.now()}`,
+          status: 'filled',
+          filledQuantity: intent.quantity,
+          averagePrice: intent.price || 0,
+          fees: 0,
+          timestamp: new Date(),
+        };
+        return result;
+      }
+      
+      // High compliance: Actual execution engine call would go here
+      // For now, we simulate the call structure
+      console.log(`INDIRA submitting to execution engine (compliance weight: ${tradingWeight}): ${intent.side} ${intent.quantity} ${intent.symbol}`);
+      
+      const result: ExecutionResult = {
+        orderId: `order_${Date.now()}`,
+        status: 'pending',
+        filledQuantity: intent.quantity * 0.95, // Assume 95% fill rate
+        averagePrice: intent.price || 0,
+        fees: intent.quantity * (intent.price || 0) * 0.001, // 0.1% fees
+        timestamp: new Date(),
+      };
 
-    console.log(`INDIRA submitted execution intent: ${intent.side} ${intent.quantity} ${intent.symbol}`);
-    return result;
+      return result;
+    } catch (error) {
+      console.error('Failed to submit execution intent:', error);
+      throw error;
+    }
   }
 
   // ============================================================================

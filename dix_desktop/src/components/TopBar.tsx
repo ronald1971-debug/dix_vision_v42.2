@@ -8,7 +8,9 @@ import {
   GearIcon,
   RefreshIcon,
   WarningIcon,
+  ShieldIcon,
 } from "./icons";
+import { useState } from "react";
 
 export interface TopBarProps {
   mode: string;
@@ -27,6 +29,8 @@ export interface TopBarProps {
   onToggleAutoWatch: () => void;
   relationship: RelationshipState | null;
   showRelationshipBadge: boolean;
+  complianceLevel: number;
+  onComplianceChange: (level: number) => void;
 }
 
 /**
@@ -77,6 +81,10 @@ export function TopBar(props: TopBarProps) {
       {props.showRelationshipBadge && props.relationship && (
         <RelationshipBadge state={props.relationship} />
       )}
+      <ComplianceControl 
+        level={props.complianceLevel} 
+        onChange={props.onComplianceChange} 
+      />
       <button
         onClick={props.onToggleListen}
         disabled={!props.listenReady}
@@ -232,6 +240,111 @@ function iconBtnStyle(active: boolean): React.CSSProperties {
       : iconBtn.border,
     background: active ? "rgba(255,255,255,0.10)" : iconBtn.background,
   };
+}
+
+function ComplianceControl({ level, onChange }: { level: number; onChange: (level: number) => void }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [tempLevel, setTempLevel] = useState(level);
+
+  useLocale();
+
+  const getComplianceColor = (lvl: number) => {
+    if (lvl >= 80) return "rgba(34, 197, 94, 0.8)"; // green
+    if (lvl >= 50) return "rgba(234, 179, 8, 0.8)"; // yellow
+    if (lvl >= 25) return "rgba(249, 115, 22, 0.8)"; // orange
+    return "rgba(239, 68, 68, 0.8)"; // red
+  };
+
+  const getComplianceLabel = (lvl: number) => {
+    if (lvl >= 80) return "FULL";
+    if (lvl >= 50) return "HIGH";
+    if (lvl >= 25) return "MED";
+    return "LOW";
+  };
+
+  const handleClick = () => {
+    setIsExpanded(!isExpanded);
+  };
+
+  const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newLevel = parseInt(e.target.value);
+    setTempLevel(newLevel);
+  };
+
+  const handleSliderRelease = () => {
+    onChange(tempLevel);
+    setIsExpanded(false);
+  };
+
+  return (
+    <div style={{ position: "relative" }}>
+      <button
+        onClick={handleClick}
+        style={{
+          ...iconBtn,
+          borderColor: getComplianceColor(level),
+          background: `${getComplianceColor(level).replace("0.8", "0.2")}`,
+        }}
+        title={`Compliance Level: ${level}% (${getComplianceLabel(level)})`}
+        aria-label={`Compliance Level: ${level}%`}
+      >
+        <ShieldIcon size={13} />
+        <span style={{ fontSize: 10, fontWeight: "bold", marginLeft: 4 }}>
+          {level}%
+        </span>
+      </button>
+
+      {isExpanded && (
+        <div
+          style={{
+            position: "absolute",
+            top: "100%",
+            right: 0,
+            marginTop: 8,
+            padding: 12,
+            borderRadius: 8,
+            background: "rgba(20,20,28,0.95)",
+            border: `1px solid ${getComplianceColor(level)}`,
+            color: "#fff",
+            fontSize: 11,
+            zIndex: 1000,
+            minWidth: 200,
+            boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
+          }}
+        >
+          <div style={{ marginBottom: 8, fontWeight: "bold" }}>
+            Compliance Level: {tempLevel}%
+          </div>
+          <div style={{ marginBottom: 12, fontSize: 10, opacity: 0.8 }}>
+            {getComplianceLabel(tempLevel)} Compliance
+          </div>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            value={tempLevel}
+            onChange={handleSliderChange}
+            onMouseUp={handleSliderRelease}
+            onTouchEnd={handleSliderRelease}
+            style={{
+              width: "100%",
+              cursor: "pointer",
+              accentColor: getComplianceColor(tempLevel),
+            }}
+          />
+          <div style={{ marginTop: 8, fontSize: 9, opacity: 0.7, lineHeight: 1.4 }}>
+            <div>0-25%: Minimal checks</div>
+            <div>26-50%: Standard validation</div>
+            <div>51-75%: Enhanced compliance</div>
+            <div>76-100%: Full enforcement</div>
+          </div>
+          <div style={{ marginTop: 8, fontSize: 9, opacity: 0.6 }}>
+            Components: Regulatory, Audit, Trading, Data
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default TopBar;

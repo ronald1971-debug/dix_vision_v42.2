@@ -251,6 +251,24 @@ sources:
       digital asset regulatory developments.
 
   # -----------------------------------------------------------------
+  # Geopolitical / global events
+  # -----------------------------------------------------------------
+  - id: SRC-GEO-GDELT-001
+    name: "GDELT Project Events API"
+    category: alt
+    provider: gdelt
+    endpoint: "https://api.gdeltproject.org/api/v2"
+    schema: "data_sources.external.gdelt_events.GDELTEventObservation"
+    auth: none
+    enabled: true
+    critical: false
+    notes: >-
+      Global events database monitoring news media across 100+ languages.
+      Provides financial, geopolitical, and economic event data with tone
+      and sentiment analysis. Consumed by data_sources.external.gdelt_events.
+      No API key required for basic access. See: https://api.gdeltproject.org/api/v2/doc/doc
+
+  # -----------------------------------------------------------------
   # Developer / technical / code
   # -----------------------------------------------------------------
   - id: SRC-DEV-GITHUB-001
@@ -279,6 +297,817 @@ sources:
       Prediction market data consumed by ui.feeds.polymarket_http
       (see ui/feeds/consumes.yaml). Provides prediction market prices and
       probabilities for cryptocurrency, politics, and economic events.
+
+  # -----------------------------------------------------------------
+  # Crypto sources (Top 30 Free Forex + Crypto + Additional)
+  # -----------------------------------------------------------------
+  - id: SRC-CRYPTO-COINGECKO-001
+    name: "CoinGecko API"
+    category: crypto
+    provider: coingecko
+    endpoint: "https://api.coingecko.com/api/v3"
+    schema: "core.contracts.market.CryptoObservation"
+    auth: none
+    enabled: true
+    critical: false
+    notes: >-
+      Best free crypto hub with global coins and exchanges. Generous free tier
+      with unlimited requests. Provides prices, market data, historical OHLC,
+      tickers, and sentiment. No API key required for basic access.
+
+  - id: SRC-CRYPTO-COINMARKETCAP-001
+    name: "CoinMarketCap API"
+    category: crypto
+    provider: coinmarketcap
+    endpoint: "https://pro-api.coinmarketcap.com/v1"
+    schema: "core.contracts.market.CryptoObservation"
+    auth: optional
+    enabled: true
+    critical: false
+    notes: >-
+      Global coins and market metrics. Keyless trial + free Basic plan for
+      prototyping. Market capitalization data and cryptocurrency rankings.
+
+  - id: SRC-CRYPTO-BINANCE-001
+    name: "Binance Public API"
+    category: crypto
+    provider: binance
+    endpoint: "https://api.binance.com"
+    schema: "core.contracts.market.CryptoObservation"
+    auth: none
+    enabled: true
+    critical: false
+    notes: >-
+      High-frequency public endpoints for tick/trade/orderbook data. No trading
+      keys required for market data. Exchange data for crypto trading.
+
+  - id: SRC-CRYPTO-KRAKEN-001
+    name: "Kraken Public API"
+    category: crypto
+    provider: kraken
+    endpoint: "https://api.kraken.com"
+    schema: "core.contracts.market.CryptoObservation"
+    auth: none
+    enabled: true
+    critical: false
+    notes: >-
+      Reliable exchange feed with market data. Public API for cryptocurrency
+      exchange rates and order book data.
+
+  - id: SRC-CRYPTO-COINBASE-001
+    name: "Coinbase Public API"
+    category: crypto
+    provider: coinbase
+    endpoint: "https://api.coinbase.com"
+    schema: "core.contracts.market.CryptoObservation"
+    auth: none
+    enabled: true
+    critical: false
+    notes: >-
+      Good for USD/fiat pairs. Exchange market data from Coinbase. Provides
+      cryptocurrency prices and market data.
+
+  - id: SRC-CRYPTO-COINPAPRIKA-001
+    name: "CoinPaprika API"
+    category: crypto
+    provider: coinpaprika
+    endpoint: "https://api.coinpaprika.com/v1"
+    schema: "core.contracts.market.CryptoObservation"
+    auth: none
+    enabled: true
+    critical: false
+    notes: >-
+      Lightweight project metadata for cryptocurrencies. Tickers and metadata
+      without API key.
+
+  - id: SRC-CRYPTO-CRYPTOCOMPARE-001
+    name: "CryptoCompare API"
+    category: crypto
+    provider: cryptocompare
+    endpoint: "https://min-api.cryptocompare.com/data"
+    schema: "core.contracts.market.CryptoObservation"
+    auth: optional
+    enabled: true
+    critical: false
+    notes: >-
+      Aggregated market data with historical and aggregated endpoints.
+      Cryptocurrency prices and market data from multiple exchanges.
+
+  - id: SRC-CRYPTO-COINCAP-001
+    name: "CoinCap API"
+    category: crypto
+    provider: coincap
+    endpoint: "https://api.coincap.io/v2"
+    schema: "core.contracts.market.CryptoObservation"
+    auth: none
+    enabled: true
+    critical: false
+    notes: >-
+      Real-time prices with public no-key endpoints. Cryptocurrency market data
+      and prices.
+
+  - id: SRC-CRYPTO-NOMICS-001
+    name: "Nomics API"
+    category: crypto
+    provider: nomics
+    endpoint: "https://api.nomics.com/v1"
+    schema: "core.contracts.market.CryptoObservation"
+    auth: optional
+    enabled: true
+    critical: false
+    notes: >-
+      Market data and metadata with community free endpoints. Cryptocurrency
+      market data and metrics.
+
+  - id: SRC-CRYPTO-GLASSNODE-001
+    name: "Glassnode API"
+    category: crypto
+    provider: glassnode
+    endpoint: "https://api.glassnode.com"
+    schema: "core.contracts.market.CryptoObservation"
+    auth: optional
+    enabled: true
+    critical: false
+    notes: >-
+      Selected free on-chain metrics. On-chain data and analytics for
+      cryptocurrency markets.
+
+  - id: SRC-CRYPTO-MESSARI-001
+    name: "Messari API"
+    category: crypto
+    provider: messari
+    endpoint: "https://data.messari.io/api"
+    schema: "core.contracts.market.CryptoObservation"
+    auth: optional
+    enabled: true
+    critical: false
+    notes: >-
+      Selected free endpoints for fundamentals and profiles. Cryptocurrency
+      fundamentals and market data.
+
+  - id: SRC-CRYPTO-SANTIMENT-001
+    name: "Santiment API"
+    category: crypto
+    provider: santiment
+    endpoint: "https://api.santiment.net"
+    schema: "core.contracts.market.CryptoObservation"
+    auth: optional
+    enabled: true
+    critical: false
+    notes: >-
+      Limited free metrics for social and on-chain signals. Cryptocurrency
+      sentiment and analytics.
+
+  - id: SRC-CRYPTO-INTOTHEBLOCK-001
+    name: "IntoTheBlock API"
+    category: crypto
+    provider: intotheblock
+    endpoint: "https://api.intotheblock.com"
+    schema: "core.contracts.market.CryptoObservation"
+    auth: optional
+    enabled: true
+    critical: false
+    notes: >-
+      Free insights for research. On-chain analytics and cryptocurrency market
+      data.
+
+  - id: SRC-CRYPTO-COINMETRICS-001
+    name: "CoinMetrics API"
+    category: crypto
+    provider: coinmetrics
+    endpoint: "https://community-api.coinmetrics.io/v4"
+    schema: "core.contracts.market.CryptoObservation"
+    auth: none
+    enabled: true
+    critical: false
+    notes: >-
+      Selected free datasets for market and network metrics. Cryptocurrency
+      market data and on-chain metrics.
+
+  - id: SRC-CRYPTO-DEXSCREENER-001
+    name: "DexScreener API"
+    category: crypto
+    provider: dexscreener
+    endpoint: "https://api.dexscreener.com"
+    schema: "core.contracts.market.CryptoObservation"
+    auth: none
+    enabled: true
+    critical: false
+    notes: >-
+      DEX pair prices for AMM/DEX monitoring. Decentralized exchange price
+      data and token discovery.
+
+  - id: SRC-CRYPTO-COINSTATS-001
+    name: "CoinStats API"
+    category: crypto
+    provider: coinstats
+    endpoint: "https://api.coinstats.app/api"
+    schema: "core.contracts.market.CryptoObservation"
+    auth: none
+    enabled: true
+    critical: false
+    notes: >-
+      Public endpoints for prices and portfolios. Cryptocurrency prices and
+      portfolio tracking data.
+
+  - id: SRC-CRYPTO-COINLORE-001
+    name: "Coinlore API"
+    category: crypto
+    provider: coinlore
+    endpoint: "https://api.coinlore.net/api"
+    schema: "core.contracts.market.CryptoObservation"
+    auth: none
+    enabled: true
+    critical: false
+    notes: >-
+      No-key public endpoints for prices and market data. Cryptocurrency
+      prices and market data.
+
+  - id: SRC-CRYPTO-BRAVENEWCOIN-001
+    name: "BraveNewCoin API"
+    category: crypto
+    provider: bravnewcoin
+    endpoint: "https://bravenewcoin.com/api"
+    schema: "core.contracts.market.CryptoObservation"
+    auth: optional
+    enabled: true
+    critical: false
+    notes: >-
+      Sandbox/free developer access for market and benchmark data.
+      Cryptocurrency market data and indices.
+
+  - id: SRC-CRYPTO-DEXTOOLS-001
+    name: "DEXTools API"
+    category: crypto
+    provider: dextools
+    endpoint: "https://www.dextools.io/api"
+    schema: "core.contracts.market.CryptoObservation"
+    auth: none
+    enabled: true
+    critical: false
+    notes: >-
+      Public endpoints for DEX analytics and token discovery. Decentralized
+      exchange analytics.
+
+  # -----------------------------------------------------------------
+  # Forex sources (Top 30 Free Forex + Crypto)
+  # -----------------------------------------------------------------
+  - id: SRC-FOREX-EXCHANGERATE-001
+    name: "ExchangeRate-API"
+    category: forex
+    provider: exchangerate
+    endpoint: "https://v6.exchangerate-api.com/v6"
+    schema: "core.contracts.market.ForexObservation"
+    auth: optional
+    enabled: true
+    critical: false
+    notes: >-
+      160+ currencies with 60s updates on free tier. Real-time currency
+      exchange rates.
+
+  - id: SRC-FOREX-FRANKFURTER-001
+    name: "Frankfurter (ECB)"
+    category: forex
+    provider: frankfurter
+    endpoint: "https://api.frankfurter.app"
+    schema: "core.contracts.market.ForexObservation"
+    auth: none
+    enabled: true
+    critical: false
+    notes: >-
+      Unlimited, no key, daily ECB reference rates. European Central Bank
+      foreign exchange reference rates.
+
+  - id: SRC-FOREX-ALPHAVANTAGE-001
+    name: "Alpha Vantage (Forex)"
+    category: forex
+    provider: alphavantage
+    endpoint: "https://www.alphavantage.co/query"
+    schema: "core.contracts.market.ForexObservation"
+    auth: optional
+    enabled: true
+    critical: false
+    notes: >-
+      Widely used free FX/time series API with 25 requests/day. Foreign
+      exchange rates and currency data.
+
+  - id: SRC-FOREX-TRUEFX-001
+    name: "TrueFX"
+    category: forex
+    provider: truefx
+    endpoint: "https://api.truefx.com"
+    schema: "core.contracts.market.ForexObservation"
+    auth: none
+    enabled: true
+    critical: false
+    notes: >-
+      Community historical FX tick data. Historical foreign exchange tick
+      data.
+
+  - id: SRC-FOREX-XE-001
+    name: "XE Currency API"
+    category: forex
+    provider: xe
+    endpoint: "https://www.xe.com/api"
+    schema: "core.contracts.market.ForexObservation"
+    auth: optional
+    enabled: true
+    critical: false
+    notes: >-
+      Simple global FX rates. Currency exchange rates and conversion data.
+
+  - id: SRC-FOREX-OANDA-001
+    name: "OANDA API"
+    category: forex
+    provider: oanda
+    endpoint: "https://api-fxpractice.oanda.com"
+    schema: "core.contracts.market.ForexObservation"
+    auth: optional
+    enabled: true
+    critical: false
+    notes: >-
+      Reference FX data from public docs/sample. Useful reference endpoints
+      for foreign exchange data.
+
+  - id: SRC-FOREX-OPENEXCHANGERATES-001
+    name: "Open Exchange Rates"
+    category: forex
+    provider: openexchangerates
+    endpoint: "https://openexchangerates.org/api"
+    schema: "core.contracts.market.ForexObservation"
+    auth: optional
+    enabled: true
+    critical: false
+    notes: >-
+      Basic free access for major currency rates. Foreign exchange rates and
+      currency conversion data.
+
+  - id: SRC-FOREX-FIXER-001
+    name: "Fixer API"
+    category: forex
+    provider: fixer
+    endpoint: "https://api.fixer.io"
+    schema: "core.contracts.market.ForexObservation"
+    auth: optional
+    enabled: true
+    critical: false
+    notes: >-
+      ECB-backed reference on free tier for EUR-based rates. Currency
+      exchange rates with European Central Bank backing.
+
+  - id: SRC-FOREX-CURRENCYLAYER-001
+    name: "CurrencyLayer API"
+    category: forex
+    provider: currencylayer
+    endpoint: "https://api.currencylayer.com"
+    schema: "core.contracts.market.ForexObservation"
+    auth: optional
+    enabled: true
+    critical: false
+    notes: >-
+      Basic free plan for majors with USD-based rates. Currency exchange rates
+      and conversion data.
+
+  - id: SRC-FOREX-FINAGE-001
+    name: "Finage API"
+    category: forex
+    provider: finage
+    endpoint: "https://api.finage.co.uk"
+    schema: "core.contracts.market.ForexObservation"
+    auth: optional
+    enabled: true
+    critical: false
+    notes: >-
+      Developer-friendly free tier for real-time FX & historical. Foreign
+      exchange market data and rates.
+
+  # -----------------------------------------------------------------
+  # Additional worldwide sources (US + Global - 50 source stack)
+  # -----------------------------------------------------------------
+  - id: SRC-ALPHA-TIINGO-001
+    name: "Tiingo API"
+    category: stocks
+    provider: tiingo
+    endpoint: "https://api.tiingo.com"
+    schema: "core.contracts.market.StockObservation"
+    auth: optional
+    enabled: true
+    critical: false
+    notes: >-
+      US-focused stocks, ETFs, forex, crypto with free tier. Stock market data
+      and financial information.
+
+  - id: SRC-ALPHA-IEX-001
+    name: "IEX Cloud API"
+    category: stocks
+    provider: iex
+    endpoint: "https://cloud.iexapis.com"
+    schema: "core.contracts.market.StockObservation"
+    auth: optional
+    enabled: true
+    critical: false
+    notes: >-
+      US equities with real-time and historical data. Free tier offers basic
+      endpoints with limited quota.
+
+  - id: SRC-ALPHA-POLYGON-001
+    name: "Polygon.io API"
+    category: stocks
+    provider: polygon
+    endpoint: "https://api.polygon.io"
+    schema: "core.contracts.market.StockObservation"
+    auth: optional
+    enabled: true
+    critical: false
+    notes: >-
+      Real-time and historical equities, options, forex, and crypto. Free tier
+      includes limited requests per minute.
+
+  - id: SRC-ALPHA-FMP-001
+    name: "Financial Modeling Prep (FMP)"
+    category: stocks
+    provider: fmp
+    endpoint: "https://financialmodelingprep.com/api"
+    schema: "core.contracts.market.StockObservation"
+    auth: optional
+    enabled: true
+    critical: false
+    notes: >-
+      Stocks, ETFs, fundamentals with free tier daily data. Strong
+      fundamentals API for balance sheets and income statements.
+
+  - id: SRC-ALPHA-YAHOO-001
+    name: "Yahoo Finance API (yFinance)"
+    category: stocks
+    provider: yahoo
+    endpoint: "https://query1.finance.yahoo.com"
+    schema: "core.contracts.market.StockObservation"
+    auth: none
+    enabled: true
+    critical: false
+    notes: >-
+      Global equities, ETFs, mutual funds, crypto via Python wrapper. Free but
+      unofficial and scraping-based. Good for backtesting, less reliable for production.
+
+  - id: SRC-ALPHA-QUANDL-001
+    name: "Nasdaq Data Link (Quandl)"
+    category: stocks
+    provider: quandl
+    endpoint: "https://data.nasdaq.com/api/v3"
+    schema: "core.contracts.market.StockObservation"
+    auth: optional
+    enabled: true
+    critical: false
+    notes: >-
+      Free datasets for macroeconomics, commodities, and finance. Paid tiers
+      unlock premium datasets.
+
+  - id: SRC-ALPHA-SEC-001
+    name: "SEC EDGAR"
+    category: regulatory
+    provider: sec
+    endpoint: "https://www.sec.gov/cgi-bin/browse-edgar"
+    schema: "sensory.regulatory.contracts.Filing"
+    auth: none
+    enabled: true
+    critical: false
+    notes: >-
+      Unlimited US company filings. Official source for fundamentals. Raw
+      filings requiring parsing.
+
+  - id: SRC-MACRO-FRED-001
+    name: "FRED (Federal Reserve Economic Data)"
+    category: macro
+    provider: fred
+    endpoint: "https://api.stlouisfed.org/fred"
+    schema: "core.contracts.macro.MacroObservation"
+    auth: none
+    enabled: true
+    critical: false
+    notes: >-
+      Unlimited macroeconomic indicators. Reliable government source with long
+      history. No equities or intraday data.
+
+  - id: SRC-MACRO-BLS-001
+    name: "Bureau of Labor Statistics (BLS)"
+    category: macro
+    provider: bls
+    endpoint: "https://api.bls.gov/publicAPI/v2"
+    schema: "core.contracts.macro.MacroObservation"
+    auth: none
+    enabled: true
+    critical: false
+    notes: >-
+      US labor and employment data. Economic indicators and statistics.
+
+  - id: SRC-MACRO-TREASURY-001
+    name: "US Treasury"
+    category: macro
+    provider: treasury
+    endpoint: "https://home.treasury.gov"
+    schema: "core.contracts.macro.MacroObservation"
+    auth: none
+    enabled: true
+    critical: false
+    notes: >-
+      Yield curve and debt data. US government financial data and yields.
+
+  - id: SRC-MACRO-CFTC-001
+    name: "CFTC (Commitment of Traders)"
+    category: macro
+    provider: cftc
+    endpoint: "https://www.cftc.gov"
+    schema: "core.contracts.macro.MacroObservation"
+    auth: none
+    enabled: true
+    critical: false
+    notes: >-
+      Commitment of Traders reports. Futures market positioning data.
+
+  - id: SRC-MACRO-CME-001
+    name: "CME Group"
+    category: macro
+    provider: cme
+    endpoint: "https://www.cmegroup.com"
+    schema: "core.contracts.market.FuturesObservation"
+    auth: none
+    enabled: true
+    critical: false
+    notes: >-
+      Futures & options data. Derivatives market data and commodity futures.
+
+  - id: SRC-MACRO-CBOE-001
+    name: "CBOE"
+    category: options
+    provider: cboe
+    endpoint: "https://www.cboe.com"
+    schema: "core.contracts.market.OptionsObservation"
+    auth: none
+    enabled: true
+    critical: false
+    notes: >-
+      Options, volatility indices. Options market data and volatility indices.
+
+  - id: SRC-STOCKS-MORNINGSTAR-001
+    name: "Morningstar"
+    category: stocks
+    provider: morningstar
+    endpoint: "https://www.morningstar.com"
+    schema: "core.contracts.market.StockObservation"
+    auth: optional
+    enabled: true
+    critical: false
+    notes: >-
+      Funds & ETFs data. Mutual fund and ETF performance data.
+
+  - id: SRC-GLOBAL-EODHD-001
+    name: "EOD Historical Data (EODHD)"
+    category: stocks
+    provider: eodhd
+    endpoint: "https://eodhistoricaldata.com/api"
+    schema: "core.contracts.market.StockObservation"
+    auth: optional
+    enabled: true
+    critical: false
+    notes: >-
+      Global equities, ETFs, mutual funds, indices, FX, crypto. Closest to
+      Tiingo with broader geographic reach. Free tier available. Coverage spans
+      70+ exchanges worldwide.
+
+  - id: SRC-GLOBAL-INVESTING-001
+    name: "Investing.com API"
+    category: stocks
+    provider: investing
+    endpoint: "https://www.investing.com"
+    schema: "core.contracts.market.StockObservation"
+    auth: none
+    enabled: true
+    critical: false
+    notes: >-
+      Global equities, indices, commodities, FX, crypto via unofficial wrappers.
+      Community-maintained Python wrappers with wide coverage but not audited.
+
+  - id: SRC-GLOBAL-REFINITIV-001
+    name: "Refinitiv (Thomson Reuters)"
+    category: stocks
+    provider: refinitiv
+    endpoint: "https://api.refinitiv.com"
+    schema: "core.contracts.market.StockObservation"
+    auth: optional
+    enabled: true
+    critical: false
+    notes: >-
+      Freemium datasets for global financial data. Thomson Reuters financial
+      data and market information.
+
+  - id: SRC-GLOBAL-BLOOMBERG-001
+    name: "Bloomberg Open Data"
+    category: stocks
+    provider: bloomberg
+    endpoint: "https://api.bloomberg.com"
+    schema: "core.contracts.market.StockObservation"
+    auth: optional
+    enabled: true
+    critical: false
+    notes: >-
+      Limited free feeds from Bloomberg. Financial data and market information.
+
+  - id: SRC-GLOBAL-OPENFIGI-001
+    name: "OpenFIGI"
+    category: stocks
+    provider: openfigi
+    endpoint: "https://api.openfigi.com"
+    schema: "core.contracts.market.IdentifierObservation"
+    auth: none
+    enabled: true
+    critical: false
+    notes: >-
+      Free identifiers for securities (FIGI codes). Useful for mapping tickers
+      across providers globally.
+
+  - id: SRC-GLOBAL-WFE-001
+    name: "World Federation of Exchanges"
+    category: stocks
+    provider: wfe
+    endpoint: "https://www.world-exchanges.org"
+    schema: "core.contracts.market.ExchangeStatistics"
+    auth: none
+    enabled: true
+    critical: false
+    notes: >-
+      Exchange statistics and data. Global exchange statistics and market data.
+
+  - id: SRC-GLOBAL-YAHOO-001
+    name: "Yahoo Finance Global"
+    category: stocks
+    provider: yahoo
+    endpoint: "https://query1.finance.yahoo.com"
+    schema: "core.contracts.market.StockObservation"
+    auth: none
+    enabled: true
+    critical: false
+    notes: >-
+      Global equities, ETFs, mutual funds, indices, FX, crypto. Unofficial
+      scraping-based API with wide global coverage.
+
+  - id: SRC-GLOBAL-MSCI-001
+    name: "MSCI"
+    category: stocks
+    provider: msci
+    endpoint: "https://www.msci.com"
+    schema: "core.contracts.market.IndexObservation"
+    auth: optional
+    enabled: true
+    critical: false
+    notes: >-
+      Indices, ESG datasets. Global equity indices and ESG data.
+
+  - id: SRC-GLOBAL-STOXX-001
+    name: "STOXX"
+    category: stocks
+    provider: stoxx
+    endpoint: "https://www.stoxx.com"
+    schema: "core.contracts.market.IndexObservation"
+    auth: optional
+    enabled: true
+    critical: false
+    notes: >-
+      European indices. European equity indices and market data.
+
+  - id: SRC-GLOBAL-NIKKEI-001
+    name: "Nikkei Asia"
+    category: stocks
+    provider: nikkei
+    endpoint: "https://asia.nikkei.com"
+    schema: "core.contracts.market.StockObservation"
+    auth: optional
+    enabled: true
+    critical: false
+    notes: >-
+      Japan market indices. Japanese market data and indices.
+
+  - id: SRC-FXCOMMODITIES-LBMA-001
+    name: "London Bullion Market Association (LBMA)"
+    category: commodities
+    provider: lbma
+    endpoint: "https://www.lbma.org.uk"
+    schema: "core.contracts.market.CommodityObservation"
+    auth: none
+    enabled: true
+    critical: false
+    notes: >-
+      Gold/silver pricing data. Precious metals market data.
+
+  - id: SRC-FXCOMMODITIES-EIA-001
+    name: "US Energy Information Administration (EIA)"
+    category: commodities
+    provider: eia
+    endpoint: "https://www.eia.gov"
+    schema: "core.contracts.market.CommodityObservation"
+    auth: none
+    enabled: true
+    critical: false
+    notes: >-
+      Oil & gas data. US energy statistics and commodity data.
+
+  - id: SRC-FXCOMMODITIES-WB-001
+    name: "World Bank Commodity Prices"
+    category: commodities
+    provider: worldbank
+    endpoint: "https://www.worldbank.org"
+    schema: "core.contracts.market.CommodityObservation"
+    auth: none
+    enabled: true
+    critical: false
+    notes: >-
+      Pink Sheet commodity prices. Global commodity price data.
+
+  - id: SRC-FXCOMMODITIES-IMF-001
+    name: "IMF Commodity Data Portal"
+    category: commodities
+    provider: imf
+    endpoint: "https://www.imf.org"
+    schema: "core.contracts.market.CommodityObservation"
+    auth: none
+    enabled: true
+    critical: false
+    notes: >-
+      Global commodity prices and data. International Monetary Fund commodity
+      data.
+
+  - id: SRC-CRYPTO-BYBIT-001
+    name: "Bybit API"
+    category: crypto
+    provider: bybit
+    endpoint: "https://api.bybit.com"
+    schema: "core.contracts.market.CryptoObservation"
+    auth: none
+    enabled: true
+    critical: false
+    notes: >-
+      Exchange data from Bybit. Cryptocurrency exchange market data.
+
+  - id: SRC-MACRO-WORLDBANK-001
+    name: "World Bank Open Data API"
+    category: macro
+    provider: worldbank
+    endpoint: "https://api.worldbank.org"
+    schema: "core.contracts.macro.MacroObservation"
+    auth: none
+    enabled: true
+    critical: false
+    notes: >-
+      Free macroeconomic indicators and global development data. Economic
+      indicators and development statistics.
+
+  - id: SRC-MACRO-IMF-001
+    name: "IMF Data Portal API"
+    category: macro
+    provider: imf
+    endpoint: "https://dataservices.imf.org"
+    schema: "core.contracts.macro.MacroObservation"
+    auth: none
+    enabled: true
+    critical: false
+    notes: >-
+      Global economic data. International Monetary Fund economic statistics.
+
+  - id: SRC-MACRO-OECD-001
+    name: "OECD Data API"
+    category: macro
+    provider: oecd
+    endpoint: "https://stats.oecd.org"
+    schema: "core.contracts.macro.MacroObservation"
+    auth: none
+    enabled: true
+    critical: false
+    notes: >-
+      Economic and social data. Organization for Economic Cooperation and
+      Development statistics.
+
+  - id: SRC-MACRO-UN-001
+    name: "UN Data (UNstats)"
+    category: macro
+    provider: un
+    endpoint: "https://data.un.org"
+    schema: "core.contracts.macro.MacroObservation"
+    auth: none
+    enabled: true
+    critical: false
+    notes: >-
+      Global development statistics. United Nations statistical data.
+
+  - id: SRC-MACRO-EUROSTAT-001
+    name: "Eurostat"
+    category: macro
+    provider: eurostat
+    endpoint: "https://ec.europa.eu/eurostat"
+    schema: "core.contracts.macro.MacroObservation"
+    auth: none
+    enabled: true
+    critical: false
+    notes: >-
+      EU statistics. European Union economic and social statistics.
 
   # -----------------------------------------------------------------
   # Trader feeds (Trader-Intelligence layer — Wave-04 PR-2)

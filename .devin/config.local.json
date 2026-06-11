@@ -68,7 +68,12 @@
       "Exec(curl)",
       "Exec(Invoke-WebRequest)",
       "Exec(git clone)",
-      "Exec(Get-Item)"
+      "Exec(Get-Item)",
+      "Exec(git show)",
+      "Exec(C:\\Program)",
+      "Exec(\"C:\\Program Files\\nodejs\\npm.exe\" install)",
+      "Exec([Environment]::SetEnvironmentVariable(\"OPENROUTER_API_KEY\",)",
+      "Exec([Environment]::GetEnvironmentVariable(\"OPENROUTER_API_KEY\",)"
     ]
   }
 }

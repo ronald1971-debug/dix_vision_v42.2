@@ -13,13 +13,27 @@ agents:
     enabled: true
     research_timeout: 600
     max_concurrent_research: 3
-    auto_research: false
+    auto_research: true
+    auto_analysis: true
+    enable_execution_in_paper: true
     
   dyon:
     enabled: true
     analysis_timeout: 300
     max_concurrent_analysis: 2
-    auto_analysis: false
+    auto_analysis: true
+    auto_research: true
+    auto_advisory: true
+    research_categories:
+      - architecture
+      - infrastructure
+      - security
+      - performance
+      - scalability
+      - observability
+      - devops
+      - database
+      - distributed_systems
 
 # Browser Configuration
 browser:
@@ -148,12 +162,12 @@ integration:
     
   cloud_services:
     openrouter:
-      enabled: false  # Set to true and add API key
-      api_key: ""
-      
+      enabled: true  # REQUIRED for LLM features
+      api_key: "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"
+
     deepgram:
-      enabled: false  # Set to true and add API key
-      api_key: ""
+      enabled: false  # OPTIONAL - for enhanced speech-to-text
+      api_key: ""  # Add your Deepgram API key here if enabling
 
 # Development Configuration
 development:

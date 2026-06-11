@@ -679,7 +679,8 @@ function StrategyItem({ strategy }: { strategy: Strategy }) {
       <p className="text-xs text-muted-foreground">
         Type: {strategy.type} • Modified {getTimeAgo(strategy.lastModified)}
       </p>
-    </div  );
+    </div>
+  );
 }
 
 function OpportunityItem({ opportunity }: { opportunity: Opportunity }) {

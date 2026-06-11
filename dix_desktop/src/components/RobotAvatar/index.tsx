@@ -1,6 +1,6 @@
 // Robot Avatar Component - Exports the simple 3D robot
 
-import { createSimpleRobot, animateRobot, setTalking, setExpression, setChestButtonColor } from './simpleRobot';
+import { createSimpleRobot, animateRobot, setTalking, setExpression, setChestButtonColor, analyzeGesture, setGesture } from './simpleRobot';
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { exit as tauriExit } from '@tauri-apps/plugin-process';
@@ -28,10 +28,10 @@ export default function RobotAvatar({ width, height, isSpeaking = false, express
         const scene = new THREE.Scene();
         // Transparent background for DIX DESKTOP
 
-        // Camera
-        const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
-        camera.position.z = 4;
-        camera.position.y = 0.5;
+        // Camera - positioned to look directly at robot face
+        const camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 1000);
+        camera.position.set(0, 1.8, 6); // Looking at face level
+        camera.lookAt(0, 1.8, 0);
 
         // Renderer
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -83,7 +83,49 @@ export default function RobotAvatar({ width, height, isSpeaking = false, express
             }
         };
 
+        // Handle right-click as alternative close
+        const handleRightClick = (event: MouseEvent) => {
+            event.preventDefault();
+            tauriExit(0);
+        };
+
+        // Handle keyboard shortcut for closing
+        const handleKeyDown = (event: KeyboardEvent) => {
+            // ESC or Ctrl+Q to close
+            if (event.key === 'Escape' || (event.ctrlKey && event.key === 'q')) {
+                tauriExit(0);
+            }
+        };
+
+        // Handle hover to show cursor change
+        const handleMouseMove = (event: MouseEvent) => {
+            if (!containerRef.current || !robotRef.current) return;
+
+            const rect = containerRef.current.getBoundingClientRect();
+            const mouse = mouseRef.current;
+            const raycaster = raycasterRef.current;
+
+            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(robotRef.current.children, true);
+
+            let onChestButton = false;
+            for (const intersect of intersects) {
+                if (intersect.object.name === 'chestLight') {
+                    onChestButton = true;
+                    break;
+                }
+            }
+            
+            containerRef.current.style.cursor = onChestButton ? 'pointer' : 'default';
+        };
+
         containerRef.current.addEventListener('click', handleClick);
+        containerRef.current.addEventListener('mousemove', handleMouseMove);
+        containerRef.current.addEventListener('contextmenu', handleRightClick);
+        window.addEventListener('keydown', handleKeyDown);
 
         // Animation loop
         const animate = (time: number) => {
@@ -94,6 +136,14 @@ export default function RobotAvatar({ width, height, isSpeaking = false, express
             
             // Update expression
             setExpression(expression);
+            
+            // Analyze gesture from speech text
+            if (speechText && isSpeaking) {
+                const gesture = analyzeGesture(speechText);
+                setGesture(gesture);
+            } else if (!isSpeaking) {
+                setGesture({ type: 'idle', intensity: 0, startTime: Date.now() });
+            }
             
             // Animate robot
             if (robotRef.current) {
@@ -113,11 +163,14 @@ export default function RobotAvatar({ width, height, isSpeaking = false, express
             }
             if (renderer.domElement && containerRef.current) {
                 containerRef.current.removeEventListener('click', handleClick);
+                containerRef.current.removeEventListener('mousemove', handleMouseMove);
+                containerRef.current.removeEventListener('contextmenu', handleRightClick);
                 containerRef.current.removeChild(renderer.domElement);
             }
+            window.removeEventListener('keydown', handleKeyDown);
             renderer.dispose();
         };
-    }, [width, height, isSpeaking, expression]);
+    }, [width, height, isSpeaking, expression, speechText]);
 
     return (
         <div

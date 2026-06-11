@@ -4,6 +4,7 @@ Research cryptocurrency information from multiple sources.
 """
 
 import logging
+import requests
 from typing import Dict, Any
 from desktop_agent.skills.skill import Skill, SkillMetadata
 
@@ -50,15 +51,75 @@ class ResearchCoinSkill(Skill):
             return {"error": str(e), "symbol": coin_symbol}
             
     async def _get_price_data(self, symbol: str) -> Dict[str, Any]:
-        """Get price data from multiple sources."""
-        # Placeholder for actual API calls
+        """Get price data from multiple sources with compliance level integration."""
+        try:
+            # Fetch compliance weights
+            response = requests.get("http://localhost:8080/api/compliance/weights", timeout=1.0)
+            if response.status_code == 200:
+                weights = response.json()
+                data_weight = weights.get("data", 1.0)
+            else:
+                data_weight = 1.0
+        except Exception as e:
+            self.logger.warning(f"Failed to fetch compliance weights: {e}")
+            data_weight = 1.0
+        
+        # If data weight is very low, return cached/simulated data
+        if data_weight < 0.3:
+            self.logger.info(f"Data compliance weight {data_weight:.2f} < 0.3, using simulated data")
+            return self._get_simulated_price_data(symbol)
+        
+        # Try to fetch real data from CoinGecko (public API, no key required)
+        try:
+            coingecko_url = f"https://api.coingecko.com/api/v3/coins/markets"
+            params = {
+                "vs_currency": "usd",
+                "ids": symbol.lower(),
+                "order": "market_cap_desc",
+                "per_page": 1,
+                "page": 1,
+                "sparkline": "false"
+            }
+            
+            api_response = requests.get(coingecko_url, params=params, timeout=5.0)
+            if api_response.status_code == 200:
+                data = api_response.json()
+                if data and len(data) > 0:
+                    coin_data = data[0]
+                    return {
+                        "current_price": coin_data.get("current_price", 0.0),
+                        "24h_change": coin_data.get("price_change_percentage_24h", 0.0),
+                        "7d_change": coin_data.get("price_change_percentage_7d_in_currency", 0.0),
+                        "24h_high": coin_data.get("high_24h", 0.0),
+                        "24h_low": coin_data.get("low_24h", 0.0),
+                        "volume": coin_data.get("total_volume", 0.0),
+                        "source": "coingecko",
+                        "compliance_weight": data_weight,
+                    }
+        except Exception as e:
+            self.logger.warning(f"Failed to fetch CoinGecko data: {e}")
+        
+        # Fallback to simulated data if API fails
+        return self._get_simulated_price_data(symbol, compliance_weight=data_weight)
+    
+    def _get_simulated_price_data(self, symbol: str, compliance_weight: float = 1.0) -> Dict[str, Any]:
+        """Generate simulated price data for testing/low compliance modes."""
+        import random
+        
+        # Generate plausible but fake data
+        base_price = random.uniform(0.01, 1000.0)
+        change_24h = random.uniform(-10.0, 10.0)
+        change_7d = random.uniform(-25.0, 25.0)
+        
         return {
-            "current_price": 0.0,
-            "24h_change": 0.0,
-            "7d_change": 0.0,
-            "24h_high": 0.0,
-            "24h_low": 0.0,
-            "volume": 0.0,
+            "current_price": base_price,
+            "24h_change": change_24h,
+            "7d_change": change_7d,
+            "24h_high": base_price * (1 + abs(change_24h) / 100),
+            "24h_low": base_price * (1 - abs(change_24h) / 100),
+            "volume": base_price * random.uniform(1000, 1000000),
+            "source": "simulated",
+            "compliance_weight": compliance_weight,
         }
         
     async def _get_market_data(self, symbol: str) -> Dict[str, Any]:

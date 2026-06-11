@@ -1,4 +1,4 @@
-import { Gauge, LayoutGrid, Palette, Rows3, Sliders, type LucideIcon } from "lucide-react";
+import { Gauge, LayoutGrid, Palette, Rows3, Sliders, Shield, type LucideIcon } from "lucide-react";
 
 import {
   DENSITY_OPTIONS,
@@ -14,6 +14,32 @@ import {
   setWidgetPanelOpen,
   useWidgetPanelOpen,
 } from "@/state/widgetVisibility";
+import { useState, useEffect } from "react";
+
+// Compliance level options (0, 25, 50, 75, 100)
+const COMPLIANCE_LEVELS = [0, 25, 50, 75, 100] as const;
+type ComplianceLevel = typeof COMPLIANCE_LEVELS[number];
+
+// Simple compliance store for now (can be moved to preferences store later)
+let currentComplianceLevel: ComplianceLevel = 100;
+const complianceListeners = new Set<(level: ComplianceLevel) => void>();
+
+export function setComplianceLevel(level: ComplianceLevel) {
+  currentComplianceLevel = level;
+  complianceListeners.forEach(listener => listener(level));
+}
+
+export function useComplianceLevel(): ComplianceLevel {
+  const [level, setLevel] = useState(currentComplianceLevel);
+  
+  useEffect(() => {
+    const listener = (newLevel: ComplianceLevel) => setLevel(newLevel);
+    complianceListeners.add(listener);
+    return () => complianceListeners.delete(listener);
+  }, []);
+  
+  return level;
+}
 
 /**
  * Tier-7 preferences bar — three pill rotators in the top header.
@@ -58,6 +84,22 @@ function Pill({ label, value, onClick, icon: Icon, hint }: PillProps) {
 export function PreferencesBar() {
   const prefs = usePreferences();
   const panelOpen = useWidgetPanelOpen();
+  const complianceLevel = useComplianceLevel();
+
+  const getComplianceColor = (level: ComplianceLevel) => {
+    if (level >= 75) return "text-green-400 border-green-400/50 bg-green-400/10";
+    if (level >= 50) return "text-yellow-400 border-yellow-400/50 bg-yellow-400/10";
+    if (level >= 25) return "text-orange-400 border-orange-400/50 bg-orange-400/10";
+    return "text-red-400 border-red-400/50 bg-red-400/10";
+  };
+
+  const getComplianceLabel = (level: ComplianceLevel) => {
+    if (level >= 75) return "FULL";
+    if (level >= 50) return "HIGH";
+    if (level >= 25) return "MED";
+    return "LOW";
+  };
+
   return (
     <div className="flex items-center gap-1.5">
       <Pill
@@ -94,6 +136,20 @@ export function PreferencesBar() {
         }
         hint="Conservative ↔ Standard ↔ Aggressive ↔ Custom"
       />
+      <button
+        type="button"
+        onClick={() => {
+          const currentIndex = COMPLIANCE_LEVELS.indexOf(complianceLevel);
+          const nextIndex = (currentIndex + 1) % COMPLIANCE_LEVELS.length;
+          setComplianceLevel(COMPLIANCE_LEVELS[nextIndex]);
+        }}
+        title={`Compliance: ${complianceLevel}% (${getComplianceLabel(complianceLevel)}) - Click to cycle`}
+        className={`flex items-center gap-1.5 rounded border px-2 py-1 text-[10px] uppercase tracking-widest transition-colors ${getComplianceColor(complianceLevel)}`}
+      >
+        <Shield className="h-3.5 w-3.5" />
+        <span className="font-mono text-slate-500">comp</span>
+        <span className="font-mono">{complianceLevel}%</span>
+      </button>
       <button
         type="button"
         onClick={() => setWidgetPanelOpen(!panelOpen)}
