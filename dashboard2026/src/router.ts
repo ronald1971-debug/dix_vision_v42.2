@@ -25,6 +25,7 @@ export type AssetRoute =
   | "nft";
 
 export type SystemRoute =
+  | "mission-control"
   | "operator"
   | "credentials"
   | "chat"
@@ -73,6 +74,7 @@ const ASSET_ROUTES: readonly AssetRoute[] = [
 ];
 
 const SYSTEM_ROUTES: readonly SystemRoute[] = [
+  "mission-control",
   "operator",
   "plugins",
   "credentials",

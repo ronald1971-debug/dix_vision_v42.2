@@ -13,6 +13,7 @@ import { useEffect, useSyncExternalStore } from "react";
 export type HotkeyAction =
   | "toggle-palette"
   | "toggle-sidebar"
+  | "go-mission-control"
   | "go-operator"
   | "go-governance"
   | "go-testing"
@@ -34,6 +35,7 @@ export interface HotkeyBinding {
 export const HOTKEY_DEFAULTS: readonly HotkeyBinding[] = [
   { action: "toggle-palette", combo: "ctrl+k", label: "Open command palette" },
   { action: "toggle-sidebar", combo: "ctrl+b", label: "Toggle sidebar" },
+  { action: "go-mission-control", combo: "ctrl+0", label: "Go to mission control" },
   { action: "go-operator", combo: "ctrl+1", label: "Go to operator" },
   { action: "go-governance", combo: "ctrl+2", label: "Go to governance" },
   { action: "go-testing", combo: "ctrl+3", label: "Go to testing" },

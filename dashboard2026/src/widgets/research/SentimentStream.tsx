@@ -8,7 +8,7 @@ interface SentimentEntry {
 }
 
 export function SentimentStream() {
-  const [entries, _setEntries] = React.useState<SentimentEntry[]>([]);
+  const [entries] = React.useState<SentimentEntry[]>([]);
 
   return (
     <div className="p-4 bg-gray-900 rounded-lg">

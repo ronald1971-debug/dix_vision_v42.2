@@ -9,7 +9,7 @@ interface ArchetypeStats {
 }
 
 export function ArchetypePerformance() {
-  const [stats, _setStats] = React.useState<ArchetypeStats[]>([]);
+  const [stats] = React.useState<ArchetypeStats[]>([]);
 
   return (
     <div className="p-4 bg-gray-900 rounded-lg">

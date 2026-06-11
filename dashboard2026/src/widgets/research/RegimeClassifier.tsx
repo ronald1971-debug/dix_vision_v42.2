@@ -9,7 +9,7 @@ interface RegimeState {
 }
 
 export function RegimeClassifier() {
-  const [state, _setState] = React.useState<RegimeState | null>(null);
+  const [state] = React.useState<RegimeState | null>(null);
 
   return (
     <div className="p-4 bg-gray-900 rounded-lg">

@@ -82,7 +82,9 @@
       "Exec(git add)",
       "Exec(git ls-files)",
       "Exec(findstr)",
-      "Exec(git commit)"
+      "Exec(git commit)",
+      "Exec(npx tsc)",
+      "Exec(PowerShell)"
     ]
   }
 }

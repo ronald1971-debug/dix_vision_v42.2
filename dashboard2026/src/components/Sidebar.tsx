@@ -20,6 +20,7 @@ import {
   Layers,
   LineChart,
   MessageSquare,
+  Monitor,
   Network,
   Puzzle,
   Radar,
@@ -96,6 +97,7 @@ const LEDGER_NAV: Record<string, NavItem<SystemRoute>> = {
 };
 
 const SYSTEM_NAV: Record<SystemRoute, NavItem<SystemRoute>> = {
+  "mission-control": { key: "mission-control", label: "Mission Control", href: "#/mission-control", icon: Monitor },
   operator: { key: "operator", label: "Operator", href: "#/operator", icon: Bot },
   credentials: { key: "credentials", label: "Credentials", href: "#/credentials", icon: KeyRound },
   chat: { key: "chat", label: "Chat", href: "#/chat", icon: MessageSquare },

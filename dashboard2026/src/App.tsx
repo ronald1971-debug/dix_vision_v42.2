@@ -1,8 +1,7 @@
 import { useState } from "react";
 
-import { AutonomyRibbon } from "@/components/AutonomyRibbon";
+import { GlobalSystemControlBar } from "@/components/GlobalSystemControlBar";
 import { CommandPalette } from "@/components/CommandPalette";
-import { ModeRibbon } from "@/components/ModeRibbon";
 import { LiveStatusPill } from "@/components/LiveStatusPill";
 import { MockDataBanner } from "@/components/MockDataBanner";
 import { PadlockFloors } from "@/components/PadlockFloors";
@@ -11,10 +10,9 @@ import { PromoteChain } from "@/components/PromoteChain";
 import { Sidebar } from "@/components/Sidebar";
 import { ToastHost } from "@/components/ToastHost";
 import { WidgetTogglePanel } from "@/components/WidgetTogglePanel";
-import { KillSwitchPill } from "@/components/KillSwitchPill";
 import { DomainIndicator } from "@/components/DomainIndicator";
-import { TradingStatusPill } from "@/components/TradingStatusPill";
 import { SignalsPage } from "@/pages/SignalsPage";
+import { MissionControlPage } from "@/pages/MissionControlPage";
 import { FormsPage } from "@/pages/FormsPage";
 import { AdaptersPage } from "@/pages/AdaptersPage";
 import { LedgerPage } from "@/pages/LedgerPage";
@@ -61,6 +59,8 @@ import { pushToast } from "@/state/toast";
 
 function renderRoute(route: Route) {
   switch (route) {
+    case "mission-control":
+      return <MissionControlPage />;
     case "spot":
       return <SpotPage />;
     case "perps":
@@ -163,6 +163,7 @@ export function App() {
     "toggle-palette": () => setPaletteOpen((o) => !o),
     "toggle-sidebar": () => setSidebarCollapsed((c) => !c),
     "go-operator": () => goRoute("operator"),
+    "go-mission-control": () => goRoute("mission-control"),
     "go-governance": () => goRoute("governance"),
     "go-testing": () => goRoute("testing"),
     "go-ai": () => goRoute("ai"),
@@ -213,12 +214,9 @@ export function App() {
               /{route}
             </span>
             <div className="ml-4 flex-1 overflow-x-auto">
-              <ModeRibbon />
+              <GlobalSystemControlBar />
             </div>
-            <AutonomyRibbon />
-            <KillSwitchPill />
             <DomainIndicator />
-            <TradingStatusPill />
             <LiveStatusPill />
             <PreferencesBar />
           </div>

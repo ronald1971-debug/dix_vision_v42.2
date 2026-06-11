@@ -10,7 +10,7 @@ interface DivergenceAlert {
 }
 
 export function DivergenceAlerts() {
-  const [alerts, _setAlerts] = React.useState<DivergenceAlert[]>([]);
+  const [alerts] = React.useState<DivergenceAlert[]>([]);
 
   return (
     <div className="p-4 bg-gray-900 rounded-lg">

@@ -224,7 +224,7 @@ export function ChartPanel({
     });
     const tradeSeries = chart.addSeries(LineSeries, {
       color: "transparent",
-      lineWidth: 0 as any,
+      lineWidth: 1,
       priceLineVisible: false,
       lastValueVisible: false,
     });
@@ -305,23 +305,6 @@ export function ChartPanel({
         fillTimes.add(tsSec);
       }
     }
-    const candleTimes = candles.map((c) => c.time as number);
-    const markers = candleTimes
-      .filter((t) => fillTimes.has(t))
-      .map((time) => {
-        const isBuy = fillsData?.fills?.some(
-          (f: { ts_utc: string; side: string }) => Math.floor(new Date(f.ts_utc).getTime() / 1000) === time && f.side === "BUY",
-        );
-        return {
-          time: time as Time,
-          position: isBuy ? "below" : "above",
-          color: isBuy ? "#3ddc84" : "#ff5a5a",
-          shape: "circle" as const,
-          text: isBuy ? "BUY" : "SELL",
-          size: 1,
-        };
-      });
-    candleSeries.applyOptions({ markers: markers } as any);
     chart.timeScale().fitContent();
   }, [candles, mode, active, fillsData]);
 

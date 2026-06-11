@@ -10,7 +10,7 @@ interface Composition {
 }
 
 export function CompositionStatus() {
-  const [compositions, _setCompositions] = React.useState<Composition[]>([]);
+  const [compositions] = React.useState<Composition[]>([]);
 
   return (
     <div className="p-4 bg-gray-900 rounded-lg">

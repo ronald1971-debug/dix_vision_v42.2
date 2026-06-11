@@ -98,9 +98,9 @@ def run(env: str = "dev", verify_only: bool = False) -> None:
     _guardian = start_runtime_guardian()
     log.info("[BOOT] Runtime guardian started")
 
-    # Step 9: Mode → NORMAL
+    # Step 9: Mode → SAFE
     mode_mgr = get_mode_manager()
-    mode_mgr.transition(SystemMode.NORMAL, "boot_complete")
+    mode_mgr.transition(SystemMode.SAFE, reason="boot_complete")
 
     # Step 10: Dyon engine
     dyon = get_dyon_engine()

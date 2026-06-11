@@ -10,11 +10,7 @@ import { useGlobalEvents } from '@/context/AgentOpsContext';
 import type { SystemEvent, EventFilter, EventSource } from '@/types/agent';
 import { Activity, Filter, AlertTriangle, CheckCircle, XCircle, Info, Search } from 'lucide-react';
 
-interface GlobalEventFeedProps {
-  className?: string;
-}
-
-export function GlobalEventFeed({ className: _className }: GlobalEventFeedProps) {
+export function GlobalEventFeed() {
   const events = useGlobalEvents();
   const [viewMode, setViewMode] = useState<'stream' | 'timeline'>('stream');
   const [filters, setFilters] = useState<EventFilter>({});
@@ -89,6 +85,7 @@ export function GlobalEventFeed({ className: _className }: GlobalEventFeedProps)
   const toggleAgentFilter = (agent: 'indira' | 'dyon') => {
     setFilters(prev => {
       if (prev.agent === agent) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { agent: _, ...rest } = prev;
         return rest;
       } else {

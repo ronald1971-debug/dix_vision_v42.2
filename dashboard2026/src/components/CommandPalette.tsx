@@ -36,6 +36,7 @@ interface CommandPaletteProps {
 }
 
 const ROUTE_LABELS: Record<Route, string> = {
+  "mission-control": "Mission Control",
   spot: "Spot",
   perps: "Perps",
   dex: "DEX",

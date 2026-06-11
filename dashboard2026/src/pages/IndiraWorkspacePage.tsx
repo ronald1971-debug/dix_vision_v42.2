@@ -18,11 +18,7 @@ import { IndiraActivityPanel } from '@/components/agent/IndiraActivityPanel';
 import { Brain, Mic, Users, Activity, FlaskConical, Wifi, WifiOff, TrendingUp } from 'lucide-react';
 import { useConnectionState } from '@/context/AgentOpsContext';
 
-interface IndiraWorkspacePageProps {
-  // No props currently, but kept for future extension
-}
-
-export function IndiraWorkspacePage({}: IndiraWorkspacePageProps) {
+export function IndiraWorkspacePage() {
   const { connectionState, isConnected, isMockMode } = useConnectionState();
 
   return (

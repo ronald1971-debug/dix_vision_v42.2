@@ -14,11 +14,7 @@ import { GlobalEventFeed } from '@/components/agent/GlobalEventFeed';
 import { useConnectionState, useGlobalEvents } from '@/context/AgentOpsContext';
 import { Brain, Wrench, Users, Activity, Wifi, WifiOff, AlertCircle, FlaskConical } from 'lucide-react';
 
-interface AgentOpsPageProps {
-  // No props currently, but kept for future extension
-}
-
-export function AgentOpsPage({}: AgentOpsPageProps) {
+export function AgentOpsPage() {
   const [activePanel, setActivePanel] = useState<'indira' | 'dyon' | 'shared'>('indira');
   const [viewMode, setViewMode] = useState<'grid' | 'list' | 'full'>('grid');
   

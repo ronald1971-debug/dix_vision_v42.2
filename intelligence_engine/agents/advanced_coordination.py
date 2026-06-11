@@ -660,7 +660,7 @@ class AdvancedCoordinationEngine:
     
     def get_recent_coordinations(self, limit: int = 10) -> tuple[CoordinationResult, ...]:
         """Get recent coordination results."""
-        return tuple(list(self._coordination_history)[-limit:]))
+        return tuple(list(self._coordination_history)[-limit:])
 
 
 __all__ = [

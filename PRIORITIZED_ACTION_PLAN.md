@@ -1,561 +1,629 @@
 # DIX VISION v42.2 - PRIORITIZED ACTION PLAN
 
-**Generated:** 2026-06-08
-**Based On:** Full System Analysis
-**System Health Score:** 72/100
-**Priority Focus:** Architectural Consolidation & Complexity Reduction
+**Based on:** FINAL_COMPREHENSIVE_SYSTEM_ANALYSIS_REPORT.md  
+**Date:** 2026-06-11  
+**System Health Score:** 68/100  
+**Status:** NOT PRODUCTION READY - Critical issues must be addressed
 
 ---
 
 ## P0 - CRITICAL (System-Breaking Issues)
 
-### P0-1: Governance System Consolidation
-**Severity:** CRITICAL
-**Impact:** System architecture integrity
-**Effort:** HIGH (4-6 weeks)
-**Deadline:** Immediate
+**Timeline:** Immediate (1-2 weeks)  
+**Priority:** System cannot operate reliably without fixing these issues  
+**Blocking:** Production deployment
 
-**Problem:**
-Six separate governance implementations create confusion, potential conflicts, and maintenance burden:
-- governance/
-- governance_engine/
-- cognitive_governance/
-- financial_governance/
-- operator_governance/
-- system_governance/
+### P0.1 - Fix Broken Imports (System Won't Start)
 
-**Solution:**
-1. **Choose governance_engine/ as the canonical implementation**
-   - Most comprehensive and mature implementation
-   - Strong runtime integration
-   - Active development and maintenance
+**Problem:** Multiple critical import errors prevent system from starting
 
-2. **Migration Strategy:**
-   - Audit each governance system for unique functionality
-   - Migrate critical functionality to governance_engine/
-   - Update all imports and references
-   - Deprecate other governance systems
-   - Remove deprecated systems after validation
+**Files:**
+- `intelligence_engine/__init__.py` - References non-existent `orchestrator` module
+- `execution_engine/__init__.py` line 33 - Imports from non-existent `offline.lane`  
+- `execution_engine/adapters/registry.py` lines 43-44 - Imports from non-existent `paper_trading` modules
+- `core/__init__.py` - Missing `registry` import
+- `intelligence_engine/backtesting.py` - Imports from unknown `mind.sources.providers`
 
-3. **Validation:**
-   - Comprehensive testing of consolidated governance
-   - Verify all governance paths still functional
-   - Ensure no policy enforcement gaps
-   - Validate performance improvements
+**Fix:**
+1. Create missing `intelligence_engine/orchestrator.py` or remove import
+2. Remove `offline.lane` import from `execution_engine/__init__.py`
+3. Remove or implement `paper_trading` modules in `execution_engine/adapters/registry.py`
+4. Add missing `registry` import to `core/__init__.py`
+5. Fix or remove `mind.sources.providers` import in `intelligence_engine/backtesting.py`
 
-**Success Criteria:**
-- Single authoritative governance system
-- All governance tests passing
-- No regressions in policy enforcement
-- Improved system clarity
-
-**Risk Mitigation:**
-- Comprehensive backup before consolidation
-- Feature parity verification
-- Rollback plan prepared
-- Extended testing period
+**Expected Impact:** System will start successfully  
+**Risk:** Low - straightforward import fixes
 
 ---
 
-### P0-2: Execution System Consolidation
-**Severity:** CRITICAL
-**Impact:** System architecture integrity
-**Effort:** MEDIUM (2-3 weeks)
-**Deadline:** Within 1 month
+### P0.2 - Fix Critical Runtime Bugs
 
-**Problem:**
-Two separate execution implementations create confusion:
-- execution/ (original implementation)
-- execution_engine/ (comprehensive implementation)
+**Problem:** Critical bugs cause runtime failures or data corruption
 
-**Solution:**
-1. **Choose execution_engine/ as the canonical implementation**
-   - More comprehensive feature set
-   - Better adapter architecture
-   - Stronger integration with governance
+**Files:**
+- `cognitive_engine/attention_engine/attention_manager.py` line 97-98 - TypeError (bandwidth calculation from string)
+- `governance/kernel.py` - Broad exception handling swallows governance errors
+- `state/ledger/writer.py` - Queue full causes blocking write (defeats async design)
+- `system/logger.py` - Unbounded queue causes memory exhaustion
+- `runtime/convergence.py` - 20+ orchestrator slots are placeholders (not functional)
 
-2. **Migration Strategy:**
-   - Audit execution/ for unique functionality
-   - Migrate any critical missing features to execution_engine/
-   - Update all references throughout codebase
-   - Deprecate execution/ directory
-   - Remove after validation
+**Fix:**
+1. Fix bandwidth calculation in `attention_manager.py` - convert reason to numeric or remove invalid calculation
+2. Improve `governance/kernel.py` exception handling - log specific errors, don't swallow
+3. Fix `state/ledger/writer.py` - implement backpressure or proper queue handling
+4. Add bounds to `system/logger.py` queue - implement ring buffer or size limit
+5. Implement or remove placeholder orchestrator slots in `runtime/convergence.py`
 
-3. **Validation:**
-   - Comprehensive execution testing
-   - Verify all adapters still functional
-   - Validate hot-path performance
-   - Test paper trading integration
-
-**Success Criteria:**
-- Single authoritative execution system
-- All execution tests passing
-- No performance regression
-- Clear execution paths
+**Expected Impact:** System operates reliably without crashes or data loss  
+**Risk:** Medium - requires understanding component interaction
 
 ---
 
-### P0-3: User Interface Consolidation
-**Severity:** CRITICAL
-**Impact:** User experience and maintenance
-**Effort:** HIGH (3-4 weeks)
-**Deadline:** Within 6 weeks
+### P0.3 - Address Security Vulnerabilities
 
-**Problem:**
-Three separate dashboard implementations suggest unclear strategic direction:
-- cockpit/ (original interface)
-- dashboard2026/ (modern React dashboard)
-- dash_meme/ (meme-themed dashboard)
+**Problem:** Security vulnerabilities expose system to attacks
 
-**Solution:**
-1. **Choose dashboard2026/ as the canonical implementation**
-   - Modern React architecture
-   - Comprehensive widget library
-   - Active development
-   - Better user experience
+**Files:**
+- `dashboard2026/src/lib/websocket/AgentWebSocketManager.ts` - No authentication/authorization
+- `dashboard2026/src/api/operator.ts` - Kill switch without confirmation
+- `execution_engine/adapters/_uniswapx_signer.py` - Private key handling needs audit
+- `dash_meme/src/pages/{trading pages}` - Need security review
+- `ui/authority_routes.py` - Hardcoded single-operator "ronald"
 
-2. **Migration Strategy:**
-   - Audit cockpit/ and dash_meme/ for unique features
-   - Migrate critical features to dashboard2026/
-   - Update routing and configuration
-   - Deprecate alternative dashboards
-   - Remove after validation
+**Fix:**
+1. Add JWT token authentication to WebSocket manager
+2. Add confirmation dialogs for kill switch operations
+3. Security audit of private key handling - implement proper key management
+4. Security review of all trading pages - add authentication, authorization, input validation
+5. Make operator name configurable via environment variable
 
-3. **Validation:**
-   - Comprehensive UI testing
-   - User acceptance testing
-   - Performance testing
-   - Feature parity verification
-
-**Success Criteria:**
-- Single authoritative dashboard
-- All critical features available
-- Improved user experience
-- Reduced maintenance burden
+**Expected Impact:** System secured against unauthorized access and attacks  
+**Risk:** High - security changes require careful testing
 
 ---
 
-### P0-4: File Encoding Issues Resolution
-**Severity:** CRITICAL
-**Impact:** System reliability and cross-platform compatibility
-**Effort:** LOW (1-2 days)
-**Deadline:** Immediate
+### P0.4 - Prevent Data Loss
 
-**Problem:**
-Files with encoding issues in filenames:
-- C?Temppytest_out.txt
-- C?Temppytest_out2.txt
+**Problem:** No persistence in critical components, memory leaks, no rollback
 
-**Solution:**
-1. **Rename affected files with proper ASCII names**
-   - Rename to temp_test_out.txt and temp_test_out2.txt
-   - Update any references to these files
+**Files:**
+- `cognitive_engine/institutional_memory/institutional_memory.py` - No persistence to disk
+- `cognitive_engine/knowledge_preservation/preservation.py` - No automatic cleanup
+- Multiple in-memory stores with no size limits
+- `state/ledger/writer.py` - No rollback on failure
+- No eviction policies throughout system
 
-2. **Root Cause Analysis:**
-   - Investigate how files were created with encoding issues
-   - Implement file name validation in CI/CD
-   - Add pre-commit hooks for filename validation
+**Fix:**
+1. Add SQLite persistence to `institutional_memory.py`
+2. Implement automatic cleanup with TTL in `knowledge_preservation.py`
+3. Add size limits and eviction policies to all in-memory stores
+4. Implement transaction rollback in `state/ledger/writer.py`
+5. Add memory monitoring and eviction policies throughout system
 
-3. **Prevention:**
-   - Add filename encoding checks to CI/CD
-   - Update development guidelines
-   - Add file naming standards to documentation
-
-**Success Criteria:**
-- No files with encoding issues
-- CI/CD prevents future encoding issues
-- Clear file naming standards documented
+**Expected Impact:** Critical data preserved, system stable long-term  
+**Risk:** Medium - persistence changes require migration strategy
 
 ---
 
-## P1 - HIGH IMPACT
+### P0.5 - Restore Determinism
 
-### P1-1: Architectural Simplification Plan
-**Severity:** HIGH
-**Impact:** Maintainability and developer experience
-**Effort:** HIGH (4-6 weeks)
-**Deadline:** Within 2 months
+**Problem:** Violations of INV-15 determinism requirement
 
-**Problem:**
-Extreme system complexity with 200+ directories and deep nesting
+**Files:**
+- `learning_engine/lanes/experience_base.py` - Uses random module
+- `tools/replay_validator.py` - Uses time.time_ns() (non-deterministic)
+- State files using wall-clock instead of time_source
 
-**Solution:**
-1. **Create architectural consolidation roadmap**
-   - Map all directory dependencies
-   - Identify consolidation opportunities
-   - Prioritize simplification initiatives
-   - Create timeline for consolidation
+**Fix:**
+1. Replace random module with deterministic sampling in `experience_base.py`
+2. Replace time.time_ns() with system.time_source in `replay_validator.py`
+3. Audit all state files - replace wall-clock with time_source
+4. Add determinism tests to CI pipeline
 
-2. **Reduce directory depth**
-   - Flatten deeply nested structures where possible
-   - Consolidate related functionality
-   - Remove unused stub directories
-   - Improve organization clarity
-
-3. **Eliminate stub modules**
-   - Identify all placeholder modules
-   - Either implement or remove
-   - Update documentation
-   - Clean up imports
-
-**Success Criteria:**
-- Reduced directory depth
-- Eliminated stub modules
-- Improved architectural clarity
-- Better developer experience
+**Expected Impact:** System meets INV-15 determinism requirement  
+**Risk:** Low - straightforward replacements
 
 ---
 
-### P1-2: Documentation Enhancement
-**Severity:** HIGH
-**Impact:** Developer experience and system maintainability
-**Effort:** MEDIUM (3-4 weeks)
-**Deadline:** Within 2 months
+## P1 - HIGH IMPACT (Critical for Production)
 
-**Problem:**
-Complex cognitive and governance systems lack comprehensive documentation
+**Timeline:** 2-6 weeks  
+**Priority:** System functionality and reliability  
+**Blocking:** Full production capabilities
 
-**Solution:**
-1. **Cognitive Systems Documentation**
-   - Document each cognitive engine module
-   - Explain theoretical foundations
-   - Provide usage examples
-   - Create integration guides
+### P1.1 - Implement Stub Components
 
-2. **Architecture Documentation**
-   - Create Architecture Decision Records (ADRs)
-   - Document key design decisions
-   - Explain system trade-offs
-   - Provide evolution history
+**Problem:** Many ML and simulation algorithms are stubs returning fake data
 
-3. **Integration Documentation**
-   - Document integration patterns
-   - Provide adapter implementation guides
-   - Create troubleshooting guides
-   - Document performance characteristics
+**Files:**
+- `learning_engine/deep_learning.py` - Placeholder implementation
+- `learning_engine/supervised_learning.py` - Training methods are stubs
+- `learning_engine/reinforcement_learning.py` - Placeholder simulation
+- `learning_engine/model_training.py` - Stub implementation
+- `learning_engine/model_validation.py` - Stub implementation
+- `learning_engine/model_deployment.py` - Stub implementation
+- `simulation_engine/orchestrator.py` - Returns hardcoded fake data
+- `simulation_engine/outcome_analyzer.py` - Returns hardcoded fake results
+- `cognitive_engine/belief_engine/consistency.py` - Returns empty violations
+- `cognitive_engine/belief_engine/replay.py` - Returns dummy result
 
-4. **Onboarding Guide**
-   - Create comprehensive developer onboarding
-   - System architecture overview
-   - Development workflow guide
-   - Testing and debugging guide
+**Fix:**
+1. Implement actual ML algorithms using sklearn/pytorch or remove stub files
+2. Implement actual simulation logic or clearly mark as research-only
+3. Implement state validation logic
+4. Add feature flags to disable stub components
+5. Document which components are production-ready vs research-only
 
-**Success Criteria:**
-- Comprehensive cognitive systems documentation
-- Complete ADR collection
-- Integration pattern documentation
-- Effective onboarding guide
+**Expected Impact:** System has actual ML and simulation capabilities  
+**Risk:** High - significant implementation effort required
 
 ---
 
-### P1-3: Testing Enhancement
-**Severity:** HIGH
-**Impact:** System reliability and confidence
-**Effort:** MEDIUM (3-4 weeks)
-**Deadline:** Within 2 months
+### P1.2 - Integrate ML Libraries
 
-**Problem:**
-Unclear test coverage for complex systems
+**Problem:** Missing actual ML library integration (sklearn, pytorch, tensorflow)
 
-**Solution:**
-1. **Coverage Analysis**
-   - Measure test coverage across all systems
-   - Identify critical paths without tests
-   - Assess integration test coverage
-   - Evaluate performance test coverage
+**Impact:** Learning engine cannot perform actual machine learning
 
-2. **Test Enhancement**
-   - Add integration tests for critical paths
-   - Enhance cognitive system testing
-   - Add performance regression tests
-   - Implement security testing
+**Fix:**
+1. Add sklearn dependency to requirements.txt
+2. Implement sklearn-based classifiers and regressors
+3. Add optional pytorch/tensorflow dependencies
+4. Implement deep neural networks with pytorch
+5. Add model serialization and deserialization
+6. Implement hyperparameter optimization
 
-3. **Testing Infrastructure**
-   - Improve test fixtures and utilities
-   - Enhance test data management
-   - Add test performance monitoring
-   - Implement test result visualization
-
-**Success Criteria:**
-- 80%+ code coverage
-- Critical paths fully tested
-- Performance regression tests in place
-- Security testing implemented
+**Expected Impact:** Learning engine has production ML capabilities  
+**Risk:** Medium - requires ML expertise and testing
 
 ---
 
-### P1-4: Dependency Management Simplification
-**Severity:** HIGH
-**Impact:** System reliability and deployment
-**Effort:** MEDIUM (2-3 weeks)
-**Deadline:** Within 6 weeks
+### P1.3 - Feature-Preserving Consolidation
 
-**Problem:**
-Complex optional dependency structure may cause runtime issues
+**Problem:** Multiple redundant implementations create confusion and maintenance burden, but each has unique features
 
-**Solution:**
-1. **Dependency Audit**
-   - Map all optional dependencies
-   - Identify critical vs. optional dependencies
-   - Assess dependency security
-   - Evaluate dependency version constraints
+**Redundant Systems:**
+- 6 governance implementations (governance/, governance_engine/, cognitive_governance/, financial_governance/, operator_governance/, system_governance/)
+- 2 execution implementations (execution/, execution_engine/)
+- 3 dashboard implementations (cockpit/, dashboard2026/, dash_meme/)
 
-2. **Dependency Simplification**
-   - Consolidate similar dependencies
-   - Improve error messages for missing dependencies
-   - Add dependency validation at startup
-   - Implement graceful degradation
+**Feature-Preserving Approach:**
+- **GOVERNANCE:** Migrate unique features from cognitive_governance/, financial_governance/, operator_governance/, system_governance/ to canonical governance_engine/; keep old implementations as deprecated wrappers
+- **EXECUTION:** Migrate any unique features from execution/ to canonical execution_engine/; keep execution/ as deprecated wrapper
+- **DASHBOARDS:** NO CONSOLIDATION - keep all three as separate products (different tech stacks, different user personas, different feature sets)
 
-3. **Security Enhancement**
-   - Implement dependency security scanning
-   - Add automated vulnerability detection
-   - Create dependency update process
-   - Document security response process
+**Fix:**
+1. Create detailed feature audit matrices for each system set
+2. Identify unique features in each implementation
+3. Migrate unique features to canonical implementation
+4. Add deprecation wrappers for backward compatibility
+5. Comprehensive testing of migrated features
+6. Keep old implementations available for 12+ months
+7. Document clear migration paths
 
-**Success Criteria:**
-- Simplified dependency structure
-- Clear dependency requirements
-- Automated security scanning
-- Better error messages
+**Expected Impact:** Zero feature loss, clear authority paths, reduced maintenance burden, user choice preserved
+**Risk:** Medium - requires careful feature migration and validation
+**See detailed plan:** FEATURE_PRESERVING_CONSOLIDATION_PLAN.md
 
 ---
 
-## P2 - OPTIMIZATION
+### P1.4 - Fix Truncated Files
 
-### P2-1: Performance Profiling and Optimization
-**Severity:** MEDIUM
-**Impact:** System performance and scalability
-**Effort:** MEDIUM (3-4 weeks)
-**Deadline:** Within 3 months
+**Problem:** Multiple agent files truncated mid-implementation
 
-**Problem:**
-Cognitive processing complexity may impact performance
+**Files:**
+- `intelligence_engine/agents/adversarial_observer.py` (line 326)
+- `intelligence_engine/agents/liquidity_provider.py` (line 274)
+- `intelligence_engine/agents/advanced_coordination.py` (line 675)
+- `intelligence_engine/agents/crew_strategy_council.py` (line 680)
+- `intelligence_engine/agents/debate_round.py` (line 777)
+- `intelligence_engine/agents/trading_agents_bridge.py` (line 766)
+- `intelligence_engine/agents/swing_trader.py` (line 680+)
 
-**Solution:**
-1. **Performance Profiling**
-   - Profile cognitive processing performance
-   - Identify governance pipeline bottlenecks
-   - Analyze hot-path execution
-   - Memory profiling for large operations
+**Fix:**
+1. Complete truncated implementations or remove incomplete files
+2. Add unit tests for completed implementations
+3. Update imports if files are removed
 
-2. **Performance Optimization**
-   - Optimize critical cognitive paths
-   - Improve governance pipeline efficiency
-   - Enhance hot-path execution
-   - Optimize memory usage
-
-3. **Performance Monitoring**
-   - Implement performance monitoring
-   - Add performance regression tests
-   - Create performance dashboards
-   - Establish performance baselines
-
-**Success Criteria:**
-- Identified performance bottlenecks
-- Optimized critical paths
-- Performance monitoring in place
-- Established performance baselines
+**Expected Impact:** All components have complete implementations  
+**Risk:** Medium - requires understanding intended functionality
 
 ---
 
-### P2-2: Monitoring and Observability Enhancement
-**Severity:** MEDIUM
-**Impact:** Operational excellence and debugging
-**Effort:** MEDIUM (2-3 weeks)
-**Deadline:** Within 3 months
+### P1.5 - Improve Error Handling
 
-**Problem:**
-Complex systems need enhanced observability
+**Problem:** Silent exception swallowing, no error recovery, missing error context
 
-**Solution:**
-1. **Distributed Tracing**
-   - Implement distributed tracing for cross-system operations
-   - Add trace context propagation
-   - Create trace visualization
-   - Establish trace analysis practices
+**Files:**
+- `execution_engine/fast_lane.py` - Swallows all exceptions silently
+- `execution_engine/hazard/detector.py` - Swallows all exceptions silently
+- `runtime/governance/enforcement_gate.py` - Bare except clause
+- `dashboard2026/src/websocket_layer.py` - Bare except in broadcast
+- Multiple components with broad exception catching
 
-2. **Custom Metrics**
-   - Add custom metrics for cognitive systems
-   - Implement governance pipeline metrics
-   - Create business metrics for trading
-   - Establish alert thresholds
+**Fix:**
+1. Replace silent exception swallowing with structured logging
+2. Add error recovery mechanisms where appropriate
+3. Add error context (stack traces, component state) to logs
+4. Implement circuit breakers for failing components
+5. Add error classification (transient vs permanent errors)
 
-3. **Monitoring Enhancement**
-   - Enhance existing monitoring
-   - Add alert tuning for production
-   - Create monitoring dashboards
-   - Implement anomaly detection
-
-**Success Criteria:**
-- Distributed tracing implemented
-- Custom metrics for cognitive systems
-- Enhanced monitoring dashboards
-- Effective alert tuning
+**Expected Impact:** System errors are visible and actionable  
+**Risk**: Low - systematic improvement
 
 ---
 
-### P2-3: Developer Experience Improvement
-**Severity:** MEDIUM
-**Impact:** Development productivity and satisfaction
-**Effort:** MEDIUM (2-3 weeks)
-**Deadline:** Within 3 months
+### P1.6 - Add Integration Testing
 
-**Problem:**
-Complex system has steep learning curve
+**Problem:** Complex workflows not end-to-end tested
 
-**Solution:**
-1. **Local Development Setup**
-   - Improve local development setup scripts
-   - Create development Docker containers
-   - Implement hot reload for faster development
-   - Create development data fixtures
+**Fix:**
+1. Add integration tests for critical paths:
+   - Full trading pipeline (ingest → decide → govern → execute → reconcile)
+   - Governance approval workflow
+   - Runtime boot sequence
+   - Cognitive pipeline phases
+   - Learning feedback loop
+2. Add mock external dependencies for testing
+3. Add performance regression tests
+4. Add determinism verification tests
 
-2. **Debugging Tools**
-   - Create debugging tools for complex systems
-   - Implement system state visualization
-   - Add cognitive process debugging
-   - Create governance decision tracing
-
-3. **Code Generation**
-   - Implement code generation for repetitive patterns
-   - Create scaffold generators for new components
-   - Automate boilerplate creation
-   - Generate type stubs for better IDE support
-
-**Success Criteria:**
-- Improved local development setup
-- Effective debugging tools
-- Code generation for repetitive tasks
-- Better IDE support
+**Expected Impact:** Critical workflows validated end-to-end  
+**Risk:** Medium - requires test infrastructure setup
 
 ---
 
-### P2-4: Repository Hygiene and Cleanup
-**Severity:** LOW
-**Impact:** Repository clarity and professionalism
-**Effort:** LOW (1-2 weeks)
-**Deadline:** Within 1 month
+### P1.7 - Fix Dockerfile and Deployment
 
-**Problem:**
-Temporary files and artifacts in repository
+**Problem:** Dockerfile has wrong port and missing scripts
 
-**Solution:**
-1. **File Cleanup**
-   - Remove log files from repository
-   - Clean up temporary files
-   - Remove output files
-   - Archive historical assessment files
+**File:** `dashboard2026/Dockerfile`
 
-2. **GitIgnore Enhancement**
-   - Comprehensive .gitignore updates
-   - Add patterns for all temporary files
-   - Include development artifacts
-   - Add OS-specific ignores
+**Issues:**
+- Exposes port 3000 but Vite dev server uses 5173
+- Uses npm start but package.json has no start script
+- Missing healthcheck
+- No multi-stage build
 
-3. **Cleanup Practices**
-   - Establish cleanup practices
-   - Add pre-commit hooks for cleanup
-   - Create cleanup scripts
-   - Document hygiene practices
+**Fix:**
+1. Fix port configuration (3000 → 5173 or configure Vite to use 3000)
+2. Add start script to package.json or use correct command
+3. Add healthcheck endpoint
+4. Implement multi-stage build for smaller image
+5. Add production build optimization
 
-**Success Criteria:**
-- Clean repository without artifacts
-- Comprehensive .gitignore
-- Established cleanup practices
-- Automated cleanup enforcement
+**Expected Impact:** Container can be deployed successfully  
+**Risk:** Low - straightforward Docker configuration
 
 ---
 
-## IMPLEMENTATION ROADMAP
+### P1.8 - Implement Missing Orchestrators
 
-### Phase 1: Critical Consolidation (Weeks 1-8)
-- Week 1-2: P0-4 File encoding issues
-- Week 3-4: P0-2 Execution system consolidation
-- Week 5-8: P0-1 Governance system consolidation
+**Problem:** Runtime convergence has 20+ placeholder orchestrator slots
 
-### Phase 2: UI Consolidation (Weeks 9-12)
-- Week 9-12: P0-3 User interface consolidation
+**File:** `runtime/convergence.py`
 
-### Phase 3: High Impact Improvements (Weeks 13-24)
-- Week 13-16: P1-4 Dependency management
-- Week 17-20: P1-3 Testing enhancement
-- Week 21-24: P1-2 Documentation enhancement
+**Fix:**
+1. Identify which orchestrator slots are actually needed
+2. Implement missing orchestrators or remove unused slots
+3. Add orchestrator health checking
+4. Add orchestrator dependency validation
+5. Document orchestrator initialization order
 
-### Phase 4: Architecture Simplification (Weeks 25-32)
-- Week 25-32: P1-1 Architectural simplification
-
-### Phase 5: Optimization (Weeks 33-48)
-- Week 33-36: P2-4 Repository hygiene
-- Week 37-40: P2-3 Developer experience
-- Week 41-44: P2-2 Monitoring enhancement
-- Week 45-48: P2-1 Performance optimization
+**Expected Impact:** Runtime convergence fully functional  
+**Risk:** Medium - requires understanding orchestrator requirements
 
 ---
 
-## SUCCESS METRICS
+## P2 - OPTIMIZATION (Improvement and Cleanup)
 
-### System Health Score Target
-- Current: 72/100
-- After P0 completion: 80/100
-- After P1 completion: 85/100
-- After P2 completion: 90/100
+**Timeline:** 6-12 weeks  
+**Priority:** System quality, maintainability, and performance  
+**Blocking:** Long-term maintainability
 
-### Architectural Metrics
-- Governance systems: 6 → 1
-- Execution systems: 2 → 1
-- Dashboard implementations: 3 → 1
-- Directory depth: Reduced by 30%
-- Stub modules: Eliminated
+### P2.1 - Split Monolithic Files
 
-### Quality Metrics
-- Test coverage: Current → 80%+
-- Documentation coverage: Current → 90%+
-- Code quality: Current → A
-- Security vulnerabilities: Current → 0 critical
+**Problem:** Several files are too large (1000-3000+ lines)
 
-### Performance Metrics
-- Governance latency: Current → -20%
-- Execution latency: Current → -15%
-- Startup time: Current → -25%
-- Memory usage: Current → -15%
+**Files:**
+- `tools/authority_lint.py` (2363 lines)
+- `tools/total_validation.py` (1337 lines)  
+- `ui/cockpit_routes.py` (1153 lines)
+- `ui/server.py` (3214 lines)
+- `core/coherence/decision_trace.py` (440 lines)
+- `core/causal_graph.py` (573 lines)
+- `core/event_cognition/lava_patterns.py` (832 lines)
+- `cognitive_engine/cognitive_orchestrator.py` (385 lines)
+
+**Fix:**
+1. Split files into logical modules
+2. Maintain public API through facade pattern
+3. Add clear module documentation
+4. Update imports throughout system
+
+**Expected Impact:** Code more maintainable and easier to understand  
+**Risk**: Low - refactoring with careful testing
+
+---
+
+### P2.2 - Make Hardcoded Values Configurable
+
+**Problem:** Many thresholds, intervals, limits are hardcoded
+
+**Examples:**
+- Governance thresholds
+- Learning rates and batch sizes
+- Timeouts and intervals
+- Risk limits and constraints
+- Cache sizes and buffer limits
+
+**Fix:**
+1. Create centralized configuration management
+2. Move hardcoded values to configuration files
+3. Add environment variable overrides
+4. Add configuration validation
+5. Document configuration options
+
+**Expected Impact:** System more flexible and adaptable  
+**Risk:** Low - systematic refactoring
+
+---
+
+### P2.3 - Consolidate Duplicate Code (Feature-Preserving)
+
+**Problem:** Significant code duplication across system
+
+**Examples:**
+- Multiple governance implementations (unique features preserved via deprecation wrappers)
+- Multiple execution implementations (unique features preserved via deprecation wrappers)
+- Duplicate causal_graph implementations
+- Duplicate retry logic implementations
+
+**Fix:**
+1. Identify canonical implementations
+2. Consolidate duplicate code while preserving unique features
+3. Add deprecation wrappers for old paths
+4. Keep old implementations for 12+ months
+5. Update documentation with clear migration paths
+
+**Expected Impact:** Reduced maintenance burden, clearer architecture, zero feature loss
+**Risk:** Medium - requires careful migration and validation
+
+---
+
+### P2.4 - Add Pagination to Large Datasets
+
+**Problem:** List endpoints return unlimited results
+
+**Files:**
+- `ui/cockpit_routes.py` - No pagination on list endpoints
+- `ui/cognitive_report_routes.py` - Hardcoded limits not configurable
+- Other list endpoints throughout system
+
+**Fix:**
+1. Implement pagination with cursor-based approach
+2. Add page size limits and defaults
+3. Add total count metadata
+4. Add sorting and filtering options
+5. Update UI components to handle pagination
+
+**Expected Impact:** System performs better with large datasets  
+**Risk**: Low - standard pagination pattern
+
+---
+
+### P2.5 - Implement Caching Strategies
+
+**Problem:** Repeated computations not cached, performance impact
+
+**Fix:**
+1. Identify expensive computations
+2. Implement result caching with TTL
+3. Add cache invalidation logic
+4. Add cache hit/miss metrics
+5. Document cache strategies
+
+**Expected Impact:** Improved performance, reduced load  
+**Risk:** Low - standard caching pattern
+
+---
+
+### P2.6 - Add Memory Eviction Policies
+
+**Problem:** Unbounded memory growth in several components
+
+**Files:**
+- `cognitive_engine/institutional_memory/institutional_memory.py` - Fixed 5000 limit but no cleanup
+- `runtime/memory_coordinator.py` - No eviction policy
+- `runtime/observability.py` - Snapshot buffer unbounded
+- `cognitive_engine/reflection_engine.py` - Reflections list grows unbounded
+
+**Fix:**
+1. Implement LRU eviction policies
+2. Add size-based eviction
+3. Add time-based eviction (TTL)
+4. Add memory monitoring and alerts
+5. Configure eviction policies per component
+
+**Expected Impact:** System stable long-term, no memory leaks  
+**Risk:** Low - standard eviction patterns
+
+---
+
+### P2.7 - Clean Up Orphaned Documentation
+
+**Problem:** 100+ markdown files in root directory, many outdated
+
+**Fix:**
+1. Audit all documentation files
+2. Consolidate related documentation
+3. Remove outdated files
+4. Create documentation index
+5. Establish documentation maintenance process
+
+**Expected Impact:** Clearer documentation, easier to find information  
+**Risk**: Low - documentation cleanup
+
+---
+
+### P2.8 - Improve Code Documentation
+
+**Problem:** Complex cognitive systems lack comprehensive docs
+
+**Fix:**
+1. Add module-level documentation to all major components
+2. Add inline comments for complex algorithms
+3. Create architecture decision records (ADRs)
+4. Document integration patterns
+5. Add usage examples
+
+**Expected Impact:** Easier onboarding, better understanding  
+**Risk**: Low - documentation improvement
+
+---
+
+### P2.9 - Add Type Safety Improvements
+
+**Problem:** Extensive use of `Any` type hints reduces type safety
+
+**Fix:**
+1. Replace `Any` with specific types where possible
+2. Add Pydantic models for complex data structures
+3. Add runtime type validation for critical paths
+4. Enable strict mypy checking
+5. Fix mypy errors
+
+**Expected Impact:** Fewer runtime type errors, better IDE support  
+**Risk**: Medium - requires type system expertise
+
+---
+
+### P2.10 - Implement Feature Flags
+
+**Problem:** No mechanism to disable experimental or unstable features
+
+**Fix:**
+1. Implement feature flag system
+2. Add flags for experimental components
+3. Add flags for cognitive features
+4. Add flags for ML models
+5. Document feature flags
+
+**Expected Impact:** Safer rollouts, easier testing  
+**Risk**: Low - standard feature flag pattern
+
+---
+
+## EXECUTION PLAN
+
+### Phase 1 (Weeks 1-2): P0 Critical Issues
+- Week 1: Fix broken imports, critical runtime bugs, security vulnerabilities
+- Week 2: Prevent data loss, restore determinism
+- **Milestone:** System starts and operates without crashes
+
+### Phase 2 (Weeks 3-8): P1 High Impact
+- Weeks 3-4: Implement stub components, integrate ML libraries
+- Weeks 5-6: Feature-preserving consolidation (governance + execution systems), keep dashboards separate
+- Weeks 7-8: Fix truncated files, improve error handling
+- **Milestone:** Core functionality complete and tested
+
+### Phase 3 (Weeks 7-10): P1 Continued
+- Weeks 7-8: Improve error handling, add integration testing
+- Weeks 9-10: Fix Dockerfile, implement missing orchestrators
+- **Milestone:** Production-ready core system
+
+### Phase 4 (Weeks 11-18): P2 Optimization
+- Weeks 11-13: Split monolithic files, make values configurable
+- Weeks 14-15: Remove duplicate code, add pagination
+- Weeks 16-18: Implement caching, memory eviction, documentation cleanup
+- **Milestone:** System optimized and maintainable
+
+### Phase 5 (Weeks 19-24): P2 Continued
+- Weeks 19-21: Improve documentation, type safety, feature flags
+- Weeks 22-24: Final testing, performance optimization, deployment preparation
+- **Milestone:** Production deployment ready
+
+---
+
+## SUCCESS CRITERIA
+
+### P0 Success Criteria
+- [ ] System starts without import errors
+- [ ] No critical runtime bugs in production use
+- [ ] Security vulnerabilities addressed and tested
+- [ ] Critical data persistence implemented
+- [ ] Determinism requirements met (INV-15)
+
+### P1 Success Criteria
+- [ ] ML components have actual implementations (not stubs)
+- [ ] ML libraries integrated and tested
+- [ ] Redundant systems consolidated with ZERO FEATURE LOSS
+- [ ] Unique features migrated to canonical implementations
+- [ ] Old implementations still work via deprecation wrappers
+- [ ] All three dashboards preserved as separate products
+- [ ] All files have complete implementations (no truncation)
+- [ ] Error handling provides actionable information
+- [ ] Integration tests cover critical workflows
+- [ ] Container deployment successful
+- [ ] Runtime convergence fully functional
+
+### P2 Success Criteria
+- [ ] No files exceed 1000 lines (except unavoidable)
+- [ ] All configurable values externalized
+- [ ] Duplicate code consolidated with deprecation wrappers (zero feature loss)
+- [ ] Pagination implemented on all list endpoints
+- [ ] Caching strategies implemented
+- [ ] Memory eviction policies in place
+- [ ] Documentation consolidated and current
+- [ ] Type coverage above 80%
+- [ ] Feature flags implemented for experimental features
 
 ---
 
 ## RISK MITIGATION
 
 ### Technical Risks
-- **Consolidation breaking functionality**: Comprehensive testing and rollback plans
-- **Performance regression**: Performance monitoring and optimization
-- **Integration issues**: Integration testing and validation
-- **Data loss**: Comprehensive backup and validation
+- **Integration complexity:** Mitigate with comprehensive testing and gradual rollout
+- **Performance regression:** Mitigate with performance monitoring and benchmarking
+- **Data migration:** Mitigate with backup strategies and rollback plans
+- **Breaking changes:** Mitigate with versioning and deprecation periods
+
+### Resource Risks
+- **Engineering effort:** Mitigate with clear prioritization and phased approach
+- **ML expertise:** Mitigate with consultant support or training
+- **Testing infrastructure:** Mitigate with investment in test automation
 
 ### Operational Risks
-- **Deployment disruption**: Phased rollout with monitoring
-- **Team productivity loss**: Training and documentation
-- **User experience degradation**: User acceptance testing
-- **Timeline overruns**: Regular progress reviews and adjustment
-
-### Business Risks
-- **Opportunity cost**: Prioritization based on business value
-- **Resource allocation**: Resource planning and management
-- **Stakeholder alignment**: Regular communication and updates
-- **Market changes**: Agile adaptation to changing requirements
+- **Deployment downtime:** Mitigate with blue-green deployment strategy
+- **Configuration errors:** Mitigate with configuration validation and testing
+- **Monitoring gaps:** Mitigate with comprehensive observability stack
 
 ---
 
-## CONCLUSION
+## RECOMMENDATIONS
 
-This action plan provides a structured approach to addressing the critical architectural issues identified in the full system analysis while positioning DIX VISION v42.2 for long-term success and maintainability.
+### Immediate Actions
+1. **Stop** - Do not deploy to production until P0 issues resolved
+2. **Prioritize** - Focus on P0 issues first, then P1, then P2
+3. **Communicate** - Set clear expectations with stakeholders about timeline
+4. **Document** - Track all changes with detailed commit messages
+5. **Test** - Add comprehensive testing for all changes
 
-The plan prioritizes critical architectural consolidation (P0) to address the most significant risks, followed by high-impact improvements (P1) to enhance system quality and developer experience, and optimization initiatives (P2) to further refine system performance and operability.
+### Long-term Actions
+1. **Establish** regular code review process
+2. **Implement** continuous integration with comprehensive testing
+3. **Create** architectural decision record (ADR) process
+4. **Invest** in developer tooling and automation
+5. **Build** expertise in critical domains (ML, security, performance)
+6. **Follow** feature-preserving consolidation approach (see FEATURE_PRESERVING_CONSOLIDATION_PLAN.md)
 
-Success requires strong leadership, clear communication, and disciplined execution. The technical excellence of DIX VISION v42.2 provides a solid foundation for these improvements, and the result will be a more maintainable, performant, and comprehensible system.
+---
 
-**Next Steps:**
-1. Review and approve this action plan
-2. Assign resources and timeline
-3. Begin P0-4 (immediate win)
-4. Execute P0 consolidation plan
-5. Regular progress reviews and adjustments
+**PLAN STATUS:** Ready for Execution  
+**NEXT STEP:** Begin P0.1 - Fix Broken Imports  
+**OWNER:** Engineering Team  
+**REVIEW DATE:** Weekly during P0, bi-weekly during P1/P2
 
-**Expected Outcome:** A consolidated, high-performance, maintainable system with clear architecture and excellent developer experience, positioned for long-term success and scalability.
+---
+
+*This plan should be reviewed and updated regularly as progress is made and new information emerges.*

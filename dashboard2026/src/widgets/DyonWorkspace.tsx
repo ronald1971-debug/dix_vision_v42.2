@@ -500,8 +500,8 @@ function DriftMonitorPanel({ drift }: { drift: WorkspaceData["architecture_drift
 
 // Panel 5: Dead Module Detector
 function DeadModulePanel({ data }: { data: WorkspaceData["dead_code"] }) {
-  if (!data) return null;
   const [expanded, setExpanded] = useState<string | null>(null);
+  if (!data) return null;
   const byClass = Object.entries(data.by_classification).filter(([, c]) => c > 0);
   return (
     <section className="flex flex-col rounded border border-border bg-surface h-full">

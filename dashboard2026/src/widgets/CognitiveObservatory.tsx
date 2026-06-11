@@ -270,7 +270,7 @@ function RegimeMapPanel() {
   );
 }
 
-function UncertaintyPanel(_: { hypotheses: CausalHypothesisRecord[] }) {
+function UncertaintyPanel() {
   const deltas = [+0.14, -0.05, +0.20, +0.06, -0.08, +0.11, +0.03, -0.04];
   const net = deltas.reduce((a, b) => a + b, 0);
   return (
@@ -951,7 +951,7 @@ export function CognitiveObservatory() {
               <div className={ph}><TraderClustersPanel clusters={data.clusters} /></div>
               <div className={ph}><CausalGraphPanel hypotheses={data.hypotheses} topChain={data.topChain} /></div>
               <div className={ph}><RegimeMapPanel /></div>
-              <div className={ph}><UncertaintyPanel hypotheses={data.hypotheses} /></div>
+              <div className={ph}><UncertaintyPanel /></div>
               <div className={ph}><ConfidenceEvolutionPanel entries={data.consciousness} /></div>
             </div>
           </div>

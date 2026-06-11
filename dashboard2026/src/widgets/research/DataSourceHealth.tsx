@@ -9,7 +9,7 @@ interface SourceHealth {
 }
 
 export function DataSourceHealth() {
-  const [sources, _setSources] = React.useState<SourceHealth[]>([]);
+  const [sources] = React.useState<SourceHealth[]>([]);
 
   return (
     <div className="p-4 bg-gray-900 rounded-lg">

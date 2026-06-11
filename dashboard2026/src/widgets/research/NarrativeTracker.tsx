@@ -9,7 +9,7 @@ interface Narrative {
 }
 
 export function NarrativeTracker() {
-  const [narratives, _setNarratives] = React.useState<Narrative[]>([]);
+  const [narratives] = React.useState<Narrative[]>([]);
 
   return (
     <div className="p-4 bg-gray-900 rounded-lg">

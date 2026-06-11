@@ -1,6 +1,7 @@
 import { useHashRoute, type Route } from "@/router";
 
 const DOMAIN_MAP: Record<Route, string> = {
+  "mission-control": "SYSTEM",
   spot: "INDIRA",
   perps: "INDIRA",
   dex: "INDIRA",

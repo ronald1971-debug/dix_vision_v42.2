@@ -9,7 +9,7 @@ interface LaneStatus {
 }
 
 export function LearningLanesMonitor() {
-  const [lanes, _setLanes] = React.useState<LaneStatus[]>([]);
+  const [lanes] = React.useState<LaneStatus[]>([]);
 
   return (
     <div className="p-4 bg-gray-900 rounded-lg">

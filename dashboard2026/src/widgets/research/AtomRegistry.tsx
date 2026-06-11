@@ -10,7 +10,7 @@ interface Atom {
 }
 
 export function AtomRegistry() {
-  const [atoms, _setAtoms] = React.useState<Atom[]>([]);
+  const [atoms] = React.useState<Atom[]>([]);
   const [filter, setFilter] = React.useState('');
 
   const filtered = atoms.filter(
