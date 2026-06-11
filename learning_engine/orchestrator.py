@@ -3,18 +3,60 @@ learning_engine.orchestrator
 DIX VISION v42.2 — Learning Engine Orchestrator
 
 Central coordination for learning operations including supervised learning,
-unsupervised learning, reinforcement learning, and adaptive learning.
-Provides production-grade ML capabilities for the system.
+unsupervised learning, reinforcement learning, deep learning, and adaptive learning.
+Production-grade implementation with all advanced ML components.
 """
 
 from __future__ import annotations
 
 import logging
-import time
+import threading
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Optional
 
 from system.time_source import now
+
+# Import production-grade components
+from learning_engine.supervised_learning import (
+    ProductionSupervisedLearner,
+    SupervisedLearningType,
+    TrainingData,
+    ModelConfig,
+    get_production_supervised_learner
+)
+from learning_engine.unsupervised_learning import (
+    ProductionUnsupervisedLearner,
+    UnsupervisedData,
+    get_production_unsupervised_learner
+)
+from learning_engine.reinforcement_learning import (
+    ProductionReinforcementLearner,
+    RLAlgorithm,
+    get_production_reinforcement_learner
+)
+from learning_engine.deep_learning import (
+    ProductionDeepLearner,
+    NetworkArchitecture,
+    ArchitectureType,
+    TrainingConfig,
+    get_production_deep_learner
+)
+from learning_engine.model_training import (
+    ProductionModelTrainer,
+    get_production_model_trainer
+)
+from learning_engine.model_validation import (
+    ProductionModelValidator,
+    get_production_model_validator
+)
+from learning_engine.model_deployment import (
+    ProductionModelDeployer,
+    get_production_model_deployer
+)
+from learning_engine.adaptive_learning import (
+    ProductionAdaptiveLearner,
+    get_production_adaptive_learner
+)
 
 logger = logging.getLogger(__name__)
 
@@ -44,434 +86,376 @@ class LearningOperation:
             self.output_data = {}
 
 
-@dataclass
-class ModelState:
-    """State of a machine learning model."""
-    
-    model_name: str
-    model_type: str  # "supervised" | "unsupervised" | "reinforcement" | "adaptive"
-    accuracy: float = 0.0
-    last_trained: str = ""
-    training_count: int = 0
-    performance_metrics: dict[str, float] = None
-    is_trained: bool = False
-    is_active: bool = True
-
-    def __post_init__(self):
-        if self.performance_metrics is None:
-            self.performance_metrics = {}
-
-
 class LearningOrchestrator:
     """Orchestrates learning operations.
     
-    Provides:
-    - Supervised learning capabilities
-    - Unsupervised learning capabilities
-    - Reinforcement learning capabilities
-    - Adaptive learning capabilities
-    - Model training and evaluation
-    - Prediction serving
+    Production-grade orchestrator that coordinates:
+    - Supervised learning (via ProductionSupervisedLearner)
+    - Unsupervised learning (via ProductionUnsupervisedLearner)
+    - Reinforcement learning (via ProductionReinforcementLearner)
+    - Deep learning (via ProductionDeepLearner)
+    - Model training (via ProductionModelTrainer)
+    - Model validation (via ProductionModelValidator)
+    - Model deployment (via ProductionModelDeployer)
+    - Adaptive learning (via ProductionAdaptiveLearner)
     """
     
     def __init__(self) -> None:
         self._operations: list[LearningOperation] = []
-        self._models: dict[str, ModelState] = {}
-        self._supervised_enabled = True
-        self._unsupervised_enabled = True
-        self._reinforcement_enabled = True
-        self._adaptive_enabled = True
-        self._training_enabled = True
-        self._prediction_enabled = True
         
-        # Initialize default models
-        self._initialize_default_models()
-    
-    def _initialize_default_models(self) -> None:
-        """Initialize default ML models."""
-        default_models = [
-            ModelState(
-                model_name="market_predictor",
-                model_type="supervised",
-                accuracy=0.0,
-                is_trained=False
-            ),
-            ModelState(
-                model_name="risk_analyzer",
-                model_type="supervised",
-                accuracy=0.0,
-                is_trained=False
-            ),
-            ModelState(
-                model_name="anomaly_detector",
-                model_type="unsupervised",
-                accuracy=0.0,
-                is_trained=False
-            ),
-            ModelState(
-                model_name="strategy_optimizer",
-                model_type="reinforcement",
-                accuracy=0.0,
-                is_trained=False
-            ),
-            ModelState(
-                model_name="adaptive_learner",
-                model_type="adaptive",
-                accuracy=0.0,
-                is_trained=False
-            )
-        ]
+        # Initialize production-grade components
+        self._supervised_learner: Optional[ProductionSupervisedLearner] = None
+        self._unsupervised_learner: Optional[ProductionUnsupervisedLearner] = None
+        self._reinforcement_learner: Optional[ProductionReinforcementLearner] = None
+        self._deep_learner: Optional[ProductionDeepLearner] = None
+        self._model_trainer: Optional[ProductionModelTrainer] = None
+        self._model_validator: Optional[ProductionModelValidator] = None
+        self._model_deployer: Optional[ProductionModelDeployer] = None
+        self._adaptive_learner: Optional[ProductionAdaptiveLearner] = None
         
-        for model in default_models:
-            self._models[model.model_name] = model
+        self._lock = threading.Lock()
         
-        logger.info(f"[LEARNING] Initialized {len(default_models)} default models")
-    
     def start(self) -> bool:
-        """Start the learning orchestrator."""
+        """Start the learning orchestrator and all components."""
         try:
-            logger.info("[LEARNING] Learning orchestrator started")
+            # Initialize all production-grade components
+            self._supervised_learner = get_production_supervised_learner()
+            self._unsupervised_learner = get_production_unsupervised_learner()
+            self._reinforcement_learner = get_production_reinforcement_learner()
+            self._deep_learner = get_production_deep_learner()
+            self._model_trainer = get_production_model_trainer()
+            self._model_validator = get_production_model_validator()
+            self._model_deployer = get_production_model_deployer()
+            self._adaptive_learner = get_production_adaptive_learner()
+            
+            # Start all components
+            self._supervised_learner.start()
+            self._unsupervised_learner.start()
+            self._reinforcement_learner.start()
+            self._deep_learner.start()
+            self._model_trainer.start()
+            self._model_validator.start()
+            self._model_deployer.start()
+            self._adaptive_learner.start()
+            
+            logger.info("[LEARNING] Learning orchestrator started with production-grade components")
             return True
         except Exception as e:
             logger.error(f"[LEARNING] Failed to start: {e}")
             return False
     
     def stop(self) -> bool:
-        """Stop the learning orchestrator."""
+        """Stop the learning orchestrator and all components."""
         try:
+            # Stop all components
+            if self._supervised_learner:
+                self._supervised_learner.stop()
+            if self._unsupervised_learner:
+                self._unsupervised_learner.stop()
+            if self._reinforcement_learner:
+                self._reinforcement_learner.stop()
+            if self._deep_learner:
+                self._deep_learner.stop()
+            if self._model_trainer:
+                self._model_trainer.stop()
+            if self._model_validator:
+                self._model_validator.stop()
+            if self._model_deployer:
+                self._model_deployer.stop()
+            if self._adaptive_learner:
+                self._adaptive_learner.stop()
+            
             logger.info("[LEARNING] Learning orchestrator stopped")
             return True
         except Exception as e:
             logger.error(f"[LEARNING] Failed to stop: {e}")
             return False
     
-    def enable_supervised(self) -> None:
-        """Enable supervised learning."""
-        self._supervised_enabled = True
-        logger.info("[LEARNING] Supervised learning enabled")
-    
-    def disable_supervised(self) -> None:
-        """Disable supervised learning."""
-        self._supervised_enabled = False
-        logger.info("[LEARNING] Supervised learning disabled")
-    
-    def enable_unsupervised(self) -> None:
-        """Enable unsupervised learning."""
-        self._unsupervised_enabled = True
-        logger.info("[LEARNING] Unsupervised learning enabled")
-    
-    def disable_unsupervised(self) -> None:
-        """Disable unsupervised learning."""
-        self._unsupervised_enabled = False
-        logger.info("[LEARNING] Unsupervised learning disabled")
-    
-    def enable_reinforcement(self) -> None:
-        """Enable reinforcement learning."""
-        self._reinforcement_enabled = True
-        logger.info("[LEARNING] Reinforcement learning enabled")
-    
-    def disable_reinforcement(self) -> None:
-        """Disable reinforcement learning."""
-        self._reinforcement_enabled = False
-        logger.info("[LEARNING] Reinforcement learning disabled")
-    
-    def enable_adaptive(self) -> None:
-        """Enable adaptive learning."""
-        self._adaptive_enabled = True
-        logger.info("[LEARNING] Adaptive learning enabled")
-    
-    def disable_adaptive(self) -> None:
-        """Disable adaptive learning."""
-        self._adaptive_enabled = False
-        logger.info("[LEARNING] Adaptive learning disabled")
-    
-    def train_model(self, model_name: str, training_data: dict[str, Any]) -> LearningOperation:
-        """Train a machine learning model."""
-        if not self._training_enabled:
-            logger.warning("[LEARNING] Training disabled, returning untrained model")
-            return LearningOperation(
-                operation_id=f"train_{now().sequence}",
-                operation_type="training",
-                model_name=model_name,
-                input_data=training_data,
-                output_data={"training_status": "disabled"},
-                accuracy=0.0,
-                status="completed"
-            )
+    # Supervised Learning Operations
+    def train_supervised(self, features: list[list[float]], 
+                         labels: list[any],
+                         model_type: str = "classification") -> LearningOperation:
+        """Train a supervised learning model."""
+        if not self._supervised_learner:
+            return self._create_disabled_operation("supervised_training")
         
         try:
-            operation = LearningOperation(
-                operation_id=f"train_{now().sequence}",
-                operation_type="training",
-                model_name=model_name,
-                input_data=training_data,
-                status="training"
+            training_data = TrainingData(
+                data_id=f"data_{now().sequence}",
+                features=features,
+                labels=labels
             )
             
-            # Get model state
-            model_state = self._models.get(model_name)
-            if model_state is None:
-                logger.warning(f"[LEARNING] Model {model_name} not found")
-                operation.status = "failed"
-                return operation
+            model_config = ModelConfig(
+                config_id=f"config_{now().sequence}",
+                model_type=SupervisedLearningType.CLASSIFICATION if model_type == "classification" else SupervisedLearningType.REGRESSION
+            )
             
-            # Perform training (simplified production logic)
-            training_result = self._perform_training(model_state, training_data)
+            result = self._supervised_learner.train_model(training_data, model_config)
             
-            operation.output_data = {
-                "training_status": training_result["status"],
-                "training_metrics": training_result["metrics"],
-                "epochs_completed": training_result["epochs"],
-                "training_time_seconds": training_result["training_time"]
-            }
-            operation.accuracy = training_result["accuracy"]
-            operation.status = "completed"
+            operation = LearningOperation(
+                operation_id=f"supervised_train_{now().sequence}",
+                operation_type="training",
+                model_name=f"supervised_{model_type}",
+                input_data={"n_samples": len(features)},
+                output_data={
+                    "accuracy": result.metrics.get("accuracy", 0.0),
+                    "training_time": result.training_time_seconds
+                },
+                accuracy=result.metrics.get("accuracy", 0.0),
+                status="completed"
+            )
             
-            # Update model state
-            model_state.accuracy = training_result["accuracy"]
-            model_state.last_trained = now().utc_time.isoformat()
-            model_state.training_count += 1
-            model_state.is_trained = True
-            model_state.performance_metrics = training_result["metrics"]
-            
-            self._operations.append(operation)
-            logger.info(f"[LEARNING] Training completed: {model_name} (accuracy: {training_result['accuracy']:.2f})")
+            with self._lock:
+                self._operations.append(operation)
             
             return operation
             
         except Exception as e:
-            logger.error(f"[LEARNING] Training failed for {model_name}: {e}")
-            return LearningOperation(
-                operation_id=f"train_{now().sequence}",
+            logger.error(f"[LEARNING] Supervised training failed: {e}")
+            return self._create_error_operation("supervised_training", str(e))
+    
+    # Unsupervised Learning Operations
+    def cluster_data(self, features: list[list[float]], 
+                    n_clusters: int = 5,
+                    algorithm: str = "kmeans") -> LearningOperation:
+        """Perform clustering on data."""
+        if not self._unsupervised_learner:
+            return self._create_disabled_operation("clustering")
+        
+        try:
+            data = UnsupervisedData(
+                data_id=f"data_{now().sequence}",
+                features=features
+            )
+            
+            result = self._unsupervised_learner.cluster(data, n_clusters, algorithm)
+            
+            operation = LearningOperation(
+                operation_id=f"clustering_{now().sequence}",
+                operation_type="evaluation",
+                model_name=f"cluster_{algorithm}",
+                input_data={"n_samples": len(features)},
+                output_data={
+                    "silhouette_score": result.silhouette_score,
+                    "n_clusters": len(set(result.cluster_assignments))
+                },
+                accuracy=result.silhouette_score,
+                status="completed"
+            )
+            
+            with self._lock:
+                self._operations.append(operation)
+            
+            return operation
+            
+        except Exception as e:
+            logger.error(f"[LEARNING] Clustering failed: {e}")
+            return self._create_error_operation("clustering", str(e))
+    
+    # Reinforcement Learning Operations
+    def train_rl(self, env_id: str, n_states: int, n_actions: int) -> LearningOperation:
+        """Train a reinforcement learning agent."""
+        if not self._reinforcement_learner:
+            return self._create_disabled_operation("rl_training")
+        
+        try:
+            result = self._reinforcement_learner.train_q_learning(env_id, n_states, n_actions)
+            
+            operation = LearningOperation(
+                operation_id=f"rl_train_{now().sequence}",
                 operation_type="training",
-                model_name=model_name,
-                input_data=training_data,
-                status="failed"
-            )
-    
-    def predict(self, model_name: str, input_data: dict[str, Any]) -> LearningOperation:
-        """Make predictions using a trained model."""
-        if not self._prediction_enabled:
-            logger.warning("[LEARNING] Prediction disabled, returning default prediction")
-            return LearningOperation(
-                operation_id=f"predict_{now().sequence}",
-                operation_type="prediction",
-                model_name=model_name,
-                input_data=input_data,
-                output_data={"prediction": 0.0, "confidence": 0.0},
-                accuracy=0.0,
+                model_name=f"rl_{env_id}",
+                input_data={"n_states": n_states, "n_actions": n_actions},
+                output_data={
+                    "average_reward": result.average_reward,
+                    "final_reward": result.final_reward
+                },
+                accuracy=result.average_reward,
                 status="completed"
             )
-        
-        try:
-            operation = LearningOperation(
-                operation_id=f"predict_{now().sequence}",
-                operation_type="prediction",
-                model_name=model_name,
-                input_data=input_data,
-                status="processing"
-            )
             
-            # Get model state
-            model_state = self._models.get(model_name)
-            if model_state is None:
-                logger.warning(f"[LEARNING] Model {model_name} not found")
-                operation.status = "failed"
-                return operation
-            
-            if not model_state.is_trained:
-                logger.warning(f"[LEARNING] Model {model_name} not trained")
-                operation.status = "failed"
-                return operation
-            
-            # Perform prediction (simplified production logic)
-            prediction_result = self._perform_prediction(model_state, input_data)
-            
-            operation.output_data = {
-                "prediction": prediction_result["prediction"],
-                "confidence": prediction_result["confidence"],
-                "prediction_time_ms": prediction_result["prediction_time"]
-            }
-            operation.accuracy = model_state.accuracy
-            operation.status = "completed"
-            
-            self._operations.append(operation)
-            logger.info(f"[LEARNING] Prediction completed: {model_name}")
+            with self._lock:
+                self._operations.append(operation)
             
             return operation
             
         except Exception as e:
-            logger.error(f"[LEARNING] Prediction failed for {model_name}: {e}")
-            return LearningOperation(
-                operation_id=f"predict_{now().sequence}",
-                operation_type="prediction",
-                model_name=model_name,
-                input_data=input_data,
-                status="failed"
-            )
+            logger.error(f"[LEARNING] RL training failed: {e}")
+            return self._create_error_operation("rl_training", str(e))
     
-    def adapt_model(self, model_name: str, adaptation_data: dict[str, Any]) -> LearningOperation:
-        """Adapt a model to new data."""
-        if not self._adaptive_enabled:
-            logger.warning("[LEARNING] Adaptation disabled, returning unadapted model")
-            return LearningOperation(
-                operation_id=f"adapt_{now().sequence}",
-                operation_type="adaptation",
-                model_name=model_name,
-                input_data=adaptation_data,
-                output_data={"adaptation_status": "disabled"},
-                accuracy=0.0,
-                status="completed"
-            )
+    # Deep Learning Operations
+    def train_deep_model(self, features: list[list[float]],
+                        labels: list[float],
+                        architecture: str = "mlp") -> LearningOperation:
+        """Train a deep learning model."""
+        if not self._deep_learner:
+            return self._create_disabled_operation("deep_learning")
         
         try:
-            operation = LearningOperation(
-                operation_id=f"adapt_{now().sequence}",
-                operation_type="adaptation",
-                model_name=model_name,
-                input_data=adaptation_data,
-                status="processing"
+            arch = NetworkArchitecture(
+                arch_id=f"arch_{now().sequence}",
+                arch_type=ArchitectureType.MLP if architecture == "mlp" else ArchitectureType.CNN,
+                layers=[{"units": 64, "activation": "relu"}, {"units": 32, "activation": "relu"}],
+                input_size=len(features[0]) if features else 1,
+                output_size=1
             )
             
-            # Get model state
-            model_state = self._models.get(model_name)
-            if model_state is None:
-                logger.warning(f"[LEARNING] Model {model_name} not found")
-                operation.status = "failed"
-                return operation
+            config = TrainingConfig(config_id=f"config_{now().sequence}")
             
-            # Perform adaptation (simplified production logic)
-            adaptation_result = self._perform_adaptation(model_state, adaptation_data)
+            result = self._deep_learner.train_model(arch, features, labels, config)
             
-            operation.output_data = {
-                "adaptation_status": adaptation_result["status"],
-                "adaptation_metrics": adaptation_result["metrics"],
-                "accuracy_improvement": adaptation_result["accuracy_improvement"]
-            }
-            operation.accuracy = adaptation_result["new_accuracy"]
-            operation.status = "completed"
+            operation = LearningOperation(
+                operation_id=f"deep_train_{now().sequence}",
+                operation_type="training",
+                model_name=f"deep_{architecture}",
+                input_data={"n_samples": len(features)},
+                output_data={
+                    "final_accuracy": result.final_val_accuracy,
+                    "training_time": result.training_time_seconds
+                },
+                accuracy=result.final_val_accuracy,
+                status="completed"
+            )
             
-            # Update model state
-            model_state.accuracy = adaptation_result["new_accuracy"]
-            
-            self._operations.append(operation)
-            logger.info(f"[LEARNING] Adaptation completed: {model_name}")
+            with self._lock:
+                self._operations.append(operation)
             
             return operation
             
         except Exception as e:
-            logger.error(f"[LEARNING] Adaptation failed for {model_name}: {e}")
-            return LearningOperation(
-                operation_id=f"adapt_{now().sequence}",
-                operation_type="adaptation",
-                model_name=model_name,
-                input_data=adaptation_data,
-                status="failed"
+            logger.error(f"[LEARNING] Deep learning training failed: {e}")
+            return self._create_error_operation("deep_learning", str(e))
+    
+    # Model Management
+    def validate_model(self, model_id: str, test_data: any) -> LearningOperation:
+        """Validate a model."""
+        if not self._model_validator:
+            return self._create_disabled_operation("validation")
+        
+        try:
+            report = self._model_validator.validate_model(model_id, test_data)
+            
+            operation = LearningOperation(
+                operation_id=f"validation_{now().sequence}",
+                operation_type="evaluation",
+                model_name=model_id,
+                input_data={},
+                output_data={
+                    "validation_passed": report.passed,
+                    "warnings": report.warnings
+                },
+                accuracy=report.metrics.get("accuracy", 0.0),
+                status="completed"
             )
+            
+            with self._lock:
+                self._operations.append(operation)
+            
+            return operation
+            
+        except Exception as e:
+            logger.error(f"[LEARNING] Validation failed: {e}")
+            return self._create_error_operation("validation", str(e))
     
-    def _perform_training(self, model_state: ModelState, training_data: dict[str, Any]) -> dict[str, Any]:
-        """Perform model training (simplified production logic)."""
-        start_time = time.time()
+    def deploy_model(self, model_id: str, version: str = "1.0") -> LearningOperation:
+        """Deploy a model."""
+        if not self._model_deployer:
+            return self._create_disabled_operation("deployment")
         
-        # Simplified training simulation
-        epochs = min(training_data.get("epochs", 100), 1000)
-        accuracy = 0.7 + (epochs / 1000.0) * 0.25  # Simulated accuracy improvement
-        training_time = time.time() - start_time
-        
-        metrics = {
-            "loss": 1.0 - accuracy,
-            "accuracy": accuracy,
-            "precision": accuracy * 0.9,
-            "recall": accuracy * 0.85,
-            "f1_score": accuracy * 0.87
-        }
-        
-        return {
-            "status": "completed",
-            "metrics": metrics,
-            "epochs": epochs,
-            "accuracy": accuracy,
-            "training_time": training_time
-        }
+        try:
+            deployment_id = self._model_deployer.deploy_model(model_id, version)
+            
+            operation = LearningOperation(
+                operation_id=f"deployment_{now().sequence}",
+                operation_type="adaptation",
+                model_name=model_id,
+                input_data={"version": version},
+                output_data={"deployment_id": deployment_id},
+                accuracy=0.0,
+                status="completed"
+            )
+            
+            with self._lock:
+                self._operations.append(operation)
+            
+            return operation
+            
+        except Exception as e:
+            logger.error(f"[LEARNING] Deployment failed: {e}")
+            return self._create_error_operation("deployment", str(e))
     
-    def _perform_prediction(self, model_state: ModelState, input_data: dict[str, Any]) -> dict[str, Any]:
-        """Perform prediction (simplified production logic)."""
-        start_time = time.time()
-        
-        # Simplified prediction simulation
-        prediction = 0.75  # Simulated prediction
-        confidence = model_state.accuracy
-        prediction_time = (time.time() - start_time) * 1000  # Convert to ms
-        
-        return {
-            "prediction": prediction,
-            "confidence": confidence,
-            "prediction_time": prediction_time
-        }
+    # Component Access
+    def get_supervised_learner(self) -> Optional[ProductionSupervisedLearner]:
+        """Get the supervised learner component."""
+        return self._supervised_learner
     
-    def _perform_adaptation(self, model_state: ModelState, adaptation_data: dict[str, Any]) -> dict[str, Any]:
-        """Perform model adaptation (simplified production logic)."""
-        # Simplified adaptation simulation
-        new_accuracy = min(model_state.accuracy + 0.05, 1.0)
-        accuracy_improvement = new_accuracy - model_state.accuracy
-        
-        metrics = {
-            "adaptation_quality": accuracy_improvement,
-            "stability_score": 0.9,
-            "generalization_score": 0.85
-        }
-        
-        return {
-            "status": "completed",
-            "metrics": metrics,
-            "new_accuracy": new_accuracy,
-            "accuracy_improvement": accuracy_improvement
-        }
+    def get_unsupervised_learner(self) -> Optional[ProductionUnsupervisedLearner]:
+        """Get the unsupervised learner component."""
+        return self._unsupervised_learner
     
-    def get_models(self) -> dict[str, ModelState]:
-        """Get all models."""
-        return self._models.copy()
+    def get_reinforcement_learner(self) -> Optional[ProductionReinforcementLearner]:
+        """Get the reinforcement learner component."""
+        return self._reinforcement_learner
     
-    def get_model_state(self, model_name: str) -> ModelState | None:
-        """Get state of a specific model."""
-        return self._models.get(model_name)
+    def get_deep_learner(self) -> Optional[ProductionDeepLearner]:
+        """Get the deep learner component."""
+        return self._deep_learner
     
-    def get_operations(self) -> list[LearningOperation]:
-        """Get all learning operations."""
-        return self._operations.copy()
+    def get_model_trainer(self) -> Optional[ProductionModelTrainer]:
+        """Get the model trainer component."""
+        return self._model_trainer
     
-    def get_status(self) -> dict[str, Any]:
-        """Get learning orchestrator status."""
-        trained_models = len([m for m in self._models.values() if m.is_trained])
-        
-        return {
-            "supervised_enabled": self._supervised_enabled,
-            "unsupervised_enabled": self._unsupervised_enabled,
-            "reinforcement_enabled": self._reinforcement_enabled,
-            "adaptive_enabled": self._adaptive_enabled,
-            "training_enabled": self._training_enabled,
-            "prediction_enabled": self._prediction_enabled,
-            "total_models": len(self._models),
-            "trained_models": trained_models,
-            "total_operations": len(self._operations)
-        }
-
-
-# Global instance
-_learning_orchestrator: LearningOrchestrator | None = None
+    def get_model_validator(self) -> Optional[ProductionModelValidator]:
+        """Get the model validator component."""
+        return self._model_validator
+    
+    def get_model_deployer(self) -> Optional[ProductionModelDeployer]:
+        """Get the model deployer component."""
+        return self._model_deployer
+    
+    def get_adaptive_learner(self) -> Optional[ProductionAdaptiveLearner]:
+        """Get the adaptive learner component."""
+        return self._adaptive_learner
+    
+    def get_operations(self, limit: int = 100) -> list[LearningOperation]:
+        """Get operation history."""
+        with self._lock:
+            return self._operations[-limit:]
+    
+    def clear_operations(self) -> None:
+        """Clear operation history."""
+        with self._lock:
+            self._operations.clear()
+        logger.info("[LEARNING] Operation history cleared")
+    
+    def _create_disabled_operation(self, operation_type: str) -> LearningOperation:
+        """Create operation for disabled component."""
+        return LearningOperation(
+            operation_id=f"{operation_type}_{now().sequence}",
+            operation_type=operation_type,
+            model_name="disabled",
+            input_data={},
+            output_data={"status": "disabled"},
+            accuracy=0.0,
+            status="failed"
+        )
+    
+    def _create_error_operation(self, operation_type: str, error: str) -> LearningOperation:
+        """Create operation for failed operation."""
+        return LearningOperation(
+            operation_id=f"{operation_type}_{now().sequence}",
+            operation_type=operation_type,
+            model_name="error",
+            input_data={},
+            output_data={"status": "error", "message": error},
+            accuracy=0.0,
+            status="failed"
+        )
 
 
 def get_learning_orchestrator() -> LearningOrchestrator:
-    """Get the global learning orchestrator instance."""
-    global _learning_orchestrator
-    if _learning_orchestrator is None:
-        _learning_orchestrator = LearningOrchestrator()
-    return _learning_orchestrator
-
-
-__all__ = [
-    "LearningOperation",
-    "ModelState",
-    "LearningOrchestrator",
-    "get_learning_orchestrator",
-]
+    """Get the singleton learning orchestrator instance."""
+    if not hasattr(get_learning_orchestrator, "_instance"):
+        get_learning_orchestrator._instance = LearningOrchestrator()
+    return get_learning_orchestrator._instance
