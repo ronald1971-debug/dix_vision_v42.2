@@ -19,8 +19,8 @@ import {
   setOpenRouterKey,
   type Mode,
   type PublicSettings,
-} from "../../api";
-import { t, useLocale } from "../../i18n";
+} from "../../api"
+import { t, useLocale } from "../../i18n"
 import { toast } from "../Toast";
 import SectionCard from "./lib/SectionCard";
 import { btnStyle, cardTitleStyle, inputStyle } from "./styles";

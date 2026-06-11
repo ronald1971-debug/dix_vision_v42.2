@@ -10,7 +10,8 @@ use tauri_plugin_global_shortcut::{Code, Modifiers, Shortcut};
 /// the builder can both register them AND capture them in its handler
 /// closure for equality checks.
 pub(crate) fn defaults() -> (Shortcut, Shortcut) {
-    let toggle_input = Shortcut::new(Some(Modifiers::ALT), Code::Space);
+    // Changed from ALT+Space to ALT+D to avoid conflicts
+    let toggle_input = Shortcut::new(Some(Modifiers::ALT), Code::KeyD);
     let vision_region = Shortcut::new(Some(Modifiers::ALT), Code::KeyV);
     (toggle_input, vision_region)
 }

@@ -34,7 +34,8 @@ pub fn get_mode(app: &AppHandle<Wry>) -> komorebi_router::Mode {
     match read_string(app, KEY_MODE).as_deref() {
         Some("local") => komorebi_router::Mode::Local,
         Some("cloud") => komorebi_router::Mode::Cloud,
-        _ => komorebi_router::Mode::Auto,
+        Some("auto") => komorebi_router::Mode::Auto,
+        _ => komorebi_router::Mode::Cloud, // Default to cloud mode instead of auto
     }
 }
 

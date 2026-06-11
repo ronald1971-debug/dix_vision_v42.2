@@ -12,7 +12,7 @@ import { avatarState } from "./avatarState";
 import { lipSync } from "./lipsync";
 import { checkForUpdatesQuietly } from "./updater";
 import { bootstrapLocale, useLocale } from "./i18n";
-import RobotAvatar from "./components/RobotAvatar";
+import RobotAvatar from "./components/RobotAvatar/index.tsx";
 import {
   cancelGeneration,
   cancelImageGeneration,
@@ -455,9 +455,24 @@ export default function App() {
 
   return (
     <>
+      <div
+        data-tauri-drag-region
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 50,
+          zIndex: 1000,
+          pointerEvents: 'auto',
+        }}
+      />
       <RobotAvatar
         width={Math.max(220, Math.min(windowSize.w - 24, Math.round(Math.max(260, windowSize.h - 120) * 0.7)))}
         height={Math.max(260, windowSize.h - 120)}
+        isSpeaking={thinking || Boolean(bubbleText)}
+        expression={route === 'local' ? 'neutral' : 'happy'}
+        speechText={bubbleText}
       />
       <ChatBubble
         text={bubbleText}

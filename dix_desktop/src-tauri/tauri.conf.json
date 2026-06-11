@@ -1,12 +1,11 @@
 {
-  "$schema": "https://schema.tauri.app/config/2",
   "productName": "DIX VISION Desktop",
   "version": "42.2.0",
   "identifier": "com.dixvision.desktop",
   "build": {
-    "beforeDevCommand": "pnpm dev",
+    "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
-    "beforeBuildCommand": "pnpm build",
+    "beforeBuildCommand": "npm run build",
     "frontendDist": "../dist"
   },
   "app": {
@@ -25,7 +24,8 @@
         "skipTaskbar": true,
         "shadow": false,
         "focus": false,
-        "visible": true
+        "visible": true,
+        "titleBarStyle": "Overlay"
       }
     ],
     "security": {

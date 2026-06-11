@@ -4,6 +4,16 @@
 
 import * as THREE from 'three';
 
+export interface RobotParts {
+    head: THREE.Mesh;
+    leftEye: THREE.Mesh;
+    rightEye: THREE.Mesh;
+    mouth: THREE.Mesh;
+    chestLight: THREE.Mesh;
+    leftEyebrow: THREE.Mesh;
+    rightEyebrow: THREE.Mesh;
+}
+
 export function createSimpleRobot(): THREE.Group {
     const robot = new THREE.Group();
 
@@ -31,17 +41,39 @@ export function createSimpleRobot(): THREE.Group {
     const headGeometry = new THREE.SphereGeometry(0.5, 32, 32);
     const head = new THREE.Mesh(headGeometry, bodyMaterial);
     head.position.y = 1.7;
+    head.name = 'head';
     robot.add(head);
 
     // Eyes (Sonny-style glowing blue)
     const eyeGeometry = new THREE.SphereGeometry(0.08, 16, 16);
     const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
     leftEye.position.set(-0.15, 1.75, 0.4);
+    leftEye.name = 'leftEye';
     robot.add(leftEye);
 
     const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
     rightEye.position.set(0.15, 1.75, 0.4);
+    rightEye.name = 'rightEye';
     robot.add(rightEye);
+
+    // Eyebrows for expressions
+    const eyebrowGeometry = new THREE.BoxGeometry(0.15, 0.02, 0.02);
+    const leftEyebrow = new THREE.Mesh(eyebrowGeometry, darkMaterial);
+    leftEyebrow.position.set(-0.15, 1.82, 0.45);
+    leftEyebrow.name = 'leftEyebrow';
+    robot.add(leftEyebrow);
+
+    const rightEyebrow = new THREE.Mesh(eyebrowGeometry, darkMaterial);
+    rightEyebrow.position.set(0.15, 1.82, 0.45);
+    rightEyebrow.name = 'rightEyebrow';
+    robot.add(rightEyebrow);
+
+    // Mouth (initially closed, will animate when talking)
+    const mouthGeometry = new THREE.BoxGeometry(0.12, 0.02, 0.02);
+    const mouth = new THREE.Mesh(mouthGeometry, darkMaterial);
+    mouth.position.set(0, 1.6, 0.45);
+    mouth.name = 'mouth';
+    robot.add(mouth);
 
     // Neck
     const neckGeometry = new THREE.CylinderGeometry(0.15, 0.2, 0.2, 16);
@@ -55,10 +87,11 @@ export function createSimpleRobot(): THREE.Group {
     torso.position.y = 0.9;
     robot.add(torso);
 
-    // Chest light (Sonny feature - the "brain" indicator)
+    // Chest button (Sonny feature - the "brain" indicator)
     const chestLightGeometry = new THREE.CircleGeometry(0.1, 32);
     const chestLight = new THREE.Mesh(chestLightGeometry, eyeMaterial);
     chestLight.position.set(0, 1.1, 0.4);
+    chestLight.name = 'chestLight';
     robot.add(chestLight);
 
     // Shoulders
@@ -119,33 +152,133 @@ export function createSimpleRobot(): THREE.Group {
     rightFoot.position.set(0.2, -0.35, 0.05);
     robot.add(rightFoot);
 
+    // Store references for animation
+    (robot as any).robotParts = {
+        head,
+        leftEye,
+        rightEye,
+        mouth,
+        chestLight,
+        leftEyebrow,
+        rightEyebrow,
+    } as RobotParts;
+
     return robot;
 }
 
-// Animation function for idle movement
+// Animation state for talking
+let isTalking = false;
+let talkStartTime = 0;
+let expression = 'neutral'; // neutral, happy, sad, angry, surprised
+
+export function setTalking(talking: boolean) {
+    isTalking = talking;
+    if (talking) {
+        talkStartTime = Date.now();
+    }
+}
+
+export function setExpression(newExpression: string) {
+    expression = newExpression;
+}
+
+export function setChestButtonColor(red: boolean, robot: THREE.Group) {
+    const parts = (robot as any).robotParts as RobotParts;
+    if (parts && parts.chestLight) {
+        if (red) {
+            (parts.chestLight.material as THREE.MeshStandardMaterial).color.setHex(0xFF0000);
+            (parts.chestLight.material as THREE.MeshStandardMaterial).emissive.setHex(0xFF0000);
+        } else {
+            (parts.chestLight.material as THREE.MeshStandardMaterial).color.setHex(0x00BFFF);
+            (parts.chestLight.material as THREE.MeshStandardMaterial).emissive.setHex(0x00BFFF);
+        }
+    }
+}
+
+// Animation function for idle movement and talking
 export function animateRobot(robot: THREE.Group, time: number): void {
+    const parts = (robot as any).robotParts as RobotParts;
+    if (!parts) return;
+
     // Subtle breathing (robot doesn't really breathe, but subtle movement)
     robot.position.y = Math.sin(time * 2) * 0.02;
 
     // Head movement (tracking/awareness)
-    const head = robot.children[0];
-    if (head) {
-        head.rotation.y = Math.sin(time * 0.5) * 0.1;
-        head.rotation.x = Math.sin(time * 0.7) * 0.05;
+    if (parts.head) {
+        parts.head.rotation.y = Math.sin(time * 0.5) * 0.1;
+        parts.head.rotation.x = Math.sin(time * 0.7) * 0.05;
     }
 
     // Eye glow pulsing (Sonny's eyes glow)
-    const eyes = [robot.children[1], robot.children[2]];
-    eyes.forEach(eye => {
+    [parts.leftEye, parts.rightEye].forEach(eye => {
         if (eye && eye instanceof THREE.Mesh) {
             (eye.material as THREE.MeshStandardMaterial).emissiveIntensity = 
                 0.6 + Math.sin(time * 3) * 0.2;
         }
     });
 
+    // Mouth animation when talking
+    if (parts.mouth) {
+        if (isTalking) {
+            const talkTime = (Date.now() - talkStartTime) / 1000;
+            // Open and close mouth based on sine wave
+            const mouthOpen = Math.abs(Math.sin(talkTime * 10)) * 0.08;
+            parts.mouth.scale.y = 1 + mouthOpen;
+            parts.mouth.position.y = 1.6 - mouthOpen * 0.5;
+        } else {
+            // Closed mouth
+            parts.mouth.scale.y = 1;
+            parts.mouth.position.y = 1.6;
+        }
+    }
+
+    // Facial expressions
+    if (parts.leftEyebrow && parts.rightEyebrow) {
+        switch (expression) {
+            case 'happy':
+                parts.leftEyebrow.rotation.z = -0.2;
+                parts.rightEyebrow.rotation.z = 0.2;
+                parts.leftEyebrow.position.y = 1.83;
+                parts.rightEyebrow.position.y = 1.83;
+                break;
+            case 'sad':
+                parts.leftEyebrow.rotation.z = 0.3;
+                parts.rightEyebrow.rotation.z = -0.3;
+                parts.leftEyebrow.position.y = 1.81;
+                parts.rightEyebrow.position.y = 1.81;
+                break;
+            case 'angry':
+                parts.leftEyebrow.rotation.z = 0.4;
+                parts.rightEyebrow.rotation.z = -0.4;
+                parts.leftEyebrow.position.y = 1.84;
+                parts.rightEyebrow.position.y = 1.84;
+                break;
+            case 'surprised':
+                parts.leftEyebrow.rotation.z = 0;
+                parts.rightEyebrow.rotation.z = 0;
+                parts.leftEyebrow.position.y = 1.86;
+                parts.rightEyebrow.position.y = 1.86;
+                break;
+            default: // neutral
+                parts.leftEyebrow.rotation.z = 0;
+                parts.rightEyebrow.rotation.z = 0;
+                parts.leftEyebrow.position.y = 1.82;
+                parts.rightEyebrow.position.y = 1.82;
+        }
+    }
+
+    // Eye shape changes based on expression
+    if (parts.leftEye && parts.rightEye) {
+        const eyeScaleX = expression === 'happy' ? 1.3 : 
+                         expression === 'sad' ? 0.8 : 
+                         expression === 'surprised' ? 1.2 : 1;
+        parts.leftEye.scale.x = eyeScaleX;
+        parts.rightEye.scale.x = eyeScaleX;
+    }
+
     // Arm sway (subtle natural movement)
-    const leftArm = robot.children[7];
-    const rightArm = robot.children[8];
+    const leftArm = robot.children[10];
+    const rightArm = robot.children[11];
     if (leftArm && rightArm) {
         leftArm.rotation.z = 0.2 + Math.sin(time * 1) * 0.05;
         rightArm.rotation.z = -0.2 - Math.sin(time * 1) * 0.05;
