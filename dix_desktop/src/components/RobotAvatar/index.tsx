@@ -28,10 +28,10 @@ export default function RobotAvatar({ width, height, isSpeaking = false, express
         const scene = new THREE.Scene();
         // Transparent background for DIX DESKTOP
 
-        // Camera - positioned to look directly at robot face
-        const camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 1000);
-        camera.position.set(0, 1.8, 6); // Looking at face level
-        camera.lookAt(0, 1.8, 0);
+        // Camera
+        const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+        camera.position.z = 4;
+        camera.position.y = 0.5;
 
         // Renderer
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });

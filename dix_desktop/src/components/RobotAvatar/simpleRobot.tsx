@@ -18,8 +18,6 @@ export interface RobotParts {
     leftHand: THREE.Mesh;
     rightHand: THREE.Mesh;
     torso: THREE.Mesh;
-    sign: THREE.Mesh;
-    signText: THREE.Mesh;
 }
 
 export interface GestureState {
@@ -91,12 +89,6 @@ export function createSimpleRobot(): THREE.Group {
         emissiveIntensity: 0.0,
         metalness: 0.6,
         roughness: 0.4,
-    });
-
-    const signMaterial = new THREE.MeshStandardMaterial({
-        color: 0xFFFFFF, // White sign
-        metalness: 0.1,
-        roughness: 0.2,
     });
 
     // Head
@@ -193,20 +185,6 @@ export function createSimpleRobot(): THREE.Group {
     rightHand.name = 'rightHand';
     robot.add(rightHand);
 
-    // SIGN - white sign that the robot can hold
-    const signGeometry = new THREE.BoxGeometry(0.6, 0.4, 0.02);
-    const sign = new THREE.Mesh(signGeometry, signMaterial);
-    sign.position.set(0.9, 1.0, 0.2);
-    sign.name = 'sign';
-    robot.add(sign);
-
-    // Sign text (simple stripe)
-    const textGeometry = new THREE.BoxGeometry(0.5, 0.1, 0.03);
-    const text = new THREE.Mesh(textGeometry, darkMaterial);
-    text.position.set(0.9, 1.1, 0.25);
-    text.name = 'signText';
-    robot.add(text);
-
     // Hips
     const hipGeometry = new THREE.SphereGeometry(0.25, 16, 16);
     const hip = new THREE.Mesh(hipGeometry, darkMaterial);
@@ -247,8 +225,6 @@ export function createSimpleRobot(): THREE.Group {
         leftHand,
         rightHand,
         torso,
-        sign,
-        signText,
     } as RobotParts;
 
     // Initialize rotation tracking
@@ -259,7 +235,6 @@ export function createSimpleRobot(): THREE.Group {
         rightArm: new THREE.Euler(),
         leftHand: new THREE.Euler(),
         rightHand: new THREE.Euler(),
-        sign: new THREE.Euler(),
     };
 
     return robot;
@@ -316,30 +291,25 @@ function getTargetRotationsForGesture(gesture: GestureState): { [key: string]: T
         case 'greeting':
             targets.leftArm = new THREE.Euler(0.3, 0.3, 0.5);
             targets.rightArm = new THREE.Euler(0.3, -0.3, -0.5);
-            targets.sign = new THREE.Euler(0, 0, 0.5);
             targets.head = new THREE.Euler(0.1, 0.2, 0);
             break;
         case 'questioning':
             targets.rightArm = new THREE.Euler(0.4, -0.2, -0.3);
             targets.leftArm = new THREE.Euler(0.1, 0.1, 0.2);
-            targets.sign = new THREE.Euler(0, 0, 0.3);
             targets.head = new THREE.Euler(0.2, 0.3, 0.1);
             break;
         case 'excited':
             targets.leftArm = new THREE.Euler(0.5, 0.5, 0.8);
             targets.rightArm = new THREE.Euler(0.5, -0.5, -0.8);
-            targets.sign = new THREE.Euler(0, 0, 0.8);
             targets.head = new THREE.Euler(0.2, 0, 0);
             break;
         case 'explaining':
             targets.rightArm = new THREE.Euler(0.3, -0.3, -0.4);
             targets.leftArm = new THREE.Euler(0.1, 0.1, 0.2);
-            targets.sign = new THREE.Euler(0, 0, 0.4);
             targets.head = new THREE.Euler(0.1, 0.1, 0);
             break;
         case 'thinking':
             targets.rightArm = new THREE.Euler(0.6, -0.2, -0.2);
-            targets.sign = new THREE.Euler(0.3, 0, 0.5);
             targets.leftArm = new THREE.Euler(0.1, 0.1, 0.1);
             targets.head = new THREE.Euler(0.3, 0, 0);
             break;
@@ -347,7 +317,6 @@ function getTargetRotationsForGesture(gesture: GestureState): { [key: string]: T
         default:
             targets.leftArm = new THREE.Euler(0.1 + intensity * 0.2, 0.1 + intensity * 0.1, 0.2 + intensity * 0.1);
             targets.rightArm = new THREE.Euler(-0.1 - intensity * 0.2, -0.1 - intensity * 0.1, -0.2 - intensity * 0.1);
-            targets.sign = new THREE.Euler(0, 0, 0.2);
             targets.head = new THREE.Euler(0.05, 0.05, 0);
             break;
     }
@@ -378,7 +347,7 @@ export function animateRobot(robot: THREE.Group, time: number): void {
         if (!currentRotations[key]) {
             currentRotations[key] = new THREE.Euler();
         }
-        currentRotations[key] = lerpEuler(currentRotations[key], targets[key], lerp);
+        currentRotations[key] = lerpEuler(currentRotations[key], targets[key], lerpSpeed);
     });
 
     // Apply rotations to body parts
@@ -403,12 +372,6 @@ export function animateRobot(robot: THREE.Group, time: number): void {
         parts.rightArm.rotation.x = currentRotations.rightArm.x + Math.sin(timeSeconds * 1.4) * 0.05;
         parts.rightArm.rotation.y = currentRotations.rightArm.y + Math.sin(timeSeconds * 1.2) * 0.03;
         parts.rightArm.rotation.z = currentRotations.rightArm.z + Math.sin(timeSeconds * 1.0) * 0.04;
-    }
-
-    // Sign animation
-    if (parts.sign) {
-        parts.sign.rotation.x = currentRotations.sign.x + Math.sin(timeSeconds * 0.8) * 0.05;
-        parts.sign.rotation.y = currentRotations.sign.y + Math.sin(timeSeconds * 0.6) * 0.05;
     }
 
     // Hand movements
