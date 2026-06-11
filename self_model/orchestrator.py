@@ -1,10 +1,10 @@
 """
 self_model.orchestrator
-DIX VISION v42.2 — Self-Model Orchestrator
+DIX VISION v42.2 — Production-Grade Self-Model Orchestrator
 
-Central coordination for self-modeling operations including identity representation,
-capability modeling, performance tracking, learning state modeling, mental state
-representation, and self-awareness capabilities.
+Central coordination for self-modeling operations using production-grade components
+including identity representation, capability modeling, performance tracking, learning 
+state modeling, mental state representation, and self-awareness capabilities.
 """
 
 from __future__ import annotations
@@ -14,6 +14,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from system.time_source import now
+from self_model.self_model import get_production_self_model, ProductionSelfModel
 
 logger = logging.getLogger(__name__)
 
@@ -36,9 +37,10 @@ class SelfModelState:
 
 
 class SelfModelOrchestrator:
-    """Orchestrates self-modeling operations."""
+    """Production-grade orchestrator for self-modeling operations using production-grade components."""
     
     def __init__(self) -> None:
+        self._production_model: ProductionSelfModel | None = None
         self._state = SelfModelState(
             identity={
                 "name": "DIX VISION v42.2",
@@ -73,9 +75,11 @@ class SelfModelOrchestrator:
         )
     
     def start(self) -> bool:
-        """Start the self-model orchestrator."""
+        """Start the self-model orchestrator with production-grade components."""
         try:
-            logger.info("[SELF_MODEL] Self-model orchestrator started")
+            self._production_model = get_production_self_model()
+            self._production_model.initialize()
+            logger.info("[SELF_MODEL] Production self-model orchestrator started")
             return True
         except Exception as e:
             logger.error(f"[SELF_MODEL] Failed to start: {e}")
@@ -84,7 +88,9 @@ class SelfModelOrchestrator:
     def stop(self) -> bool:
         """Stop the self-model orchestrator."""
         try:
-            logger.info("[SELF_MODEL] Self-model orchestrator stopped")
+            if self._production_model:
+                self._production_model.shutdown()
+            logger.info("[SELF_MODEL] Production self-model orchestrator stopped")
             return True
         except Exception as e:
             logger.error(f"[SELF_MODEL] Failed to stop: {e}")
@@ -166,6 +172,11 @@ class SelfModelOrchestrator:
             "self_awareness": self._state.self_awareness_level,
             "last_updated": self._state.last_updated
         }
+    
+    @property
+    def production_model(self) -> ProductionSelfModel | None:
+        """Get the production-grade self-model instance."""
+        return self._production_model
 
 
 # Global instance

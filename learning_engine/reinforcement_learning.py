@@ -35,7 +35,7 @@ class RewardType(Enum):
     """Types of reward signals."""
     SPARSE = "sparse"  # Sparse rewards
     DENSE = "dense"  # Dense rewards
-    SHAPED = "shaped"  Reward shaping
+    SHAPED = "shaped"  # Reward shaping
     INTRINSIC = "intrinsic"  # Intrinsic motivation
     EXTRINSIC = "extrinsic"  # Extrinsic rewards
 

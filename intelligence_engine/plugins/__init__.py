@@ -11,6 +11,14 @@ imports — see ``docs/directory_tree.md``.
 from intelligence_engine.plugins.footprint_delta import FootprintDeltaV1
 from intelligence_engine.plugins.liquidity_physics import LiquidityPhysicsV1
 from intelligence_engine.plugins.microstructure import MicrostructureV1
+from intelligence_engine.plugins.microstructure_advanced import (
+    MicrostructurePattern,
+    OrderBookSnapshot,
+    LiquidityProfile,
+    MicrostructureSignal,
+    OrderBookAnalyzer,
+    MicrostructurePatternRecognizer,
+)
 from intelligence_engine.plugins.news_reaction import NewsReactionV1
 from intelligence_engine.plugins.on_chain_pulse import OnChainPulseV1
 from intelligence_engine.plugins.order_book_pressure import OrderBookPressureV1
@@ -23,6 +31,12 @@ __all__ = [
     "FootprintDeltaV1",
     "LiquidityPhysicsV1",
     "MicrostructureV1",
+    "MicrostructurePattern",
+    "OrderBookSnapshot",
+    "LiquidityProfile",
+    "MicrostructureSignal",
+    "OrderBookAnalyzer",
+    "MicrostructurePatternRecognizer",
     "NewsReactionV1",
     "OnChainPulseV1",
     "OrderBookPressureV1",

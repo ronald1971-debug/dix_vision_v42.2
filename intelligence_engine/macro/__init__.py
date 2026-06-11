@@ -10,9 +10,29 @@ from intelligence_engine.macro.regime_engine import (
     MacroRegimeEngineConfig,
     load_macro_regime_config,
 )
+from intelligence_engine.macro.regime_classifier import (
+    RegimeClassification,
+    RegimeClassifier,
+)
+from intelligence_engine.macro.regime_transition_adapter import (
+    RegimeTransitionType,
+    RegimeTransitionSignal,
+    RegimeAdaptationStrategy,
+    SmoothTransitionState,
+    RegimeTransitionPredictor,
+    SmoothRegimeAdapter,
+)
 
 __all__ = [
     "MacroRegimeEngine",
     "MacroRegimeEngineConfig",
     "load_macro_regime_config",
+    "RegimeClassification",
+    "RegimeClassifier",
+    "RegimeTransitionType",
+    "RegimeTransitionSignal",
+    "RegimeAdaptationStrategy",
+    "SmoothTransitionState",
+    "RegimeTransitionPredictor",
+    "SmoothRegimeAdapter",
 ]

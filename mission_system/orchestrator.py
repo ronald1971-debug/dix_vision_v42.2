@@ -1,10 +1,10 @@
 """
 mission_system.orchestrator
-DIX VISION v42.2 — Mission System Orchestrator
+DIX VISION v42.2 — Production-Grade Mission System Orchestrator
 
-Central coordination for mission operations including mission planning,
-mission execution, mission monitoring, objective tracking, resource allocation,
-and success evaluation.
+Central coordination for mission operations using production-grade components
+including mission planning, mission execution, mission monitoring, objective
+tracking, resource allocation, and success evaluation.
 """
 
 from __future__ import annotations
@@ -14,6 +14,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from system.time_source import now
+from mission_system.mission_system import get_production_mission_system, ProductionMissionSystem
 
 logger = logging.getLogger(__name__)
 
@@ -42,16 +43,19 @@ class Mission:
 
 
 class MissionSystemOrchestrator:
-    """Orchestrates mission operations."""
+    """Production-grade orchestrator for mission operations using production-grade components."""
     
     def __init__(self) -> None:
+        self._production_system: ProductionMissionSystem | None = None
         self._missions: dict[str, Mission] = {}
         self._active_mission: str | None = None
     
     def start(self) -> bool:
-        """Start the mission system orchestrator."""
+        """Start the mission system orchestrator with production-grade components."""
         try:
-            logger.info("[MISSION] Mission system orchestrator started")
+            self._production_system = get_production_mission_system()
+            self._production_system.initialize()
+            logger.info("[MISSION] Production mission system orchestrator started")
             return True
         except Exception as e:
             logger.error(f"[MISSION] Failed to start: {e}")
@@ -60,7 +64,9 @@ class MissionSystemOrchestrator:
     def stop(self) -> bool:
         """Stop the mission system orchestrator."""
         try:
-            logger.info("[MISSION] Mission system orchestrator stopped")
+            if self._production_system:
+                self._production_system.shutdown()
+            logger.info("[MISSION] Production mission system orchestrator stopped")
             return True
         except Exception as e:
             logger.error(f"[MISSION] Failed to stop: {e}")
@@ -121,6 +127,11 @@ class MissionSystemOrchestrator:
         if self._active_mission:
             return self._missions.get(self._active_mission)
         return None
+    
+    @property
+    def production_system(self) -> ProductionMissionSystem | None:
+        """Get the production-grade mission system instance."""
+        return self._production_system
 
 
 # Global instance

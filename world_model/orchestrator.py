@@ -1,10 +1,10 @@
 """
 world_model.orchestrator
-DIX VISION v42.2 — World-Model Orchestrator
+DIX VISION v42.2 — Production-Grade World-Model Orchestrator
 
-Central coordination for world-modeling operations including market representation,
-agent modeling, environment modeling, causal structure learning, dynamics modeling,
-and prediction systems.
+Central coordination for world-modeling operations using production-grade components
+including market representation, agent modeling, environment modeling, causal structure
+learning, dynamics modeling, and prediction systems.
 """
 
 from __future__ import annotations
@@ -14,6 +14,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from system.time_source import now
+from world_model.world_model import get_production_world_model, ProductionWorldModel
 
 logger = logging.getLogger(__name__)
 
@@ -36,9 +37,10 @@ class WorldModelState:
 
 
 class WorldModelOrchestrator:
-    """Orchestrates world-modeling operations."""
+    """Production-grade orchestrator for world-modeling operations using production-grade components."""
     
     def __init__(self) -> None:
+        self._production_model: ProductionWorldModel | None = None
         self._state = WorldModelState(
             market_state={
                 "regime": "neutral",
@@ -71,9 +73,11 @@ class WorldModelOrchestrator:
         )
     
     def start(self) -> bool:
-        """Start the world-model orchestrator."""
+        """Start the world-model orchestrator with production-grade components."""
         try:
-            logger.info("[WORLD_MODEL] World-model orchestrator started")
+            self._production_model = get_production_world_model()
+            self._production_model.initialize()
+            logger.info("[WORLD_MODEL] Production world-model orchestrator started")
             return True
         except Exception as e:
             logger.error(f"[WORLD_MODEL] Failed to start: {e}")
@@ -82,7 +86,9 @@ class WorldModelOrchestrator:
     def stop(self) -> bool:
         """Stop the world-model orchestrator."""
         try:
-            logger.info("[WORLD_MODEL] World-model orchestrator stopped")
+            if self._production_model:
+                self._production_model.shutdown()
+            logger.info("[WORLD_MODEL] Production world-model orchestrator stopped")
             return True
         except Exception as e:
             logger.error(f"[WORLD_MODEL] Failed to stop: {e}")
@@ -161,6 +167,11 @@ class WorldModelOrchestrator:
     def get_predictions(self) -> dict[str, Any]:
         """Get prediction systems."""
         return self._state.predictions.copy()
+    
+    @property
+    def production_model(self) -> ProductionWorldModel | None:
+        """Get the production-grade world-model instance."""
+        return self._production_model
 
 
 # Global instance

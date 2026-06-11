@@ -69,6 +69,8 @@ class RuntimeConvergence:
         "_simulation_orchestrator",
         "_trader_modeling_orchestrator",
         "_mission_system_orchestrator",
+        "_opponent_model_orchestrator",
+        "_system_engine_orchestrator",
         "_running",
         "_tick_count",
         "_session_id",
@@ -97,6 +99,8 @@ class RuntimeConvergence:
         self._simulation_orchestrator = None
         self._trader_modeling_orchestrator = None
         self._mission_system_orchestrator = None
+        self._opponent_model_orchestrator = None
+        self._system_engine_orchestrator = None
         self._running = False
         self._tick_count = 0
         self._session_id = f"session_{uuid.uuid4().hex[:12]}"
@@ -253,6 +257,8 @@ class RuntimeConvergence:
             from simulation_engine.orchestrator import get_simulation_orchestrator
             from trader_modeling.orchestrator import get_trader_modeling_orchestrator
             from mission_system.orchestrator import get_mission_system_orchestrator
+            from opponent_model.orchestrator import get_opponent_model_orchestrator
+            from system_engine.orchestrator import get_system_engine_orchestrator
             from system.feature_flags import CognitiveFeatureFlags, FeatureFlagManager
             
             if FeatureFlagManager.is_enabled(CognitiveFeatureFlags.COGNITIVE_HEALTH_MONITORING):
@@ -289,16 +295,23 @@ class RuntimeConvergence:
                 self._mission_system_orchestrator = get_mission_system_orchestrator()
                 self._mission_system_orchestrator.start()
                 
+                self._opponent_model_orchestrator = get_opponent_model_orchestrator()
+                self._opponent_model_orchestrator.start()
+                
+                self._system_engine_orchestrator = get_system_engine_orchestrator()
+                self._system_engine_orchestrator.start()
+                
                 # Record these in learning orchestrator for tracking
                 if self._learning_orchestrator:
                     engines = ["intelligence", "ml", "sensory", "evolution", "knowledge", "reasoning", 
-                             "self_model", "world_model", "simulation", "trader_modeling", "mission"]
+                             "self_model", "world_model", "simulation", "trader_modeling", "mission",
+                             "opponent_model", "system_engine"]
                     for engine in engines:
                         self._learning_orchestrator.record_capability_dependency(
                             f"{engine}_operations", "cognitive_health_monitoring"
                         )
                 
-                logger.info("[CONVERGENCE] Advanced intelligence engines: READY (all 11 engines operational)")
+                logger.info("[CONVERGENCE] Advanced intelligence engines: READY (all 13 engines operational)")
             else:
                 logger.info("[CONVERGENCE] Advanced intelligence engines: DISABLED (feature flag)")
                 self._intelligence_orchestrator = None
@@ -312,6 +325,8 @@ class RuntimeConvergence:
                 self._simulation_orchestrator = None
                 self._trader_modeling_orchestrator = None
                 self._mission_system_orchestrator = None
+                self._opponent_model_orchestrator = None
+                self._system_engine_orchestrator = None
         except Exception as e:
             logger.warning(f"[CONVERGENCE] Advanced intelligence engines initialization failed: {e}")
             self._intelligence_orchestrator = None
@@ -325,6 +340,8 @@ class RuntimeConvergence:
             self._simulation_orchestrator = None
             self._trader_modeling_orchestrator = None
             self._mission_system_orchestrator = None
+            self._opponent_model_orchestrator = None
+            self._system_engine_orchestrator = None
 
         # 5. Initialize kernel with fabric components
         from runtime.kernel import KernelConfig, RuntimeKernel

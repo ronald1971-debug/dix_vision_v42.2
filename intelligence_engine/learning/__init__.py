@@ -25,6 +25,14 @@ from intelligence_engine.learning.slow_loop import (
     ParameterSnapshot,
     SlowLoopLearner,
 )
+from intelligence_engine.learning.performance_attribution import (
+    AttributionType,
+    DecisionAttribution,
+    PerformanceMetric,
+    LearningInsight,
+    PerformanceAttributor,
+    AdaptiveLearningEngine,
+)
 
 __all__ = [
     "SLOW_LOOP_VERSION",
@@ -32,4 +40,10 @@ __all__ = [
     "ParameterBounds",
     "ParameterSnapshot",
     "SlowLoopLearner",
+    "AttributionType",
+    "DecisionAttribution",
+    "PerformanceMetric",
+    "LearningInsight",
+    "PerformanceAttributor",
+    "AdaptiveLearningEngine",
 ]

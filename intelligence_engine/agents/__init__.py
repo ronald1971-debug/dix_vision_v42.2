@@ -17,6 +17,16 @@ from intelligence_engine.agents.lp import LiquidityProviderAgent
 from intelligence_engine.agents.macro import MacroAgent
 from intelligence_engine.agents.scalper import ScalperAgent
 from intelligence_engine.agents.swing import SwingAgent
+from intelligence_engine.agents.advanced_coordination import (
+    CoordinationProtocol,
+    AgentRole,
+    AgentProfile,
+    AgentVote,
+    CoordinationResult,
+    AgentConflict,
+    AgentPerformanceTracker,
+    AdvancedCoordinationEngine,
+)
 
 __all__ = [
     "AdversarialAgent",
@@ -27,4 +37,12 @@ __all__ = [
     "ManipulationPattern",
     "ScalperAgent",
     "SwingAgent",
+    "CoordinationProtocol",
+    "AgentRole",
+    "AgentProfile",
+    "AgentVote",
+    "CoordinationResult",
+    "AgentConflict",
+    "AgentPerformanceTracker",
+    "AdvancedCoordinationEngine",
 ]

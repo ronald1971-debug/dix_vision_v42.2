@@ -75,7 +75,10 @@
       "Exec([Environment]::SetEnvironmentVariable(\"OPENROUTER_API_KEY\",)",
       "Exec([Environment]::GetEnvironmentVariable(\"OPENROUTER_API_KEY\",)",
       "Exec(rm)",
-      "Exec(ngrok http)"
+      "Exec(ngrok http)",
+      "Exec(ngrok config)",
+      "Exec(Run advanced)",
+      "Exec(del)"
     ]
   }
 }

@@ -12,10 +12,26 @@ from intelligence_engine.portfolio.allocator import (
     load_portfolio_allocator_config,
 )
 from intelligence_engine.portfolio.exposure_manager import ExposureManager
+from intelligence_engine.portfolio.advanced_risk_management import (
+    RiskMetric,
+    VaRResult,
+    CVaRResult,
+    StressTestResult,
+    RiskBudget,
+    AdvancedRiskCalculator,
+    DynamicRiskBudgeter,
+)
 
 __all__ = [
     "PortfolioAllocator",
     "PortfolioAllocatorConfig",
     "load_portfolio_allocator_config",
     "ExposureManager",
+    "RiskMetric",
+    "VaRResult",
+    "CVaRResult",
+    "StressTestResult",
+    "RiskBudget",
+    "AdvancedRiskCalculator",
+    "DynamicRiskBudgeter",
 ]

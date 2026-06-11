@@ -86,6 +86,23 @@ class LearningOperation:
             self.output_data = {}
 
 
+@dataclass
+class ModelState:
+    """State of the learning model."""
+    
+    model_type: str
+    performance_metrics: dict[str, float]
+    training_history: list[dict[str, Any]]
+    current_accuracy: float
+    model_status: str
+    parameters: dict[str, Any]
+    last_updated: str = ""
+    
+    def __post_init__(self):
+        if not self.last_updated:
+            self.last_updated = now().utc_time.isoformat()
+
+
 class LearningOrchestrator:
     """Orchestrates learning operations.
     
