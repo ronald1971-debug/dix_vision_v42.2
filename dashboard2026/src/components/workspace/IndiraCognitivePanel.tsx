@@ -22,7 +22,6 @@ import {
   DollarSign,
   Activity,
   Gauge,
-  AlertTriangle,
   Sparkles,
 } from 'lucide-react';
 
@@ -588,9 +587,4 @@ function getTimeAgo(timestamp: number): string {
   } else {
     return `${days}d ago`;
   }
-}
-
-// Add missing import
-function PanelWithHeader({ title, children }: { title: string; children: React.ReactNode }) {
-  return <PanelSection title={title}>{children}</PanelSection>;
 }

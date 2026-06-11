@@ -11,11 +11,11 @@
  * - Interaction Panel: Voice, chat, task assignments, quick actions
  */
 
-import { PanelLayout } from '@/components/agent/Panel';
+import { PanelLayout, Panel, PanelSection } from '@/components/agent/Panel';
 import { IndiraContextPanel } from '@/components/workspace/IndiraContextPanel';
 import { IndiraCognitivePanel } from '@/components/workspace/IndiraCognitivePanel';
 import { IndiraActivityPanel } from '@/components/agent/IndiraActivityPanel';
-import { Brain, Mic, Users, Activity, FlaskConical, Wifi, WifiOff } from 'lucide-react';
+import { Brain, Mic, Users, Activity, FlaskConical, Wifi, WifiOff, TrendingUp } from 'lucide-react';
 import { useConnectionState } from '@/context/AgentOpsContext';
 
 interface IndiraWorkspacePageProps {
@@ -172,6 +172,87 @@ function IndiraInteractionPanel() {
     },
   ];
 
+  // Helper functions inside the component
+  function VoiceCommandItem({ command }: { command: typeof mockVoiceCommands[0] }) {
+    return (
+      <div className="p-2 bg-muted/30 rounded border border-border">
+        <div className="flex items-center gap-2 mb-1">
+          <Mic className="w-3 h-3 text-blue-500" />
+          <span className="text-xs font-medium">"{command.transcript}"</span>
+        </div>
+        <p className="text-xs text-muted-foreground mb-1">{command.response}</p>
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <span>Confidence: {(command.confidence * 100).toFixed(0)}%</span>
+          <span>•</span>
+          <span>{getTimeAgo(command.timestamp)}</span>
+        </div>
+      </div>
+    );
+  }
+
+  function ChatMessageItem({ message }: { message: typeof mockChatMessages[0] }) {
+    const isOperator = message.sender === 'operator';
+    
+    return (
+      <div className={`p-2 rounded border ${
+        isOperator 
+          ? 'bg-blue-500/10 border-blue-500/20 ml-8' 
+          : 'bg-purple-500/10 border-purple-500/20 mr-8'
+      }`}>
+        <div className="flex items-center gap-2 mb-1">
+          {isOperator ? <Users className="w-3 h-3 text-blue-500" /> : <Brain className="w-3 h-3 text-purple-500" />}
+          <span className="text-xs font-medium capitalize">{message.sender}</span>
+        </div>
+        <p className="text-xs">{message.content}</p>
+        <p className="text-xs text-muted-foreground mt-1">{getTimeAgo(message.timestamp)}</p>
+      </div>
+    );
+  }
+
+  function TaskAssignmentItem({ assignment }: { assignment: typeof mockTaskAssignments[0] }) {
+    return (
+      <div className="p-2 bg-muted/30 rounded border border-border">
+        <div className="flex items-center justify-between mb-1">
+          <span className="text-xs font-medium">Task: {assignment.taskId}</span>
+          <span className={`text-xs px-2 py-0.5 rounded ${getStatusColor(assignment.status)}`}>
+            {assignment.status}
+          </span>
+        </div>
+        {assignment.notes && (
+          <p className="text-xs text-muted-foreground mb-1">{assignment.notes}</p>
+        )}
+        <p className="text-xs text-muted-foreground">
+          Assigned {getTimeAgo(assignment.assignedAt)}
+        </p>
+      </div>
+    );
+  }
+
+  function QuickActionItem({ action }: { action: typeof mockQuickActions[0] }) {
+    const icons: Record<string, React.ComponentType<{ className?: string }>> = {
+      Activity,
+      TrendingUp,
+      Brain,
+      Mic,
+    };
+    const Icon = icons[action.icon];
+
+    return (
+      <button
+        onClick={action.action}
+        className="p-3 bg-muted/30 rounded border border-border hover:bg-muted/50 transition-colors text-left"
+      >
+        <div className="flex items-center gap-2 mb-1">
+          {Icon && <Icon className="w-4 h-4 text-blue-500" />}
+          <span className="text-xs font-medium">{action.label}</span>
+        </div>
+        {action.shortcut && (
+          <span className="text-xs text-muted-foreground">{action.shortcut}</span>
+        )}
+      </button>
+    );
+  }
+
   return (
     <Panel
       title="INDIRA Interaction"
@@ -215,90 +296,6 @@ function IndiraInteractionPanel() {
         </PanelSection>
       </div>
     </Panel>
-  );
-}
-
-// ============================================================================
-// Interaction Panel Items
-// ============================================================================
-
-function VoiceCommandItem({ command }: { command: typeof mockVoiceCommands[0] }) {
-  return (
-    <div className="p-2 bg-muted/30 rounded border border-border">
-      <div className="flex items-center gap-2 mb-1">
-        <Mic className="w-3 h-3 text-blue-500" />
-        <span className="text-xs font-medium">"{command.transcript}"</span>
-      </div>
-      <p className="text-xs text-muted-foreground mb-1">{command.response}</p>
-      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-        <span>Confidence: {(command.confidence * 100).toFixed(0)}%</span>
-        <span>•</span>
-        <span>{getTimeAgo(command.timestamp)}</span>
-      </div>
-    </div>
-  );
-}
-
-function ChatMessageItem({ message }: { message: typeof mockChatMessages[0] }) {
-  const isOperator = message.sender === 'operator';
-  
-  return (
-    <div className={`p-2 rounded border ${
-      isOperator 
-        ? 'bg-blue-500/10 border-blue-500/20 ml-8' 
-        : 'bg-purple-500/10 border-purple-500/20 mr-8'
-    }`}>
-      <div className="flex items-center gap-2 mb-1">
-        {isOperator ? <Users className="w-3 h-3 text-blue-500" /> : <Brain className="w-3 h-3 text-purple-500" />}
-        <span className="text-xs font-medium capitalize">{message.sender}</span>
-      </div>
-      <p className="text-xs">{message.content}</p>
-      <p className="text-xs text-muted-foreground mt-1">{getTimeAgo(message.timestamp)}</p>
-    </div>
-  );
-}
-
-function TaskAssignmentItem({ assignment }: { assignment: typeof mockTaskAssignments[0] }) {
-  return (
-    <div className="p-2 bg-muted/30 rounded border border-border">
-      <div className="flex items-center justify-between mb-1">
-        <span className="text-xs font-medium">Task: {assignment.taskId}</span>
-        <span className={`text-xs px-2 py-0.5 rounded ${getStatusColor(assignment.status)}`}>
-          {assignment.status}
-        </span>
-      </div>
-      {assignment.notes && (
-        <p className="text-xs text-muted-foreground mb-1">{assignment.notes}</p>
-      )}
-      <p className="text-xs text-muted-foreground">
-        Assigned {getTimeAgo(assignment.assignedAt)}
-      </p>
-    </div>
-  );
-}
-
-function QuickActionItem({ action }: { action: typeof mockQuickActions[0] }) {
-  const icons: Record<string, React.ComponentType<{ className?: string }>> = {
-    Activity,
-    TrendingUp,
-    Brain,
-    Mic,
-  };
-  const Icon = icons[action.icon];
-
-  return (
-    <button
-      onClick={action.action}
-      className="p-3 bg-muted/30 rounded border border-border hover:bg-muted/50 transition-colors text-left"
-    >
-      <div className="flex items-center gap-2 mb-1">
-        {Icon && <Icon className="w-4 h-4 text-blue-500" />}
-        <span className="text-xs font-medium">{action.label}</span>
-      </div>
-      {action.shortcut && (
-        <span className="text-xs text-muted-foreground">{action.shortcut}</span>
-      )}
-    </button>
   );
 }
 

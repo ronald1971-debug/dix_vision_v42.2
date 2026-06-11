@@ -8,13 +8,13 @@ import { useState, useMemo } from 'react';
 import { Panel, PanelSection } from './Panel';
 import { useGlobalEvents } from '@/context/AgentOpsContext';
 import type { SystemEvent, EventFilter, EventSource } from '@/types/agent';
-import { Activity, Filter, Clock, AlertTriangle, CheckCircle, XCircle, Info, Search, Calendar } from 'lucide-react';
+import { Activity, Filter, AlertTriangle, CheckCircle, XCircle, Info, Search } from 'lucide-react';
 
 interface GlobalEventFeedProps {
   className?: string;
 }
 
-export function GlobalEventFeed({ className }: GlobalEventFeedProps) {
+export function GlobalEventFeed({ className: _className }: GlobalEventFeedProps) {
   const events = useGlobalEvents();
   const [viewMode, setViewMode] = useState<'stream' | 'timeline'>('stream');
   const [filters, setFilters] = useState<EventFilter>({});
@@ -244,7 +244,7 @@ interface StreamViewProps {
   eventsBySource: Record<string, SystemEvent[]>;
 }
 
-function StreamView({ events, eventsBySource }: StreamViewProps) {
+function StreamView({ eventsBySource }: StreamViewProps) {
   return (
     <div className="space-y-4 max-h-[500px] overflow-auto">
       {Object.entries(eventsBySource).map(([source, sourceEvents]) => (
@@ -319,13 +319,11 @@ function EventItem({ event, compact = false }: EventItemProps) {
             <span className="text-xs text-muted-foreground">•</span>
             <span className="text-xs text-muted-foreground capitalize">{event.source}</span>
           </div>
-          {!compact && event.data && (
+          {!compact && event.data ? (
             <p className="text-xs text-muted-foreground truncate">
-              {typeof event.data === 'object' && 'message' in event.data
-                ? (event.data as { message: string }).message
-                : JSON.stringify(event.data)}
+              {formatEventData(event.data)}
             </p>
-          )}
+          ) : null}
           <p className="text-xs text-muted-foreground mt-1">
             {getTimeAgo(event.timestamp)}
           </p>
@@ -409,6 +407,16 @@ function getSeverityIcon(severity: SystemEvent['severity']) {
     default:
       return <CheckCircle className="w-4 h-4 text-gray-500" />;
   }
+}
+
+function formatEventData(data: unknown): string {
+  if (typeof data === 'string') {
+    return data;
+  }
+  if (typeof data === 'object' && data !== null && 'message' in data) {
+    return String((data as { message: string }).message);
+  }
+  return JSON.stringify(data);
 }
 
 function getTimeAgo(timestamp: number): string {

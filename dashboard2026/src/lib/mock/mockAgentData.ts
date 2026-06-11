@@ -25,10 +25,6 @@ function getRandomElement<T>(array: T[]): T {
   return array[Math.floor(Math.random() * array.length)];
 }
 
-function getRandomNumber(min: number, max: number): number {
-  return Math.random() * (max - min) + min;
-}
-
 function getRandomInt(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
@@ -477,7 +473,7 @@ export class MockWebSocketManager {
   }
 
   // Simulate connection state changes
-  getConnectionState(): 'connected' {
+  getConnectionState(): 'connected' | 'disconnected' {
     return this.isRunning ? 'connected' : 'disconnected';
   }
 

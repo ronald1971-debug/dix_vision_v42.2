@@ -15,6 +15,8 @@ import type {
   Opportunity,
   PortfolioState,
   RiskState,
+  Constraint,
+  ExposureLimit,
 } from '@/types/workspace';
 import {
   Target,
@@ -26,7 +28,6 @@ import {
   PieChart,
   Shield,
   AlertTriangle,
-  Clock,
   MoreHorizontal,
 } from 'lucide-react';
 
@@ -174,7 +175,7 @@ export function IndiraContextPanel({ className }: IndiraContextPanelProps) {
       modelType: 'performance',
       accuracy: 0.82,
       confidence: 0.79,
-      lastUpdated: Date() - 1800000,
+      lastUpdated: Date.now() - 1800000,
       predictions: [],
       performanceMetrics: {
         winRate: 0.82,
@@ -380,7 +381,6 @@ export function IndiraContextPanel({ className }: IndiraContextPanelProps) {
             <StatusCard
               label="Risk Level"
               value={mockRiskState.overallRisk}
-              trend={mockRiskState.riskFactors[0].trend}
               icon={Shield}
               isRisk
             />
@@ -527,7 +527,6 @@ interface StatusCardProps {
 }
 
 function StatusCard({ label, value, change, icon: Icon, isRisk }: StatusCardProps) {
-  const Icon = icon;
   const isNegative = change !== undefined && change < 0;
   const isPositive = change !== undefined && change > 0;
   
@@ -712,7 +711,7 @@ function OpportunityItem({ opportunity }: { opportunity: Opportunity }) {
   );
 }
 
-function ConstraintItem({ constraint }: { constraint: typeof import('@/types/workspace').Constraint }) {
+function ConstraintItem({ constraint }: { constraint: Constraint }) {
   return (
     <div className={`p-2 rounded border ${
       constraint.status === 'compliant' 
@@ -741,7 +740,7 @@ function ConstraintItem({ constraint }: { constraint: typeof import('@/types/wor
   );
 }
 
-function ExposureLimitItem({ limit }: { limit: typeof import('@/types/workspace').ExposureLimit }) {
+function ExposureLimitItem({ limit }: { limit: ExposureLimit }) {
   return (
     <div className={`p-2 rounded border ${
       limit.status === 'compliant' 

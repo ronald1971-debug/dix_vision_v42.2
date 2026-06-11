@@ -73,6 +73,10 @@ const ROUTE_LABELS: Record<Route, string> = {
   ledger: "Ledger",
   security: "Security",
   hazards: "Hazards",
+  "agent-ops": "Agent Ops",
+  "indira-workspace": "Indira Workspace",
+  "dyon-workspace": "Dyon Workspace",
+  "operator-workspace": "Operator Workspace",
 };
 
 function buildNavActions(onNavigate: (route: Route) => void): CommandAction[] {

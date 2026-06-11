@@ -4,10 +4,10 @@
  * Displays shared tasks and assignments across agents
  */
 
-import { Panel, PanelSection, ActivityItem } from './Panel';
+import { Panel, PanelSection } from './Panel';
 import { useSharedTasks } from '@/context/AgentOpsContext';
 import type { Task } from '@/types/agent';
-import { CheckSquare, Clock, AlertTriangle, Users, Task } from 'lucide-react';
+import { CheckSquare, Clock, AlertTriangle, Users, ListTodo } from 'lucide-react';
 
 interface SharedActivityPanelProps {
   isActive?: boolean;
@@ -133,7 +133,7 @@ function getTaskIcon(status: Task['status']) {
       return <AlertTriangle className="w-4 h-4 text-red-500" />;
     case 'pending':
     default:
-      return <Task className="w-4 h-4 text-gray-500" />;
+      return <ListTodo className="w-4 h-4 text-gray-500" />;
   }
 }
 

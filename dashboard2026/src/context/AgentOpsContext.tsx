@@ -4,7 +4,7 @@
  * Provides global state management for the Agent Operations Center
  */
 
-import { createContext, useContext, useState, useEffect, useMemo, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { useWebSocketWithMock } from '@/hooks/useWebSocketWithMock';
 import { generateIndiraActivities, generateDyonActivities, generateTasks, generateSystemEvents } from '@/lib/mock/mockAgentData';
 import { DEV_CONFIG } from '@/config/dev';

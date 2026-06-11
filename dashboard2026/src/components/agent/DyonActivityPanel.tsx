@@ -7,7 +7,7 @@
 import { Panel, PanelSection, ActivityItem } from './Panel';
 import { useDyonActivities } from '@/context/AgentOpsContext';
 import type { DyonActivity } from '@/types/agent';
-import { Wrench, Cpu, FileCode, TestTube, Database, GitBranch } from 'lucide-react';
+import { Wrench } from 'lucide-react';
 
 interface DyonActivityPanelProps {
   isActive?: boolean;
@@ -126,27 +126,6 @@ export function DyonActivityPanel({ isActive = false }: DyonActivityPanelProps) 
 // ============================================================================
 // Helper Functions
 // ============================================================================
-
-function getActivityIcon(type: DyonActivity['type']) {
-  switch (type) {
-    case 'repository-analysis':
-    case 'architecture-work':
-      return <Database className="w-4 h-4" />;
-    case 'refactor-activity':
-    case 'mutation-candidate':
-      return <GitBranch className="w-4 h-4" />;
-    case 'build-task':
-    case 'deployment-task':
-      return <Cpu className="w-4 h-4" />;
-    case 'testing-activity':
-    case 'code-review':
-      return <TestTube className="w-4 h-4" />;
-    case 'workspace-activity':
-      return <FileCode className="w-4 h-4" />;
-    default:
-      return <Wrench className="w-4 h-4" />;
-  }
-}
 
 function getActivityTitle(type: DyonActivity['type']): string {
   switch (type) {

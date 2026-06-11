@@ -7,7 +7,7 @@
 import { Panel, PanelSection, ActivityItem } from './Panel';
 import { useIndiraActivities } from '@/context/AgentOpsContext';
 import type { IndiraActivity } from '@/types/agent';
-import { Brain, TrendingUp, BarChart3, Target, BookOpen } from 'lucide-react';
+import { Brain } from 'lucide-react';
 
 interface IndiraActivityPanelProps {
   isActive?: boolean;
@@ -126,25 +126,6 @@ export function IndiraActivityPanel({ isActive = false }: IndiraActivityPanelPro
 // ============================================================================
 // Helper Functions
 // ============================================================================
-
-function getActivityIcon(type: IndiraActivity['type']) {
-  switch (type) {
-    case 'market-research':
-    case 'trader-modeling':
-      return <BookOpen className="w-4 h-4" />;
-    case 'strategy-creation':
-    case 'strategy-evolution':
-      return <TrendingUp className="w-4 h-4" />;
-    case 'portfolio-reasoning':
-      return <BarChart3 className="w-4 h-4" />;
-    case 'risk-reasoning':
-      return <Target className="w-4 h-4" />;
-    case 'learning-activity':
-      return <Brain className="w-4 h-4" />;
-    default:
-      return <Brain className="w-4 h-4" />;
-  }
-}
 
 function getActivityTitle(type: IndiraActivity['type']): string {
   switch (type) {

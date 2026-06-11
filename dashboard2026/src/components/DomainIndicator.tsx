@@ -38,6 +38,10 @@ const DOMAIN_MAP: Record<Route, string> = {
   ledger: "LEDGER",
   security: "GOVERNANCE",
   hazards: "DYON",
+  "agent-ops": "SYSTEM",
+  "indira-workspace": "INDIRA",
+  "dyon-workspace": "DYON",
+  "operator-workspace": "SYSTEM",
 };
 
 const DOMAIN_CLS: Record<string, string> = {

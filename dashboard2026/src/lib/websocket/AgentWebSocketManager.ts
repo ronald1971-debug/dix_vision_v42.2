@@ -11,16 +11,6 @@ import type {
   WebSocketMessage,
 } from '@/types/agent';
 
-const WEBSOCKET_ENDPOINTS = {
-  INDIRA_ACTIVITY: '/ws/agent/indira/activity',
-  DYON_ACTIVITY: '/ws/agent/dyon/activity',
-  SHARED_TASKS: '/ws/agent/shared/tasks',
-  SYSTEM_EVENTS: '/ws/system/events',
-  VOICE_COMMANDS: '/ws/voice/commands',
-} as const;
-
-type WebSocketEndpoint = typeof WEBSOCKET_ENDPOINTS[keyof typeof WEBSOCKET_ENDPOINTS];
-
 /**
  * WebSocket Manager for Agent Operations Center
  * 

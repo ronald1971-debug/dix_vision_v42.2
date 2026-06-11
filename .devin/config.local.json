@@ -79,7 +79,10 @@
       "Exec(ngrok config)",
       "Exec(Run advanced)",
       "Exec(del)",
-      "Exec(git add)"
+      "Exec(git add)",
+      "Exec(git ls-files)",
+      "Exec(findstr)",
+      "Exec(git commit)"
     ]
   }
 }
