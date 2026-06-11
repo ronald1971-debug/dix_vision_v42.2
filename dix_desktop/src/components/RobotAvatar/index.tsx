@@ -1,6 +1,6 @@
 // Robot Avatar Component - Exports the simple 3D robot
 
-import { createSimpleRobot, animateRobot, setTalking, setExpression, setChestButtonColor, analyzeGesture, setGesture, setMousePosition } from './simpleRobot';
+import { createSimpleRobot, animateRobot, setTalking, setExpression, setChestButtonColor } from './simpleRobot';
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { exit as tauriExit } from '@tauri-apps/plugin-process';
@@ -125,16 +125,6 @@ export default function RobotAvatar({ width, height, isSpeaking = false, express
         containerRef.current.addEventListener('click', handleClick);
         containerRef.current.addEventListener('mousemove', handleMouseMove);
         containerRef.current.addEventListener('contextmenu', handleRightClick);
-
-        // Mouse position tracking for eye tracking
-        const handleMouseMoveForEyeTracking = (event: MouseEvent) => {
-            if (containerRef.current) {
-                const rect = containerRef.current.getBoundingClientRect();
-                setMousePosition(event.clientX - rect.left, event.clientY - rect.top);
-            }
-        };
-
-        window.addEventListener('mousemove', handleMouseMoveForEyeTracking);
         window.addEventListener('keydown', handleKeyDown);
 
         // Animation loop
@@ -146,14 +136,6 @@ export default function RobotAvatar({ width, height, isSpeaking = false, express
             
             // Update expression
             setExpression(expression);
-            
-            // Analyze gesture from speech text
-            if (speechText && isSpeaking) {
-                const gesture = analyzeGesture(speechText);
-                setGesture(gesture);
-            } else if (!isSpeaking) {
-                setGesture({ type: 'idle', intensity: 0, startTime: Date.now() });
-            }
             
             // Animate robot
             if (robotRef.current) {
@@ -178,7 +160,6 @@ export default function RobotAvatar({ width, height, isSpeaking = false, express
                 containerRef.current.removeChild(renderer.domElement);
             }
             window.removeEventListener('keydown', handleKeyDown);
-            window.removeEventListener('mousemove', handleMouseMoveForEyeTracking);
             renderer.dispose();
         };
     }, [width, height, isSpeaking, expression, speechText]);
