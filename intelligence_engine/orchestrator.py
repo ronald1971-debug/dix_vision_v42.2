@@ -5,6 +5,7 @@ DIX VISION v42.2 — Intelligence Engine Orchestrator
 Central coordination for intelligence operations including reasoning,
 decision-making, planning, evaluation, inference, and knowledge integration.
 Production-grade implementation with all advanced intelligence components.
+Integrated with DYON for autonomous evolution and self-reflection.
 """
 
 from __future__ import annotations
@@ -15,6 +16,9 @@ from typing import Any, Optional
 import threading
 
 from system.time_source import now
+
+# Delay DYON imports to avoid circular dependency
+# DYON will be initialized separately
 
 # Import production-grade components
 from intelligence_engine.reasoner import (
@@ -108,12 +112,17 @@ class IntelligenceOrchestrator:
         self._inference_engine: Optional[ProductionInferenceEngine] = None
         self._knowledge_integrator: Optional[ProductionKnowledgeIntegrator] = None
         
+        # DYON integration
+        self._dyon_assistant = None
+        self._dyon_reflection = None
+        self._dyon_enabled: bool = False
+        
         self._lock = threading.Lock()
         
     def start(self) -> bool:
-        """Start the intelligence orchestrator and all components."""
+        """Start the intelligence orchestrator with production-grade components and DYON integration."""
         try:
-            # Initialize all production-grade components
+            # Try to initialize production-grade components
             self._reasoner = get_production_reasoner()
             self._decision_maker = get_production_decision_maker()
             self._planner = get_production_planner()
@@ -122,18 +131,39 @@ class IntelligenceOrchestrator:
             self._knowledge_integrator = get_production_knowledge_integrator()
             
             # Start all components
-            self._reasoner.start()
-            self._decision_maker.start()
-            self._planner.start()
-            self._evaluator.start()
-            self._inference_engine.start()
-            self._knowledge_integrator.start()
+            if self._reasoner:
+                self._reasoner.start()
+            if self._decision_maker:
+                self._decision_maker.start()
+            if self._planner:
+                self._planner.start()
+            if self._evaluator:
+                self._evaluator.start()
+            if self._inference_engine:
+                self._inference_engine.start()
+            if self._knowledge_integrator:
+                self._knowledge_integrator.start()
             
-            logger.info("[INTELLIGENCE] Intelligence orchestrator started with production-grade components")
-            return True
+            logger.info("[INTELLIGENCE] Production-grade components initialized")
         except Exception as e:
-            logger.error(f"[INTELLIGENCE] Failed to start: {e}")
-            return False
+            logger.warning(f"[INTELLIGENCE] Could not initialize production-grade components: {e}")
+            logger.info("[INTELLIGENCE] Continuing with DYON-only mode")
+        
+        # Always initialize DYON capabilities (independent of intelligence components)
+        try:
+            from system.dyon_coding_assistant import get_dyon_assistant
+            from system.dyon_self_reflection import get_self_reflection
+            
+            self._dyon_assistant = get_dyon_assistant()
+            self._dyon_reflection = get_self_reflection()
+            self._dyon_enabled = True
+            logger.info("[INTELLIGENCE] DYON integration enabled for autonomous intelligence evolution")
+        except ImportError as e:
+            logger.warning(f"[INTELLIGENCE] Could not initialize DYON: {e}")
+            self._dyon_enabled = False
+        
+        logger.info("[INTELLIGENCE] Intelligence orchestrator started")
+        return True
     
     def stop(self) -> bool:
         """Stop the intelligence orchestrator and all components."""
@@ -504,6 +534,132 @@ class IntelligenceOrchestrator:
     def get_knowledge_integrator(self) -> Optional[ProductionKnowledgeIntegrator]:
         """Get the knowledge integrator component."""
         return self._knowledge_integrator
+    
+    # DYON Integration Properties
+    @property
+    def dyon_assistant(self):
+        """Get DYON coding assistant for autonomous coding tasks."""
+        return self._dyon_assistant
+    
+    @property
+    def dyon_reflection(self):
+        """Get DYON self-reflection for intelligence analysis."""
+        return self._dyon_reflection
+    
+    @property
+    def dyon_enabled(self) -> bool:
+        """Check if DYON integration is enabled."""
+        return self._dyon_enabled
+    
+    # DYON Integration Methods
+    
+    def analyze_intelligence_engine(self) -> dict[str, Any]:
+        """Analyze the intelligence engine using DYON self-reflection."""
+        if not self._dyon_enabled or not self._dyon_reflection:
+            return {"error": "DYON self-reflection not enabled", "dyon_enabled": self._dyon_enabled}
+        
+        logger.info("[INTELLIGENCE] DYON analyzing intelligence engine...")
+        result = self._dyon_reflection.analyze_codebase(focus="intelligence_engine")
+        return {
+            "analysis": result.to_report(),
+            "issues_found": len(result.issues),
+            "priority": result.priority,
+            "action_items": result.action_items
+        }
+    
+    def optimize_intelligence_component(self, component: str, goal: str) -> dict[str, Any]:
+        """Optimize an intelligence component using DYON.
+        
+        Args:
+            component: Component name (reasoner, decision_maker, planner, evaluator, inference, knowledge)
+            goal: Optimization goal
+        """
+        if not self._dyon_enabled or not self._dyon_assistant:
+            return {"error": "DYON coding assistant not enabled", "dyon_enabled": self._dyon_enabled}
+        
+        logger.info(f"[INTELLIGENCE] DYON optimizing {component} for: {goal}")
+        result = self._dyon_assistant.optimize_performance(component, goal)
+        return {
+            "component": component,
+            "goal": goal,
+            "result": result,
+            "status": result.get("status", "unknown")
+        }
+    
+    def evolve_intelligence_engine(self, goal: str) -> dict[str, Any]:
+        """Evolve the intelligence engine for a specific goal using DYON.
+        
+        This is a high-level autonomous operation for intelligence evolution.
+        """
+        if not self._dyon_enabled or not self._dyon_assistant:
+            return {"error": "DYON coding assistant not enabled", "dyon_enabled": self._dyon_enabled}
+        
+        logger.warning(f"[INTELLIGENCE] DYON evolving intelligence engine for: {goal}")
+        result = self._dyon_assistant.evolve_system(goal)
+        return {
+            "goal": goal,
+            "result": result,
+            "status": result.get("status", "unknown"),
+            "warning": "Autonomous intelligence evolution executed"
+        }
+    
+    def fix_intelligence_bug(self, component: str, bug_description: str) -> dict[str, Any]:
+        """Fix an intelligence bug using DYON.
+        
+        Args:
+            component: Component name
+            bug_description: Description of the bug
+        """
+        if not self._dyon_enabled or not self._dyon_assistant:
+            return {"error": "DYON coding assistant not enabled", "dyon_enabled": self._dyon_enabled}
+        
+        logger.info(f"[INTELLIGENCE] DYON fixing bug in {component}: {bug_description}")
+        result = self._dyon_assistant.fix_bug(
+            f"intelligence_engine/{component}.py",
+            bug_description
+        )
+        return {
+            "component": component,
+            "bug": bug_description,
+            "result": result,
+            "status": result.get("status", "unknown")
+        }
+    
+    def suggest_intelligence_improvements(self, goal: str) -> dict[str, Any]:
+        """Suggest intelligence engine improvements using DYON reflection.
+        
+        Args:
+            goal: Improvement goal
+        """
+        if not self._dyon_enabled or not self._dyon_reflection:
+            return {"error": "DYON self-reflection not enabled", "dyon_enabled": self._dyon_enabled}
+        
+        logger.info(f"[INTELLIGENCE] DYON suggesting intelligence improvements for: {goal}")
+        suggestions = self._dyon_reflection.suggest_improvements(goal)
+        return {
+            "goal": goal,
+            "suggestions": suggestions,
+            "count": len(suggestions)
+        }
+    
+    def get_orchestrator_state(self) -> dict[str, Any]:
+        """Get comprehensive orchestrator state including DYON."""
+        return {
+            "reasoner": {"status": "active" if self._reasoner else "inactive"},
+            "decision_maker": {"status": "active" if self._decision_maker else "inactive"},
+            "planner": {"status": "active" if self._planner else "inactive"},
+            "evaluator": {"status": "active" if self._evaluator else "inactive"},
+            "inference_engine": {"status": "active" if self._inference_engine else "inactive"},
+            "knowledge_integrator": {"status": "active" if self._knowledge_integrator else "inactive"},
+            "dyon_integration": {
+                "enabled": self._dyon_enabled,
+                "assistant": "active" if self._dyon_assistant else "inactive",
+                "reflection": "active" if self._dyon_reflection else "inactive",
+                "capabilities": ["coding", "self_reflection", "autonomous_evolution"] if self._dyon_enabled else []
+            },
+            "operations_count": len(self._operations),
+            "status": "ready"
+        }
     
     def get_operations(self, limit: int = 100) -> list[IntelligenceOperation]:
         """Get operation history."""

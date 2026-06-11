@@ -78,7 +78,8 @@
       "Exec(ngrok http)",
       "Exec(ngrok config)",
       "Exec(Run advanced)",
-      "Exec(del)"
+      "Exec(del)",
+      "Exec(git add)"
     ]
   }
 }

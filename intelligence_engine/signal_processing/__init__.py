@@ -12,6 +12,17 @@ from intelligence_engine.signal_processing.advanced_processor import (
     FusedSignal,
     AdvancedSignalProcessor,
 )
+from intelligence_engine.signal_processing.multi_modal_fusion import (
+    MultiModalSignalFusion,
+    CausalSignalFusion,
+    SignalModality,
+    FusionMethod,
+    ModalitySignal,
+    ModalityWeight,
+    FusionResult,
+    ModalityConflict,
+    SignalPerformanceTracker,
+)
 
 __all__ = [
     "SignalQuality",
@@ -20,4 +31,13 @@ __all__ = [
     "FilteredSignal",
     "FusedSignal",
     "AdvancedSignalProcessor",
+    "MultiModalSignalFusion",
+    "CausalSignalFusion",
+    "SignalModality",
+    "FusionMethod",
+    "ModalitySignal",
+    "ModalityWeight",
+    "FusionResult",
+    "ModalityConflict",
+    "SignalPerformanceTracker",
 ]
