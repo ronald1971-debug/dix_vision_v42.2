@@ -479,7 +479,7 @@ class MicrostructurePatternRecognizer:
                 direction=direction,
                 confidence=0.5,
                 time_validity_bars=3,
-                actionable_insights ("mean_reversion_trading", "range_trading"),
+                actionable_insights=("mean_reversion_trading", "range_trading"),
                 risk_warnings=("low_volatility", "range_bound_market"),
                 timestamp_ns=timestamp_ns
             )

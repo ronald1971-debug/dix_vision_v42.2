@@ -35,7 +35,9 @@ export function useComplianceLevel(): ComplianceLevel {
   useEffect(() => {
     const listener = (newLevel: ComplianceLevel) => setLevel(newLevel);
     complianceListeners.add(listener);
-    return () => complianceListeners.delete(listener);
+    return (): void => {
+      complianceListeners.delete(listener);
+    };
   }, []);
   
   return level;

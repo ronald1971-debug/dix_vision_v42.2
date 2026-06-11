@@ -8,6 +8,8 @@
 // Base Workspace Types
 // ============================================================================
 
+export type WorkspaceId = string;
+
 export type WorkspaceType =
   | 'mission-control'
   | 'agent-ops'
@@ -214,8 +216,12 @@ export type EventHandler = (event: WorkspaceEvent) => void;
 // INDIRA Workspace Specific Types
 // ============================================================================
 
-export interface IndiraWorkspaceConfig extends Workspace {
+export interface IndiraWorkspaceConfig {
+  id: string;
+  name: string;
   type: 'indira-workspace';
+  owner: 'operator' | 'indira' | 'dyon' | 'shared';
+  state: WorkspaceState;
   panels: [
     IndiraContextPanel,
     IndiraCognitivePanel,
@@ -227,6 +233,9 @@ export interface IndiraWorkspaceConfig extends Workspace {
     KnowledgeTool,
     DesktopTool
   ];
+  activeSessions: Session[];
+  lastAccessed: number;
+  preferences: WorkspacePreferences;
 }
 
 export interface IndiraContextPanel {
