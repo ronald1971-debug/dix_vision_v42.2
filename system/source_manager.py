@@ -124,6 +124,30 @@ class SourceManager:
             allowed_for_dyon=True,  # DYON needs macro for system context
         )
         
+        # AI Providers - Real-Time Search
+        self._sources["SRC-AI-PERPLEXITY-001"] = SourceConfig(
+            source_id="SRC-AI-PERPLEXITY-001",
+            name="Perplexity AI",
+            category="ai",
+            provider="perplexity",
+            enabled=True,
+            priority=1,  # High priority for real-time search
+            allowed_for_indira=True,  # INDIRA needs market research
+            allowed_for_dyon=True,  # DYON needs tech research
+        )
+        
+        # Local Devin CLI - DYON specific
+        self._sources["SRC-AI-LOCAL-DEVIN-001"] = SourceConfig(
+            source_id="SRC-AI-LOCAL-DEVIN-001",
+            name="Devin CLI (Local)",
+            category="ai",
+            provider="local_devin",
+            enabled=True,
+            priority=1,  # Highest priority - DYON's primary coding tool
+            allowed_for_indira=False,  # INDIRA doesn't need direct coding access
+            allowed_for_dyon=True,  # DYON needs this for system engineering
+        )
+        
         # Add all 60+ sources with default config
         self._add_remaining_sources()
         
