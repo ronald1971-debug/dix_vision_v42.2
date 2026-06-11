@@ -208,3 +208,41 @@ inputs:
     required: false
   - source_id: SRC-AI-DEVIN-001
     required: false
+  
+  # Real-Time Search AI Providers (13 sources)
+  - source_id: SRC-AI-PERPLEXITY-001
+    required: false
+  - source_id: SRC-AI-CHATGPTPLUS-001
+    required: false
+  - source_id: SRC-AI-COPMIR-001
+    required: false
+  - source_id: SRC-AI-COHCRE-001
+    required: false
+  - source_id: SRC-AI-MISTRAL-001
+    required: false
+  - source_id: SRC-AI-COMPUTERUSE-001
+    required: false
+  - source_id: SRC-AI-PERPLEXITYLABS-001
+    required: false
+  - source_id: SRC-AI-HUGGINGFACE-001
+    required: false
+  
+  # Search Providers (6 sources)
+  - source_id: SRC-SEARCH-YOU-001
+    required: false
+  - source_id: SRC-AI-KAGI-001
+    required: false
+  - source_id: SRC-SEARCH-TAVILY-001
+    required: false
+  - source_id: SRC-SEARCH-NEEVA-001
+    required: false
+  - source_id: SRC-SEARCH-SERPER-001
+    required: false
+  - source_id: SRC-SEARCH-SERPAPI-001
+    required: false
+  - source_id: SRC-SEARCH-APIFY-001
+    required: false
+  
+  # Local Devin CLI for DYON
+  - source_id: SRC-AI-LOCAL-DEVIN-001
+    required: false

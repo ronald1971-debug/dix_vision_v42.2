@@ -73,7 +73,9 @@
       "Exec(C:\\Program)",
       "Exec(\"C:\\Program Files\\nodejs\\npm.exe\" install)",
       "Exec([Environment]::SetEnvironmentVariable(\"OPENROUTER_API_KEY\",)",
-      "Exec([Environment]::GetEnvironmentVariable(\"OPENROUTER_API_KEY\",)"
+      "Exec([Environment]::GetEnvironmentVariable(\"OPENROUTER_API_KEY\",)",
+      "Exec(rm)",
+      "Exec(ngrok http)"
     ]
   }
 }

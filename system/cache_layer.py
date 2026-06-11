@@ -50,6 +50,11 @@ class CachePolicy:
     
     # Historical data: Very long TTL (doesn't change)
     HISTORICAL_TTL = 86400  # 24 hours
+    
+    # AI responses: Medium TTL for cached AI results
+    AI_SEARCH_TTL = 300  # 5 minutes for search results
+    AI_CHAT_TTL = 600  # 10 minutes for chat responses
+    LOCAL_DEVIN_TTL = 0  # No cache for local Devin (direct access)
 
 
 class DataCache:

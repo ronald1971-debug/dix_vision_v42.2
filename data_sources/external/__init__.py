@@ -26,6 +26,9 @@ from data_sources.external.universal_adapters import (
     UniversalStockObservation,
 )
 
+# AI providers - import separately to avoid circular dependencies
+# These can be imported directly from data_sources.external.api_implementations
+
 __all__ = [
     "GDELTAdapter",
     "GDELTEventObservation",
