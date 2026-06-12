@@ -15,6 +15,7 @@
 import { useState, useEffect } from 'react';
 import { Brain, Wrench, Users, Activity, Clock } from 'lucide-react';
 import { Panel, PanelLayout, PanelSection } from '@/components/agent/Panel';
+import { SharedToolLayers } from '@/widgets/shared_tools/SharedToolLayers';
 
 interface AgentActivity {
   agent_type: string;
@@ -379,6 +380,13 @@ export function AgentOpsPage() {
               ) : (
                 <div className="text-sm text-muted-foreground">No timeline events</div>
               )}
+            </PanelSection>
+          </Panel>
+
+          {/* Shared Tool Layers */}
+          <Panel className="col-span-2">
+            <PanelSection title="Shared Tool Layers" className="flex-1">
+              <SharedToolLayers />
             </PanelSection>
           </Panel>
         </PanelLayout>
