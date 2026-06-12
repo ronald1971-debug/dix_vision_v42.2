@@ -19,6 +19,7 @@ from cognitive_control_center.shared_tools.tool_layers import (
     DesktopLayerActivity,
     BrowserLayerActivity,
     CognitiveEntityType,
+    BrowserType,
 )
 
 
@@ -31,6 +32,7 @@ class ToolLayerSessionResponse(BaseModel):
     entity_type: str
     entity_id: str
     layer_type: str
+    browser_type: Optional[str]
     started_at: datetime
     last_activity: datetime
     status: str
@@ -58,6 +60,7 @@ class BrowserActivityResponse(BaseModel):
     page_title: Optional[str]
     tab_id: Optional[str]
     user_agent: Optional[str]
+    browser_type: Optional[str]
     timestamp: datetime
 
 
@@ -68,6 +71,14 @@ class LayerStatusResponse(BaseModel):
     recent_activity_count: int
     current_user: Optional[str]
     current_user_type: Optional[str]
+
+
+class BrowserAvailabilityResponse(BaseModel):
+    browser_type: str
+    available: bool
+    active_sessions: int
+    assigned_to: Optional[str]
+    assigned_to_type: Optional[str]
 
 
 # API Endpoints
@@ -99,11 +110,25 @@ async def get_layer_status(layer_type: str):
     return LayerStatusResponse(**status)
 
 
+@router.get("/browsers/availability", response_model=Dict[str, BrowserAvailabilityResponse])
+async def get_browser_availability():
+    """Get availability status for each browser type (Operator=Edge, INDIRA=Chrome, DYON=Firefox)."""
+    tool_layers = get_shared_tool_layers()
+    
+    availability = tool_layers.get_browser_availability()
+    
+    return {
+        browser_type: BrowserAvailabilityResponse(**status)
+        for browser_type, status in availability.items()
+    }
+
+
 @router.post("/sessions/start")
 async def start_tool_layer_session(
     entity_type: str,
     entity_id: str,
     layer_type: str,
+    browser_type: Optional[str] = None,
 ):
     """Start a new session using a shared tool layer."""
     tool_layers = get_shared_tool_layers()
@@ -111,16 +136,18 @@ async def start_tool_layer_session(
     try:
         entity_type_enum = CognitiveEntityType(entity_type)
         layer_type_enum = ToolLayerType(layer_type)
+        browser_type_enum = BrowserType(browser_type) if browser_type else None
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     
-    session_id = tool_layers.start_session(entity_type_enum, entity_id, layer_type_enum)
+    session_id = tool_layers.start_session(entity_type_enum, entity_id, layer_type_enum, browser_type_enum)
     
     return {
         "session_id": session_id,
         "entity_type": entity_type,
         "entity_id": entity_id,
         "layer_type": layer_type,
+        "browser_type": browser_type,
         "status": "active",
     }
 
@@ -157,6 +184,7 @@ async def get_tool_layer_sessions(
             entity_type=s.entity_type.value,
             entity_id=s.entity_id,
             layer_type=s.layer_type.value,
+            browser_type=s.browser_type.value if s.browser_type else None,
             started_at=s.started_at,
             last_activity=s.last_activity,
             status=s.status.value,
@@ -245,14 +273,16 @@ async def record_browser_activity(
     page_title: Optional[str] = None,
     tab_id: Optional[str] = None,
     user_agent: Optional[str] = None,
+    browser_type: Optional[str] = None,
 ):
     """Record activity in the Browser Layer."""
     tool_layers = get_shared_tool_layers()
     
     try:
         entity_type_enum = CognitiveEntityType(entity_type)
+        browser_type_enum = BrowserType(browser_type) if browser_type else None
     except ValueError:
-        raise HTTPException(status_code=400, detail=f"Invalid entity type: {entity_type}")
+        raise HTTPException(status_code=400, detail="Invalid entity type or browser type")
     
     activity = BrowserLayerActivity(
         session_id=session_id,
@@ -263,6 +293,7 @@ async def record_browser_activity(
         page_title=page_title,
         tab_id=tab_id,
         user_agent=user_agent,
+        browser_type=browser_type_enum,
     )
     
     tool_layers.record_browser_activity(activity)
@@ -298,6 +329,7 @@ async def get_browser_activities(
             page_title=a.page_title,
             tab_id=a.tab_id,
             user_agent=a.user_agent,
+            browser_type=a.browser_type.value if a.browser_type else None,
             timestamp=a.timestamp,
         )
         for a in activities

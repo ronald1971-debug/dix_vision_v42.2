@@ -28,6 +28,14 @@ class ToolLayerType(StrEnum):
     KNOWLEDGE_LAYER = "knowledge_layer"
 
 
+class BrowserType(StrEnum):
+    """Browser types for different entities to prevent conflicts."""
+    EDGE = "edge"
+    CHROME = "chrome"
+    FIREFOX = "firefox"
+    BRAVE = "brave"
+
+
 class ToolLayerStatus(StrEnum):
     """Status of tool layer operations."""
     ACTIVE = "active"
@@ -43,6 +51,7 @@ class ToolLayerSession:
     entity_type: CognitiveEntityType
     entity_id: str
     layer_type: ToolLayerType
+    browser_type: BrowserType | None = None
     started_at: datetime
     last_activity: datetime
     operations: List[str] = field(default_factory=list)
@@ -74,6 +83,7 @@ class BrowserLayerActivity:
     page_title: str | None = None
     tab_id: str | None = None
     user_agent: str | None = None
+    browser_type: BrowserType | None = None
     timestamp: datetime = field(default_factory=datetime.utcnow)
 
 
@@ -83,6 +93,11 @@ class SharedToolLayers:
     
     Implements Desktop Agent Layer and Browser Layer as shared tools where all three parties
     can use the same infrastructure for their respective operations.
+    
+    Browser Conflict Resolution: Each entity uses a dedicated browser to prevent conflicts:
+        - Operator: Edge (primary operator browser)
+        - INDIRA: Chrome (trading operations)
+        - DYON: Firefox (system engineering tasks)
     """
 
     def __init__(self) -> None:
@@ -95,14 +110,30 @@ class SharedToolLayers:
             ToolLayerType.BROWSER_LAYER: True,
             ToolLayerType.KNOWLEDGE_LAYER: True,
         }
+        
+        # Entity-specific browser assignments to prevent conflicts
+        self._entity_browser_map: Dict[CognitiveEntityType, BrowserType] = {
+            CognitiveEntityType.OPERATOR: BrowserType.EDGE,
+            CognitiveEntityType.INDIRA: BrowserType.CHROME,
+            CognitiveEntityType.DYON: BrowserType.FIREFOX,
+        }
+
+    def get_entity_browser(self, entity_type: CognitiveEntityType) -> BrowserType:
+        """Get the assigned browser for a specific entity."""
+        return self._entity_browser_map.get(entity_type, BrowserType.CHROME)
 
     def start_session(
         self,
         entity_type: CognitiveEntityType,
         entity_id: str,
         layer_type: ToolLayerType,
+        browser_type: BrowserType | None = None,
     ) -> str:
         """Start a new session using a shared tool layer."""
+        # Assign browser automatically if using browser layer and none specified
+        if layer_type == ToolLayerType.BROWSER_LAYER and browser_type is None:
+            browser_type = self.get_entity_browser(entity_type)
+        
         session_id = f"{layer_type.value}_{entity_id}_{datetime.utcnow().timestamp()}"
         
         with self._lock:
@@ -111,14 +142,18 @@ class SharedToolLayers:
                 entity_type=entity_type,
                 entity_id=entity_id,
                 layer_type=layer_type,
+                browser_type=browser_type,
                 started_at=datetime.utcnow(),
                 last_activity=datetime.utcnow(),
                 status=ToolLayerStatus.ACTIVE,
             )
             self._active_sessions[session_id] = session
             
-            # Mark layer as busy
-            if layer_type in self._layer_availability:
+            # Mark layer as busy (but allow concurrent browser sessions with different browsers)
+            if layer_type == ToolLayerType.BROWSER_LAYER and browser_type:
+                # For browser layer, only mark this specific browser as busy
+                pass  # Individual browser instances allow concurrency
+            elif layer_type in self._layer_availability:
                 self._layer_availability[layer_type] = False
         
         return session_id
@@ -131,9 +166,33 @@ class SharedToolLayers:
                 session.status = ToolLayerStatus.IDLE
                 session.last_activity = datetime.utcnow()
                 
-                # Mark layer as available
-                if session.layer_type in self._layer_availability:
-                    self._layer_availability[session.layer_type] = True
+                # Mark layer as available (except for browser layers which are per-browser)
+                if session.layer_type != ToolLayerType.BROWSER_LAYER:
+                    if session.layer_type in self._layer_availability:
+                        self._layer_availability[session.layer_type] = True
+
+    def get_browser_availability(self) -> Dict[str, Any]:
+        """Get availability status for each browser."""
+        with self._lock:
+            browser_sessions = {
+                browser_type: [
+                    s for s in self._active_sessions.values()
+                    if s.layer_type == ToolLayerType.BROWSER_LAYER 
+                    and s.browser_type == browser_type 
+                    and s.status == ToolLayerStatus.ACTIVE
+                ]
+                for browser_type in BrowserType
+            }
+            
+            return {
+                browser_type.value: {
+                    "available": len(sessions) == 0,
+                    "active_sessions": len(sessions),
+                    "assigned_to": sessions[0].entity_id if sessions else None,
+                    "assigned_to_type": sessions[0].entity_type.value if sessions else None,
+                }
+                for browser_type, sessions in browser_sessions.items()
+            }
 
     def record_desktop_activity(self, activity: DesktopLayerActivity) -> None:
         """Record activity in the Desktop Agent Layer."""
@@ -151,6 +210,11 @@ class SharedToolLayers:
     def record_browser_activity(self, activity: BrowserLayerActivity) -> None:
         """Record activity in the Browser Layer."""
         with self._lock:
+            # Auto-populate browser_type from session if not provided
+            if not activity.browser_type and activity.session_id in self._active_sessions:
+                session = self._active_sessions[activity.session_id]
+                activity.browser_type = session.browser_type
+                
             self._browser_activities.append(activity)
             
             # Update session last activity

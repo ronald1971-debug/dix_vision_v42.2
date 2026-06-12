@@ -31,7 +31,7 @@ class HealthMonitor:
         status = self.get_status()
         print("\n=== SYSTEM HEALTH ===")
         for k, v in status.items():
-            icon = "✅" if v else "❌"
+            icon = "[OK]" if v else "[ERR]"
             print(f"  {icon} {k}: {'OK' if v else 'DEGRADED'}")
         print("====================\n")
 
