@@ -27,8 +27,10 @@ from execution_engine.hazard.severity_classifier import (
     should_enter_safe_mode,
     should_halt_trading,
 )
+from governance.mode_manager import get_mode_manager
 from state.ledger.event_store import append_event
 from system.fast_risk_cache import get_risk_cache
+from system.logger import get_logger
 from system.state import get_state_manager
 
 
@@ -69,6 +71,8 @@ class GovernanceKernel:
     def __init__(self) -> None:
         self._risk_cache = get_risk_cache()
         self._state_mgr = get_state_manager()
+        self._log = get_logger("governance.kernel")
+        self._mode_mgr = get_mode_manager()
         self._listeners: list[Callable[[GovernanceDecision], None]] = []
         self._lock = threading.Lock()
 
@@ -168,31 +172,29 @@ class GovernanceKernel:
         """
         Handle SYSTEM_HAZARD_EVENT from Dyon.
         Updates risk cache asynchronously. NEVER blocks trading.
+
+        Per M-9: Wire hazard consumer to mode manager for proper transitions
+        between safe_mode, degraded_mode, and halted_mode based on severity.
         """
         try:
             response_action = classify_response(event)
 
             if should_halt_trading(event):
                 self._risk_cache.halt_trading(reason=event.hazard_type.value)
-                # Keep trading_allowed + governance_mode consistent so the
-                # cockpit and ModeManager.current_mode() don't report NORMAL
-                # while trading is actually halted.
-                self._state_mgr.update(trading_allowed=False, governance_mode="EMERGENCY_HALT")
+                # Use mode manager for proper transition (M-9)
+                self._mode_mgr.halt(reason=f"hazard:{event.hazard_type.value}")
                 self._state_mgr.increment("active_hazards", 1)
                 decision_type = GovernanceOutcome.HALT
             elif should_enter_safe_mode(event):
                 self._risk_cache.enter_safe_mode()
-                # Mirror the halt branch: when the risk cache flips to
-                # safe-mode (trading_allowed=False internally), the
-                # StateManager's ``trading_allowed`` flag and the hazard
-                # counter MUST follow. Otherwise the cockpit's
-                # ``/api/status`` reports ``trading_allowed: true`` while
-                # the cache is actually blocking every trade, and the
-                # ``enforce_full`` fast-reject path never trips.
-                self._state_mgr.update(trading_allowed=False, governance_mode="SAFE_MODE")
+                # Use mode manager for proper transition (M-9)
+                self._mode_mgr.safe_mode(reason=f"hazard:{event.hazard_type.value}")
                 self._state_mgr.increment("active_hazards", 1)
                 decision_type = GovernanceOutcome.SAFE_MODE
             else:
+                # For lower-severity hazards, consider degraded mode
+                if event.severity.value in {"WARNING", "MINOR"}:
+                    self._mode_mgr.enter_degraded_mode(reason=f"hazard:{event.hazard_type.value}")
                 decision_type = GovernanceOutcome.APPROVED  # observe only
 
             # Log governance response to ledger

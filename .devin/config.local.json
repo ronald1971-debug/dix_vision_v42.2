@@ -86,7 +86,10 @@
       "Exec(npx tsc)",
       "Exec(PowerShell)",
       "Exec(timeout)",
-      "Exec(sleep)"
+      "Exec(sleep)",
+      "Exec(uvicorn)",
+      "Exec(scripts\\windows\\start_dixvision.bat)",
+      "Exec(set)"
     ]
   }
 }

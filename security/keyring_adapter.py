@@ -17,19 +17,24 @@ except Exception:
     keyring = None  # type: ignore
     _HAS_KEYRING = False
 
+from system.logger import get_logger
 from .secrets_manager import get_secrets_manager
 
 SERVICE = "dix_vision_v42_2"
 
 
 class KeyringAdapter:
+    def __init__(self) -> None:
+        self._log = get_logger("security.keyring_adapter")
+
     def set(self, key: str, value: str) -> None:
         if _HAS_KEYRING:
             try:
                 keyring.set_password(SERVICE, key, value)
                 return
             except Exception as exc:
-                sys.stderr.write(f"[KeyringAdapter.set] keyring failed: {exc}\n")
+                # Log on write failure + fallback (per audit m-8)
+                self._log.warning("keyring_set_failed", key=key, error=str(exc))
         get_secrets_manager().set(key, value)
 
     def get(self, key: str, default: str = "") -> str:
@@ -39,7 +44,9 @@ class KeyringAdapter:
                 if v is not None:
                     return str(v)
             except Exception as exc:
-                sys.stderr.write(f"[KeyringAdapter.get] keyring failed: {exc}\n")
+                # Raise on read failure (per audit m-8) - secrets failing silently is unacceptable
+                self._log.error("keyring_get_failed", key=key, error=str(exc))
+                raise RuntimeError(f"Keyring read failed for key '{key}': {exc}") from exc
         return get_secrets_manager().get(key, default)
 
     def delete(self, key: str) -> None:
@@ -47,7 +54,8 @@ class KeyringAdapter:
             try:
                 keyring.delete_password(SERVICE, key)
             except Exception as exc:
-                sys.stderr.write(f"[KeyringAdapter.delete] keyring failed: {exc}\n")
+                # Log on delete failure + fallback (per audit m-8)
+                self._log.warning("keyring_delete_failed", key=key, error=str(exc))
         get_secrets_manager().delete(key)
 
 

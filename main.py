@@ -62,21 +62,19 @@ def _run_converged(log, state_mgr) -> None:
         boot_ok = await convergence.boot()
         if boot_ok:
             log.info("[MAIN] Kernel booted — entering operational loop")
-            print("[DIX VISION v42.2] System ONLINE (converged). Press Ctrl+C to stop.\n")
         else:
             log.warning("[MAIN] Kernel booted in DEGRADED mode")
-            print("[DIX VISION v42.2] System DEGRADED. Press Ctrl+C to stop.\n")
 
         await convergence.run_forever()
 
     def _shutdown(sig, frame):
-        print("\n[DIX VISION] Shutdown signal received...")
+        log.info("[MAIN] Shutdown signal received...")
         loop.run_until_complete(convergence.stop())
         state_mgr.set_mode("HALTED")
         from enforcement.runtime_guardian import get_runtime_guardian
 
         get_runtime_guardian().stop()
-        from execution.engine import get_dyon_engine
+        from system_monitor.dyon_engine import get_dyon_engine
 
         get_dyon_engine().stop()
         sys.exit(0)
@@ -97,7 +95,7 @@ def _run_legacy_loop(log, state_mgr) -> None:
     import math
     import time
 
-    from execution.engine import get_dyon_engine
+    from system_monitor.dyon_engine import get_dyon_engine
     from mind.engine import IndiraEngine
     from system.health_monitor import get_health_monitor
 
@@ -105,10 +103,10 @@ def _run_legacy_loop(log, state_mgr) -> None:
     indira = IndiraEngine()
 
     log.info("[MAIN] Entering LEGACY trading loop (--legacy)")
-    print("\n[DIX VISION v42.2] System ONLINE (legacy). Press Ctrl+C to stop.\n")
+    print("\n[DIX VISION v42.2] System ONLINE (legacy). Press Ctrl+C to stop.\n")  # Keep one operator banner (acceptable per audit)
 
     def _shutdown(sig, frame):
-        print("\n[DIX VISION] Shutdown signal received...")
+        log.info("[MAIN] Shutdown signal received...")
         state_mgr.set_mode("HALTED")
         dyon = get_dyon_engine()
         dyon.stop()

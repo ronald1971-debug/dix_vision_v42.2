@@ -203,3 +203,19 @@ ignore = [
     # Phase E0 stubs intentionally have unused parameters.
     "B008",
 ]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false  # Set to true for stricter typing in future
+ignore_missing_imports = true
+exclude = [
+    "rust",
+    "docs",
+    ".git",
+    ".venv",
+    "build",
+    "dist",
+    "tests",
+]

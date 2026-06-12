@@ -142,6 +142,30 @@ class ModeManager:
             forced=False,
         )
 
+    def enter_degraded_mode(self, reason: str = "") -> None:
+        """Enter DEGRADED operational mode (reduced functionality)."""
+        with self._lock:
+            prev = self.current_fsm_mode()
+            # DEGRADED maps to PAPER in FSM but indicates reduced system health
+            self._state_mgr.update(
+                governance_mode=FsmMode.PAPER.name,
+                operational_mode=OperationalMode.DEGRADED.name,
+            )
+            try:
+                append_event(
+                    "GOVERNANCE",
+                    "MODE_CHANGE",
+                    "mode_manager",
+                    {
+                        "from": prev.name,
+                        "to": FsmMode.PAPER.name,
+                        "operational_overlay": OperationalMode.DEGRADED.name,
+                        "reason": reason or "mode_manager_degraded",
+                    },
+                )
+            except Exception:
+                pass
+
     def _enter_lockdown(
         self,
         target: FsmMode,

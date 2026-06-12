@@ -44,6 +44,8 @@ export type SystemRoute =
   | "risk"
   | "charting"
   | "market"
+  | "portfolio"
+  | "execution"
   | "positions"
   | "trading"
   | "plugins"
@@ -60,7 +62,10 @@ export type SystemRoute =
   | "adapters"
   | "ledger"
   | "security"
-  | "hazards";
+  | "hazards"
+  | "dashmeme"
+  | "open-orders"
+  | "nft";
 
 export type Route = AssetRoute | SystemRoute;
 
@@ -94,8 +99,12 @@ const SYSTEM_ROUTES: readonly SystemRoute[] = [
   "risk",
   "charting",
   "market",
+  "portfolio",
+  "execution",
   "positions",
   "trading",
+  "open-orders",
+  "nft",
   "syshealth",
   "alerts",
   "audit",
@@ -110,6 +119,7 @@ const SYSTEM_ROUTES: readonly SystemRoute[] = [
   "ledger",
   "security",
   "hazards",
+  "dashmeme",
 ];
 
 const ALL_ROUTES: readonly Route[] = [...ASSET_ROUTES, ...SYSTEM_ROUTES];

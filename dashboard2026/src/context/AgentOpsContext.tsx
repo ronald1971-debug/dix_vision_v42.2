@@ -2,6 +2,13 @@
  * Agent Operations Center Context
  * 
  * Provides global state management for the Agent Operations Center
+ * 
+ * COGNITIVE CONTROL CENTER INTEGRATION (FUTURE):
+ * - Will connect to cognitive_control_center backend for real-time agent activities
+ * - Will integrate with agent operations center activity feeds
+ * - Will provide workspace-aware agent state management
+ * 
+ * NOTE: Integration planned for Dashboard2026 transformation Phase 1
  */
 
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';

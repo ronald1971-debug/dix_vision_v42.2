@@ -1,677 +1,233 @@
 /**
- * Cognitive intelligence API fetchers — INDIRA + DYON observability surfaces.
- *
- * Covers:
- *   GET /api/cognitive/indira/thoughts
- *   GET /api/cognitive/indira/beliefs
- *   GET /api/cognitive/dyon/topology
- *   GET /api/cognitive/dyon/proposals
- *   GET /api/cognitive/research/status
- *   GET /api/cognitive/research/results
- *   POST /api/cognitive/research/enqueue
+ * dashboard2026/src/api/cognitive.ts
+ * Cognitive Environment API Client
+ * 
+ * Connects Dashboard2026 React frontend with cognitive_control_center backend services
+ * Provides TypeScript interfaces and API methods for the cognitive operating environment
  */
 
-const BASE = (import.meta.env.VITE_API_BASE ?? "").replace(/\/$/, "");
+// Temporarily define types inline to avoid import path issues
+// TODO: Fix import path resolution and use types/generated/cognitive.ts
 
-async function _get<T>(path: string, signal?: AbortSignal): Promise<T> {
-  const res = await fetch(`${BASE}${path}`, {
-    signal,
-    headers: { Accept: "application/json" },
-  });
-  if (!res.ok) throw new Error(`GET ${path} failed: ${res.status}`);
-  return res.json() as Promise<T>;
+/**
+ * Types of entities in the cognitive environment
+ */
+enum CognitiveEntityType {
+  OPERATOR = 'operator',
+  INDIRA = 'indira', // Trading agent
+  DYON = 'dyon',     // System maintenance agent
+  SYSTEM = 'system', // System-level processes
 }
 
-// ---------------------------------------------------------------------------
-// INDIRA
-// ---------------------------------------------------------------------------
-
-export interface ThoughtRecord {
-  thought_id?: string;
-  ts_ns?: number;
-  sub_type?: string;
-  payload?: {
-    reasoning_step?: string;
-    context?: string;
-    conclusion?: string;
-    confidence?: number;
-  };
+/**
+ * Types of workspaces in the cognitive environment
+ */
+enum WorkspaceType {
+  AGENT_OPERATIONS = 'agent_operations',
+  OPERATOR_WORKSPACE = 'operator_workspace',
+  INDIRA_WORKSPACE = 'indira_workspace',
+  DYON_WORKSPACE = 'dyon_workspace',
+  TRADING_DOMAIN = 'trading_domain',
+  MEMECOIN_DOMAIN = 'memecoin_domain',
+  SYSTEM_MAINTENANCE = 'system_maintenance',
 }
 
-export interface ThoughtsResponse {
-  ts_iso: string;
-  count: number;
-  thoughts: ThoughtRecord[];
+/**
+ * Real-time agent activity for observability
+ */
+interface AgentActivity {
+  agent_type: CognitiveEntityType;
+  agent_id: string;
+  current_goal: string;
+  current_task: string;
+  cognitive_process: string;
+  tools_in_use: string[];
+  memory_accesses: string[];
+  timestamp: string;
+  workspace?: WorkspaceType;
 }
 
-export function fetchIndiraThoughts(
-  limit = 20,
-  signal?: AbortSignal,
-): Promise<ThoughtsResponse> {
-  return _get<ThoughtsResponse>(
-    `/api/cognitive/indira/thoughts?limit=${limit}`,
-    signal,
-  );
-}
+/**
+ * Cognitive Environment API Client
+ */
+export class CognitiveEnvironmentAPI {
+  private baseURL: string;
+  private token: string | null = null;
 
-export interface BeliefRecord {
-  ts_ns?: number;
-  payload?: {
-    subject?: string;
-    old_value?: number;
-    new_value?: number;
-    driver?: string;
-    confidence?: number;
-  };
-}
+  constructor(baseURL: string = '/api/cognitive') {
+    this.baseURL = baseURL;
+    this.loadToken();
+  }
 
-export interface BeliefsResponse {
-  ts_iso: string;
-  count: number;
-  beliefs: BeliefRecord[];
-}
+  private loadToken(): void {
+    this.token = localStorage.getItem('dix_token') || null;
+  }
 
-export function fetchIndiraBeliefs(
-  limit = 20,
-  signal?: AbortSignal,
-): Promise<BeliefsResponse> {
-  return _get<BeliefsResponse>(
-    `/api/cognitive/indira/beliefs?limit=${limit}`,
-    signal,
-  );
-}
+  private async fetchAPI<T>(
+    endpoint: string,
+    options: RequestInit = {}
+  ): Promise<T> {
+    const url = `${this.baseURL}${endpoint}`;
+    const headers = new Headers();
+    headers.set('Content-Type', 'application/json');
+    
+    if (this.token) {
+      headers.set('Authorization', `Bearer ${this.token}`);
+    }
+    
+    // Copy any additional headers from options
+    if (options.headers) {
+      const optionsHeaders = options.headers as Headers;
+      optionsHeaders.forEach((value, key) => {
+        headers.set(key, value);
+      });
+    }
 
-// ---------------------------------------------------------------------------
-// DYON
-// ---------------------------------------------------------------------------
+    const response = await fetch(url, {
+      ...options,
+      headers,
+    });
 
-export interface TopologyViolation {
-  invariant_id: string;
-  rule: string;
-  source_module: string;
-  imported_module: string;
-  line: number;
-  severity: "CRITICAL" | "WARNING";
-  description: string;
-}
+    if (!response.ok) {
+      throw new Error(`Cognitive API error: ${response.status} ${response.statusText}`);
+    }
 
-export interface TopologyResponse {
-  ts_ns?: number;
-  root?: string;
-  files_scanned: number;
-  scan_duration_ms?: number;
-  violation_count: number;
-  critical_count?: number;
-  warning_count?: number;
-  clean: boolean;
-  violations: TopologyViolation[];
-  status?: string;
-  error?: string;
-}
+    return response.json() as Promise<T>;
+  }
 
-export function fetchDyonTopology(
-  signal?: AbortSignal,
-): Promise<TopologyResponse> {
-  return _get<TopologyResponse>("/api/cognitive/dyon/topology", signal);
-}
+  /**
+   * Register an entity in the cognitive environment
+   */
+  async registerEntity(
+    entityId: string,
+    entityType: CognitiveEntityType
+  ): Promise<{ success: boolean }> {
+    return this.fetchAPI('/register', {
+      method: 'POST',
+      body: JSON.stringify({ entity_id: entityId, entity_type: entityType }),
+    });
+  }
 
-export interface PatchProposalRecord {
-  proposal_id?: string;
-  ts_ns?: number;
-  invariant_id?: string;
-  source_module?: string;
-  imported_module?: string;
-  severity?: string;
-  description?: string;
-  recommended_action?: string;
-  payload?: Record<string, unknown>;
-}
+  /**
+   * Activate a workspace in the cognitive environment
+   */
+  async activateWorkspace(
+    workspaceType: WorkspaceType,
+    config?: Record<string, unknown>
+  ): Promise<{ success: boolean }> {
+    return this.fetchAPI('/workspace/activate', {
+      method: 'POST',
+      body: JSON.stringify({ workspace_type: workspaceType, config }),
+    });
+  }
 
-export interface ProposalsResponse {
-  ts_iso: string;
-  count: number;
-  proposals: PatchProposalRecord[];
-}
+  /**
+   * Transition an entity to a different workspace
+   */
+  async transitionEntity(
+    entityId: string,
+    toWorkspace: WorkspaceType,
+    reason: string = ''
+  ): Promise<{ success: boolean; from_workspace?: string }> {
+    return this.fetchAPI('/workspace/transition', {
+      method: 'POST',
+      body: JSON.stringify({
+        entity_id: entityId,
+        to_workspace: toWorkspace,
+        reason,
+      }),
+    });
+  }
 
-export function fetchDyonProposals(
-  limit = 50,
-  signal?: AbortSignal,
-): Promise<ProposalsResponse> {
-  return _get<ProposalsResponse>(
-    `/api/cognitive/dyon/proposals?limit=${limit}`,
-    signal,
-  );
-}
+  /**
+   * Get the current workspace for an entity
+   */
+  async getEntityWorkspace(entityId: string): Promise<{ workspace_type: string }> {
+    return this.fetchAPI(`/workspace/${entityId}`);
+  }
 
-// ---------------------------------------------------------------------------
-// Autonomous Research
-// ---------------------------------------------------------------------------
+  /**
+   * Get all workspaces
+   */
+  async getAllWorkspaces(): Promise<
+    Record<string, { name: string; description: string; shared_tools: string[] }>
+  > {
+    return this.fetchAPI('/workspaces');
+  }
 
-export interface ResearchQueueItem {
-  topic: string;
-  priority: number;
-  task_type: string;
-}
+  /**
+   * Get agents currently in a workspace
+   */
+  async getWorkspaceEntities(workspaceType: WorkspaceType): Promise<{ entity_ids: string[] }> {
+    return this.fetchAPI(`/workspace/${workspaceType}/entities`);
+  }
 
-export interface ResearchStatusResponse {
-  ts_iso?: string;
-  running: boolean;
-  queue_depth: number;
-  queue_preview: ResearchQueueItem[];
-  total_runs: number;
-  total_ok: number;
-  fetch_interval_s: number;
-  recent_count: number;
-}
+  /**
+   * Get current agent activities for observability
+   */
+  async getAgentActivities(): Promise<Record<string, AgentActivity>> {
+    return this.fetchAPI('/activities');
+  }
 
-export function fetchResearchStatus(
-  signal?: AbortSignal,
-): Promise<ResearchStatusResponse> {
-  return _get<ResearchStatusResponse>(
-    "/api/cognitive/research/status",
-    signal,
-  );
-}
+  /**
+   * Get recent activity across all agents
+   */
+  async getRecentActivity(minutes: number = 5): Promise<{ activities: AgentActivity[] }> {
+    return this.fetchAPI(`/activities/recent?minutes=${minutes}`);
+  }
 
-export interface ResearchResult {
-  topic: string;
-  task_type: string;
-  status: string;
-  pages_fetched: number;
-  confidence: number;
-  trust_score: number;
-  sources: string[];
-  ts_ns: number;
-}
+  /**
+   * Get cognitive environment state
+   */
+  async getEnvironmentState(): Promise<{
+    active_entities: Record<string, string>;
+    active_workspaces: Record<string, Record<string, unknown>>;
+    agent_count: number;
+    workspace_count: number;
+    recent_events: number;
+  }> {
+    return this.fetchAPI('/state');
+  }
 
-export interface ResearchResultsResponse {
-  ts_iso: string;
-  count: number;
-  results: ResearchResult[];
-}
+  /**
+   * Subscribe to cognitive environment events (WebSocket)
+   */
+  subscribeToEvents(callback: (event: unknown) => void): WebSocket {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const host = window.location.host;
+    const ws = new WebSocket(`${protocol}//${host}/api/cognitive/ws`);
 
-export function fetchResearchResults(
-  limit = 20,
-  signal?: AbortSignal,
-): Promise<ResearchResultsResponse> {
-  return _get<ResearchResultsResponse>(
-    `/api/cognitive/research/results?limit=${limit}`,
-    signal,
-  );
-}
-
-export interface EnqueueRequest {
-  topic: string;
-  task_type?: string;
-  target_urls?: string[];
-  max_pages?: number;
-  priority?: number;
-}
-
-export interface EnqueueResponse {
-  ts_iso: string;
-  topic: string;
-  task_type: string;
-  priority: number;
-  queue_depth: number;
-  message: string;
-}
-
-// ---------------------------------------------------------------------------
-// Cognitive Snapshot — unified orchestrator health
-// ---------------------------------------------------------------------------
-
-export interface CognitiveSnapshotResponse {
-  ts_iso: string;
-  evolution?: {
-    orchestrator: string;
-    tick_count: number;
-    structural_loop_wired: boolean;
-    critique_loop_wired: boolean;
-    arena_wired: boolean;
-    dyon?: {
-      tick_count: number;
-      scan_count: number;
-      scan_interval: number;
+    ws.onopen = () => {
+      console.log('[Cognitive API] WebSocket connected');
     };
-  };
-  indira?: {
-    intelligence: string;
-    tick_count: number;
-    cycle_position: number;
-    runtime: string;
-  };
-  memory?: {
-    episodic_size: number;
-    semantic_size: number;
-    procedural_size: number;
-    consolidate_seq: number;
-  };
-  research?: {
-    running: boolean;
-    queue_depth: number;
-    total_runs: number;
-    total_ok?: number;
-  };
+
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        callback(data);
+      } catch (error) {
+        console.error('[Cognitive API] WebSocket parse error:', error);
+      }
+    };
+
+    ws.onerror = (error) => {
+      console.error('[Cognitive API] WebSocket error:', error);
+    };
+
+    ws.onclose = () => {
+      console.log('[Cognitive API] WebSocket disconnected');
+    };
+
+    return ws;
+  }
 }
 
-export function fetchCognitiveSnapshot(
-  signal?: AbortSignal,
-): Promise<CognitiveSnapshotResponse> {
-  return _get<CognitiveSnapshotResponse>("/api/cognitive/snapshot", signal);
-}
+// Singleton instance
+let cognitiveAPIInstance: CognitiveEnvironmentAPI | null = null;
 
-export async function postResearchEnqueue(
-  body: EnqueueRequest,
-): Promise<EnqueueResponse> {
-  const res = await fetch(`${BASE}/api/cognitive/research/enqueue`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Accept: "application/json" },
-    body: JSON.stringify(body),
-  });
-  if (!res.ok) throw new Error(`POST /api/cognitive/research/enqueue failed: ${res.status}`);
-  return res.json() as Promise<EnqueueResponse>;
-}
-
-// ---------------------------------------------------------------------------
-// Cognitive Physics + Knowledge Lifecycle (Layer 43-44)
-// ---------------------------------------------------------------------------
-
-export interface KnowledgeItem {
-  knowledge_id: string;
-  phase: string;
-  confidence: number;
-  evidence_count: number;
-  challenge_count: number;
-  age_days: number;
-}
-
-export interface KnowledgeLifecycleResponse {
-  available: boolean;
-  active_knowledge: KnowledgeItem[];
-  retired_count: number;
-}
-
-export function fetchKnowledgeLifecycle(
-  signal?: AbortSignal,
-): Promise<KnowledgeLifecycleResponse> {
-  return _get<KnowledgeLifecycleResponse>("/api/cognitive/knowledge_lifecycle", signal);
-}
-
-export interface CognitivePhysicsResponse {
-  available: boolean;
-  total_propagations?: number;
-  unique_sources?: number;
-  unique_targets?: number;
-  detail?: string;
-}
-
-export function fetchCognitivePhysics(
-  signal?: AbortSignal,
-): Promise<CognitivePhysicsResponse> {
-  return _get<CognitivePhysicsResponse>("/api/cognitive/cognitive_physics", signal);
-}
-
-// ---------------------------------------------------------------------------
-// Stage 2 — INDIRA Consciousness Stream
-// ---------------------------------------------------------------------------
-
-export interface ConsciousnessEntry {
-  entry_id: string;
-  ts_ns: number;
-  event_kind: string;
-  narrative: string;
-  importance: number;
-  source: string;
-  raw_sub_type: string;
-}
-
-export interface ConsciousnessResponse {
-  count: number;
-  entries: ConsciousnessEntry[];
-  ts_iso?: string;
-}
-
-export function fetchIndiraConsciousness(
-  limit = 50,
-  signal?: AbortSignal,
-): Promise<ConsciousnessResponse> {
-  return _get<ConsciousnessResponse>(
-    `/api/cognitive/indira/consciousness?limit=${limit}`,
-    signal,
-  );
-}
-
-export interface CausalHypothesisRecord {
-  hypo_id: string;
-  label: string;
-  state: string;
-  confidence: number;
-  evidence_count: number;
-  age_ticks: number;
-  ts_ns?: number;
-}
-
-export interface CausalResponse {
-  active_hypotheses: CausalHypothesisRecord[];
-  top_chain?: { label: string; confidence: number } | null;
-  stats?: Record<string, unknown>;
-  ts_iso?: string;
-}
-
-export function fetchIndiraCausal(
-  signal?: AbortSignal,
-): Promise<CausalResponse> {
-  return _get<CausalResponse>("/api/cognitive/indira/causal", signal);
-}
-
-export interface BehavioralClusterRecord {
-  cluster_id: string;
-  label: string;
-  strength: number;
-  composite_score: number;
-  member_count: number;
-  dominant?: boolean;
-}
-
-export interface ClustersResponse {
-  dominant_cluster?: BehavioralClusterRecord | null;
-  clusters: BehavioralClusterRecord[];
-  ts_iso?: string;
-}
-
-export function fetchIndiraClusters(
-  signal?: AbortSignal,
-): Promise<ClustersResponse> {
-  return _get<ClustersResponse>("/api/cognitive/indira/clusters", signal);
-}
-
-export interface ObservationSessionRecord {
-  session_id: string;
-  focus_label: string;
-  theme: string;
-  state: string;
-  tick_age: number;
-  hypothesis_count: number;
-}
-
-export interface ObservationsResponse {
-  active_count: number;
-  sessions: ObservationSessionRecord[];
-  ts_iso?: string;
-}
-
-export function fetchIndiraObservations(
-  signal?: AbortSignal,
-): Promise<ObservationsResponse> {
-  return _get<ObservationsResponse>("/api/cognitive/indira/observations", signal);
-}
-
-// ---------------------------------------------------------------------------
-// Stage 3 — DYON Engineering Workspace
-// ---------------------------------------------------------------------------
-
-export interface DyonWorkspaceResponse {
-  workspace: string;
-  grade?: string;
-  health_score?: number;
-  active?: boolean;
-  panels?: Record<string, unknown>;
-  ts_iso?: string;
-}
-
-export function fetchDyonWorkspace(
-  signal?: AbortSignal,
-): Promise<DyonWorkspaceResponse> {
-  return _get<DyonWorkspaceResponse>("/api/cognitive/dyon/workspace", signal);
-}
-
-export interface DyonEngineeringResponse {
-  runtime?: string;
-  active?: boolean;
-  tick_seq?: number;
-  phase_errors?: Record<string, number>;
-  latest_report?: Record<string, unknown>;
-  subsystems?: Record<string, unknown>;
-  ts_iso?: string;
-}
-
-export function fetchDyonEngineering(
-  signal?: AbortSignal,
-): Promise<DyonEngineeringResponse> {
-  return _get<DyonEngineeringResponse>("/api/cognitive/dyon/engineering", signal);
-}
-
-export interface DeadModuleRecord {
-  rel_file: string;
-  module_path: string;
-  classification: string;
-  confidence: number;
-  line_count: number;
-  reason: string;
-}
-
-export interface DeadCodeResponse {
-  runtime?: string;
-  scan_count?: number;
-  dead_module_count?: number;
-  by_classification?: Record<string, number>;
-  dead_modules?: DeadModuleRecord[];
-  ts_iso?: string;
-}
-
-export function fetchDyonDeadCode(
-  signal?: AbortSignal,
-): Promise<DeadCodeResponse> {
-  return _get<DeadCodeResponse>("/api/cognitive/dyon/dead-code", signal);
-}
-
-export interface DriftResponse {
-  runtime?: string;
-  health_score?: number;
-  trend?: string;
-  grade?: string;
-  spike_detected?: boolean;
-  scan_count?: number;
-  history_series?: number[];
-  ts_iso?: string;
-}
-
-export function fetchDyonDrift(
-  signal?: AbortSignal,
-): Promise<DriftResponse> {
-  return _get<DriftResponse>("/api/cognitive/dyon/drift", signal);
-}
-
-export interface EvolutionReportResponse {
-  report_id?: string;
-  health_score?: number;
-  grade?: string;
-  trend?: string;
-  files_scanned?: number;
-  critical_count?: number;
-  warning_count?: number;
-  dead_module_count?: number;
-  repo_file_count?: number;
-  mutation_queue_depth?: number;
-  mutations_approved?: number;
-  recommendation?: string;
-  ts_iso?: string;
-}
-
-export function fetchDyonReport(
-  signal?: AbortSignal,
-): Promise<EvolutionReportResponse> {
-  return _get<EvolutionReportResponse>("/api/cognitive/dyon/report", signal);
-}
-
-export interface RepoLayerDistribution {
-  [layer: string]: number;
-}
-
-export interface RepoInspectorResponse {
-  runtime?: string;
-  status?: string;
-  root?: string;
-  file_count?: number;
-  python_file_count?: number;
-  scan_count?: number;
-  layer_distribution?: RepoLayerDistribution;
-  edge_count?: number;
-  isolated_modules?: number;
-  top_connected?: { module_path: string; import_count: number }[];
-  ts_iso?: string;
-}
-
-export function fetchDyonRepo(
-  signal?: AbortSignal,
-): Promise<RepoInspectorResponse> {
-  return _get<RepoInspectorResponse>("/api/cognitive/dyon/repo", signal);
-}
-
-// ---------------------------------------------------------------------------
-// Stage 6 — Observatory: telemetry, pipeline, simulation, spine, memory, kernel
-// ---------------------------------------------------------------------------
-
-export interface TelemetryComponentStats {
-  count?: number;
-  throughput_per_min?: number;
-  p50_ms?: number;
-  p99_ms?: number;
-}
-
-export interface TelemetrySummaryResponse {
-  indira?: TelemetryComponentStats;
-  dyon?: TelemetryComponentStats;
-  research?: TelemetryComponentStats;
-  long_horizon?: TelemetryComponentStats;
-  ts_iso?: string;
-}
-
-export function fetchTelemetrySummary(
-  signal?: AbortSignal,
-): Promise<TelemetrySummaryResponse> {
-  return _get<TelemetrySummaryResponse>("/api/cognitive/telemetry/summary", signal);
-}
-
-export interface PipelineRecord {
-  proposal_id?: string;
-  stage?: string;
-  mutation_class?: string;
-  description?: string;
-  ts_ns?: number;
-}
-
-export interface PipelineResponse {
-  runtime?: string;
-  tick_count?: number;
-  active_count?: number;
-  completed_count?: number;
-  stage_counts?: Record<string, number>;
-  active?: PipelineRecord[];
-  recently_completed?: PipelineRecord[];
-  ts_iso?: string;
-}
-
-export function fetchEvolutionPipeline(
-  signal?: AbortSignal,
-): Promise<PipelineResponse> {
-  return _get<PipelineResponse>("/api/cognitive/evolution/pipeline", signal);
-}
-
-export interface ScoreboardEntry {
-  fitness?: number;
-  wins?: number;
-  losses?: number;
-  current_streak?: number;
-  promoted?: boolean;
-}
-
-export interface SimDominanceResponse {
-  runtime?: string;
-  tick_count?: number;
-  tournament_runs?: number;
-  dominance_achieved?: boolean;
-  dominant_strategy?: string | null;
-  scoreboard?: Record<string, ScoreboardEntry>;
-  dominance_threshold?: number;
-  dominance_streak_required?: number;
-  promoted_count?: number;
-  ts_iso?: string;
-}
-
-export function fetchSimulationDominance(
-  signal?: AbortSignal,
-): Promise<SimDominanceResponse> {
-  return _get<SimDominanceResponse>("/api/cognitive/simulation/dominance", signal);
-}
-
-export interface SpineSnapshotResponse {
-  spine?: string;
-  active?: boolean;
-  tick_seq?: number;
-  phase_errors?: Record<string, number>;
-  cadence?: Record<string, number>;
-  subsystems?: Record<string, unknown>;
-  ts_iso?: string;
-}
-
-export function fetchCognitiveSpine(
-  signal?: AbortSignal,
-): Promise<SpineSnapshotResponse> {
-  return _get<SpineSnapshotResponse>("/api/cognitive/spine", signal);
-}
-
-export interface ModeTransitionRecord {
-  from_mode?: string;
-  to_mode?: string;
-  reason?: string;
-  ts_ns?: number;
-}
-
-export interface GovernanceStoreResponse {
-  mode_transitions?: ModeTransitionRecord[];
-  violations?: unknown[];
-  operator_actions?: unknown[];
-  snapshot?: Record<string, unknown>;
-  ts_iso?: string;
-}
-
-export function fetchGovernanceStore(
-  signal?: AbortSignal,
-): Promise<GovernanceStoreResponse> {
-  return _get<GovernanceStoreResponse>("/api/memory/stores/governance", signal);
-}
-
-export interface MemoryLayerSnapshot {
-  layer?: string;
-  timeline_count?: number;
-  index_size?: number;
-  stores?: Record<string, number>;
-  ts_iso?: string;
-}
-
-export function fetchMemorySnapshot(
-  signal?: AbortSignal,
-): Promise<MemoryLayerSnapshot> {
-  return _get<MemoryLayerSnapshot>("/api/memory/snapshot", signal);
-}
-
-export interface KernelComponent {
-  active?: boolean;
-  type?: string;
-}
-
-export interface KernelStatusResponse {
-  kernel?: string;
-  active?: boolean;
-  tick_seq?: number;
-  components?: Record<string, KernelComponent>;
-  ts_iso?: string;
-}
-
-export function fetchKernelStatus(
-  signal?: AbortSignal,
-): Promise<KernelStatusResponse> {
-  return _get<KernelStatusResponse>("/api/runtime/cognitive/kernel", signal);
+export function getCognitiveEnvironmentAPI(): CognitiveEnvironmentAPI {
+  if (!cognitiveAPIInstance) {
+    cognitiveAPIInstance = new CognitiveEnvironmentAPI();
+  }
+  return cognitiveAPIInstance;
 }

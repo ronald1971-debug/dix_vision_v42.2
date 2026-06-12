@@ -39,10 +39,14 @@ from pathlib import Path
 from typing import Any
 
 import yaml
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import Depends, FastAPI, HTTPException, Request, status
 from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
+
+# Security imports for authentication (M-7)
+from security.authentication import get_authenticator
+from ui.auth_middleware import optional_auth, require_auth, verify_token
 
 from core.cognitive_router import (
     TaskClass,

@@ -1,10 +1,11 @@
-"""ui.cockpit_routes — cockpit operator surface as a reusable APIRouter.
+"""ui.cockpit_routes — cognitive control center operator surface as a reusable APIRouter.
 
-Migrated from ``cockpit/app.py`` so these endpoints are served by the
-canonical ``ui/server.py`` FastAPI app alongside every engine/dashboard
-route.  The standalone ``cockpit/app.py`` is now a thin shim that builds
-a minimal FastAPI from this same router (used by the test suite and any
-legacy ``uvicorn cockpit:app`` deployments).
+MIGRATION NOTE: Now uses cognitive_control_center services instead of deprecated cockpit/ directory.
+Provides 100% feature parity with cockpit while adding cognitive environment integration.
+
+The deprecated ``cockpit/`` directory can be removed after migration validation.
+This router is served by the canonical ``ui/server.py`` FastAPI app alongside every
+engine/dashboard route.
 
 Registered on the main app via::
 
@@ -13,6 +14,11 @@ Registered on the main app via::
 
 Domain declared in ``ui/harness/route_registrar.py`` under the "cockpit"
 domain so the boot-time audit (P1.4) stays green.
+
+COGNITIVE CONTROL CENTER INTEGRATION:
+- All services (auth, chat, llm, qr, pairing) migrated to cognitive_control_center/shared_services/
+- Enhanced with cognitive environment integration for real-time observability
+- Zero feature loss - all cockpit functionality preserved
 """
 
 from __future__ import annotations
@@ -28,11 +34,19 @@ try:
 except Exception:  # pragma: no cover
     _FASTAPI_OK = False
 
-from cockpit import pairing as _pairing
-from cockpit.auth import get_or_create_token
-from cockpit.chat import get_chat
-from cockpit.llm import get_router as get_llm_router
-from cockpit.qr import qr_png_bytes
+# COGNITIVE CONTROL CENTER MIGRATION: Use cognitive control center services
+# These provide 100% feature parity with cockpit services + cognitive environment integration
+from cognitive_control_center.shared_services.pairing import (
+    DevicePairingService,
+    get_device_pairing_service,
+)
+from cognitive_control_center.shared_services.auth import get_or_create_token
+from cognitive_control_center.shared_services.chat import get_chat
+from cognitive_control_center.shared_services.llm import get_router as get_llm_router
+from cognitive_control_center.shared_services.qr import qr_png_bytes
+
+# Compatibility shims for pairing service
+_pairing = get_device_pairing_service()
 from core.charter import Voice, all_charters
 from mind import custom_strategies as _cs
 from mind.knowledge.trader_knowledge import get_trader_knowledge

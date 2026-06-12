@@ -27,6 +27,10 @@ interface GlobalSystemControlBarProps {
   className?: string;
 }
 
+const API_BASE_URL = process.env.NODE_ENV === 'development' 
+  ? 'http://127.0.0.1:8003' 
+  : window.location.origin;
+
 export function GlobalSystemControlBar({ className }: GlobalSystemControlBarProps) {
   const [status, setStatus] = useState<SystemStatus>({
     systemMode: 'MANUAL',
@@ -39,15 +43,35 @@ export function GlobalSystemControlBar({ className }: GlobalSystemControlBarProp
     killSwitchArmed: false,
   });
 
-  // Simulate real-time updates (replace with actual WebSocket)
+  // Fetch real system status from API
   useEffect(() => {
-    const interval = setInterval(() => {
-      // In production, this would come from WebSocket /ws/system/status
-      setStatus(prev => ({
-        ...prev,
-        riskState: Math.random() > 0.9 ? 'HIGH' : 'LOW',
-      }));
-    }, 5000);
+    const fetchSystemStatus = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/system/status`);
+        if (response.ok) {
+          const data = await response.json();
+          setStatus({
+            systemMode: data.system_mode,
+            capitalMode: data.capital_mode,
+            riskState: data.risk_state,
+            governanceState: data.governance_state,
+            indiraStatus: data.indira_status,
+            dyonStatus: data.dyon_status,
+            executionStatus: data.execution_status,
+            killSwitchArmed: data.kill_switch_armed,
+          });
+        }
+      } catch (error) {
+        console.error('Failed to fetch system status:', error);
+        // Keep default values if API fails
+      }
+    };
+
+    // Initial fetch
+    fetchSystemStatus();
+
+    // Set up polling for real-time updates
+    const interval = setInterval(fetchSystemStatus, 5000);
 
     return () => clearInterval(interval);
   }, []);

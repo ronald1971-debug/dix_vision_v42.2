@@ -29,7 +29,9 @@ import { FabricPage } from "@/pages/FabricPage";
 import { MemoryPage } from "@/pages/MemoryPage";
 import { GovernancePage } from "@/pages/GovernancePage";
 import { IndiraLearningPage } from "@/pages/IndiraLearningPage";
-import { MarketContextPage } from "@/pages/MarketContextPage";
+import { MarketsPage } from "@/pages/MarketsPage";
+import { PortfolioPage } from "@/pages/PortfolioPage";
+import { ExecutionPage } from "@/pages/ExecutionPage";
 import { OnChainPage } from "@/pages/OnChainPage";
 import { OperatorPage } from "@/pages/OperatorPage";
 import { OrderFlowPage } from "@/pages/OrderFlowPage";
@@ -45,6 +47,8 @@ import { SimulationPage } from "@/pages/SimulationPage";
 import { ObservatoryPage } from "@/pages/ObservatoryPage";
 import { AgentOpsPage } from "@/pages/AgentOpsPage";
 import { IndiraWorkspacePage } from "@/pages/IndiraWorkspacePage";
+import { DyonWorkspacePage } from "@/pages/DyonWorkspacePage";
+import { OperatorWorkspacePage } from "@/pages/OperatorWorkspacePage";
 import { AgentOpsProvider } from "@/context/AgentOpsContext";
 import { DexPage } from "@/pages/asset/DexPage";
 import { ForexPage } from "@/pages/asset/ForexPage";
@@ -87,6 +91,10 @@ function renderRoute(route: Route) {
       return <AgentOpsPage />;
     case "indira-workspace":
       return <IndiraWorkspacePage />;
+    case "dyon-workspace":
+      return <DyonWorkspacePage />;
+    case "operator-workspace":
+      return <OperatorWorkspacePage />;
     case "observatory":
       return <ObservatoryPage />;
     case "testing":
@@ -104,7 +112,11 @@ function renderRoute(route: Route) {
     case "charting":
       return <ChartingPage />;
     case "market":
-      return <MarketContextPage />;
+      return <MarketsPage />;
+    case "portfolio":
+      return <PortfolioPage />;
+    case "execution":
+      return <ExecutionPage />;
     case "positions":
       return <PositionsPage />;
     case "trading":
