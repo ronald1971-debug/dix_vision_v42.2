@@ -48,25 +48,6 @@ interface Assignment {
   completed_at?: string;
 }
 
-interface Project {
-  project_id: string;
-  title: string;
-  description: string;
-  agent_type: string;
-  assigned_agents: string[];
-  status: string;
-  created_at: string;
-  completed_at?: string;
-}
-
-interface MemoryEntry {
-  agent_id: string;
-  memory_type: string;
-  content: string;
-  timestamp: string;
-  context: Record<string, any>;
-}
-
 interface TimelineEvent {
   entity_type: string;
   entity_id: string;
