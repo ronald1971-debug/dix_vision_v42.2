@@ -39,8 +39,9 @@ class SensorData:
 @dataclass
 class SensorHealth:
     """Health status of a sensor."""
-    
+
     sensor_name: str
+    sensor_type: str  # "market" | "news" | "social" | "macro" | "onchain" | "alternative"
     is_active: bool
     last_update: str = ""
     data_points_received: int = 0

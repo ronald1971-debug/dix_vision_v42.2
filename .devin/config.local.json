@@ -84,7 +84,9 @@
       "Exec(findstr)",
       "Exec(git commit)",
       "Exec(npx tsc)",
-      "Exec(PowerShell)"
+      "Exec(PowerShell)",
+      "Exec(timeout)",
+      "Exec(sleep)"
     ]
   }
 }

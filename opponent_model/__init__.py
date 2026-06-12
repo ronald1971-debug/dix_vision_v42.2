@@ -14,14 +14,14 @@ Authority constraints (manifest §H1):
 * Replay-deterministic.
 """
 
+# TEMPORARY BOOT FIX: Import what actually exists in behavior_predictor.py
+# TODO: Implement expected API (BehaviorPredictor, BehaviorPredictorConfig, load_behavior_predictor_config)
 from opponent_model.behavior_predictor import (
-    BehaviorPredictor,
-    BehaviorPredictorConfig,
-    load_behavior_predictor_config,
+    ProductionBehaviorPredictor,
+    get_production_behavior_predictor,
 )
 
 __all__ = [
-    "BehaviorPredictor",
-    "BehaviorPredictorConfig",
-    "load_behavior_predictor_config",
+    "ProductionBehaviorPredictor",
+    "get_production_behavior_predictor",
 ]
