@@ -1,0 +1,51 @@
+repository:
+  name: "vault"
+  url: "https://github.com/hashicorp/vault.git"
+  version: "2.1.0"
+  description: "Vault secrets management for security"
+
+domain:
+  type: "SYSTEM"
+  priority: "HIGH"
+  category: "secrets_management"
+
+container:
+  enabled: true
+  image: "dix-vault:latest"
+  build:
+    dockerfile: "containers/github_repos/vault/Dockerfile"
+    context: "containers/github_repos/vault"
+  ports:
+    - "9129:9129"
+  volumes:
+    - "./containers/github_repos/vault/config:/app/config"
+    - "./containers/github_repos/vault/data:/app/data"
+    - "./containers/github_repos/vault/logs:/app/logs"
+    - "./containers/github_repos/vault/secrets:/app/secrets"
+  environment:
+    - "VAULT_LOG_LEVEL=INFO"
+    - "VAULT_PERMISSION_LEVEL=READ_ONLY"
+  resources:
+    memory_limit: "512M"
+    cpu_limit: "1.0"
+    memory_reservation: "256M"
+    cpu_reservation: "0.5"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+
+governance:
+  enabled: true
+  permission_level: "READ_ONLY"
+  secrets_limits:
+    max_secrets: 10000
+    max_policies: 100
+    max_token_ttl: 86400
+
+adapter:
+  type: "VaultDomainAdapter"
+  concept_mappings:
+    secret: "protected_credential"
+    policy: "access_control"

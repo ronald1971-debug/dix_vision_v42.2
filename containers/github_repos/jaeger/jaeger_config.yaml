@@ -1,0 +1,51 @@
+repository:
+  name: "jaeger"
+  url: "https://github.com/jaegertracing/jaeger.git"
+  version: "4.8.0"
+  description: "Jaeger distributed tracing for observability"
+
+domain:
+  type: "SYSTEM"
+  priority: "HIGH"
+  category: "distributed_tracing"
+
+container:
+  enabled: true
+  image: "dix-jaeger:latest"
+  build:
+    dockerfile: "containers/github_repos/jaeger/Dockerfile"
+    context: "containers/github_repos/jaeger"
+  ports:
+    - "9131:9131"
+  volumes:
+    - "./containers/github_repos/jaeger/config:/app/config"
+    - "./containers/github_repos/jaeger/data:/app/data"
+    - "./containers/github_repos/jaeger/logs:/app/logs"
+    - "./containers/github_repos/jaeger/traces:/app/traces"
+  environment:
+    - "JAEGER_LOG_LEVEL=INFO"
+    - "JAEGER_PERMISSION_LEVEL=READ_ONLY"
+  resources:
+    memory_limit: "512M"
+    cpu_limit: "1.0"
+    memory_reservation: "256M"
+    cpu_reservation: "0.5"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+
+governance:
+  enabled: true
+  permission_level: "READ_ONLY"
+  tracing_limits:
+    max_spans_per_trace: 1000
+    max_trace_duration: 300
+    max_sampling_rate: 1.0
+
+adapter:
+  type: "JaegerDomainAdapter"
+  concept_mappings:
+    trace: "execution_path"
+    span: "operation_segment"

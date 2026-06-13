@@ -1396,6 +1396,237 @@ services:
           cpus: '0.5'
           memory: 256M
 
+  consul-service:
+    build:
+      context: ./containers/github_repos/consul
+      dockerfile: Dockerfile
+    image: "dix-consul:latest"
+    container_name: dix-consul-service
+    ports:
+      - "9128:9128"
+    volumes:
+      - ./containers/github_repos/consul/config:/app/config
+      - ./containers/github_repos/consul/data:/app/data
+      - ./containers/github_repos/consul/logs:/app/logs
+      - ./containers/github_repos/consul/services:/app/services
+    environment:
+      - "CONSUL_LOG_LEVEL=INFO"
+      - "CONSUL_PERMISSION_LEVEL=READ_ONLY"
+    restart: unless-stopped
+    networks:
+      - dixvision-network
+    healthcheck:
+      test: ["CMD", "python", "/app/health_check.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+  vault-service:
+    build:
+      context: ./containers/github_repos/vault
+      dockerfile: Dockerfile
+    image: "dix-vault:latest"
+    container_name: dix-vault-service
+    ports:
+      - "9129:9129"
+    volumes:
+      - ./containers/github_repos/vault/config:/app/config
+      - ./containers/github_repos/vault/data:/app/data
+      - ./containers/github_repos/vault/logs:/app/logs
+      - ./containers/github_repos/vault/secrets:/app/secrets
+    environment:
+      - "VAULT_LOG_LEVEL=INFO"
+      - "VAULT_PERMISSION_LEVEL=READ_ONLY"
+    restart: unless-stopped
+    networks:
+      - dixvision-network
+    healthcheck:
+      test: ["CMD", "python", "/app/health_check.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+  etcd-service:
+    build:
+      context: ./containers/github_repos/etcd
+      dockerfile: Dockerfile
+    image: "dix-etcd:latest"
+    container_name: dix-etcd-service
+    ports:
+      - "9130:9130"
+    volumes:
+      - ./containers/github_repos/etcd/config:/app/config
+      - ./containers/github_repos/etcd/data:/app/data
+      - ./containers/github_repos/etcd/logs:/app/logs
+      - ./containers/github_repos/etcd/kv:/app/kv
+    environment:
+      - "ETCD_LOG_LEVEL=INFO"
+      - "ETCD_PERMISSION_LEVEL=READ_ONLY"
+    restart: unless-stopped
+    networks:
+      - dixvision-network
+    healthcheck:
+      test: ["CMD", "python", "/app/health_check.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+  jaeger-service:
+    build:
+      context: ./containers/github_repos/jaeger
+      dockerfile: Dockerfile
+    image: "dix-jaeger:latest"
+    container_name: dix-jaeger-service
+    ports:
+      - "9131:9131"
+    volumes:
+      - ./containers/github_repos/jaeger/config:/app/config
+      - ./containers/github_repos/jaeger/data:/app/data
+      - ./containers/github_repos/jaeger/logs:/app/logs
+      - ./containers/github_repos/jaeger/traces:/app/traces
+    environment:
+      - "JAEGER_LOG_LEVEL=INFO"
+      - "JAEGER_PERMISSION_LEVEL=READ_ONLY"
+    restart: unless-stopped
+    networks:
+      - dixvision-network
+    healthcheck:
+      test: ["CMD", "python", "/app/health_check.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+  tempo-service:
+    build:
+      context: ./containers/github_repos/tempo
+      dockerfile: Dockerfile
+    image: "dix-tempo:latest"
+    container_name: dix-tempo-service
+    ports:
+      - "9132:9132"
+    volumes:
+      - ./containers/github_repos/tempo/config:/app/config
+      - ./containers/github_repos/tempo/data:/app/data
+      - ./containers/github_repos/tempo/logs:/app/logs
+      - ./containers/github_repos/tempo/metrics:/app/metrics
+    environment:
+      - "TEMPO_LOG_LEVEL=INFO"
+      - "TEMPO_PERMISSION_LEVEL=READ_ONLY"
+    restart: unless-stopped
+    networks:
+      - dixvision-network
+    healthcheck:
+      test: ["CMD", "python", "/app/health_check.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+  loki-service:
+    build:
+      context: ./containers/github_repos/loki
+      dockerfile: Dockerfile
+    image: "dix-loki:latest"
+    container_name: dix-loki-service
+    ports:
+      - "9133:9133"
+    volumes:
+      - ./containers/github_repos/loki/config:/app/config
+      - ./containers/github_repos/loki/data:/app/data
+      - ./containers/github_repos/loki/logs:/app/logs
+      - ./containers/github_repos/loki/streams:/app/streams
+    environment:
+      - "LOKI_LOG_LEVEL=INFO"
+      - "LOKI_PERMISSION_LEVEL=READ_ONLY"
+    restart: unless-stopped
+    networks:
+      - dixvision-network
+    healthcheck:
+      test: ["CMD", "python", "/app/health_check.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+  blackbox-service:
+    build:
+      context: ./containers/github_repos/blackbox
+      dockerfile: Dockerfile
+    image: "dix-blackbox:latest"
+    container_name: dix-blackbox-service
+    ports:
+      - "9134:9134"
+    volumes:
+      - ./containers/github_repos/blackbox/config:/app/config
+      - ./containers/github_repos/blackbox/data:/app/data
+      - ./containers/github_repos/blackbox/logs:/app/logs
+      - ./containers/github_repos/blackbox/probes:/app/probes
+    environment:
+      - "BLACKBOX_LOG_LEVEL=INFO"
+      - "BLACKBOX_PERMISSION_LEVEL=READ_ONLY"
+    restart: unless-stopped
+    networks:
+      - dixvision-network
+    healthcheck:
+      test: ["CMD", "python", "/app/health_check.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
 volumes:
   redis-data:
   postgres-data:

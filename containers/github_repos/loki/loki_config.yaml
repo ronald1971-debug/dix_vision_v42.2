@@ -1,0 +1,51 @@
+repository:
+  name: "loki"
+  url: "https://github.com/grafana/loki.git"
+  version: "0.1.0"
+  description: "Loki logging for system observability"
+
+domain:
+  type: "SYSTEM"
+  priority: "HIGH"
+  category: "logging"
+
+container:
+  enabled: true
+  image: "dix-loki:latest"
+  build:
+    dockerfile: "containers/github_repos/loki/Dockerfile"
+    context: "containers/github_repos/loki"
+  ports:
+    - "9133:9133"
+  volumes:
+    - "./containers/github_repos/loki/config:/app/config"
+    - "./containers/github_repos/loki/data:/app/data"
+    - "./containers/github_repos/loki/logs:/app/logs"
+    - "./containers/github_repos/loki/streams:/app/streams"
+  environment:
+    - "LOKI_LOG_LEVEL=INFO"
+    - "LOKI_PERMISSION_LEVEL=READ_ONLY"
+  resources:
+    memory_limit: "512M"
+    cpu_limit: "1.0"
+    memory_reservation: "256M"
+    cpu_reservation: "0.5"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+
+governance:
+  enabled: true
+  permission_level: "READ_ONLY"
+  logging_limits:
+    max_log_entries_per_query: 10000
+    max_log_size: 1048576
+    max_retention_days: 365
+
+adapter:
+  type: "LokiDomainAdapter"
+  concept_mappings:
+    log: "system_event"
+    stream: "event_sequence"

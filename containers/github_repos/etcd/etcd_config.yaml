@@ -1,0 +1,51 @@
+repository:
+  name: "etcd"
+  url: "https://github.com/etcd-io/etcd.git"
+  version: "0.12.0"
+  description: "Etcd distributed key-value store for coordination"
+
+domain:
+  type: "SYSTEM"
+  priority: "HIGH"
+  category: "distributed_storage"
+
+container:
+  enabled: true
+  image: "dix-etcd:latest"
+  build:
+    dockerfile: "containers/github_repos/etcd/Dockerfile"
+    context: "containers/github_repos/etcd"
+  ports:
+    - "9130:9130"
+  volumes:
+    - "./containers/github_repos/etcd/config:/app/config"
+    - "./containers/github_repos/etcd/data:/app/data"
+    - "./containers/github_repos/etcd/logs:/app/logs"
+    - "./containers/github_repos/etcd/kv:/app/kv"
+  environment:
+    - "ETCD_LOG_LEVEL=INFO"
+    - "ETCD_PERMISSION_LEVEL=READ_ONLY"
+  resources:
+    memory_limit: "512M"
+    cpu_limit: "1.0"
+    memory_reservation: "256M"
+    cpu_reservation: "0.5"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+
+governance:
+  enabled: true
+  permission_level: "READ_ONLY"
+  storage_limits:
+    max_keys: 1000000
+    max_key_size: 1048576
+    max_cluster_size: 7
+
+adapter:
+  type: "EtcdDomainAdapter"
+  concept_mappings:
+    key: "distributed_key"
+    value: "distributed_value"

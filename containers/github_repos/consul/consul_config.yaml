@@ -1,0 +1,51 @@
+repository:
+  name: "consul"
+  url: "https://github.com/hashicorp/consul.git"
+  version: "1.1.0"
+  description: "Consul service discovery for microservices"
+
+domain:
+  type: "SYSTEM"
+  priority: "HIGH"
+  category: "service_discovery"
+
+container:
+  enabled: true
+  image: "dix-consul:latest"
+  build:
+    dockerfile: "containers/github_repos/consul/Dockerfile"
+    context: "containers/github_repos/consul"
+  ports:
+    - "9128:9128"
+  volumes:
+    - "./containers/github_repos/consul/config:/app/config"
+    - "./containers/github_repos/consul/data:/app/data"
+    - "./containers/github_repos/consul/logs:/app/logs"
+    - "./containers/github_repos/consul/services:/app/services"
+  environment:
+    - "CONSUL_LOG_LEVEL=INFO"
+    - "CONSUL_PERMISSION_LEVEL=READ_ONLY"
+  resources:
+    memory_limit: "512M"
+    cpu_limit: "1.0"
+    memory_reservation: "256M"
+    cpu_reservation: "0.5"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+
+governance:
+  enabled: true
+  permission_level: "READ_ONLY"
+  discovery_limits:
+    max_services: 1000
+    max_kv_pairs: 100000
+    max_nodes: 500
+
+adapter:
+  type: "ConsulDomainAdapter"
+  concept_mappings:
+    service: "microservice_instance"
+    node: "infrastructure_endpoint"

@@ -1,0 +1,51 @@
+repository:
+  name: "tempo"
+  url: "https://github.com/grafana/tempo.git"
+  version: "0.1.0"
+  description: "Tempo metrics backend for observability"
+
+domain:
+  type: "SYSTEM"
+  priority: "HIGH"
+  category: "metrics_backend"
+
+container:
+  enabled: true
+  image: "dix-tempo:latest"
+  build:
+    dockerfile: "containers/github_repos/tempo/Dockerfile"
+    context: "containers/github_repos/tempo"
+  ports:
+    - "9132:9132"
+  volumes:
+    - "./containers/github_repos/tempo/config:/app/config"
+    - "./containers/github_repos/tempo/data:/app/data"
+    - "./containers/github_repos/tempo/logs:/app/logs"
+    - "./containers/github_repos/tempo/metrics:/app/metrics"
+  environment:
+    - "TEMPO_LOG_LEVEL=INFO"
+    - "TEMPO_PERMISSION_LEVEL=READ_ONLY"
+  resources:
+    memory_limit: "512M"
+    cpu_limit: "1.0"
+    memory_reservation: "256M"
+    cpu_reservation: "0.5"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+
+governance:
+  enabled: true
+  permission_level: "READ_ONLY"
+  metrics_limits:
+    max_metrics_per_series: 1000000
+    max_retention_days: 365
+    max_query_duration: 60
+
+adapter:
+  type: "TempoDomainAdapter"
+  concept_mappings:
+    metric: "performance_indicator"
+    series: "data_timeline"
