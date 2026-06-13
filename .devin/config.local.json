@@ -10,7 +10,12 @@
       "Exec(git status)",
       "Exec(git log)",
       "Exec(git fetch)",
-      "Exec(git add)"
+      "Exec(git add)",
+      "Exec(New-Item)",
+      "Exec(cd)",
+      "Exec(docker-compose config)",
+      "Exec($dirs)",
+      "Exec(Move-Item)"
     ]
   }
 }

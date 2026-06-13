@@ -1,0 +1,51 @@
+repository:
+  name: "tensorflow"
+  url: "https://github.com/tensorflow/tensorflow.git"
+  version: "2.14.0"
+  description: "TensorFlow deep learning for neural networks"
+
+domain:
+  type: "SYSTEM"
+  priority: "HIGH"
+  category: "deep_learning"
+
+container:
+  enabled: true
+  image: "dix-tensorflow:latest"
+  build:
+    dockerfile: "containers/github_repos/tensorflow/Dockerfile"
+    context: "containers/github_repos/tensorflow"
+  ports:
+    - "9100:9100"
+  volumes:
+    - "./containers/github_repos/tensorflow/config:/app/config"
+    - "./containers/github_repos/tensorflow/data:/app/data"
+    - "./containers/github_repos/tensorflow/logs:/app/logs"
+    - "./containers/github_repos/tensorflow/models:/app/models"
+  environment:
+    - "TENSORFLOW_LOG_LEVEL=INFO"
+    - "TENSORFLOW_PERMISSION_LEVEL=READ_ONLY"
+  resources:
+    memory_limit: "4G"
+    cpu_limit: "2.0"
+    memory_reservation: "2G"
+    cpu_reservation: "1.0"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+
+governance:
+  enabled: true
+  permission_level: "READ_ONLY"
+  ml_limits:
+    max_training_samples: 100000
+    max_model_params: 1000000
+    max_memory_usage: 4294967296
+
+adapter:
+  type: "TensorFlowDomainAdapter"
+  concept_mappings:
+    model: "neural_network"
+    tensor: "multidimensional_data"

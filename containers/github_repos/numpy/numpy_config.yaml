@@ -1,0 +1,208 @@
+# NumPy External Repository Configuration
+# Configuration for NumPy numerical computing integration
+
+repository:
+  name: "numpy"
+  url: "https://github.com/numpy/numpy.git"
+  version: "1.26.2"
+  description: "NumPy numerical computing for mathematical operations"
+
+domain:
+  type: "SYSTEM"
+  priority: "HIGH"
+  category: "numerical_computing"
+
+container:
+  enabled: true
+  image: "dix-numpy:latest"
+  build:
+    dockerfile: "containers/github_repos/numpy/Dockerfile"
+    context: "containers/github_repos/numpy"
+  ports:
+    - "9096:9096"
+  volumes:
+    - "./containers/github_repos/numpy/config:/app/config"
+    - "./containers/github_repos/numpy/data:/app/data"
+    - "./containers/github_repos/numpy/logs:/app/logs"
+    - "./containers/github_repos/numpy/computations:/app/computations"
+  environment:
+    - "NUMPY_LOG_LEVEL=INFO"
+    - "NUMPY_PERMISSION_LEVEL=READ_ONLY"
+  resources:
+    memory_limit: "2G"
+    cpu_limit: "2.0"
+    memory_reservation: "1G"
+    cpu_reservation: "1.0"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+    command: "python /app/health_check.py"
+
+governance:
+  enabled: true
+  permission_level: "READ_ONLY"
+  safety_checks:
+    enabled: true
+    dangerous_keywords: ["eval", "exec", "compile", "dangerous"]
+    input_validation: true
+    output_sanitization: true
+    computational_limits:
+      enabled: true
+      max_array_size: 1000000
+      max_memory_usage: 1073741824
+      max_execution_time: 300
+      max_ndim: 10
+  audit_logging:
+    enabled: true
+    log_level: "INFO"
+    retention_days: 90
+  operator_authority:
+    required_for_execution: true
+    approval_timeout: "1h"
+    emergency_override: true
+
+adapter:
+  type: "NumPyDomainAdapter"
+  data_format: "JSON"
+  concept_mappings:
+    array: "numerical_matrix"
+    matrix: "computational_grid"
+    scalar: "single_value"
+    computation: "numerical_operation"
+    dimension: "data_axis"
+  transformations:
+    - name: "array_standardization"
+      enabled: true
+    - name: "computation_enhancement"
+      enabled: true
+    - name: "dtype_conversion"
+      enabled: true
+  enhancements:
+    add_metadata: true
+    add_context: true
+    cognitive_enhancement: true
+
+security:
+  credential_management:
+    use_secrets_manager: true
+    credential_file: ".dix_secrets.env"
+    api_keys_required: false
+  computational_security:
+    enabled: true
+    blocked_operations: ["eval", "exec", "compile"]
+    blocked_data_types: ["object"]
+    max_recursion_depth: 1000
+  input_validation:
+    enabled: true
+    max_size_mb: 1000
+    dtype_validation: true
+  output_sanitization:
+    enabled: true
+    remove_sensitive_data: true
+
+performance:
+  cache_enabled: true
+  cache_ttl: 60
+  computational_optimization:
+    enabled: true
+    use_blas: true
+    parallel_processing: true
+    max_threads: 4
+  timeout:
+    computation_timeout: 300
+    memory_limit: 1073741824
+  memory_management:
+    enabled: true
+    garbage_collection_interval: 60
+    memory_monitoring: true
+
+monitoring:
+  enabled: true
+  metrics:
+    enabled: true
+    collection_interval: 30
+    metrics_port: 9096
+  logging:
+    enabled: true
+    log_level: "INFO"
+    log_file: "logs/numpy.log"
+  health_checks:
+    enabled: true
+    check_interval: 30
+    computational_health_check: true
+    memory_health_check: true
+  alerting:
+    enabled: false
+
+integration:
+  enabled: true
+  startup_order: 35
+  dependencies:
+    - "redis"
+  auto_discovery:
+    enabled: true
+  data_flow:
+    - source: "numerical_computations"
+      destination: "results_cache"
+      transform: "numpy_adapter"
+
+numpy_configuration:
+  error_handling:
+    invalid: "warn"
+    divide: "warn"
+    overflow: "warn"
+    underflow: "ignore"
+  precision:
+    default_dtype: "float64"
+    complex_dtype: "complex128"
+  threading:
+    num_threads: 4
+    omp_num_threads: 4
+  optimization:
+    use_optimized_libraries: true
+    enable_blas: true
+    use_avx: true
+
+computational_limits:
+  max_array_size: 1000000
+  max_memory_usage: 1073741824
+  max_execution_time: 300
+  max_ndim: 10
+  max_recursion_depth: 1000
+
+data_validation:
+  enabled: true
+  dtype_validation: true
+  shape_validation: true
+  value_range_validation: true
+  nan_inf_detection: true
+
+testing:
+  integration_tests:
+    enabled: true
+    test_directory: "containers/github_repos/numpy/tests"
+    test_timeout: 300
+  unit_tests:
+    enabled: true
+    coverage_threshold: 80
+
+documentation:
+  api_docs:
+    enabled: true
+    generate_on_build: true
+  integration_guide:
+    enabled: true
+    location: "docs/integrations/numpy.md"
+
+deployment:
+  environment: "development"
+  scaling:
+    min_instances: 1
+    max_instances: 3
+    target_cpu_percent: 70
+  rollout_strategy:
+    type: "rolling"
+    max_unavailable: 1
+    max_surge: 1

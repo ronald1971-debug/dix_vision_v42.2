@@ -1,0 +1,22 @@
+#!/bin/bash
+set -e
+echo "Starting OpenCV Container for DIX VISION..."
+echo "Version: 42.2"
+mkdir -p /app/logs /app/data /app/config /app/images
+python3 -c "
+from opencv_governance_wrapper import OpenCVGovernanceWrapper
+from opencv_domain_adapter import OpenCVDomainAdapter
+import logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger('opencv_container')
+try:
+    wrapper = OpenCVGovernanceWrapper(PermissionLevel.READ_ONLY)
+    wrapper.initialize_opencv({})
+    logger.info('OpenCV Governance Wrapper initialized successfully')
+    import time
+    while True:
+        time.sleep(3600)
+except Exception as e:
+    logger.error(f'OpenCV Container error: {str(e)}')
+    raise
+" || exit 1

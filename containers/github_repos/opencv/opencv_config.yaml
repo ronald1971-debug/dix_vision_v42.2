@@ -1,0 +1,51 @@
+repository:
+  name: "opencv"
+  url: "https://github.com/opencv/opencv.git"
+  version: "4.8.1"
+  description: "OpenCV computer vision for image processing"
+
+domain:
+  type: "SYSTEM"
+  priority: "HIGH"
+  category: "computer_vision"
+
+container:
+  enabled: true
+  image: "dix-opencv:latest"
+  build:
+    dockerfile: "containers/github_repos/opencv/Dockerfile"
+    context: "containers/github_repos/opencv"
+  ports:
+    - "9102:9102"
+  volumes:
+    - "./containers/github_repos/opencv/config:/app/config"
+    - "./containers/github_repos/opencv/data:/app/data"
+    - "./containers/github_repos/opencv/logs:/app/logs"
+    - "./containers/github_repos/opencv/images:/app/images"
+  environment:
+    - "OPENCV_LOG_LEVEL=INFO"
+    - "OPENCV_PERMISSION_LEVEL=READ_ONLY"
+  resources:
+    memory_limit: "2G"
+    cpu_limit: "2.0"
+    memory_reservation: "1G"
+    cpu_reservation: "1.0"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+
+governance:
+  enabled: true
+  permission_level: "READ_ONLY"
+  vision_limits:
+    max_image_size: 50331648
+    max_resolution: 4096
+    max_video_length: 3600
+
+adapter:
+  type: "OpenCVDomainAdapter"
+  concept_mappings:
+    image: "visual_data"
+    video: "visual_stream"

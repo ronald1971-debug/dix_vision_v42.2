@@ -1,0 +1,201 @@
+# FastAPI External Repository Configuration
+# Configuration for FastAPI web framework integration
+
+repository:
+  name: "fastapi"
+  url: "https://github.com/tiangolo/fastapi.git"
+  version: "0.109.0"
+  description: "FastAPI web framework for dashboard backend API"
+
+domain:
+  type: "SYSTEM"
+  priority: "CRITICAL"
+  category: "api_backend"
+
+container:
+  enabled: true
+  image: "dix-fastapi:latest"
+  build:
+    dockerfile: "containers/github_repos/fastapi/Dockerfile"
+    context: "containers/github_repos/fastapi"
+  ports:
+    - "8000:8000"
+  volumes:
+    - "./containers/github_repos/fastapi/config:/app/config"
+    - "./containers/github_repos/fastapi/data:/app/data"
+    - "./containers/github_repos/fastapi/logs:/app/logs"
+    - "./containers/github_repos/fastapi/api:/app/api"
+  environment:
+    - "FASTAPI_LOG_LEVEL=INFO"
+    - "FASTAPI_PERMISSION_LEVEL=READ_ONLY"
+    - "FASTAPI_RELOAD=false"
+  resources:
+    memory_limit: "512m"
+    cpu_limit: "1.0"
+    memory_reservation: "256m"
+    cpu_reservation: "0.5"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+    command: "python /app/health_check.py"
+
+governance:
+  enabled: true
+  permission_level: "READ_ONLY"
+  safety_checks:
+    enabled: true
+    dangerous_keywords: ["delete", "drop", "destroy", "format", "reset"]
+    input_validation: true
+    output_sanitization: true
+    rate_limiting:
+      enabled: true
+      requests_per_minute: 1000
+      requests_per_hour: 10000
+      burst_size: 50
+    max_request_size: 10485760
+  audit_logging:
+    enabled: true
+    log_level: "INFO"
+    retention_days: 90
+  operator_authority:
+    required_for_execution: true
+    approval_timeout: "1h"
+    emergency_override: true
+
+adapter:
+  type: "FastAPIDomainAdapter"
+  data_format: "JSON"
+  concept_mappings:
+    endpoint: "api_interface"
+    request: "cognitive_request"
+    response: "cognitive_response"
+    middleware: "governance_layer"
+    route: "cognitive_pathway"
+  transformations:
+    - name: "request_standardization"
+      enabled: true
+    - name: "response_enhancement"
+      enabled: true
+    - name: "endpoint_classification"
+      enabled: true
+  enhancements:
+    add_metadata: true
+    add_context: true
+    cognitive_enhancement: true
+
+security:
+  credential_management:
+    use_secrets_manager: true
+    credential_file: ".dix_secrets.env"
+    api_keys_required: false
+  rate_limiting:
+    enabled: true
+    requests_per_minute: 1000
+    burst_size: 10
+  input_validation:
+    enabled: true
+    max_size_mb: 10
+    allowed_formats: ["json", "form-data"]
+  output_sanitization:
+    enabled: true
+    remove_sensitive_data: true
+  cors:
+    enabled: true
+    allowed_origins: ["*"]
+    allow_credentials: true
+    allowed_methods: ["*"]
+    allowed_headers: ["*"]
+
+performance:
+  cache_enabled: true
+  cache_ttl: 60
+  connection_pool:
+    enabled: true
+    max_connections: 10
+    min_connections: 2
+  timeout:
+    connection: 30
+    read: 60
+    write: 30
+  retry_policy:
+    enabled: true
+    max_retries: 3
+    backoff_factor: 2
+
+monitoring:
+  enabled: true
+  metrics:
+    enabled: true
+    collection_interval: 30
+    metrics_port: 9092
+  logging:
+    enabled: true
+    log_level: "INFO"
+    log_file: "logs/fastapi.log"
+  health_checks:
+    enabled: true
+    check_interval: 30
+    endpoint_health_check: true
+  alerting:
+    enabled: false
+
+integration:
+  enabled: true
+  startup_order: 30
+  dependencies:
+    - "redis"
+    - "postgres"
+  auto_discovery:
+    enabled: true
+  data_flow:
+    - source: "api_requests"
+      destination: "redis_cache"
+      transform: "fastapi_adapter"
+
+api_configuration:
+  title: "DIX VISION API"
+  version: "42.2.0"
+  description: "DIX VISION Cognitive Trading System API"
+  debug: false
+  docs_url: "/docs"
+  redoc_url: "/redoc"
+  openapi_url: "/openapi.json"
+  openapi_tags:
+    - name: "Market"
+      description: "Market data and trading operations"
+    - name: "Cognitive"
+      description: "AI and cognitive engine operations"
+    - name: "System"
+      description: "System health and status operations"
+    - name: "Governance"
+      description: "Governance and authority operations"
+
+testing:
+  integration_tests:
+    enabled: true
+    test_directory: "containers/github_repos/fastapi/tests"
+    test_timeout: 300
+  unit_tests:
+    enabled: true
+    coverage_threshold: 80
+
+documentation:
+  api_docs:
+    enabled: true
+    generate_on_build: true
+  integration_guide:
+    enabled: true
+    location: "docs/integrations/fastapi.md"
+
+deployment:
+  environment: "development"
+  scaling:
+    min_instances: 1
+    max_instances: 3
+    target_cpu_percent: 70
+  rollout_strategy:
+    type: "rolling"
+    max_unavailable: 1
+    max_surge: 1

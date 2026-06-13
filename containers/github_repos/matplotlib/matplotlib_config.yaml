@@ -1,0 +1,53 @@
+repository:
+  name: "matplotlib"
+  url: "https://github.com/matplotlib/matplotlib.git"
+  version: "3.8.2"
+  description: "Matplotlib visualization for data plotting"
+
+domain:
+  type: "SYSTEM"
+  priority: "HIGH"
+  category: "visualization"
+
+container:
+  enabled: true
+  image: "dix-matplotlib:latest"
+  build:
+    dockerfile: "containers/github_repos/matplotlib/Dockerfile"
+    context: "containers/github_repos/matplotlib"
+  ports:
+    - "9098:9098"
+  volumes:
+    - "./containers/github_repos/matplotlib/config:/app/config"
+    - "./containers/github_repos/matplotlib/data:/app/data"
+    - "./containers/github_repos/matplotlib/logs:/app/logs"
+    - "./containers/github_repos/matplotlib/visualizations:/app/visualizations"
+  environment:
+    - "MATPLOTLIB_LOG_LEVEL=INFO"
+    - "MATPLOTLIB_PERMISSION_LEVEL=READ_ONLY"
+  resources:
+    memory_limit: "1G"
+    cpu_limit: "1.5"
+    memory_reservation: "512M"
+    cpu_reservation: "0.5"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+
+governance:
+  enabled: true
+  permission_level: "READ_ONLY"
+  safety_checks:
+    enabled: true
+    visualization_limits:
+      max_figure_size: 1000000
+      max_points_per_plot: 100000
+      max_memory_usage: 536870912
+
+adapter:
+  type: "MatplotlibDomainAdapter"
+  concept_mappings:
+    plot: "visual_representation"
+    figure: "visual_canvas"

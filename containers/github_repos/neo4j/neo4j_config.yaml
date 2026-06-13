@@ -1,0 +1,51 @@
+repository:
+  name: "neo4j"
+  url: "https://github.com/neo4j/neo4j.git"
+  version: "5.14.0"
+  description: "Neo4j graph database for knowledge graphs"
+
+domain:
+  type: "SYSTEM"
+  priority: "HIGH"
+  category: "graph_database"
+
+container:
+  enabled: true
+  image: "dix-neo4j:latest"
+  build:
+    dockerfile: "containers/github_repos/neo4j/Dockerfile"
+    context: "containers/github_repos/neo4j"
+  ports:
+    - "9107:9107"
+  volumes:
+    - "./containers/github_repos/neo4j/config:/app/config"
+    - "./containers/github_repos/neo4j/data:/app/data"
+    - "./containers/github_repos/neo4j/logs:/app/logs"
+    - "./containers/github_repos/neo4j/graphs:/app/graphs"
+  environment:
+    - "NEO4J_LOG_LEVEL=INFO"
+    - "NEO4J_PERMISSION_LEVEL=READ_ONLY"
+  resources:
+    memory_limit: "1G"
+    cpu_limit: "1.5"
+    memory_reservation: "512M"
+    cpu_reservation: "0.5"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+
+governance:
+  enabled: true
+  permission_level: "READ_ONLY"
+  graph_limits:
+    max_query_time: 300
+    max_result_size: 100000
+    max_complexity: 1000
+
+adapter:
+  type: "Neo4jDomainAdapter"
+  concept_mappings:
+    node: "entity"
+    relationship: "connection"

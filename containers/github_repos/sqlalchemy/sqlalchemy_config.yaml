@@ -1,0 +1,51 @@
+repository:
+  name: "sqlalchemy"
+  url: "https://github.com/sqlalchemy/sqlalchemy.git"
+  version: "2.0.23"
+  description: "SQLAlchemy ORM for database operations"
+
+domain:
+  type: "SYSTEM"
+  priority: "HIGH"
+  category: "database"
+
+container:
+  enabled: true
+  image: "dix-sqlalchemy:latest"
+  build:
+    dockerfile: "containers/github_repos/sqlalchemy/Dockerfile"
+    context: "containers/github_repos/sqlalchemy"
+  ports:
+    - "9103:9103"
+  volumes:
+    - "./containers/github_repos/sqlalchemy/config:/app/config"
+    - "./containers/github_repos/sqlalchemy/data:/app/data"
+    - "./containers/github_repos/sqlalchemy/logs:/app/logs"
+    - "./containers/github_repos/sqlalchemy/migrations:/app/migrations"
+  environment:
+    - "SQLALCHEMY_LOG_LEVEL=INFO"
+    - "SQLALCHEMY_PERMISSION_LEVEL=READ_ONLY"
+  resources:
+    memory_limit: "1G"
+    cpu_limit: "1.5"
+    memory_reservation: "512M"
+    cpu_reservation: "0.5"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+
+governance:
+  enabled: true
+  permission_level: "READ_ONLY"
+  database_limits:
+    max_query_rows: 100000
+    max_query_time: 300
+    max_connections: 100
+
+adapter:
+  type: "SQLAlchemyDomainAdapter"
+  concept_mappings:
+    table: "data_structure"
+    query: "data_retrieval"

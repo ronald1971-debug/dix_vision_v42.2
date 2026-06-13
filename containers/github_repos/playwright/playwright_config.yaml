@@ -1,0 +1,222 @@
+# Playwright External Repository Configuration
+# Configuration for Playwright browser automation integration
+
+repository:
+  name: "playwright"
+  url: "https://github.com/microsoft/playwright.git"
+  version: "1.40.0"
+  description: "Playwright browser automation for desktop AgentOS bridge"
+
+domain:
+  type: "SYSTEM"
+  priority: "CRITICAL"
+  category: "browser_automation"
+
+container:
+  enabled: true
+  image: "dix-playwright:latest"
+  build:
+    dockerfile: "containers/github_repos/playwright/Dockerfile"
+    context: "containers/github_repos/playwright"
+  ports:
+    - "9222:9222"
+  volumes:
+    - "./containers/github_repos/playwright/config:/app/config"
+    - "./containers/github_repos/playwright/data:/app/data"
+    - "./containers/github_repos/playwright/logs:/app/logs"
+    - "./containers/github_repos/playwright/screenshots:/app/screenshots"
+    - "./containers/github_repos/playwright/sessions:/app/sessions"
+  environment:
+    - "PLAYWRIGHT_LOG_LEVEL=INFO"
+    - "PLAYWRIGHT_PERMISSION_LEVEL=READ_ONLY"
+  resources:
+    memory_limit: "2G"
+    cpu_limit: "2.0"
+    memory_reservation: "1G"
+    cpu_reservation: "1.0"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+    command: "python /app/health_check.py"
+
+governance:
+  enabled: true
+  permission_level: "READ_ONLY"
+  safety_checks:
+    enabled: true
+    dangerous_keywords: ["download", "execute_script", "evaluate", "shell"]
+    input_validation: true
+    output_sanitization: true
+    action_restrictions:
+      enabled: true
+      blocked_actions: ["download", "execute_script"]
+      max_concurrent_sessions: 3
+      max_daily_sessions: 10
+    session_limits:
+      enabled: true
+      max_session_duration: 1800
+      max_page_load_time: 30
+  audit_logging:
+    enabled: true
+    log_level: "INFO"
+    retention_days: 90
+  operator_authority:
+    required_for_execution: true
+    approval_timeout: "1h"
+    emergency_override: true
+
+adapter:
+  type: "PlaywrightDomainAdapter"
+  data_format: "JSON"
+  concept_mappings:
+    browser: "cognitive_interface"
+    page: "content_context"
+    element: "interface_component"
+    action: "interaction_operation"
+    screenshot: "visual_capture"
+  transformations:
+    - name: "action_standardization"
+      enabled: true
+    - name: "content_enhancement"
+      enabled: true
+    - name: "screenshot_analysis"
+      enabled: true
+  enhancements:
+    add_metadata: true
+    add_context: true
+    cognitive_enhancement: true
+
+security:
+  credential_management:
+    use_secrets_manager: true
+    credential_file: ".dix_secrets.env"
+    proxy_auth_required: false
+  browser_security:
+    enabled: true
+    domain_whitelist: []
+    domain_blacklist: ["malicious-site.com", "phishing-site.net"]
+    blocked_protocols: ["ftp", "file"]
+    require_https: false
+  input_validation:
+    enabled: true
+    url_validation: true
+    max_url_length: 2048
+  output_sanitization:
+    enabled: true
+    remove_sensitive_data: true
+    sanitize_screenshots: false
+
+performance:
+  cache_enabled: true
+  cache_ttl: 60
+  resource_limits:
+    enabled: true
+    max_memory_per_page: 512
+    max_concurrent_pages: 5
+  timeout:
+    action_timeout: 30000
+    navigation_timeout: 30000
+    page_load_timeout: 30000
+  retry_policy:
+    enabled: true
+    max_retries: 2
+    backoff_factor: 2
+
+monitoring:
+  enabled: true
+  metrics:
+    enabled: true
+    collection_interval: 30
+    metrics_port: 9095
+  logging:
+    enabled: true
+    log_level: "INFO"
+    log_file: "logs/playwright.log"
+  health_checks:
+    enabled: true
+    check_interval: 30
+    browser_health_check: true
+    session_health_check: true
+  alerting:
+    enabled: false
+
+integration:
+  enabled: true
+  startup_order: 50
+  dependencies: []
+  auto_discovery:
+    enabled: true
+  data_flow:
+    - source: "browser_actions"
+      destination: "content_cache"
+      transform: "playwright_adapter"
+
+playwright_configuration:
+  headless: true
+  browser_type: "chromium"
+  viewport_width: 1920
+  viewport_height: 1080
+  slow_mo: 0
+  devtools: false
+  ignore_https_errors: false
+  user_agent: "DIX VISION Browser Agent 42.2"
+  locale: "en-US"
+  timezone_id: "UTC"
+
+browser_launch_options:
+  args:
+    - "--no-sandbox"
+    - "--disable-setuid-sandbox"
+    - "--disable-dev-shm-usage"
+  ignore_default_args: []
+  proxy:
+    enabled: false
+    server: ""
+    username: ""
+    password: ""
+
+automation_settings:
+  wait_for_selector: true
+  wait_timeout: 30000
+  screenshot_on_failure: true
+  trace_on_failure: false
+  video_recording: false
+  network_monitoring: true
+
+content_extraction:
+  enabled: true
+  extract_links: true
+  extract_images: true
+  extract_text: true
+  extract_metadata: true
+  max_content_length: 100000
+
+testing:
+  integration_tests:
+    enabled: true
+    test_directory: "containers/github_repos/playwright/tests"
+    test_timeout: 300
+  unit_tests:
+    enabled: true
+    coverage_threshold: 80
+
+documentation:
+  api_docs:
+    enabled: true
+    generate_on_build: true
+  integration_guide:
+    enabled: true
+    location: "docs/integrations/playwright.md"
+
+deployment:
+  environment: "development"
+  scaling:
+    min_instances: 1
+    max_instances: 3
+    target_cpu_percent: 70
+  rollout_strategy:
+    type: "rolling"
+    max_unavailable: 1
+    max_surge: 1

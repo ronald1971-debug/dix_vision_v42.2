@@ -1,0 +1,51 @@
+repository:
+  name: "jinja2"
+  url: "https://github.com/pallets/jinja.git"
+  version: "3.1.2"
+  description: "Jinja2 templating engine for content generation"
+
+domain:
+  type: "SYSTEM"
+  priority: "HIGH"
+  category: "templating"
+
+container:
+  enabled: true
+  image: "dix-jinja2:latest"
+  build:
+    dockerfile: "containers/github_repos/jinja2/Dockerfile"
+    context: "containers/github_repos/jinja2"
+  ports:
+    - "9105:9105"
+  volumes:
+    - "./containers/github_repos/jinja2/config:/app/config"
+    - "./containers/github_repos/jinja2/data:/app/data"
+    - "./containers/github_repos/jinja2/logs:/app/logs"
+    - "./containers/github_repos/jinja2/templates:/app/templates"
+  environment:
+    - "JINJA2_LOG_LEVEL=INFO"
+    - "JINJA2_PERMISSION_LEVEL=READ_ONLY"
+  resources:
+    memory_limit: "512M"
+    cpu_limit: "1.0"
+    memory_reservation: "256M"
+    cpu_reservation: "0.5"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+
+governance:
+  enabled: true
+  permission_level: "READ_ONLY"
+  template_limits:
+    max_template_size: 1048576
+    max_render_time: 30
+    max_context_size: 10485760
+
+adapter:
+  type: "Jinja2DomainAdapter"
+  concept_mappings:
+    template: "content_blueprint"
+    render: "content_generation"

@@ -1,0 +1,51 @@
+repository:
+  name: "ray"
+  url: "https://github.com/ray-project/ray.git"
+  version: "2.8.0"
+  description: "Ray distributed computing for parallel processing"
+
+domain:
+  type: "SYSTEM"
+  priority: "HIGH"
+  category: "distributed_computing"
+
+container:
+  enabled: true
+  image: "dix-ray:latest"
+  build:
+    dockerfile: "containers/github_repos/ray/Dockerfile"
+    context: "containers/github_repos/ray"
+  ports:
+    - "9108:9108"
+  volumes:
+    - "./containers/github_repos/ray/config:/app/config"
+    - "./containers/github_repos/ray/data:/app/data"
+    - "./containers/github_repos/ray/logs:/app/logs"
+    - "./containers/github_repos/ray/tasks:/app/tasks"
+  environment:
+    - "RAY_LOG_LEVEL=INFO"
+    - "RAY_PERMISSION_LEVEL=READ_ONLY"
+  resources:
+    memory_limit: "2G"
+    cpu_limit: "2.0"
+    memory_reservation: "1G"
+    cpu_reservation: "1.0"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+
+governance:
+  enabled: true
+  permission_level: "READ_ONLY"
+  distributed_limits:
+    max_workers: 100
+    max_task_time: 3600
+    max_parallel_tasks: 1000
+
+adapter:
+  type: "RayDomainAdapter"
+  concept_mappings:
+    worker: "compute_unit"
+    task: "distributed_job"

@@ -1,0 +1,50 @@
+repository:
+  name: "clickhouse"
+  url: "https://github.com/ClickHouse/ClickHouse.git"
+  version: "23.8"
+  description: "ClickHouse analytics for high-performance OLAP"
+
+domain:
+  type: "SYSTEM"
+  priority: "HIGH"
+  category: "analytics"
+
+container:
+  enabled: true
+  image: "dix-clickhouse:latest"
+  build:
+    dockerfile: "containers/github_repos/clickhouse/Dockerfile"
+    context: "containers/github_repos/clickhouse"
+  ports:
+    - "9111:9111"
+  volumes:
+    - "./containers/github_repos/clickhouse/config:/app/config"
+    - "./containers/github_repos/clickhouse/data:/app/data"
+    - "./containers/github_repos/clickhouse/logs:/app/logs"
+    - "./containers/github_repos/clickhouse/queries:/app/queries"
+  environment:
+    - "CLICKHOUSE_LOG_LEVEL=INFO"
+    - "CLICKHOUSE_PERMISSION_LEVEL=READ_ONLY"
+  resources:
+    memory_limit: "1G"
+    cpu_limit: "1.5"
+    memory_reservation: "512M"
+    cpu_reservation: "0.5"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+
+governance:
+  enabled: true
+  permission_level: "READ_ONLY"
+  analytics_limits:
+    max_query_time: 300
+    max_result_size: 104857600
+
+adapter:
+  type: "ClickHouseDomainAdapter"
+  concept_mappings:
+    table: "analytical_dataset"
+    query: "analysis_request"

@@ -1,0 +1,51 @@
+repository:
+  name: "darts"
+  url: "https://github.com/unit8co/darts.git"
+  version: "0.26.0"
+  description: "Darts forecasting for time series prediction"
+
+domain:
+  type: "SYSTEM"
+  priority: "HIGH"
+  category: "forecasting"
+
+container:
+  enabled: true
+  image: "dix-darts:latest"
+  build:
+    dockerfile: "containers/github_repos/darts/Dockerfile"
+    context: "containers/github_repos/darts"
+  ports:
+    - "9112:9112"
+  volumes:
+    - "./containers/github_repos/darts/config:/app/config"
+    - "./containers/github_repos/darts/data:/app/data"
+    - "./containers/github_repos/darts/logs:/app/logs"
+    - "./containers/github_repos/darts/forecasts:/app/forecasts"
+  environment:
+    - "DARTS_LOG_LEVEL=INFO"
+    - "DARTS_PERMISSION_LEVEL=READ_ONLY"
+  resources:
+    memory_limit: "1G"
+    cpu_limit: "1.5"
+    memory_reservation: "512M"
+    cpu_reservation: "0.5"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+
+governance:
+  enabled: true
+  permission_level: "READ_ONLY"
+  forecasting_limits:
+    max_forecast_horizon: 1000
+    max_data_points: 100000
+    max_model_complexity: 100
+
+adapter:
+  type: "DartsDomainAdapter"
+  concept_mappings:
+    forecast: "time_series_prediction"
+    model: "prediction_algorithm"

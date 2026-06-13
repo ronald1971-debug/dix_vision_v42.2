@@ -1,0 +1,51 @@
+repository:
+  name: "graphql"
+  url: "https://github.com/graphql-python/graphql-core.git"
+  version: "3.3"
+  description: "GraphQL API queries for efficient data retrieval"
+
+domain:
+  type: "SYSTEM"
+  priority: "HIGH"
+  category: "api_queries"
+
+container:
+  enabled: true
+  image: "dix-graphql:latest"
+  build:
+    dockerfile: "containers/github_repos/graphql/Dockerfile"
+    context: "containers/github_repos/graphql"
+  ports:
+    - "9110:9110"
+  volumes:
+    - "./containers/github_repos/graphql/config:/app/config"
+    - "./containers/github_repos/graphql/data:/app/data"
+    - "./containers/github_repos/graphql/logs:/app/logs"
+    - "./containers/github_repos/graphql/schemas:/app/schemas"
+  environment:
+    - "GRAPHQL_LOG_LEVEL=INFO"
+    - "GRAPHQL_PERMISSION_LEVEL=READ_ONLY"
+  resources:
+    memory_limit: "512M"
+    cpu_limit: "1.0"
+    memory_reservation: "256M"
+    cpu_reservation: "0.5"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+
+governance:
+  enabled: true
+  permission_level: "READ_ONLY"
+  query_limits:
+    max_query_depth: 10
+    max_query_complexity: 1000
+    max_execution_time: 30
+
+adapter:
+  type: "GraphQLDomainAdapter"
+  concept_mappings:
+    query: "data_request"
+    schema: "data_structure"

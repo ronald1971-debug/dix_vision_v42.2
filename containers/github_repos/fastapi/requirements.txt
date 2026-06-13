@@ -1,0 +1,63 @@
+# FastAPI Container Requirements
+# Core dependencies for web framework and API capabilities
+
+# FastAPI core
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+pydantic==2.5.2
+pydantic-settings==2.1.0
+
+# Core dependencies
+requests==2.31.0
+urllib3==2.0.7
+certifi==2023.11.17
+
+# Data processing
+pandas==2.1.3
+numpy==1.26.2
+
+# Web framework
+httpx==0.25.2
+aiohttp==3.9.1
+
+# Async support
+asyncio==3.4.3
+async-timeout==4.0.3
+
+# API utilities
+python-multipart==0.0.6
+python-json-logger==2.0.7
+
+# Security
+cryptography==41.0.7
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-dotenv==1.0.0
+
+# Configuration
+pyyaml==6.0.1
+python-dotenv==1.0.0
+
+# Logging and monitoring
+structlog==23.2.0
+
+# Type checking
+typing-extensions==4.9.0
+
+# CORS support
+python-multipart==0.0.6
+
+# Rate limiting
+slowapi==0.1.9
+
+# Validation
+email-validator==2.1.0
+
+# Database integration (if needed)
+sqlalchemy==2.0.23
+alembic==1.13.0
+
+# Testing (optional)
+pytest==7.4.3
+pytest-asyncio==0.21.1
+httpx==0.25.2

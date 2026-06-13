@@ -1,0 +1,51 @@
+repository:
+  name: "scikit-learn"
+  url: "https://github.com/scikit-learn/scikit-learn.git"
+  version: "1.3.2"
+  description: "Scikit-Learn machine learning for predictive analytics"
+
+domain:
+  type: "SYSTEM"
+  priority: "HIGH"
+  category: "machine_learning"
+
+container:
+  enabled: true
+  image: "dix-scikit-learn:latest"
+  build:
+    dockerfile: "containers/github_repos/scikit-learn/Dockerfile"
+    context: "containers/github_repos/scikit-learn"
+  ports:
+    - "9099:9099"
+  volumes:
+    - "./containers/github_repos/scikit-learn/config:/app/config"
+    - "./containers/github_repos/scikit-learn/data:/app/data"
+    - "./containers/github_repos/scikit-learn/logs:/app/logs"
+    - "./containers/github_repos/scikit-learn/models:/app/models"
+  environment:
+    - "SKLEARN_LOG_LEVEL=INFO"
+    - "SKLEARN_PERMISSION_LEVEL=READ_ONLY"
+  resources:
+    memory_limit: "2G"
+    cpu_limit: "2.0"
+    memory_reservation: "1G"
+    cpu_reservation: "1.0"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+
+governance:
+  enabled: true
+  permission_level: "READ_ONLY"
+  ml_limits:
+    max_training_samples: 1000000
+    max_features: 10000
+    max_memory_usage: 2147483648
+
+adapter:
+  type: "ScikitLearnDomainAdapter"
+  concept_mappings:
+    model: "cognitive_algorithm"
+    features: "input_characteristics"

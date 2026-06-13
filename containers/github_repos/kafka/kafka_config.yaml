@@ -1,0 +1,51 @@
+repository:
+  name: "kafka"
+  url: "https://github.com/apache/kafka.git"
+  version: "3.6.0"
+  description: "Apache Kafka event streaming for real-time data pipelines"
+
+domain:
+  type: "SYSTEM"
+  priority: "HIGH"
+  category: "event_streaming"
+
+container:
+  enabled: true
+  image: "dix-kafka:latest"
+  build:
+    dockerfile: "containers/github_repos/kafka/Dockerfile"
+    context: "containers/github_repos/kafka"
+  ports:
+    - "9106:9106"
+  volumes:
+    - "./containers/github_repos/kafka/config:/app/config"
+    - "./containers/github_repos/kafka/data:/app/data"
+    - "./containers/github_repos/kafka/logs:/app/logs"
+    - "./containers/github_repos/kafka/topics:/app/topics"
+  environment:
+    - "KAFKA_LOG_LEVEL=INFO"
+    - "KAFKA_PERMISSION_LEVEL=READ_ONLY"
+  resources:
+    memory_limit: "1G"
+    cpu_limit: "1.5"
+    memory_reservation: "512M"
+    cpu_reservation: "0.5"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+
+governance:
+  enabled: true
+  permission_level: "READ_ONLY"
+  event_limits:
+    max_message_size: 10485760
+    max_batch_size: 1000
+    max_produce_rate: 10000
+
+adapter:
+  type: "KafkaDomainAdapter"
+  concept_mappings:
+    topic: "event_channel"
+    message: "event_data"

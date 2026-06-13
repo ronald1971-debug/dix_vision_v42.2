@@ -1,0 +1,208 @@
+# Requests External Repository Configuration
+# Configuration for HTTP client integration
+
+repository:
+  name: "requests"
+  url: "https://github.com/psf/requests.git"
+  version: "2.31.0"
+  description: "HTTP client library for network operations"
+
+domain:
+  type: "SYSTEM"
+  priority: "CRITICAL"
+  category: "http_client"
+
+container:
+  enabled: true
+  image: "dix-requests:latest"
+  build:
+    dockerfile: "containers/github_repos/requests/Dockerfile"
+    context: "containers/github_repos/requests"
+  ports:
+    - "8888:8888"
+  volumes:
+    - "./containers/github_repos/requests/config:/app/config"
+    - "./containers/github_repos/requests/data:/app/data"
+    - "./containers/github_repos/requests/logs:/app/logs"
+    - "./containers/github_repos/requests/sessions:/app/sessions"
+  environment:
+    - "REQUESTS_LOG_LEVEL=INFO"
+    - "REQUESTS_PERMISSION_LEVEL=READ_ONLY"
+  resources:
+    memory_limit: "512M"
+    cpu_limit: "1.0"
+    memory_reservation: "256M"
+    cpu_reservation: "0.5"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+    command: "python /app/health_check.py"
+
+governance:
+  enabled: true
+  permission_level: "READ_ONLY"
+  safety_checks:
+    enabled: true
+    dangerous_keywords: ["malicious", "phishing", "suspicious"]
+    input_validation: true
+    output_sanitization: true
+    rate_limiting:
+      enabled: true
+      requests_per_minute: 1000
+      requests_per_hour: 10000
+      max_concurrent_requests: 10
+    max_request_size: 104857600
+  audit_logging:
+    enabled: true
+    log_level: "INFO"
+    retention_days: 90
+  operator_authority:
+    required_for_execution: true
+    approval_timeout: "1h"
+    emergency_override: true
+
+adapter:
+  type: "RequestsDomainAdapter"
+  data_format: "JSON"
+  concept_mappings:
+    request: "network_operation"
+    response: "network_outcome"
+    session: "connection_context"
+    header: "metadata_transmission"
+    url: "resource_identifier"
+  transformations:
+    - name: "request_standardization"
+      enabled: true
+    - name: "response_enhancement"
+      enabled: true
+    - name: "url_validation"
+      enabled: true
+  enhancements:
+    add_metadata: true
+    add_context: true
+    cognitive_enhancement: true
+
+security:
+  credential_management:
+    use_secrets_manager: true
+    credential_file: ".dix_secrets.env"
+    api_keys_required: false
+  network_security:
+    enabled: true
+    blocked_domains: ["malicious-site.com", "phishing-site.net"]
+    blocked_ip_ranges: ["10.0.0.0/8", "192.168.0.0/16"]
+    allowed_protocols: ["http", "https"]
+    blocked_content_types: ["application/octet-stream"]
+    max_response_size: 104857600
+    require_https: false
+  input_validation:
+    enabled: true
+    max_size_mb: 100
+    url_validation: true
+  output_sanitization:
+    enabled: true
+    remove_sensitive_data: true
+
+performance:
+  cache_enabled: true
+  cache_ttl: 60
+  connection_pool:
+    enabled: true
+    max_connections: 10
+    min_connections: 2
+  timeout:
+    connection: 30
+    read: 60
+    max_redirects: 5
+  retry_policy:
+    enabled: true
+    max_retries: 3
+    backoff_factor: 2
+
+monitoring:
+  enabled: true
+  metrics:
+    enabled: true
+    collection_interval: 30
+    metrics_port: 9094
+  logging:
+    enabled: true
+    log_level: "INFO"
+    log_file: "logs/requests.log"
+  health_checks:
+    enabled: true
+    check_interval: 30
+    network_health_check: true
+  alerting:
+    enabled: false
+
+integration:
+  enabled: true
+  startup_order: 20
+  dependencies:
+    - "redis"
+  auto_discovery:
+    enabled: true
+  data_flow:
+    - source: "http_requests"
+      destination: "response_cache"
+      transform: "requests_adapter"
+
+http_configuration:
+  default_timeout: 30
+  max_redirects: 5
+  connection_pool_size: 10
+  default_headers:
+    User-Agent: "DIX VISION HTTP Client 42.2"
+    Accept: "application/json"
+    DIX-Governance: "enabled"
+  ssl_verify: true
+  proxy:
+    enabled: false
+    http_proxy: ""
+    https_proxy: ""
+    no_proxy: ""
+
+rate_limiting:
+  enabled: true
+  requests_per_minute: 1000
+  requests_per_hour: 10000
+  max_concurrent_requests: 10
+  burst_size: 20
+
+session_management:
+  enabled: true
+  default_session_timeout: 3600
+  cookie_persistence: true
+  connection_persistence: true
+  max_sessions: 10
+
+testing:
+  integration_tests:
+    enabled: true
+    test_directory: "containers/github_repos/requests/tests"
+    test_timeout: 300
+  unit_tests:
+    enabled: true
+    coverage_threshold: 80
+
+documentation:
+  api_docs:
+    enabled: true
+    generate_on_build: true
+  integration_guide:
+    enabled: true
+    location: "docs/integrations/requests.md"
+
+deployment:
+  environment: "development"
+  scaling:
+    min_instances: 1
+    max_instances: 3
+    target_cpu_percent: 70
+  rollout_strategy:
+    type: "rolling"
+    max_unavailable: 1
+    max_surge: 1

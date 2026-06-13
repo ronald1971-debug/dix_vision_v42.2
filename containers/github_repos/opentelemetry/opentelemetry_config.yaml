@@ -1,0 +1,51 @@
+repository:
+  name: "opentelemetry"
+  url: "https://github.com/open-telemetry/opentelemetry-python.git"
+  version: "1.21.0"
+  description: "OpenTelemetry distributed tracing for observability"
+
+domain:
+  type: "SYSTEM"
+  priority: "HIGH"
+  category: "distributed_tracing"
+
+container:
+  enabled: true
+  image: "dix-opentelemetry:latest"
+  build:
+    dockerfile: "containers/github_repos/opentelemetry/Dockerfile"
+    context: "containers/github_repos/opentelemetry"
+  ports:
+    - "9109:9109"
+  volumes:
+    - "./containers/github_repos/opentelemetry/config:/app/config"
+    - "./containers/github_repos/opentelemetry/data:/app/data"
+    - "./containers/github_repos/opentelemetry/logs:/app/logs"
+    - "./containers/github_repos/opentelemetry/traces:/app/traces"
+  environment:
+    - "OPENTELEMETRY_LOG_LEVEL=INFO"
+    - "OPENTELEMETRY_PERMISSION_LEVEL=READ_ONLY"
+  resources:
+    memory_limit: "512M"
+    cpu_limit: "1.0"
+    memory_reservation: "256M"
+    cpu_reservation: "0.5"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+
+governance:
+  enabled: true
+  permission_level: "READ_ONLY"
+  tracing_limits:
+    max_spans_per_trace: 1000
+    max_trace_size: 10485760
+    max_export_rate: 10000
+
+adapter:
+  type: "OpenTelemetryDomainAdapter"
+  concept_mappings:
+    span: "operation_segment"
+    trace: "execution_chain"

@@ -1,0 +1,51 @@
+repository:
+  name: "pulp"
+  url: "https://github.com/coin-or/pulp.git"
+  version: "2.7.0"
+  description: "PuLP optimization for mathematical programming"
+
+domain:
+  type: "SYSTEM"
+  priority: "HIGH"
+  category: "optimization"
+
+container:
+  enabled: true
+  image: "dix-pulp:latest"
+  build:
+    dockerfile: "containers/github_repos/pulp/Dockerfile"
+    context: "containers/github_repos/pulp"
+  ports:
+    - "9113:9113"
+  volumes:
+    - "./containers/github_repos/pulp/config:/app/config"
+    - "./containers/github_repos/pulp/data:/app/data"
+    - "./containers/github_repos/pulp/logs:/app/logs"
+    - "./containers/github_repos/pulp/problems:/app/problems"
+  environment:
+    - "PULP_LOG_LEVEL=INFO"
+    - "PULP_PERMISSION_LEVEL=READ_ONLY"
+  resources:
+    memory_limit: "512M"
+    cpu_limit: "1.0"
+    memory_reservation: "256M"
+    cpu_reservation: "0.5"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+
+governance:
+  enabled: true
+  permission_level: "READ_ONLY"
+  optimization_limits:
+    max_variables: 1000
+    max_constraints: 1000
+    max_solving_time: 300
+
+adapter:
+  type: "PuLPDomainAdapter"
+  concept_mappings:
+    variable: "optimization_parameter"
+    constraint: "optimization_rule"
