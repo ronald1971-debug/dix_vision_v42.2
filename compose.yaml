@@ -1297,6 +1297,105 @@ services:
           cpus: '0.5'
           memory: 256M
 
+  redis-cluster-service:
+    build:
+      context: ./containers/github_repos/redis-cluster
+      dockerfile: Dockerfile
+    image: "dix-redis-cluster:latest"
+    container_name: dix-redis-cluster-service
+    ports:
+      - "9125:9125"
+    volumes:
+      - ./containers/github_repos/redis-cluster/config:/app/config
+      - ./containers/github_repos/redis-cluster/data:/app/data
+      - ./containers/github_repos/redis-cluster/logs:/app/logs
+      - ./containers/github_repos/redis-cluster/cluster:/app/cluster
+    environment:
+      - "REDIS_CLUSTER_LOG_LEVEL=INFO"
+      - "REDIS_CLUSTER_PERMISSION_LEVEL=READ_ONLY"
+    restart: unless-stopped
+    networks:
+      - dixvision-network
+    healthcheck:
+      test: ["CMD", "python", "/app/health_check.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  minio-service:
+    build:
+      context: ./containers/github_repos/minio
+      dockerfile: Dockerfile
+    image: "dix-minio:latest"
+    container_name: dix-minio-service
+    ports:
+      - "9126:9126"
+    volumes:
+      - ./containers/github_repos/minio/config:/app/config
+      - ./containers/github_repos/minio/data:/app/data
+      - ./containers/github_repos/minio/logs:/app/logs
+      - ./containers/github_repos/minio/buckets:/app/buckets
+    environment:
+      - "MINIO_LOG_LEVEL=INFO"
+      - "MINIO_PERMISSION_LEVEL=READ_ONLY"
+    restart: unless-stopped
+    networks:
+      - dixvision-network
+    healthcheck:
+      test: ["CMD", "python", "/app/health_check.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  kong-service:
+    build:
+      context: ./containers/github_repos/kong
+      dockerfile: Dockerfile
+    image: "dix-kong:latest"
+    container_name: dix-kong-service
+    ports:
+      - "9127:9127"
+    volumes:
+      - ./containers/github_repos/kong/config:/app/config
+      - ./containers/github_repos/kong/data:/app/data
+      - ./containers/github_repos/kong/logs:/app/logs
+      - ./containers/github_repos/kong/routes:/app/routes
+    environment:
+      - "KONG_LOG_LEVEL=INFO"
+      - "KONG_PERMISSION_LEVEL=READ_ONLY"
+    restart: unless-stopped
+    networks:
+      - dixvision-network
+    healthcheck:
+      test: ["CMD", "python", "/app/health_check.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
 volumes:
   redis-data:
   postgres-data:

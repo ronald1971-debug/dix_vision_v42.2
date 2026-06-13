@@ -1,0 +1,51 @@
+repository:
+  name: "minio"
+  url: "https://github.com/minio/minio.git"
+  version: "7.1.7"
+  description: "MinIO object storage for distributed storage"
+
+domain:
+  type: "SYSTEM"
+  priority: "HIGH"
+  category: "object_storage"
+
+container:
+  enabled: true
+  image: "dix-minio:latest"
+  build:
+    dockerfile: "containers/github_repos/minio/Dockerfile"
+    context: "containers/github_repos/minio"
+  ports:
+    - "9126:9126"
+  volumes:
+    - "./containers/github_repos/minio/config:/app/config"
+    - "./containers/github_repos/minio/data:/app/data"
+    - "./containers/github_repos/minio/logs:/app/logs"
+    - "./containers/github_repos/minio/buckets:/app/buckets"
+  environment:
+    - "MINIO_LOG_LEVEL=INFO"
+    - "MINIO_PERMISSION_LEVEL=READ_ONLY"
+  resources:
+    memory_limit: "1G"
+    cpu_limit: "1.5"
+    memory_reservation: "512M"
+    cpu_reservation: "0.5"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+
+governance:
+  enabled: true
+  permission_level: "READ_ONLY"
+  storage_limits:
+    max_object_size: 53687091200
+    max_bucket_count: 100
+    max_total_storage: 1099511627776
+
+adapter:
+  type: "MinIODomainAdapter"
+  concept_mappings:
+    bucket: "object_repository"
+    object: "data_item"

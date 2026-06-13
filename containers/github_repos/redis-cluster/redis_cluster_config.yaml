@@ -1,0 +1,51 @@
+repository:
+  name: "redis-cluster"
+  url: "https://github.com/redis-py-cluster/redis-py-cluster.git"
+  version: "2.1.0"
+  description: "Redis cluster for distributed caching"
+
+domain:
+  type: "SYSTEM"
+  priority: "HIGH"
+  category: "advanced_caching"
+
+container:
+  enabled: true
+  image: "dix-redis-cluster:latest"
+  build:
+    dockerfile: "containers/github_repos/redis-cluster/Dockerfile"
+    context: "containers/github_repos/redis-cluster"
+  ports:
+    - "9125:9125"
+  volumes:
+    - "./containers/github_repos/redis-cluster/config:/app/config"
+    - "./containers/github_repos/redis-cluster/data:/app/data"
+    - "./containers/github_repos/redis-cluster/logs:/app/logs"
+    - "./containers/github_repos/redis-cluster/cluster:/app/cluster"
+  environment:
+    - "REDIS_CLUSTER_LOG_LEVEL=INFO"
+    - "REDIS_CLUSTER_PERMISSION_LEVEL=READ_ONLY"
+  resources:
+    memory_limit: "1G"
+    cpu_limit: "1.5"
+    memory_reservation: "512M"
+    cpu_reservation: "0.5"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+
+governance:
+  enabled: true
+  permission_level: "READ_ONLY"
+  cluster_limits:
+    max_memory_per_node: 4294967296
+    max_cluster_size: 100
+    max_keys_per_node: 1000000
+
+adapter:
+  type: "RedisClusterDomainAdapter"
+  concept_mappings:
+    node: "cache_partition"
+    slot: "data_shard"

@@ -1,0 +1,51 @@
+repository:
+  name: "kong"
+  url: "https://github.com/Kong/kong.git"
+  version: "3.3.0"
+  description: "Kong API Gateway for API management"
+
+domain:
+  type: "SYSTEM"
+  priority: "HIGH"
+  category: "api_gateway"
+
+container:
+  enabled: true
+  image: "dix-kong:latest"
+  build:
+    dockerfile: "containers/github_repos/kong/Dockerfile"
+    context: "containers/github_repos/kong"
+  ports:
+    - "9127:9127"
+  volumes:
+    - "./containers/github_repos/kong/config:/app/config"
+    - "./containers/github_repos/kong/data:/app/data"
+    - "./containers/github_repos/kong/logs:/app/logs"
+    - "./containers/github_repos/kong/routes:/app/routes"
+  environment:
+    - "KONG_LOG_LEVEL=INFO"
+    - "KONG_PERMISSION_LEVEL=READ_ONLY"
+  resources:
+    memory_limit: "512M"
+    cpu_limit: "1.0"
+    memory_reservation: "256M"
+    cpu_reservation: "0.5"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+
+governance:
+  enabled: true
+  permission_level: "READ_ONLY"
+  gateway_limits:
+    max_routes: 1000
+    max_services: 500
+    max_plugins_per_route: 20
+
+adapter:
+  type: "KongDomainAdapter"
+  concept_mappings:
+    route: "api_endpoint"
+    service: "backend_target"
