@@ -506,6 +506,22 @@ class CognitiveEconomyManager(CognitiveEconomyManagerInterface):
                 }
             }
         }
+    
+    def get_economy_state(self) -> Dict[str, Any]:
+        """Get current economy state for health monitoring."""
+        try:
+            return {
+                "healthy": True,
+                "total_budgets": len(self._budgets),
+                "total_decisions": len(self._allocation_decisions),
+                "budgets_active": any(b.budget_utilization > 0.0 for b in self._budgets.values()),
+                "allocation_system_active": len(self._allocation_decisions) > 0
+            }
+        except Exception as e:
+            return {
+                "healthy": False,
+                "error": str(e)
+            }
 
 
 __all__ = [

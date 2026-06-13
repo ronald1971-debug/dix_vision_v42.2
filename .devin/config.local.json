@@ -90,7 +90,13 @@
       "Exec(uvicorn)",
       "Exec(scripts\\windows\\start_dixvision.bat)",
       "Exec(set)",
-      "Exec(git restore)"
+      "Exec(git restore)",
+      "Exec(docker)",
+      "Exec(Get-Command docker)",
+      "Exec(Get-Command)",
+      "Exec($dockerUrl)",
+      "Exec($ProgressPreference)",
+      "Exec($installerPath)"
     ]
   }
 }

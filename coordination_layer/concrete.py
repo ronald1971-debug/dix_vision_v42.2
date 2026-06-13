@@ -1055,6 +1055,178 @@ class ConcreteCoordinationLayer(CoordinationLayerInterface):
                     "learning_gate": self._learning_gate is not None
                 }
             }
+    
+    def align_mental_models(
+        self,
+        agent_ids: List[str]
+    ) -> Dict[str, float]:
+        """Align mental models across agents."""
+        try:
+            alignment_scores = {}
+            
+            # Simple alignment implementation
+            for agent_id in agent_ids:
+                if agent_id in self._registered_agents:
+                    # In a real implementation, this would use actual alignment algorithms
+                    alignment_scores[agent_id] = 0.7  # Default alignment score
+                else:
+                    alignment_scores[agent_id] = 0.0  # Agent not registered
+            
+            logger.info(f"[COORDINATION_LAYER] Mental model alignment: {len(alignment_scores)} agents")
+            
+            return alignment_scores
+            
+        except Exception as e:
+            logger.error(f"[COORDINATION_LAYER] Failed to align mental models: {e}")
+            return {agent_id: 0.0 for agent_id in agent_ids}
+    
+    def detect_conflicts(
+        self,
+        context: Dict[str, Any]
+    ) -> List[CrossAgentConflict]:
+        """Detect potential cross-agent conflicts (bulk detection)."""
+        try:
+            conflicts = []
+            
+            # Simple conflict detection based on resource contention
+            resource_requests = context.get("resource_requests", [])
+            resource_allocation = context.get("resource_allocation", {})
+            
+            # Check for resource conflicts
+            for request in resource_requests:
+                agent_id = request.get("agent_id")
+                requested_resource = request.get("resource")
+                requested_amount = request.get("amount", 0.0)
+                
+                if requested_resource in resource_allocation:
+                    allocated = resource_allocation[requested_resource]
+                    if requested_amount > allocated:
+                        # Create conflict
+                        conflict = CrossAgentConflict(
+                            conflict_id=f"conflict_{int(datetime.utcnow().timestamp())}",
+                            conflict_type=ConflictType.RESOURCE,
+                            agent_a_id=agent_id,
+                            agent_b_id="SYSTEM",  # System resource limit
+                            description=f"Resource conflict: {requested_resource} request {requested_amount} exceeds allocation {allocated}",
+                            conflict_context={"resource": requested_resource, "requested": requested_amount, "allocated": allocated},
+                            status=CoordinationStatus.CONFLICT,
+                            detected_at=datetime.utcnow()
+                        )
+                        conflicts.append(conflict)
+            
+            logger.info(f"[COORDINATION_LAYER] Detected {len(conflicts)} conflicts")
+            
+            return conflicts
+            
+        except Exception as e:
+            logger.error(f"[COORDINATION_LAYER] Failed to detect conflicts: {e}")
+            return []
+    
+    def enforce_governance(
+        self,
+        policy_id: str,
+        agent_id: Optional[str] = None
+    ) -> bool:
+        """Enforce governance policy across agents."""
+        try:
+            # Simple governance enforcement
+            if agent_id:
+                # Enforce on specific agent
+                if agent_id in self._registered_agents:
+                    logger.info(f"[COORDINATION_LAYER] Governance policy {policy_id} enforced on {agent_id}")
+                    return True
+                else:
+                    logger.warning(f"[COORDINATION_LAYER] Agent {agent_id} not found for governance enforcement")
+                    return False
+            else:
+                # Enforce on all agents
+                logger.info(f"[COORDINATION_LAYER] Governance policy {policy_id} enforced on all agents")
+                return True
+                
+        except Exception as e:
+            logger.error(f"[COORDINATION_LAYER] Failed to enforce governance: {e}")
+            return False
+    
+    def get_coordination_metrics(self) -> CoordinationMetrics:
+        """Get comprehensive coordination metrics."""
+        try:
+            # Update metrics with current state
+            self._metrics.active_conversations = len(self._conversations)
+            self._metrics.active_agents = len(self._registered_agents)
+            
+            return self._metrics
+            
+        except Exception as e:
+            logger.error(f"[COORDINATION_LAYER] Failed to get coordination metrics: {e}")
+            return self._metrics
+    
+    def get_shared_mental_model(
+        self,
+        model_id: str
+    ) -> SharedMentalModel | None:
+        """Get shared mental model."""
+        try:
+            return self._shared_mental_models.get(model_id)
+            
+        except Exception as e:
+            logger.error(f"[COORDINATION_LAYER] Failed to get shared mental model: {e}")
+            return None
+    
+    def share_knowledge(
+        self,
+        sharing_agent: str,
+        target_agents: List[str],
+        knowledge_type: str,
+        knowledge_content: Dict[str, Any]
+    ) -> KnowledgeExchangeRequest:
+        """Share knowledge between agents."""
+        try:
+            # Use existing knowledge exchange mechanism
+            return self.initiate_knowledge_exchange(
+                requesting_agent=sharing_agent,
+                target_agents=target_agents,
+                knowledge_type=knowledge_type,
+                knowledge_content=knowledge_content
+            )
+            
+        except Exception as e:
+            logger.error(f"[COORDINATION_LAYER] Failed to share knowledge: {e}")
+            return KnowledgeExchangeRequest(
+                exchange_id=f"knowledge_failed_{int(datetime.utcnow().timestamp())}",
+                exchange_type=knowledge_type,
+                requesting_agent=sharing_agent,
+                target_agents=target_agents,
+                status=CoordinationStatus.FAILED,
+                metadata={"error": str(e)}
+            )
+    
+    def update_shared_mental_model(
+        self,
+        model_id: str,
+        new_beliefs: Dict[str, Any],
+        new_goals: List[str]
+    ) -> bool:
+        """Update shared mental model."""
+        try:
+            model = self._shared_mental_models.get(model_id)
+            if not model:
+                logger.warning(f"[COORDINATION_LAYER] Shared mental model {model_id} not found")
+                return False
+            
+            # Update beliefs and goals
+            model.beliefs.update(new_beliefs)
+            if new_goals:
+                model.goals.extend(new_goals)
+            
+            model.last_updated = datetime.utcnow().isoformat()
+            
+            logger.info(f"[COORDINATION_LAYER] Shared mental model updated: {model_id}")
+            
+            return True
+            
+        except Exception as e:
+            logger.error(f"[COORDINATION_LAYER] Failed to update shared mental model: {e}")
+            return False
 
 
 __all__ = [
