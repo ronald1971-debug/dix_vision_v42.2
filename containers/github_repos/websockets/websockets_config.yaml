@@ -1,0 +1,51 @@
+repository:
+  name: "websockets"
+  url: "https://github.com/python-websockets/websockets.git"
+  version: "12.0"
+  description: "WebSocket implementation for real-time communication"
+
+domain:
+  type: "SYSTEM"
+  priority: "HIGH"
+  category: "real_time_communication"
+
+container:
+  enabled: true
+  image: "dix-websockets:latest"
+  build:
+    dockerfile: "containers/github_repos/websockets/Dockerfile"
+    context: "containers/github_repos/websockets"
+  ports:
+    - "9146:9146"
+  volumes:
+    - "./containers/github_repos/websockets/config:/app/config"
+    - "./containers/github_repos/websockets/data:/app/data"
+    - "./containers/github_repos/websockets/logs:/app/logs"
+    - "./containers/github_repos/websockets/connections:/app/connections"
+  environment:
+    - "WEBSOCKETS_LOG_LEVEL=INFO"
+    - "WEBSOCKETS_PERMISSION_LEVEL=READ_ONLY"
+  resources:
+    memory_limit: "512M"
+    cpu_limit: "1.0"
+    memory_reservation: "256M"
+    cpu_reservation: "0.5"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+
+governance:
+  enabled: true
+  permission_level: "READ_ONLY"
+  communication_limits:
+    max_connections: 1000
+    max_message_size: 1048576
+    max_connection_duration: 3600
+
+adapter:
+  type: "WebSocketsDomainAdapter"
+  concept_mappings:
+    connection: "real_time_channel"
+    message: "stream_data"

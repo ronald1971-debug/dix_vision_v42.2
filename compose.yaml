@@ -1990,6 +1990,39 @@ services:
           cpus: '0.5'
           memory: 256M
 
+  websockets-service:
+    build:
+      context: ./containers/github_repos/websockets
+      dockerfile: Dockerfile
+    image: "dix-websockets:latest"
+    container_name: dix-websockets-service
+    ports:
+      - "9146:9146"
+    volumes:
+      - ./containers/github_repos/websockets/config:/app/config
+      - ./containers/github_repos/websockets/data:/app/data
+      - ./containers/github_repos/websockets/logs:/app/logs
+      - ./containers/github_repos/websockets/connections:/app/connections
+    environment:
+      - "WEBSOCKETS_LOG_LEVEL=INFO"
+      - "WEBSOCKETS_PERMISSION_LEVEL=READ_ONLY"
+    restart: unless-stopped
+    networks:
+      - dixvision-network
+    healthcheck:
+      test: ["CMD", "python", "/app/health_check.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
 volumes:
   redis-data:
   postgres-data:
