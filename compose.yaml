@@ -1957,6 +1957,39 @@ services:
           cpus: '0.5'
           memory: 256M
 
+  grpc-service:
+    build:
+      context: ./containers/github_repos/grpc
+      dockerfile: Dockerfile
+    image: "dix-grpc:latest"
+    container_name: dix-grpc-service
+    ports:
+      - "9145:9145"
+    volumes:
+      - ./containers/github_repos/grpc/config:/app/config
+      - ./containers/github_repos/grpc/data:/app/data
+      - ./containers/github_repos/grpc/logs:/app/logs
+      - ./containers/github_repos/grpc/services:/app/services
+    environment:
+      - "GRPC_LOG_LEVEL=INFO"
+      - "GRPC_PERMISSION_LEVEL=READ_ONLY"
+    restart: unless-stopped
+    networks:
+      - dixvision-network
+    healthcheck:
+      test: ["CMD", "python", "/app/health_check.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
 volumes:
   redis-data:
   postgres-data:

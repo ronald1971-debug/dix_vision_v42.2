@@ -1,0 +1,51 @@
+repository:
+  name: "grpc"
+  url: "https://github.com/grpc/grpc.git"
+  version: "1.60.0"
+  description: "gRPC high-performance RPC framework"
+
+domain:
+  type: "SYSTEM"
+  priority: "HIGH"
+  category: "communication"
+
+container:
+  enabled: true
+  image: "dix-grpc:latest"
+  build:
+    dockerfile: "containers/github_repos/grpc/Dockerfile"
+    context: "containers/github_repos/grpc"
+  ports:
+    - "9145:9145"
+  volumes:
+    - "./containers/github_repos/grpc/config:/app/config"
+    - "./containers/github_repos/grpc/data:/app/data"
+    - "./containers/github_repos/grpc/logs:/app/logs"
+    - "./containers/github_repos/grpc/services:/app/services"
+  environment:
+    - "GRPC_LOG_LEVEL=INFO"
+    - "GRPC_PERMISSION_LEVEL=READ_ONLY"
+  resources:
+    memory_limit: "512M"
+    cpu_limit: "1.0"
+    memory_reservation: "256M"
+    cpu_reservation: "0.5"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+
+governance:
+  enabled: true
+  permission_level: "READ_ONLY"
+  communication_limits:
+    max_concurrent_streams: 1000
+    max_message_size: 10485760
+    max_stream_duration: 3600
+
+adapter:
+  type: "GrpcDomainAdapter"
+  concept_mappings:
+    service: "high_performance_communication"
+    method: "rpc_operation"
