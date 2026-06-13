@@ -1,0 +1,16 @@
+[
+  {
+    "container": "kong-service",
+    "build_status": "failed",
+    "errors": [
+      "ion denied)\n------\nDockerfile:10\n--------------------\n   9 |     # Install Python for governance sidecar\n  10 | >>> RUN apt-get update && apt-get install -y \\\n  11 | >>>     python3 \\\n  12 | >>>     python3-pip \\\n  13 | >>>     && rm -rf /var/lib/apt/lists/*\n  14 |     \n--------------------\nERROR: failed to build: failed to solve: process \"/bin/sh -c apt-get update && apt-get install -y     python3     python3-pip     && rm -rf /var/lib/apt/lists/*\" did not complete successfully: exit code: 100\n"
+    ],
+    "timestamp": "2026-06-13T18:15:19.991578"
+  },
+  {
+    "container": "kubernetes-service",
+    "build_status": "success",
+    "errors": [],
+    "timestamp": "2026-06-13T18:15:24.711254"
+  }
+]

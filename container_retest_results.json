@@ -1,0 +1,74 @@
+[
+  {
+    "container": "ccxt-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T18:10:36.958008"
+  },
+  {
+    "container": "celery-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T18:11:22.194754"
+  },
+  {
+    "container": "kong-service",
+    "build_status": "failed",
+    "runtime_status": "skipped",
+    "errors": [
+      "312654a69d3\n#5 extracting sha256:39b8616a3280161328b97dedb042c55afc2633ec14e86849f0a63312654a69d3 6.9s done\n#5 DONE 13.0s\n\n#5 [ 1/12] FROM docker.io/library/kong:3.4-ubuntu@sha256:cf571f0d57662aa2a933142d630b626a11249a11b7ce6d4a64d32205927b7603\n#5 extracting sha256:bda3b21115709f0c372c28c5417c83842fa76434d152e69e29e58c087add5c49 0.0s done\n#5 DONE 13.1s\n\n#6 [ 2/12] RUN apk add --no-cache python3 py3-pip\n#6 0.598 /bin/sh: 1: apk: not found\n#6 ERROR: process \"/bin/sh -c apk add --no-cache python3 py3-pip\" did not complete successfully: exit code: 127\n------\n > [ 2/12] RUN apk add --no-cache python3 py3-pip:\n0.598 /bin/sh: 1: apk: not found\n------\nDockerfile:10\n--------------------\n   8 |     \n   9 |     # Install Python for governance sidecar\n  10 | >>> RUN apk add --no-cache python3 py3-pip\n  11 |     \n  12 |     WORKDIR /app\n--------------------\nERROR: failed to build: failed to solve: process \"/bin/sh -c apk add --no-cache python3 py3-pip\" did not complete successfully: exit code: 127\n"
+    ],
+    "timestamp": "2026-06-13T18:12:10.025830"
+  },
+  {
+    "container": "kubernetes-service",
+    "build_status": "failed",
+    "runtime_status": "skipped",
+    "errors": [
+      "e: 1\n------\n > [ 5/14] RUN pip install --no-cache-dir -r requirements.txt:\n4.250     kubernetes 28.1.0 depends on urllib3<2.0 and >=1.24.2\n4.250 \n4.250 To fix this you could try to:\n4.250 1. loosen the range of package versions you've specified\n4.250 2. remove package versions to allow pip attempt to solve the dependency conflict\n4.250 \n4.250 ERROR: ResolutionImpossible: for help visit https://pip.pypa.io/en/latest/topics/dependency-resolution/#dealing-with-dependency-conflicts\n4.390 \n4.390 [notice] A new release of pip is available: 24.0 -> 26.1.2\n4.390 [notice] To update, run: pip install --upgrade pip\n------\nDockerfile:22\n--------------------\n  20 |     \n  21 |     COPY requirements.txt .\n  22 | >>> RUN pip install --no-cache-dir -r requirements.txt\n  23 |     \n  24 |     COPY kubernetes_governance_wrapper.py .\n--------------------\nERROR: failed to build: failed to solve: process \"/bin/sh -c pip install --no-cache-dir -r requirements.txt\" did not complete successfully: exit code: 1\n"
+    ],
+    "timestamp": "2026-06-13T18:12:27.554700"
+  },
+  {
+    "container": "opencv-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T18:12:58.420767"
+  },
+  {
+    "container": "tempo-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "level=info ts=2026-06-13T23:13:31.228766084Z caller=main.go:107 msg=\"Starting Tempo\" version=\"(version=v3.0.0, branch=main, revision=2e3dabbc0)\" target=all\nlevel=info ts=2026-06-13T23:13:31.267879109Z"
+    ],
+    "timestamp": "2026-06-13T18:13:28.447538"
+  },
+  {
+    "container": "pytorch-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T18:13:33.653436"
+  },
+  {
+    "container": "timescaledb-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "docker: Error response from daemon: failed to create task for container: failed to create shim task: OCI runtime create failed: runc create failed: unable to start container process: error during cont"
+    ],
+    "timestamp": "2026-06-13T18:13:37.817357"
+  }
+]
