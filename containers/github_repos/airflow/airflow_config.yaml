@@ -1,0 +1,52 @@
+repository:
+  name: "airflow"
+  url: "https://github.com/apache/airflow.git"
+  version: "2.8.0"
+  description: "Airflow workflow orchestration for pipeline management"
+
+domain:
+  type: "SYSTEM"
+  priority: "HIGH"
+  category: "workflow_orchestration"
+
+container:
+  enabled: true
+  image: "dix-airflow:latest"
+  build:
+    dockerfile: "containers/github_repos/airflow/Dockerfile"
+    context: "containers/github_repos/airflow"
+  ports:
+    - "9117:9117"
+  volumes:
+    - "./containers/github_repos/airflow/config:/app/config"
+    - "./containers/github_repos/airflow/data:/app/data"
+    - "./containers/github_repos/airflow/logs:/app/logs"
+    - "./containers/github_repos/airflow/dags:/app/dags"
+    - "./containers/github_repos/airflow/plugins:/app/plugins"
+  environment:
+    - "AIRFLOW_LOG_LEVEL=INFO"
+    - "AIRFLOW_PERMISSION_LEVEL=READ_ONLY"
+  resources:
+    memory_limit: "1G"
+    cpu_limit: "1.5"
+    memory_reservation: "512M"
+    cpu_reservation: "0.5"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+
+governance:
+  enabled: true
+  permission_level: "READ_ONLY"
+  workflow_limits:
+    max_dag_duration: 86400
+    max_task_retries: 10
+    max_parallel_dags: 100
+
+adapter:
+  type: "AirflowDomainAdapter"
+  concept_mappings:
+    dag: "workflow_definition"
+    task: "workflow_step"

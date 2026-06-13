@@ -996,6 +996,106 @@ services:
           cpus: '0.5'
           memory: 256M
 
+  elasticsearch-service:
+    build:
+      context: ./containers/github_repos/elasticsearch
+      dockerfile: Dockerfile
+    image: "dix-elasticsearch:latest"
+    container_name: dix-elasticsearch-service
+    ports:
+      - "9115:9115"
+    volumes:
+      - ./containers/github_repos/elasticsearch/config:/app/config
+      - ./containers/github_repos/elasticsearch/data:/app/data
+      - ./containers/github_repos/elasticsearch/logs:/app/logs
+      - ./containers/github_repos/elasticsearch/indices:/app/indices
+    environment:
+      - "ELASTICSEARCH_LOG_LEVEL=INFO"
+      - "ELASTICSEARCH_PERMISSION_LEVEL=READ_ONLY"
+    restart: unless-stopped
+    networks:
+      - dixvision-network
+    healthcheck:
+      test: ["CMD", "python", "/app/health_check.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  rabbitmq-service:
+    build:
+      context: ./containers/github_repos/rabbitmq
+      dockerfile: Dockerfile
+    image: "dix-rabbitmq:latest"
+    container_name: dix-rabbitmq-service
+    ports:
+      - "9116:9116"
+    volumes:
+      - ./containers/github_repos/rabbitmq/config:/app/config
+      - ./containers/github_repos/rabbitmq/data:/app/data
+      - ./containers/github_repos/rabbitmq/logs:/app/logs
+      - ./containers/github_repos/rabbitmq/queues:/app/queues
+    environment:
+      - "RABBITMQ_LOG_LEVEL=INFO"
+      - "RABBITMQ_PERMISSION_LEVEL=READ_ONLY"
+    restart: unless-stopped
+    networks:
+      - dixvision-network
+    healthcheck:
+      test: ["CMD", "python", "/app/health_check.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+  airflow-service:
+    build:
+      context: ./containers/github_repos/airflow
+      dockerfile: Dockerfile
+    image: "dix-airflow:latest"
+    container_name: dix-airflow-service
+    ports:
+      - "9117:9117"
+    volumes:
+      - ./containers/github_repos/airflow/config:/app/config
+      - ./containers/github_repos/airflow/data:/app/data
+      - ./containers/github_repos/airflow/logs:/app/logs
+      - ./containers/github_repos/airflow/dags:/app/dags"
+      - ./containers/github_repos/airflow/plugins:/app/plugins
+    environment:
+      - "AIRFLOW_LOG_LEVEL=INFO"
+      - "AIRFLOW_PERMISSION_LEVEL=READ_ONLY"
+    restart: unless-stopped
+    networks:
+      - dixvision-network
+    healthcheck:
+      test: ["CMD", "python", "/app/health_check.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
 volumes:
   redis-data:
   postgres-data:

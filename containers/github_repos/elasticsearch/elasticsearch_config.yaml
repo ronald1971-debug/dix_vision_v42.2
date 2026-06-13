@@ -1,0 +1,51 @@
+repository:
+  name: "elasticsearch"
+  url: "https://github.com/elastic/elasticsearch.git"
+  version: "8.11.0"
+  description: "Elasticsearch search for full-text indexing"
+
+domain:
+  type: "SYSTEM"
+  priority: "HIGH"
+  category: "search"
+
+container:
+  enabled: true
+  image: "dix-elasticsearch:latest"
+  build:
+    dockerfile: "containers/github_repos/elasticsearch/Dockerfile"
+    context: "containers/github_repos/elasticsearch"
+  ports:
+    - "9115:9115"
+  volumes:
+    - "./containers/github_repos/elasticsearch/config:/app/config"
+    - "./containers/github_repos/elasticsearch/data:/app/data"
+    - "./containers/github_repos/elasticsearch/logs:/app/logs"
+    - "./containers/github_repos/elasticsearch/indices:/app/indices"
+  environment:
+    - "ELASTICSEARCH_LOG_LEVEL=INFO"
+    - "ELASTICSEARCH_PERMISSION_LEVEL=READ_ONLY"
+  resources:
+    memory_limit: "1G"
+    cpu_limit: "1.5"
+    memory_reservation: "512M"
+    cpu_reservation: "0.5"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+
+governance:
+  enabled: true
+  permission_level: "READ_ONLY"
+  search_limits:
+    max_query_size: 10485760
+    max_result_count: 10000
+    max_index_size: 1073741824
+
+adapter:
+  type: "ElasticsearchDomainAdapter"
+  concept_mappings:
+    index: "search_repository"
+    document: "indexed_content"
