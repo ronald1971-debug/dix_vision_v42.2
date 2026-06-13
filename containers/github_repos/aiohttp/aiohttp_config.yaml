@@ -1,0 +1,51 @@
+repository:
+  name: "aiohttp"
+  url: "https://github.com/aio-libs/aiohttp.git"
+  version: "3.9.0"
+  description: "AIOHTTP async web framework for async applications"
+
+domain:
+  type: "SYSTEM"
+  priority: "HIGH"
+  category: "async_web_framework"
+
+container:
+  enabled: true
+  image: "dix-aiohttp:latest"
+  build:
+    dockerfile: "containers/github_repos/aiohttp/Dockerfile"
+    context: "containers/github_repos/aiohttp"
+  ports:
+    - "9140:9140"
+  volumes:
+    - "./containers/github_repos/aiohttp/config:/app/config"
+    - "./containers/github_repos/aiohttp/data:/app/data"
+    - "./containers/github_repos/aiohttp/logs:/app/logs"
+    - "./containers/github_repos/aiohttp/applications:/app/applications"
+  environment:
+    - "AIOHTTP_LOG_LEVEL=INFO"
+    - "AIOHTTP_PERMISSION_LEVEL=READ_ONLY"
+  resources:
+    memory_limit: "512M"
+    cpu_limit: "1.0"
+    memory_reservation: "256M"
+    cpu_reservation: "0.5"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+
+governance:
+  enabled: true
+  permission_level: "READ_ONLY"
+  framework_limits:
+    max_request_size: 10485760
+    max_response_time: 30
+    max_concurrent_connections: 1000
+
+adapter:
+  type: "AIOHTTPDomainAdapter"
+  concept_mappings:
+    session: "async_connection"
+    request: "async_http_signal"

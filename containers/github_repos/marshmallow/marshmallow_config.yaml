@@ -1,0 +1,51 @@
+repository:
+  name: "marshmallow"
+  url: "https://github.com/marshmallow-code/marshmallow.git"
+  version: "3.20.1"
+  description: "Marshmallow serialization for data conversion"
+
+domain:
+  type: "SYSTEM"
+  priority: "HIGH"
+  category: "serialization"
+
+container:
+  enabled: true
+  image: "dix-marshmallow:latest"
+  build:
+    dockerfile: "containers/github_repos/marshmallow/Dockerfile"
+    context: "containers/github_repos/marshmallow"
+  ports:
+    - "9143:9143"
+  volumes:
+    - "./containers/github_repos/marshmallow/config:/app/config"
+    - "./containers/github_repos/marshmallow/data:/app/data"
+    - "./containers/github_repos/marshmallow/logs:/app/logs"
+    - "./containers/github_repos/marshmallow/schemas:/app/schemas"
+  environment:
+    - "MARSHMALLOW_LOG_LEVEL=INFO"
+    - "MARSHMALLOW_PERMISSION_LEVEL=READ_ONLY"
+  resources:
+    memory_limit: "512M"
+    cpu_limit: "1.0"
+    memory_reservation: "256M"
+    cpu_reservation: "0.5"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+
+governance:
+  enabled: true
+  permission_level: "READ_ONLY"
+  serialization_limits:
+    max_schema_fields: 100
+    max_nested_levels: 10
+    max_serialization_size: 10485760
+
+adapter:
+  type: "MarshmallowDomainAdapter"
+  concept_mappings:
+    schema: "data_blueprint"
+    field: "data_element"

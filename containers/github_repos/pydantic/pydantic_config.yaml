@@ -1,0 +1,51 @@
+repository:
+  name: "pydantic"
+  url: "https://github.com/pydantic/pydantic.git"
+  version: "2.5.0"
+  description: "Pydantic data validation for data models"
+
+domain:
+  type: "SYSTEM"
+  priority: "HIGH"
+  category: "data_validation"
+
+container:
+  enabled: true
+  image: "dix-pydantic:latest"
+  build:
+    dockerfile: "containers/github_repos/pydantic/Dockerfile"
+    context: "containers/github_repos/pydantic"
+  ports:
+    - "9142:9142"
+  volumes:
+    - "./containers/github_repos/pydantic/config:/app/config"
+    - "./containers/github_repos/pydantic/data:/app/data"
+    - "./containers/github_repos/pydantic/logs:/app/logs"
+    - "./containers/github_repos/pydantic/schemas:/app/schemas"
+  environment:
+    - "PYDANTIC_LOG_LEVEL=INFO"
+    - "PYDANTIC_PERMISSION_LEVEL=READ_ONLY"
+  resources:
+    memory_limit: "512M"
+    cpu_limit: "1.0"
+    memory_reservation: "256M"
+    cpu_reservation: "0.5"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+
+governance:
+  enabled: true
+  permission_level: "READ_ONLY"
+  validation_limits:
+    max_validation_rules: 100
+    max_schema_depth: 10
+    max_model_fields: 100
+
+adapter:
+  type: "PydanticDomainAdapter"
+  concept_mappings:
+    model: "data_schema"
+    validator: "data_rule"

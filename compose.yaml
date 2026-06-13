@@ -1792,6 +1792,171 @@ services:
           cpus: '0.5'
           memory: 256M
 
+  aiohttp-service:
+    build:
+      context: ./containers/github_repos/aiohttp
+      dockerfile: Dockerfile
+    image: "dix-aiohttp:latest"
+    container_name: dix-aiohttp-service
+    ports:
+      - "9140:9140"
+    volumes:
+      - ./containers/github_repos/aiohttp/config:/app/config
+      - ./containers/github_repos/aiohttp/data:/app/data
+      - ./containers/github_repos/aiohttp/logs:/app/logs
+      - ./containers/github_repos/aiohttp/applications:/app/applications
+    environment:
+      - "AIOHTTP_LOG_LEVEL=INFO"
+      - "AIOHTTP_PERMISSION_LEVEL=READ_ONLY"
+    restart: unless-stopped
+    networks:
+      - dixvision-network
+    healthcheck:
+      test: ["CMD", "python", "/app/health_check.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+  fastapi-enhanced-service:
+    build:
+      context: ./containers/github_repos/fastapi-enhanced
+      dockerfile: Dockerfile
+    image: "dix-fastapi-enhanced:latest"
+    container_name: dix-fastapi-enhanced-service
+    ports:
+      - "9141:9141"
+    volumes:
+      - ./containers/github_repos/fastapi-enhanced/config:/app/config
+      - ./containers/github_repos/fastapi-enhanced/data:/app/data
+      - ./containers/github_repos/fastapi-enhanced/logs:/app/logs
+      - ./containers/github_repos/fastapi-enhanced/apis:/app/apis
+    environment:
+      - "FASTAPI_ENHANCED_LOG_LEVEL=INFO"
+      - "FASTAPI_ENHANCED_PERMISSION_LEVEL=READ_ONLY"
+    restart: unless-stopped
+    networks:
+      - dixvision-network
+    healthcheck:
+      test: ["CMD", "python", "/app/health_check.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+  pydantic-service:
+    build:
+      context: ./containers/github_repos/pydantic
+      dockerfile: Dockerfile
+    image: "dix-pydantic:latest"
+    container_name: dix-pydantic-service
+    ports:
+      - "9142:9142"
+    volumes:
+      - ./containers/github_repos/pydantic/config:/app/config
+      - ./containers/github_repos/pydantic/data:/app/data
+      - ./containers/github_repos/pydantic/logs:/app/logs
+      - ./containers/github_repos/pydantic/schemas:/app/schemas
+    environment:
+      - "PYDANTIC_LOG_LEVEL=INFO"
+      - "PYDANTIC_PERMISSION_LEVEL=READ_ONLY"
+    restart: unless-stopped
+    networks:
+      - dixvision-network
+    healthcheck:
+      test: ["CMD", "python", "/app/health_check.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+  marshmallow-service:
+    build:
+      context: ./containers/github_repos/marshmallow
+      dockerfile: Dockerfile
+    image: "dix-marshmallow:latest"
+    container_name: dix-marshmallow-service
+    ports:
+      - "9143:9143"
+    volumes:
+      - ./containers/github_repos/marshmallow/config:/app/config
+      - ./containers/github_repos/marshmallow/data:/app/data
+      - ./containers/github_repos/marshmallow/logs:/app/logs
+      - ./containers/github_repos/marshmallow/schemas:/app/schemas
+    environment:
+      - "MARSHMALLOW_LOG_LEVEL=INFO"
+      - "MARSHMALLOW_PERMISSION_LEVEL=READ_ONLY"
+    restart: unless-stopped
+    networks:
+      - dixvision-network
+    healthcheck:
+      test: ["CMD", "python", "/app/health_check.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+  pytest-enhanced-service:
+    build:
+      context: ./containers/github_repos/pytest-enhanced
+      dockerfile: Dockerfile
+    image: "dix-pytest-enhanced:latest"
+    container_name: dix-pytest-enhanced-service
+    ports:
+      - "9144:9144"
+    volumes:
+      - ./containers/github_repos/pytest-enhanced/config:/app/config
+      - ./containers/github_repos/pytest-enhanced/data:/app/data
+      - ./containers/github_repos/pytest-enhanced/logs:/app/logs
+      - ./containers/github_repos/pytest-enhanced/tests:/app/tests
+    environment:
+      - "PYTEST_ENHANCED_LOG_LEVEL=INFO"
+      - "PYTEST_ENHANCED_PERMISSION_LEVEL=READ_ONLY"
+    restart: unless-stopped
+    networks:
+      - dixvision-network
+    healthcheck:
+      test: ["CMD", "python", "/app/health_check.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
 volumes:
   redis-data:
   postgres-data:

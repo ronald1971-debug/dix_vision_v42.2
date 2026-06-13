@@ -1,0 +1,51 @@
+repository:
+  name: "fastapi-enhanced"
+  url: "https://github.com/tiangolo/fastapi.git"
+  version: "0.109.0"
+  description: "FastAPI enhanced API framework for modern APIs"
+
+domain:
+  type: "SYSTEM"
+  priority: "HIGH"
+  category: "api_framework"
+
+container:
+  enabled: true
+  image: "dix-fastapi-enhanced:latest"
+  build:
+    dockerfile: "containers/github_repos/fastapi-enhanced/Dockerfile"
+    context: "containers/github_repos/fastapi-enhanced"
+  ports:
+    - "9141:9141"
+  volumes:
+    - "./containers/github_repos/fastapi-enhanced/config:/app/config"
+    - "./containers/github_repos/fastapi-enhanced/data:/app/data"
+    - "./containers/github_repos/fastapi-enhanced/logs:/app/logs"
+    - "./containers/github_repos/fastapi-enhanced/apis:/app/apis"
+  environment:
+    - "FASTAPI_ENHANCED_LOG_LEVEL=INFO"
+    - "FASTAPI_ENHANCED_PERMISSION_LEVEL=READ_ONLY"
+  resources:
+    memory_limit: "512M"
+    cpu_limit: "1.0"
+    memory_reservation: "256M"
+    cpu_reservation: "0.5"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+
+governance:
+  enabled: true
+  permission_level: "READ_ONLY"
+  framework_limits:
+    max_request_size: 10485760
+    max_response_time: 30
+    max_concurrent_requests: 10000
+
+adapter:
+  type: "FastAPIEnhancedDomainAdapter"
+  concept_mappings:
+    endpoint: "api_route"
+    request: "api_signal"
