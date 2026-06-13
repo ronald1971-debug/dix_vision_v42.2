@@ -3,9 +3,7 @@
 
 # Celery core
 celery[redis]==5.3.6
-kombu==5.3.4
-billiard==4.2.0
-vine==5.0.0
+# Let pip resolve compatible versions for kombu, billiard, vine
 
 # Message broker
 redis==5.0.1

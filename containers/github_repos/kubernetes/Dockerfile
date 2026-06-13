@@ -1,9 +1,9 @@
-# Kubernetes Container Dockerfile
+# Kubernetes Python Client Container Dockerfile
 FROM python:3.11-slim
 
 LABEL maintainer="DIX VISION <devin@dixvision.ai>"
 LABEL version="42.2"
-LABEL description="Kubernetes orchestration container for DIX VISION"
+LABEL description="Kubernetes Python client container for DIX VISION"
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
@@ -11,9 +11,11 @@ ENV PYTHONUNBUFFERED=1 \
 
 WORKDIR /app
 
+# Install build dependencies and Kubernetes client dependencies
 RUN apt-get update && apt-get install -y \
     build-essential \
     libssl-dev \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
@@ -39,5 +41,3 @@ HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
     CMD python /app/health_check.py
 
 ENTRYPOINT ["/app/entry_point.sh"]
-
-CMD ["python", "-m", "kubernetes_governance_wrapper"]

@@ -26,6 +26,11 @@ containers = [
     "celery-service",
     "requests-service",
     
+    # Large ML libraries requiring extended timeout
+    "pytorch-service",
+    "opencv-service",
+    "tensorflow-service",
+    
     # Additional GitHub repositories (alphabetical)
     "aiohttp-service",
     "airflow-service",
@@ -72,7 +77,6 @@ containers = [
     "newspaper3k-service",
     "nltk-service",
     "numpy-service",
-    "opencv-service",
     "openpyxl-service",
     "opentelemetry-service",
     "pandas-service",
@@ -89,7 +93,6 @@ containers = [
     "pytest-enhanced-service",
     "python-docx-service",
     "python-jose-service",
-    "pytorch-service",
     "rabbitmq-service",
     "ray-service",
     "redis-cluster-service",
@@ -109,7 +112,6 @@ containers = [
     "structlog-service",
     "telegrambot-service",
     "tempo-service",
-    "tensorflow-service",
     "textblob-service",
     "timescaledb-service",
     "tornado-service",
@@ -117,6 +119,9 @@ containers = [
     "vault-service",
     "websockets-service"
 ]
+
+# Containers that need extended build timeout (large ML libraries)
+large_build_containers = ["pytorch-service", "opencv-service", "tensorflow-service"]
 
 def test_container(container_name):
     """Test a single container: build and runtime check"""
@@ -156,6 +161,10 @@ def test_container(container_name):
         
         try:
             print(f"Building {container_name}...")
+            # Use extended timeout for large ML libraries
+            build_timeout = 600 if container_name in large_build_containers else 300
+            print(f"Build timeout: {build_timeout}s")
+            
             build_cmd = [
                 "docker", "build", 
                 "-t", f"test-{service_name}:latest",
@@ -163,7 +172,7 @@ def test_container(container_name):
                 context_path
             ]
             
-            build_result = subprocess.run(build_cmd, capture_output=True, text=True, timeout=300, encoding='utf-8', errors='replace')
+            build_result = subprocess.run(build_cmd, capture_output=True, text=True, timeout=build_timeout, encoding='utf-8', errors='replace')
             
             if build_result.returncode == 0:
                 print(f"[OK] Build successful")

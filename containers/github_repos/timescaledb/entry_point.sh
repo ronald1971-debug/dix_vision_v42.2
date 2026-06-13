@@ -18,6 +18,11 @@ mkdir -p /app/logs
 mkdir -p /app/data
 mkdir -p /app/config
 
+# Start TimescaleDB in background
+echo "Starting TimescaleDB database..."
+# TimescaleDB starts automatically in the official image
+echo "TimescaleDB database starting..."
+
 # Start the governance wrapper
 echo "Starting timescaledb Governance Wrapper..."
 python3 -c "
@@ -26,6 +31,7 @@ sys.path.append('/app')
 sys.path.append('/app/governance')
 sys.path.append('/app/adapters')
 
+from base_external_repo_wrapper import PermissionLevel
 from timescaledb_governance_wrapper import TimescaledbGovernanceWrapper
 from timescaledb_domain_adapter import TimescaledbDomainAdapter
 import logging
@@ -35,6 +41,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('timescaledb_container')
 
 try:
+    wrapper = TimescaledbGovernanceWrapper(PermissionLevel.READ_ONLY)
     logger.info('timescaledb Governance Wrapper initialized successfully')
     logger.info('Ready to process operations with governance oversight')
     

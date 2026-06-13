@@ -2,7 +2,7 @@
 # Core dependencies for cryptocurrency trading capabilities
 
 # CCXT library
-ccxt==4.1.0
+ccxt==2.5.10
 
 # Core dependencies
 requests==2.31.0
