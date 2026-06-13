@@ -7,7 +7,10 @@ LABEL version="42.2"
 LABEL description="Kong API Gateway container for DIX VISION with governance sidecar"
 
 # Install Python for governance sidecar
-RUN apk add --no-cache python3 py3-pip
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
