@@ -1,0 +1,51 @@
+repository:
+  name: "influxdb"
+  url: "https://github.com/influxdata/influxdb.git"
+  version: "1.36.1"
+  description: "InfluxDB time series database for market data"
+
+domain:
+  type: "SYSTEM"
+  priority: "HIGH"
+  category: "time_series_database"
+
+container:
+  enabled: true
+  image: "dix-influxdb:latest"
+  build:
+    dockerfile: "containers/github_repos/influxdb/Dockerfile"
+    context: "containers/github_repos/influxdb"
+  ports:
+    - "9147:9147"
+  volumes:
+    - "./containers/github_repos/influxdb/config:/app/config"
+    - "./containers/github_repos/influxdb/data:/app/data"
+    - "./containers/github_repos/influxdb/logs:/app/logs"
+    - "./containers/github_repos/influxdb/measurements:/app/measurements"
+  environment:
+    - "INFLUXDB_LOG_LEVEL=INFO"
+    - "INFLUXDB_PERMISSION_LEVEL=READ_ONLY"
+  resources:
+    memory_limit: "1G"
+    cpu_limit: "1.0"
+    memory_reservation: "512M"
+    cpu_reservation: "0.5"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+
+governance:
+  enabled: true
+  permission_level: "READ_ONLY"
+  database_limits:
+    max_batch_size: 10000
+    max_query_duration: 300
+    max_retention_days: 365
+
+adapter:
+  type: "InfluxDBDomainAdapter"
+  concept_mappings:
+    measurement: "time_series_data"
+    field: "data_point"

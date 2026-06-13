@@ -2023,6 +2023,39 @@ services:
           cpus: '0.5'
           memory: 256M
 
+  influxdb-service:
+    build:
+      context: ./containers/github_repos/influxdb
+      dockerfile: Dockerfile
+    image: "dix-influxdb:latest"
+    container_name: dix-influxdb-service
+    ports:
+      - "9147:9147"
+    volumes:
+      - ./containers/github_repos/influxdb/config:/app/config
+      - ./containers/github_repos/influxdb/data:/app/data
+      - ./containers/github_repos/influxdb/logs:/app/logs
+      - ./containers/github_repos/influxdb/measurements:/app/measurements
+    environment:
+      - "INFLUXDB_LOG_LEVEL=INFO"
+      - "INFLUXDB_PERMISSION_LEVEL=READ_ONLY"
+    restart: unless-stopped
+    networks:
+      - dixvision-network
+    healthcheck:
+      test: ["CMD", "python", "/app/health_check.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
 volumes:
   redis-data:
   postgres-data:
