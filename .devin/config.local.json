@@ -15,7 +15,8 @@
       "Exec(cd)",
       "Exec(docker-compose config)",
       "Exec($dirs)",
-      "Exec(Move-Item)"
+      "Exec(Move-Item)",
+      "Exec(git commit)"
     ]
   }
 }
