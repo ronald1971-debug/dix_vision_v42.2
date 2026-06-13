@@ -63,6 +63,20 @@ class PreservationLayer:
         
         # Performance tracking
         self._performance_metrics: Dict[str, Dict[str, float]] = {}
+
+
+# Global preservation layer instance
+_preservation_layer: Optional[PreservationLayer] = None
+_preservation_lock = threading.Lock()
+
+
+def get_preservation_layer() -> PreservationLayer:
+    """Get the global preservation layer instance (thread-safe singleton)."""
+    global _preservation_layer
+    with _preservation_lock:
+        if _preservation_layer is None:
+            _preservation_layer = PreservationLayer()
+    return _preservation_layer
         
     def initialize_legacy_engines(self) -> bool:
         """Initialize and preserve all existing engines."""

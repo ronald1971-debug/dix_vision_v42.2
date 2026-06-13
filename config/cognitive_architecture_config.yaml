@@ -1,0 +1,489 @@
+# DIX VISION v42.2 - Cognitive Architecture Configuration
+# Configuration for all cognitive architecture components
+
+cognitive_architecture:
+  enabled: true
+  version: "42.2.0"
+  
+  # Preservation Layer - Backward compatibility and migration
+  preservation_layer:
+    enabled: true
+    migration_mode: true
+    fallback_on_failure: true
+    performance_validation: true
+    functionality_loss_validation: true
+    performance_threshold_ms: 10
+    legacy_engines:
+      cognitive_orchestrator: true
+      intelligence_orchestrator: true
+      reasoning_orchestrator: true
+      learning_orchestrator: true
+      knowledge_orchestrator: true
+      system_orchestrator: true
+      simulation_orchestrator: true
+  
+  # INDIRA Brain - Trading cognition with sub-5ms decisions
+  indira_brain:
+    enabled: true
+    fast_path_caching: true
+    sub_5ms_target: true
+    neuro_symbolic_enabled: true
+    meta_learning_enabled: true
+    bayesian_attribution: true
+    
+    # Memory Framework
+    memory_framework:
+      enabled: true
+      long_term_memory: true
+      short_term_memory: true
+      episodic_memory: true
+      semantic_memory: true
+      memory_retention_days: 365
+    
+    # Knowledge Retrieval
+    knowledge_retrieval:
+      enabled: true
+      vector_first: true
+      knowledge_graph: true
+      llm_enhanced: true
+      max_results: 10
+      similarity_threshold: 0.7
+    
+    # Performance
+    performance_targets:
+      trading_decision_ms: 5
+      market_analysis_ms: 50
+      hypothesis_evaluation_ms: 100
+      memory_query_ms: 10
+  
+  # DYON Brain - Engineering cognition with multiple reasoning modes
+  dyon_brain:
+    enabled: true
+    reasoning_modes:
+      deductive: true
+      inductive: true
+      abductive: true
+      causal: true
+      analogical: true
+    neuro_symbolic_enabled: true
+    meta_learning_enabled: true
+    
+    # Reasoning Configuration
+    reasoning_config:
+      max_reasoning_depth: 5
+      max_hypotheses: 10
+      confidence_threshold: 0.7
+      default_mode: "causal"
+    
+    # Debugging
+    debugging:
+      enabled: true
+      attention_allocation: true
+      root_cause_analysis: true
+      pattern_discovery: true
+      attention_enhancement: true
+    
+    # Planning
+    planning:
+      enabled: true
+      planning_horizon: 100
+      max_plans: 5
+      plan_validation: true
+    
+    # Performance
+    performance_targets:
+      system_analysis_ms: 100
+      reasoning_ms: 50
+      debugging_ms: 200
+      planning_ms: 150
+  
+  # Coordination Layer - Cross-agent coordination
+  coordination_layer:
+    enabled: true
+    acl_protocol_enabled: true
+    conflict_detection_enabled: true
+    conflict_resolution_enabled: true
+    knowledge_exchange_enabled: true
+    shared_mental_models: true
+    
+    # Conflict Resolution
+    conflict_resolution:
+      enabled: true
+      negotiation_enabled: true
+      arbitration_enabled: true
+      voting_enabled: false
+      timeout_ms: 1000
+      max_negotiation_rounds: 3
+    
+    # Knowledge Exchange
+    knowledge_exchange:
+      enabled: true
+      sync_interval_ms: 1000
+      batch_size: 100
+      validation_enabled: true
+    
+    # Emergency Coordination
+    emergency_coordination:
+      enabled: true
+      fault_tolerance: true
+      emergency_broadcast: true
+      priority_override: true
+    
+    # Performance
+    performance_targets:
+      acl_message_ms: 10
+      conflict_resolution_ms: 100
+      knowledge_exchange_ms: 50
+      emergency_coordination_ms: 20
+  
+  # Cognitive Economy - Resource optimization
+  cognitive_economy:
+    enabled: true
+    budget_management: true
+    priority_allocation: true
+    cost_benefit_analysis: true
+    
+    # Budgets
+    budgets:
+      cpu_percentage: 30
+      memory_mb: 2048
+      attention_units: 100
+      cognitive_load_percentage: 50
+    
+    # Priorities
+    priorities:
+      trading_decisions: 10
+      risk_assessment: 9
+      system_health: 8
+      learning_operations: 7
+      research_operations: 6
+    
+    # Cost Calculation
+    cost_calculation:
+      cpu_cost_per_ms: 0.01
+      memory_cost_per_mb: 0.1
+      attention_cost_per_unit: 0.5
+      cognitive_load_cost_per_percent: 0.2
+    
+    # Decision Making
+    decision_making:
+      overspend_protection: true
+      overspend_action: "throttle"
+      min_benefit_threshold: 0.3
+    performance_targets:
+      budget_calculation_ms: 1
+      resource_allocation_ms: 5
+      cost_benefit_analysis_ms: 10
+  
+  # Operating Modes - System mode management
+  operating_modes:
+    enabled: true
+    default_mode: "active"
+    transition_policies: true
+    performance_constraints: true
+    
+    # Mode Definitions
+    modes:
+      offline:
+        trading: false
+        monitoring: false
+        learning: false
+        research: false
+        cognitive_budget: 10
+      
+      standby:
+        trading: false
+        monitoring: true
+        learning: false
+        research: true
+        cognitive_budget: 20
+      
+      passive:
+        trading: false
+        monitoring: true
+        learning: true
+        research: true
+        cognitive_budget: 30
+      
+      observation:
+        trading: false
+        monitoring: true
+        learning: true
+        research: true
+        cognitive_budget: 40
+      
+      analysis:
+        trading: false
+        monitoring: true
+        learning: true
+        research: true
+        cognitive_budget: 50
+      
+      safe:
+        trading: true
+        monitoring: true
+        learning: false
+        research: true
+        cognitive_budget: 60
+      
+      moderate:
+        trading: true
+        monitoring: true
+        learning: true
+        research: true
+        cognitive_budget: 70
+      
+      active:
+        trading: true
+        monitoring: true
+        learning: true
+        research: true
+        cognitive_budget: 80
+        performance_constraint_ms: 5
+      
+      agile:
+        trading: true
+        monitoring: true
+        learning: true
+        research: true
+        cognitive_budget: 90
+        performance_constraint_ms: 10
+      
+      aggressive:
+        trading: true
+        monitoring: true
+        learning: true
+        research: true
+        cognitive_budget: 100
+        performance_constraint_ms: 20
+    
+    # Transition Policies
+    transition_policies:
+      require_approval: false
+      pre_transition_hooks: true
+      post_transition_hooks: true
+      transition_timeout_ms: 5000
+    
+    # Performance
+    performance_targets:
+      mode_transition_ms: 100
+      policy_evaluation_ms: 10
+  
+  # Learning Gate - Learning operations control
+  learning_gate:
+    enabled: true
+    default_state: "restricted"
+    approval_workflow: true
+    learning_windows: true
+    
+    # Gate States
+    gate_states:
+      open:
+        auto_approve: true
+        concurrent_operations: 10
+        resource_limit_percentage: 50
+      
+      restricted:
+        auto_approve: false
+        concurrent_operations: 3
+        resource_limit_percentage: 30
+      
+      closed:
+        auto_approve: false
+        concurrent_operations: 0
+        resource_limit_percentage: 0
+      
+      maintenance:
+        auto_approve: false
+        concurrent_operations: 1
+        resource_limit_percentage: 10
+    
+    # Operation Permissions
+    operation_permissions:
+      strategy_optimization: "restricted"
+      parameter_tuning: "restricted"
+      hypothesis_testing: "open"
+      knowledge_extraction: "open"
+      meta_learning: "restricted"
+      system_mutation: "closed"
+    
+    # Learning Windows
+    learning_windows:
+      enabled: true
+      window_schedule:
+        - start: "02:00"
+          end: "06:00"
+          state: "open"
+        - start: "12:00"
+          end: "14:00"
+          state: "restricted"
+      blackout_windows:
+        - start: "09:30"
+          end: "16:30"
+          reason: "market_hours"
+    
+    # Risk Assessment
+    risk_assessment:
+      enabled: true
+      max_risk_level: "medium"
+      require_validation: true
+      validation_threshold: 0.8
+    
+    # Performance
+    performance_targets:
+      gate_operation_ms: 50
+      approval_workflow_ms: 100
+      risk_assessment_ms: 30
+  
+  # Planning Engine - Goal-oriented planning
+  planning_engine:
+    enabled: true
+    multi_type_planning: true
+    constraint_validation: true
+    risk_assessment: true
+    
+    # Planning Types
+    planning_types:
+      trading:
+        enabled: true
+        horizon_minutes: 60
+        max_concurrent_plans: 5
+      
+      portfolio:
+        enabled: true
+        horizon_hours: 24
+        max_concurrent_plans: 3
+      
+      system:
+        enabled: true
+        horizon_hours: 8
+        max_concurrent_plans: 2
+      
+      engineering:
+        enabled: true
+        horizon_days: 7
+        max_concurrent_plans: 2
+    
+    # Goals
+    goals:
+      max_goals: 50
+      goal_hierarchy: true
+      goal_dependencies: true
+    
+    # Constraints
+    constraints:
+      max_constraints: 20
+      priority_validation: true
+      resource_validation: true
+      time_validation: true
+    
+    # Risk Assessment
+    risk_assessment:
+      enabled: true
+      risk_threshold: 0.5
+      mitigation_required: true
+    
+    # Performance
+    performance_targets:
+      plan_generation_ms: 100
+      constraint_validation_ms: 50
+      risk_assessment_ms: 30
+      plan_execution_ms: 200
+  
+  # Signal Processing - Signal aggregation and transformation
+  signal_processing:
+    enabled: true
+    multi_source_funneling: true
+    configurable_filters: true
+    multi_stage_pipeline: true
+    
+    # Sources
+    sources:
+      market_data: true
+      sentiment: true
+      macro_economic: true
+      technical: true
+      news: true
+      social: true
+    
+    # Filters
+    filters:
+      threshold_filter:
+        enabled: true
+        min_threshold: 0.3
+        max_threshold: 0.9
+      
+      outlier_filter:
+        enabled: true
+        std_dev_threshold: 2.0
+      
+      noise_filter:
+        enabled: true
+        noise_threshold: 0.1
+      
+      volatility_filter:
+        enabled: true
+        max_volatility: 0.5
+    
+    # Transformers
+    transformers:
+      normalize:
+        enabled: true
+        method: "z_score"
+      
+      scale:
+        enabled: true
+        target_range: [0, 1]
+      
+      derive:
+        enabled: true
+        derivative_order: 1
+      
+      aggregate:
+        enabled: true
+        method: "weighted_average"
+    
+    # Pipeline
+    pipeline:
+      stages: 3
+      parallel_processing: true
+      batch_size: 100
+    
+    # Aggregation
+    aggregation:
+      methods:
+        - weighted_average
+        - majority_vote
+        - bayesian_combination
+      default_method: "weighted_average"
+    
+    # Performance
+    performance_targets:
+      signal_ingestion_ms: 1
+      filter_processing_ms: 5
+      transformation_ms: 10
+      aggregation_ms: 5
+    pipeline_latency_ms: 20
+
+# Logging Configuration
+logging:
+  level: "INFO"
+  format: "structured"
+  cognitive_log_level: "DEBUG"
+  
+# Monitoring and Metrics
+monitoring:
+  enabled: true
+  metrics_collection: true
+  performance_tracking: true
+  health_checks:
+    interval_seconds: 60
+    timeout_seconds: 10
+  
+# Validation and Testing
+validation:
+  enabled: true
+  pre_boot_validation: true
+  post_boot_validation: true
+  performance_validation: true
+  functionality_validation: true

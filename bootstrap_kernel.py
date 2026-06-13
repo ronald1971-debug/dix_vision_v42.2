@@ -119,6 +119,18 @@ def run(env: str = "dev", verify_only: bool = False) -> None:
     except Exception as e:  # fail-open on lock itself — never block boot
         log.warning(f"[BOOT] Registry lock warning: {e}")
 
+    # Step 12: Preservation layer (NEW - Cognitive Architecture Integration)
+    try:
+        from preservation_layer import get_preservation_layer
+
+        preservation_layer = get_preservation_layer()
+        if preservation_layer.initialize_legacy_engines():
+            log.info("[BOOT] Preservation layer initialized with legacy engines")
+        else:
+            log.warning("[BOOT] Preservation layer initialized in fallback mode")
+    except Exception as e:
+        log.warning(f"[BOOT] Preservation layer initialization failed: {e}")
+
     state_mgr.set_mode("NORMAL")
     log.info("[BOOT] System ONLINE — all services running")
     audit.log("SYSTEM", "bootstrap", {"event": "BOOT_COMPLETE", "mode": "NORMAL"})
