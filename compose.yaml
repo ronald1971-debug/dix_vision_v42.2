@@ -897,39 +897,6 @@ services:
           cpus: '0.5'
           memory: 512M
 
-  darts-service:
-    build:
-      context: ./containers/github_repos/darts
-      dockerfile: Dockerfile
-    image: dix-darts:latest
-    container_name: dix-darts-service
-    ports:
-      - "9112:9112"
-    volumes:
-      - ./containers/github_repos/darts/config:/app/config
-      - ./containers/github_repos/darts/data:/app/data
-      - ./containers/github_repos/darts/logs:/app/logs
-      - ./containers/github_repos/darts/forecasts:/app/forecasts
-    environment:
-      - "DARTS_LOG_LEVEL=INFO"
-      - "DARTS_PERMISSION_LEVEL=READ_ONLY"
-    restart: unless-stopped
-    networks:
-      - dixvision-network
-    healthcheck:
-      test: ["CMD", "python", "/app/health_check.py"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    deploy:
-      resources:
-        limits:
-          cpus: '1.5'
-          memory: 1G
-        reservations:
-          cpus: '0.5'
-          memory: 512M
-
   pulp-service:
     build:
       context: ./containers/github_repos/pulp
