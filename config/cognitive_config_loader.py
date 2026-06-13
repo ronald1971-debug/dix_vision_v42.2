@@ -198,7 +198,8 @@ class CognitiveConfigLoader:
         
         # Validate resource limits
         for component in ['indira_brain', 'dyon_brain']:
-            max_cpu = self._config._config.get(component, {}).get('performance', {}).get('max_cpu_usage', 1.0)
+            component_config = self._config.indira_brain if component == 'indira_brain' else self._config.dyon_brain
+            max_cpu = component_config.get('performance', {}).get('max_cpu_usage', 1.0) if isinstance(component_config, dict) else 1.0
             if not 0.0 <= max_cpu <= 1.0:
                 logger.warning(f"[CONFIG] Invalid max_cpu_usage for {component}: {max_cpu}")
     

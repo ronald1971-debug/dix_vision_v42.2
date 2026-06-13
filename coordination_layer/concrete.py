@@ -93,6 +93,17 @@ class ConcreteCoordinationLayer(CoordinationLayerInterface):
         # Agent registry
         self._registered_agents: Dict[str, Dict[str, Any]] = {}
         
+        # Conversation tracking
+        self._conversations: Dict[str, Dict[str, Any]] = {}
+        
+        # Protocol registry
+        self._protocols: Dict[str, List[str]] = {
+            "fipa_request": ["REQUEST", "AGREE", "REFUSE", "INFORM", "FAILURE"],
+            "fipa_query": ["QUERY", "INFORM", "NOT_UNDERSTOOD"],
+            "fipa_contract_net": ["CALL_FOR_PROPOSAL", "PROPOSE", "ACCEPT", "REJECT", "INFORM", "FAILURE"],
+            "fipa_subscribe": ["SUBSCRIBE", "INFORM", "UNSUBSCRIBE"]
+        }
+        
         logger.info("[COORDINATION_LAYER] Concrete Coordination Layer initialized")
     
     def connect_coordination_components(
@@ -134,28 +145,70 @@ class ConcreteCoordinationLayer(CoordinationLayerInterface):
         Enhanced with standard ACL protocol implementation.
         """
         try:
-            # Validate message
+            # Validate message structure
             if not message.receiver_id:
                 logger.warning("[COORDINATION_LAYER] ACL message missing receiver_id")
                 return None
             
+            if not message.sender_id:
+                logger.warning("[COORDINATION_LAYER] ACL message missing sender_id")
+                return None
+            
+            if not message.performative:
+                logger.warning("[COORDINATION_LAYER] ACL message missing performative")
+                return None
+            
+            # Check if receiver is registered
             if message.receiver_id not in self._registered_agents:
                 logger.warning(f"[COORDINATION_LAYER] Receiver {message.receiver_id} not registered")
                 return None
             
-            # Store message
+            # Validate performative (FIPA ACL standard performatives)
+            valid_performatives = [
+                "REQUEST", "INFORM", "QUERY", "PROPOSE", "ACCEPT",
+                "REJECT", "CANCEL", "CALL_FOR_PROPOSAL", "AGREE",
+                "REFUSE", "FAILURE", "NOT_UNDERSTOOD", "PROXY",
+                "SUBSCRIBE", "UNSUBSCRIBE"
+            ]
+            if message.performative.upper() not in valid_performatives:
+                logger.warning(f"[COORDINATION_LAYER] Invalid performative: {message.performative}")
+                # Still allow it but with warning for extensibility
+            
+            # Add timestamp if not present
+            if not message.timestamp:
+                message.timestamp = datetime.utcnow()
+            
+            # Add reply_with if not present (for correlation)
+            if not message.reply_with and message.performative in ["QUERY", "REQUEST"]:
+                message.reply_with = f"reply_to_{message.message_id}"
+            
+            # Store message in message registry
             self._acl_messages[message.message_id] = message
+            
+            # Add to message queue with priority handling
+            message_priority = message.metadata.get("priority", 5)  # Default priority 5 (1-10)
             self._message_queue.append(message)
+            
+            # Sort queue by priority (higher priority first)
+            self._message_queue.sort(
+                key=lambda m: m.metadata.get("priority", 5),
+                reverse=True
+            )
             
             # Update metrics
             self._metrics.messages_sent += 1
             
-            # Check if reply is expected
-            if message.performative in ["QUERY", "REQUEST"]:
-                # In a real implementation, this would trigger actual message sending
+            # Check if acknowledgment is required
+            if message.metadata.get("require_ack", False):
+                # In a real implementation, this would wait for acknowledgment
                 pass
             
-            logger.info(f"[COORDINATION_LAYER] ACL message sent: {message.message_id} from {message.sender_id} to {message.receiver_id}")
+            # Check if this is a conversation message and update conversation tracking
+            if message.in_reply_to:
+                self._metrics.concurrent_conversations += 1
+            
+            logger.info(f"[COORDINATION_LAYER] ACL message sent: {message.message_id} "
+                       f"{message.performative} from {message.sender_id} to {message.receiver_id}")
             
             return message
             
@@ -176,6 +229,213 @@ class ConcreteCoordinationLayer(CoordinationLayerInterface):
         except Exception as e:
             logger.error(f"[COORDINATION_LAYER] Failed to receive ACL message: {e}")
             return False
+    
+    def start_conversation(
+        self,
+        conversation_id: str,
+        initiator_id: str,
+        participant_ids: List[str],
+        protocol: str = "fipa_request"
+    ) -> Dict[str, Any]:
+        """Start a new conversation between agents."""
+        try:
+            # Validate protocol
+            if protocol not in self._protocols:
+                logger.warning(f"[COORDINATION_LAYER] Unknown protocol: {protocol}")
+                protocol = "fipa_request"  # Default to basic request protocol
+            
+            conversation = {
+                "conversation_id": conversation_id,
+                "initiator": initiator_id,
+                "participants": participant_ids,
+                "protocol": protocol,
+                "status": "ACTIVE",
+                "started_at": datetime.utcnow().isoformat(),
+                "messages": [],
+                "current_step": 0
+            }
+            
+            self._conversations[conversation_id] = conversation
+            
+            logger.info(f"[COORDINATION_LAYER] Conversation started: {conversation_id} "
+                       f"with protocol {protocol}")
+            
+            return conversation
+            
+        except Exception as e:
+            logger.error(f"[COORDINATION_LAYER] Failed to start conversation: {e}")
+            return {"error": str(e)}
+    
+    def get_conversation(self, conversation_id: str) -> Optional[Dict[str, Any]]:
+        """Get conversation details."""
+        return self._conversations.get(conversation_id)
+    
+    def end_conversation(
+        self,
+        conversation_id: str,
+        outcome: str = "COMPLETED"
+    ) -> bool:
+        """End a conversation."""
+        try:
+            conversation = self._conversations.get(conversation_id)
+            if not conversation:
+                logger.warning(f"[COORDINATION_LAYER] Conversation {conversation_id} not found")
+                return False
+            
+            conversation["status"] = outcome
+            conversation["ended_at"] = datetime.utcnow().isoformat()
+            
+            # Update metrics
+            self._metrics.concurrent_conversations -= 1
+            
+            logger.info(f"[COORDINATION_LAYER] Conversation ended: {conversation_id} with outcome {outcome}")
+            
+            return True
+            
+        except Exception as e:
+            logger.error(f"[COORDINATION_LAYER] Failed to end conversation: {e}")
+            return False
+    
+    def check_protocol_conformance(
+        self,
+        message: ACLMessage,
+        conversation_id: Optional[str] = None
+    ) -> bool:
+        """Check if a message conforms to the expected protocol."""
+        try:
+            # If no conversation, perform basic validation
+            if not conversation_id:
+                return True  # Basic messages are always conformant
+            
+            conversation = self._conversations.get(conversation_id)
+            if not conversation:
+                logger.warning(f"[COORDINATION_LAYER] Conversation {conversation_id} not found")
+                return False
+            
+            protocol = conversation.get("protocol", "fipa_request")
+            expected_performatives = self._protocols.get(protocol, [])
+            
+            # Check if message performative is in expected protocol
+            if message.performative.upper() not in expected_performatives:
+                logger.warning(f"[COORDINATION_LAYER] Message performative {message.performative} "
+                             f"not in protocol {protocol}")
+                return False
+            
+            # Check protocol flow (simplified)
+            current_step = conversation.get("current_step", 0)
+            if current_step >= len(expected_performatives):
+                logger.warning(f"[COORDINATION_LAYER] Conversation has completed all steps")
+                return False
+            
+            # Check if this is the expected performative for current step
+            expected = expected_performatives[current_step]
+            if message.performative.upper() != expected:
+                # Allow some flexibility for branching protocols
+                logger.info(f"[COORDINATION_LAYER] Message performative {message.performative} "
+                          f"differs from expected {expected}")
+                # Still allow it for flexibility
+                return True
+            
+            # Update conversation step
+            conversation["current_step"] = current_step + 1
+            
+            return True
+            
+        except Exception as e:
+            logger.error(f"[COORDINATION_LAYER] Protocol conformance check failed: {e}")
+            return False
+    
+    def route_message(
+        self,
+        message: ACLMessage,
+        routing_strategy: str = "direct"
+    ) -> List[str]:
+        """Determine routing for a message based on strategy."""
+        try:
+            recipients = []
+            
+            if routing_strategy == "direct":
+                # Direct routing to specified receiver
+                if message.receiver_id:
+                    recipients.append(message.receiver_id)
+            
+            elif routing_strategy == "broadcast":
+                # Broadcast to all registered agents except sender
+                recipients = [
+                    agent_id for agent_id in self._registered_agents.keys()
+                    if agent_id != message.sender_id
+                ]
+            
+            elif routing_strategy == "multicast":
+                # Multicast to specified receivers
+                multicast_receivers = message.metadata.get("receivers", [])
+                recipients = [
+                    r for r in multicast_receivers 
+                    if r in self._registered_agents and r != message.sender_id
+                ]
+            
+            elif routing_strategy == "role_based":
+                # Route based on agent roles
+                target_role = message.metadata.get("target_role")
+                if target_role:
+                    recipients = [
+                        agent_id for agent_id, agent_info in self._registered_agents.items()
+                        if agent_info.get("type") == target_role and agent_id != message.sender_id
+                    ]
+            
+            else:
+                logger.warning(f"[COORDINATION_LAYER] Unknown routing strategy: {routing_strategy}")
+                # Default to direct routing
+                if message.receiver_id:
+                    recipients.append(message.receiver_id)
+            
+            logger.info(f"[COORDINATION_LAYER] Message routing: {routing_strategy} -> {len(recipients)} recipients")
+            
+            return recipients
+            
+        except Exception as e:
+            logger.error(f"[COORDINATION_LAYER] Message routing failed: {e}")
+            return []
+    
+    def apply_message_filter(
+        self,
+        message: ACLMessage,
+        filter_rules: Dict[str, Any]
+    ) -> bool:
+        """Apply filtering rules to a message."""
+        try:
+            # Check performative filter
+            allowed_performatives = filter_rules.get("allowed_performatives", [])
+            if allowed_performatives and message.performative not in allowed_performatives:
+                logger.info(f"[COORDINATION_LAYER] Message filtered by performative: {message.performative}")
+                return False
+            
+            # Check sender filter
+            blocked_senders = filter_rules.get("blocked_senders", [])
+            if message.sender_id in blocked_senders:
+                logger.info(f"[COORDINATION_LAYER] Message filtered by sender: {message.sender_id}")
+                return False
+            
+            # Check priority filter
+            min_priority = filter_rules.get("min_priority", 0)
+            message_priority = message.metadata.get("priority", 5)
+            if message_priority < min_priority:
+                logger.info(f"[COORDINATION_LAYER] Message filtered by priority: {message_priority}")
+                return False
+            
+            # Check size filter
+            max_size = filter_rules.get("max_size_kb", 1000)
+            message_size = len(str(message.content)) / 1024  # Simple size estimate
+            if message_size > max_size:
+                logger.info(f"[COORDINATION_LAYER] Message filtered by size: {message_size} KB")
+                return False
+            
+            # Message passed all filters
+            return True
+            
+        except Exception as e:
+            logger.error(f"[COORDINATION_LAYER] Message filtering failed: {e}")
+            return True  # Default to allow on filter failure
     
     def detect_conflict(
         self,
@@ -222,13 +482,23 @@ class ConcreteCoordinationLayer(CoordinationLayerInterface):
     def resolve_conflict(
         self,
         conflict_id: str,
-        resolution: ConflictResolutionProposal
+        resolution: ConflictResolutionProposal,
+        resolution_strategy: str = "negotiation"
     ) -> bool:
-        """Resolve a cross-agent conflict."""
+        """Resolve a cross-agent conflict with advanced resolution strategies."""
         try:
             conflict = self._conflicts.get(conflict_id)
             if not conflict:
                 logger.warning(f"[COORDINATION_LAYER] Conflict {conflict_id} not found")
+                return False
+            
+            # Apply resolution strategy
+            strategy_result = self._apply_resolution_strategy(
+                conflict, resolution, resolution_strategy
+            )
+            
+            if not strategy_result:
+                logger.warning(f"[COORDINATION_LAYER] Resolution strategy {resolution_strategy} failed")
                 return False
             
             # Accept the resolution
@@ -236,11 +506,12 @@ class ConcreteCoordinationLayer(CoordinationLayerInterface):
             conflict.status = CoordinationStatus.RESOLVED
             conflict.resolved_at = datetime.utcnow()
             
-            # Record resolution
+            # Record resolution with strategy
             self._resolution_history.append({
                 "conflict_id": conflict_id,
                 "resolution_id": resolution.proposal_id,
                 "resolution_type": resolution.resolution_type,
+                "resolution_strategy": resolution_strategy,
                 "resolved_at": datetime.utcnow().isoformat()
             })
             
@@ -251,12 +522,156 @@ class ConcreteCoordinationLayer(CoordinationLayerInterface):
                     self._metrics.conflicts_resolved / self._metrics.conflicts_detected
                 )
             
-            logger.info(f"[COORDINATION_LAYER] Conflict resolved: {conflict_id}")
+            logger.info(f"[COORDINATION_LAYER] Conflict resolved: {conflict_id} using {resolution_strategy}")
             
             return True
             
         except Exception as e:
             logger.error(f"[COORDINATION_LAYER] Failed to resolve conflict: {e}")
+            return False
+    
+    def _apply_resolution_strategy(
+        self,
+        conflict: CrossAgentConflict,
+        resolution: ConflictResolutionProposal,
+        strategy: str
+    ) -> bool:
+        """Apply specific resolution strategy to conflict."""
+        try:
+            if strategy == "negotiation":
+                return self._resolve_by_negotiation(conflict, resolution)
+            elif strategy == "voting":
+                return self._resolve_by_voting(conflict, resolution)
+            elif strategy == "priority":
+                return self._resolve_by_priority(conflict, resolution)
+            elif strategy == "arbitration":
+                return self._resolve_by_arbitration(conflict, resolution)
+            else:
+                logger.warning(f"[COORDINATION_LAYER] Unknown resolution strategy: {strategy}")
+                return self._resolve_by_priority(conflict, resolution)  # Default to priority
+            
+        except Exception as e:
+            logger.error(f"[COORDINATION_LAYER] Resolution strategy application failed: {e}")
+            return False
+    
+    def _resolve_by_negotiation(
+        self,
+        conflict: CrossAgentConflict,
+        resolution: ConflictResolutionProposal
+    ) -> bool:
+        """Resolve conflict through negotiation."""
+        try:
+            # In a real implementation, this would:
+            # 1. Send negotiation messages to both parties
+            # 2. Collect proposals and counter-proposals
+            # 3. Find acceptable compromise
+            # 4. Verify agreement from both parties
+            
+            # Simplified negotiation simulation
+            logger.info(f"[COORDINATION_LAYER] Negotiation resolution for conflict {conflict.conflict_id}")
+            
+            # Check if resolution is reasonable (simulated)
+            if resolution.resolution_confidence > 0.6:
+                return True
+            else:
+                logger.warning(f"[COORDINATION_LAYER] Negotiation resolution confidence too low")
+                return False
+                
+        except Exception as e:
+            logger.error(f"[COORDINATION_LAYER] Negotiation resolution failed: {e}")
+            return False
+    
+    def _resolve_by_voting(
+        self,
+        conflict: CrossAgentConflict,
+        resolution: ConflictResolutionProposal
+    ) -> bool:
+        """Resolve conflict through voting."""
+        try:
+            # In a real implementation, this would:
+            # 1. Gather votes from registered agents
+            # 2. Apply voting rules (simple majority, weighted, etc.)
+            # 3. Determine winning resolution
+            
+            # Simplified voting simulation
+            logger.info(f"[COORDINATION_LAYER] Voting resolution for conflict {conflict.conflict_id}")
+            
+            # Check agent acceptance in resolution
+            agent_acceptance = resolution.metadata.get("agent_acceptance", {})
+            acceptance_count = sum(1 for accepted in agent_acceptance.values() if accepted)
+            
+            # Simple majority required
+            total_agents = len(agent_acceptance)
+            if total_agents > 0 and acceptance_count > total_agents / 2:
+                logger.info(f"[COORDINATION_LAYER] Voting passed: {acceptance_count}/{total_agents}")
+                return True
+            else:
+                logger.warning(f"[COORDINATION_LAYER] Voting failed: {acceptance_count}/{total_agents}")
+                return False
+                
+        except Exception as e:
+            logger.error(f"[COORDINATION_LAYER] Voting resolution failed: {e}")
+            return False
+    
+    def _resolve_by_priority(
+        self,
+        conflict: CrossAgentConflict,
+        resolution: ConflictResolutionProposal
+    ) -> bool:
+        """Resolve conflict based on agent priorities."""
+        try:
+            # Check agent priorities
+            agent_a_info = self._registered_agents.get(conflict.agent_a_id, {})
+            agent_b_info = self._registered_agents.get(conflict.agent_b_id, {})
+            
+            priority_a = agent_a_info.get("priority", 5)  # Default priority 5
+            priority_b = agent_b_info.get("priority", 5)
+            
+            logger.info(f"[COORDINATION_LAYER] Priority resolution: A={priority_a}, B={priority_b}")
+            
+            # Higher priority wins
+            favored_agent = conflict.agent_a_id if priority_a > priority_b else conflict.agent_b_id
+            
+            # Check if resolution favors the higher priority agent
+            resolution_favors = resolution.metadata.get("favored_agent")
+            if resolution_favors == favored_agent:
+                logger.info(f"[COORDINATION_LAYER] Priority resolution favors correct agent")
+                return True
+            else:
+                logger.warning(f"[COORDINATION_LAYER] Priority resolution doesn't match priorities")
+                return False
+                
+        except Exception as e:
+            logger.error(f"[COORDINATION_LAYER] Priority resolution failed: {e}")
+            return False
+    
+    def _resolve_by_arbitration(
+        self,
+        conflict: CrossAgentConflict,
+        resolution: ConflictResolutionProposal
+    ) -> bool:
+        """Resolve conflict through arbitration."""
+        try:
+            # In a real implementation, this would:
+            # 1. Select arbitrator (third party or automated)
+            # 2. Present conflict details to arbitrator
+            # 3. Receive arbitration decision
+            # 4. Enforce decision
+            
+            logger.info(f"[COORDINATION_LAYER] Arbitration resolution for conflict {conflict.conflict_id}")
+            
+            # Check if resolution has arbitrator validation
+            arbitrator_validated = resolution.metadata.get("arbitrator_validated", False)
+            
+            if arbitrator_validated:
+                logger.info(f"[COORDINATION_LAYER] Arbitration validated")
+                return True
+            else:
+                logger.warning(f"[COORDINATION_LAYER] Arbitration not validated")
+                return False
+                
+        except Exception as e:
+            logger.error(f"[COORDINATION_LAYER] Arbitration resolution failed: {e}")
             return False
     
     def initiate_knowledge_exchange(

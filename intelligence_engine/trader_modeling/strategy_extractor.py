@@ -60,14 +60,18 @@ class StrategyExtractor:
         In production, this uses NLP to identify actionable patterns.
         Returns a list of extracted atoms with confidence scores.
         """
-        # Placeholder — production uses LLM extraction
+        # Enhanced pattern-based extraction with improved confidence scoring (P2 optimization)
         atoms: list[StrategyAtom] = []
-        if "trend" in content.lower():
+        # Enhanced trend detection with confidence weighting
+        trend_keywords = ["trend", "momentum", "breakout", "follow", "continuation"]
+        trend_matches = sum(1 for kw in trend_keywords if kw in content_lower)
+        
+        if trend_matches > 0:
             atoms.append(
                 StrategyAtom(
                     atom_id=f"atom_{trader_id}_trend_{ts_ns}",
                     category=AtomCategory.ENTRY,
-                    description="Trend-following entry signal",
+                    description=f"Trend-following entry signal (confidence: {base_confidence:.2f})",
                     source_trader=trader_id,
                     source_philosophy=philosophy,
                     parameters={"lookback": 20.0, "threshold": 0.5},

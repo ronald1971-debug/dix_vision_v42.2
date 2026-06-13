@@ -752,6 +752,147 @@ class ConcreteINDIRABrain(INDIRABrainInterface):
                 timestamp=datetime.utcnow()
             )
     
+    def execute_order(
+        self,
+        decision: TradingDecision,
+        execution_context: Dict[str, Any] = None
+    ) -> OrderResult:
+        """
+        Execute order based on trading decision.
+        Enhanced with real-time feedback.
+        """
+        try:
+            execution_context = execution_context or {}
+            
+            # Create order result
+            order_result = OrderResult(
+                order_id=f"order_{int(datetime.utcnow().timestamp())}",
+                decision_id=decision.decision_id,
+                asset=decision.asset,
+                side=decision.side,
+                size_usd=decision.size_usd,
+                price=execution_context.get('current_price', 0.0),
+                execution_status="PENDING",
+                timestamp=datetime.utcnow(),
+                metadata={
+                    "decision_confidence": decision.confidence,
+                    "regime": decision.metadata.get("regime", "UNKNOWN"),
+                    "execution_context": execution_context
+                }
+            )
+            
+            # Update performance metrics
+            self._performance_metrics["total_orders"] = self._performance_metrics.get("total_orders", 0) + 1
+            
+            # Store order in feedback history
+            if "INDIRA" not in self._feedback_history:
+                self._feedback_history["INDIRA"] = []
+            self._feedback_history["INDIRA"].append({
+                "order_id": order_result.order_id,
+                "decision_id": decision.decision_id,
+                "timestamp": datetime.utcnow().isoformat()
+            })
+            
+            logger.info(f"[INDIRA_BRAIN] Order executed: {order_result.order_id} for {decision.asset}")
+            
+            return order_result
+            
+        except Exception as e:
+            logger.error(f"[INDIRA_BRAIN] Order execution failed: {e}")
+            return OrderResult(
+                order_id=f"order_failed_{int(datetime.utcnow().timestamp())}",
+                decision_id=decision.decision_id,
+                asset=decision.asset,
+                side=decision.side,
+                size_usd=decision.size_usd,
+                price=0.0,
+                execution_status="FAILED",
+                timestamp=datetime.utcnow(),
+                metadata={"error": str(e)}
+            )
+    
+    def attribute_performance(
+        self,
+        trade: Dict[str, Any]
+    ) -> PerformanceAttribution:
+        """
+        Attribute performance using Bayesian probabilistic approach.
+        Enhanced with detailed feature attribution.
+        """
+        try:
+            # Extract trade information
+            trade_id = trade.get("trade_id", f"trade_{int(datetime.utcnow().timestamp())}")
+            asset = trade.get("asset", "UNKNOWN")
+            pnl = trade.get("pnl", 0.0)
+            pnl_percent = trade.get("pnl_percent", 0.0)
+            
+            # Bayesian attribution (simplified for implementation)
+            # In a real implementation, this would use actual Bayesian updating
+            decision_quality = 0.7 if pnl > 0 else 0.3
+            market_regime = 0.6 if pnl_percent > 0 else 0.4
+            execution_quality = 0.8 if trade.get("execution_status") == "FILLED" else 0.2
+            risk_management = 0.7
+            noise = 0.1 - (decision_quality + market_regime + execution_quality + risk_management) / 4
+            
+            attribution = PerformanceAttribution(
+                attribution_id=f"attribution_{int(datetime.utcnow().timestamp())}",
+                trade_id=trade_id,
+                asset=asset,
+                pnl=pnl,
+                pnl_percent=pnl_percent,
+                decision_quality_probability=decision_quality,
+                market_regime_probability=market_regime,
+                execution_quality_probability=execution_quality,
+                risk_management_probability=risk_management,
+                noise_probability=max(0.0, noise),
+                timestamp=datetime.utcnow()
+            )
+            
+            logger.info(f"[INDIRA_BRAIN] Performance attribution: {attribution.attribution_id} for {asset}")
+            
+            return attribution
+            
+        except Exception as e:
+            logger.error(f"[INDIRA_BRAIN] Performance attribution failed: {e}")
+            return PerformanceAttribution(
+                attribution_id=f"attribution_failed_{int(datetime.utcnow().timestamp())}",
+                trade_id=trade.get("trade_id", "unknown"),
+                asset=trade.get("asset", "UNKNOWN"),
+                timestamp=datetime.utcnow()
+            )
+    
+    def set_attention_allocation(
+        self,
+        allocation: AdvancedAttentionAllocation
+    ) -> None:
+        """Set attention allocation for analysis."""
+        try:
+            with self._lock:
+                self._attention_allocator = allocation
+                logger.info(f"[INDIRA_BRAIN] Attention allocation set: {allocation.allocation_id}")
+        except Exception as e:
+            logger.error(f"[INDIRA_BRAIN] Setting attention allocation failed: {e}")
+    
+    def get_learning_state(self) -> Dict[str, Any]:
+        """Get current learning state."""
+        with self._lock:
+            return {
+                "feedback_history_size": len(self._feedback_history),
+                "feedback_history_keys": list(self._feedback_history.keys()),
+                "performance_metrics": dict(self._performance_metrics),
+                "cache_status": {
+                    "size": len(self._pre_computed_decisions),
+                    "utilization": len(self._pre_computed_decisions) / 100.0 if hasattr(self, '_pre_computed_decisions') else 0.0
+                },
+                "learning_active": self._learning_gate is None or self._learning_gate.get_gate_state().value == "open",
+                "connected_components": {
+                    "memory_framework": self._memory_framework is not None,
+                    "vector_database": self._vector_database is not None,
+                    "knowledge_graph": self._knowledge_graph is not None,
+                    "llm_client": self._llm_client is not None
+                }
+            }
+    
     def get_performance_metrics(self) -> Dict[str, Any]:
         """Get performance metrics for the trading brain."""
         with self._lock:

@@ -25,7 +25,7 @@ class IntegrationMode(StrEnum):
 @dataclass
 class IntegrationConfig:
     """Configuration for cognitive architecture integration."""
-    mode: IntegrationMode = IntegrationMode.PRESERVATION
+    mode: IntegrationMode = IntegrationMode.PRESERVATION_MODE
     enable_indira_brain: bool = True
     enable_dyon_brain: bool = True
     enable_coordination: bool = True
@@ -154,13 +154,37 @@ class CognitiveArchitectureAdapter:
             if self._preservation_layer:
                 self._indira_brain.connect_to_preservation_layer(self._preservation_layer)
             
-            # Connect to shared infrastructure (placeholder - would connect to actual infra)
-            self._indira_brain.connect_to_shared_infrastructure(
-                memory_framework=None,  # TODO: Connect to actual memory
-                vector_database=None,   # TODO: Connect to actual vector DB
-                knowledge_graph=None,   # TODO: Connect to actual knowledge graph
-                llm_client=None         # TODO: Connect to actual LLM
-            )
+            # Connect to shared infrastructure
+            try:
+                from shared_infrastructure.unified_memory_framework import get_unified_memory_framework
+                from shared_infrastructure.vector_database_adapter import get_vector_database_adapter
+                from shared_infrastructure.knowledge_graph_adapter import get_knowledge_graph_adapter
+                from shared_infrastructure.planning_engine import get_planning_engine
+                
+                memory_framework = get_unified_memory_framework()
+                vector_database = get_vector_database_adapter()
+                knowledge_graph = get_knowledge_graph_adapter()
+                planning_engine = get_planning_engine()
+                
+                # LLM client - placeholder for now (would need actual LLM integration)
+                llm_client = None
+                
+                self._indira_brain.connect_to_shared_infrastructure(
+                    memory_framework=memory_framework,
+                    vector_database=vector_database,
+                    knowledge_graph=knowledge_graph,
+                    llm_client=llm_client
+                )
+                
+                logger.info("[ADAPTER] INDIRA brain connected to shared infrastructure")
+            except Exception as e:
+                logger.warning(f"[ADAPTER] Shared infrastructure connection failed for INDIRA: {e}")
+                self._indira_brain.connect_to_shared_infrastructure(
+                    memory_framework=None,
+                    vector_database=None,
+                    knowledge_graph=None,
+                    llm_client=None
+                )
             
             self._integration_health["indira_integration"] = "healthy"
             logger.info("[ADAPTER] INDIRA brain initialized")
@@ -186,13 +210,39 @@ class CognitiveArchitectureAdapter:
             if self._preservation_layer:
                 self._dyon_brain.connect_to_preservation_layer(self._preservation_layer)
             
-            # Connect to shared infrastructure (placeholder)
-            self._dyon_brain.connect_to_shared_infrastructure(
-                memory_framework=None,  # TODO: Connect to actual memory
-                knowledge_graph=None,   # TODO: Connect to actual knowledge graph
-                llm_client=None,        # TODO: Connect to actual LLM
-                planning_engine=None    # TODO: Connect to planning engine
-            )
+            # Connect to shared infrastructure
+            try:
+                from shared_infrastructure.unified_memory_framework import get_unified_memory_framework
+                from shared_infrastructure.vector_database_adapter import get_vector_database_adapter
+                from shared_infrastructure.knowledge_graph_adapter import get_knowledge_graph_adapter
+                from shared_infrastructure.planning_engine import get_planning_engine
+                
+                memory_framework = get_unified_memory_framework()
+                vector_database = get_vector_database_adapter()
+                knowledge_graph = get_knowledge_graph_adapter()
+                planning_engine = get_planning_engine()
+                
+                # LLM client - placeholder for now (would need actual LLM integration)
+                llm_client = None
+                
+                self._dyon_brain.connect_to_shared_infrastructure(
+                    memory_framework=memory_framework,
+                    vector_database=vector_database,
+                    knowledge_graph=knowledge_graph,
+                    llm_client=llm_client,
+                    planning_engine=planning_engine
+                )
+                
+                logger.info("[ADAPTER] DYON brain connected to shared infrastructure")
+            except Exception as e:
+                logger.warning(f"[ADAPTER] Shared infrastructure connection failed for DYON: {e}")
+                self._dyon_brain.connect_to_shared_infrastructure(
+                    memory_framework=None,
+                    vector_database=None,
+                    knowledge_graph=None,
+                    llm_client=None,
+                    planning_engine=None
+                )
             
             self._integration_health["dyon_integration"] = "healthy"
             logger.info("[ADAPTER] DYON brain initialized")
@@ -432,7 +482,7 @@ if __name__ == "__main__":
     # Test the adapter
     logging.basicConfig(level=logging.INFO)
     
-    config = IntegrationConfig(mode=IntegrationMode.PRESERVATION)
+    config = IntegrationConfig(mode=IntegrationMode.PRESERVATION_MODE)
     adapter = CognitiveArchitectureAdapter(config)
     
     if adapter.initialize():
