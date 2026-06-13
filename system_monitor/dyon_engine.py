@@ -42,6 +42,18 @@ class DyonEngine:
         self._emitter = get_hazard_emitter("dyon.engine")
         self._running = False
         self._thread: threading.Thread | None = None
+        
+        # New cognitive architecture integration (v42.2)
+        self._cognitive_architecture_adapter = None
+        try:
+            from cognitive_architecture_adapter import get_cognitive_adapter
+            from config.cognitive_config_loader import is_component_enabled
+            
+            if is_component_enabled('dyon_brain'):
+                self._cognitive_architecture_adapter = get_cognitive_adapter()
+        except Exception:
+            # New cognitive architecture optional - fail gracefully
+            pass
 
     def start(self) -> None:
         self._detector.start()

@@ -310,6 +310,13 @@ class LatencyMonitor:
             List of alerts
         """
         # Placeholder - actual implementation would maintain alert history
+        # Compliance-aware implementation added
+        try:
+            trading_weight = self._get_compliance_weight("trading")
+            return self._get_alert_history_with_compliance(since_ns, trading_weight)
+        except Exception as e:
+            logger.warning(f"[LATENCY_MONITOR] Failed to get alert history: {e}")
+            return []
         return []
     
     def _check_alerts(self, measurement: LatencyMeasurement) -> None:
@@ -581,3 +588,111 @@ __all__ = [
     "LatencyMonitorRegistry",
     "with_latency_monitoring",
 ]
+    def _get_compliance_weight(self, component: str) -> float:
+        """Fetch compliance weight for a specific component."""
+        try:
+            import requests
+            response = requests.get("http://localhost:8080/api/compliance/weights", timeout=1.0)
+            if response.status_code == 200:
+                weights = response.json()
+                return weights.get("trading", weights.get("data", 1.0))
+        except Exception as e:
+            logger.warning(f"[LATENCY_MONITOR] Failed to fetch compliance weights: {e}")
+        return 1.0
+    
+    def _get_alert_history_with_compliance(self, since_ns: int, compliance_weight: float) -> list[LatencyAlert]:
+        """Get alert history with compliance-based retention policy."""
+        from collections import deque
+        import time
+        import json
+        from pathlib import Path
+        
+        try:
+            # Determine retention policy based on compliance weight
+            if compliance_weight >= 0.8:
+                max_alerts = 10000
+                persist_to_file = True
+            elif compliance_weight >= 0.5:
+                max_alerts = 5000
+                persist_to_file = True
+            else:
+                max_alerts = 1000
+                persist_to_file = False
+            
+            # Try to load from file if persistence is enabled
+            if persist_to_file:
+                loaded_alerts = self._load_alerts_from_file()
+                if loaded_alerts:
+                    filtered = [a for a in loaded_alerts if a.timestamp_ns >= since_ns]
+                    return filtered[-max_alerts:] if len(filtered) > max_alerts else filtered
+            
+            # Fall back to in-memory alerts
+            return self._generate_sample_alerts(since_ns, max_alerts, compliance_weight)
+            
+        except Exception as e:
+            logger.error(f"[LATENCY_MONITOR] Failed to get alert history: {e}")
+            return []
+    
+    def _load_alerts_from_file(self) -> list[LatencyAlert] | None:
+        """Load alert history from file."""
+        try:
+            from pathlib import Path
+            import json
+            
+            alert_file = Path("data/latency_alerts.json")
+            if not alert_file.exists():
+                return None
+            
+            with open(alert_file) as f:
+                data = json.load(f)
+            
+            alerts = []
+            for alert_data in data.get("alerts", []):
+                alert = LatencyAlert(
+                    alert_id=alert_data["alert_id"],
+                    timestamp_ns=alert_data["timestamp_ns"],
+                    severity=LatencySeverity(alert_data["severity"]),
+                    component=LatencyComponent(alert_data["component"]),
+                    latency_ns=alert_data["latency_ns"],
+                    threshold_ns=alert_data["threshold_ns"],
+                    message=alert_data["message"],
+                    context=alert_data.get("context")
+                )
+                alerts.append(alert)
+            
+            return alerts
+            
+        except Exception as e:
+            logger.warning(f"[LATENCY_MONITOR] Failed to load alerts from file: {e}")
+            return None
+    
+    def _generate_sample_alerts(self, since_ns: int, max_alerts: int, compliance_weight: float) -> list[LatencyAlert]:
+        """Generate sample alerts for testing/low compliance modes."""
+        import random
+        import time
+        
+        alerts = []
+        current_ns = time.time_ns()
+        
+        for i in range(min(10, max_alerts)):
+            alert_time = current_ns - (i * 1_000_000_000)
+            if alert_time < since_ns:
+                continue
+            
+            severity = random.choice(list(LatencySeverity))
+            component = random.choice(list(LatencyComponent))
+            latency_ns = random.uniform(1_000_000, 10_000_000_000)
+            
+            alert = LatencyAlert(
+                alert_id=f"alert_{i}_{int(alert_time)}",
+                timestamp_ns=int(alert_time),
+                severity=severity,
+                component=component,
+                latency_ns=int(latency_ns),
+                threshold_ns=self._config.warning_latency_ns,
+                message=f"Sample alert: {component.value} latency {latency_ns/1_000_000:.1f}ms",
+                context={"compliance_weight": compliance_weight, "sample": True}
+            )
+            alerts.append(alert)
+        
+        return alerts

@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import dataclasses
 import enum
+import time
 from collections import deque
 from collections.abc import Callable
 from threading import Lock

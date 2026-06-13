@@ -60,7 +60,7 @@ class IndiraEngine:
         self._on_execution = on_execution
         self._portfolio_usd = 100_000.0  # Updated by execution feedback
         
-        # Cognitive orchestrator integration
+        # Cognitive orchestrator integration (legacy)
         self._cognitive_orchestrator = None
         try:
             from cognitive_engine.cognitive_orchestrator import get_cognitive_orchestrator
@@ -71,11 +71,40 @@ class IndiraEngine:
         except Exception:
             # Cognitive integration optional - fail gracefully
             pass
+        
+        # NEW: INDIRA brain adapter integration
+        self._indira_brain_adapter = None
+        try:
+            from mind.indira_brain_adapter import get_indira_brain_adapter
+            from system.feature_flags import CognitiveFeatureFlags, FeatureFlagManager
+            
+            # Check if new brain integration is enabled
+            if FeatureFlagManager.is_enabled(CognitiveFeatureFlags.COGNITIVE_RISK_ASSESSMENT):
+                self._indira_brain_adapter = get_indira_brain_adapter()
+                self._indira_adapter_initialized = True
+        except Exception:
+            # New brain integration optional - fail gracefully
+            self._indira_brain_adapter = None
+            self._indira_adapter_initialized = False
+        
+        # New cognitive architecture integration (v42.2)
+        self._cognitive_architecture_adapter = None
+        try:
+            from cognitive_architecture_adapter import get_cognitive_adapter
+            from config.cognitive_config_loader import is_component_enabled
+            
+            if is_component_enabled('indira_brain'):
+                self._cognitive_architecture_adapter = get_cognitive_adapter()
+        except Exception:
+            # New cognitive architecture optional - fail gracefully
+            pass
 
     def process_tick(self, market_data: dict[str, Any]) -> ExecutionEvent:
         """
         Main fast path. Produces typed execution event.
         Called on every market tick. Must complete < 5ms.
+        
+        NEW: Integrated with INDIRA brain adapter for enhanced cognition.
         """
         start_ns = _monotonic_ns()
 
@@ -96,6 +125,54 @@ class IndiraEngine:
         # Step 2: Risk cache check (< 0.01ms, no RPC)
         constraints = self._risk_cache.get()
 
+        # NEW: Try INDIRA brain adapter if available and intent allows trading
+        if self._indira_brain_adapter and intent.intent_type not in {IntentType.DELEGATE, IntentType.HOLD}:
+            try:
+                adapter_result = self._indira_brain_adapter.process_trading_decision(
+                    market_data=market_data,
+                    asset=asset,
+                    risk_constraints=constraints,
+                    portfolio_usd=self._portfolio_usd
+                )
+                
+                # Convert adapter result to ExecutionEvent
+                if adapter_result and adapter_result["decision_type"] in ["BUY", "SELL"]:
+                    ev = self._make_event(
+                        "TRADE_EXECUTION",
+                        asset,
+                        adapter_result["side"],
+                        "MARKET",
+                        adapter_result["size_usd"],
+                        price,
+                        strategy,
+                        adapter_result["confidence"],
+                        True  # Adapter already applied risk constraints
+                    )
+                    
+                    # Step 3: Measure and record latency
+                    latency_ns = _monotonic_ns() - start_ns
+                    ev.latency_ns = latency_ns
+                    latency_ms = latency_ns / 1_000_000
+                    self._metrics.observe("trade_latency_ms", latency_ms)
+                    
+                    # Alert if latency exceeds fast-path target
+                    if latency_ms > 5.0:
+                        from execution.hazard.event_emitter import get_hazard_emitter
+                        get_hazard_emitter("indira").latency_spike("fast_path", latency_ms, 5.0)
+                    
+                    # Callback for downstream
+                    if self._on_execution:
+                        try:
+                            self._on_execution(ev)
+                        except Exception:
+                            pass
+                    
+                    return ev
+            except Exception as e:
+                # Adapter failed - fall through to legacy path
+                pass
+
+        # Legacy path (preserved for backward compatibility)
         if intent.intent_type == IntentType.DELEGATE:
             ev = self._make_event(
                 "DELEGATE", asset, "NONE", "NONE", 0.0, price, strategy, intent.confidence, True
@@ -195,6 +272,53 @@ class IndiraEngine:
             timestamp_utc=now().utc_time.isoformat(),
             allowed=allowed,
         )
+
+    def process_tick_with_new_architecture(self, market_data: dict[str, Any]) -> ExecutionEvent:
+        """
+        Process tick with optional new cognitive architecture enhancement.
+        
+        This method provides enhanced decision-making using the new ConcreteINDIRABrain
+        when available, while maintaining backward compatibility with the legacy system.
+        
+        Args:
+            market_data: Market data dictionary.
+            
+        Returns:
+            ExecutionEvent: Execution event with optional cognitive enhancement.
+        """
+        # First, get the legacy decision
+        legacy_event = self.process_tick(market_data)
+        
+        # Try to enhance with new cognitive architecture
+        if self._cognitive_architecture_adapter:
+            try:
+                enhanced = self._cognitive_architecture_adapter.enhance_indira_decision(
+                    market_data, legacy_event
+                )
+                
+                if enhanced.get("enhanced"):
+                    # Apply enhanced decision if available and beneficial
+                    enhanced_decision = enhanced.get("enhanced_decision")
+                    
+                    # Only use enhanced decision if it provides meaningful improvement
+                    if enhanced_decision and enhanced.get("confidence_boost", 0) > 0.1:
+                        # Create enhanced event
+                        return self._make_event(
+                            event_type=legacy_event.event_type,
+                            asset=enhanced_decision.asset,
+                            side=enhanced_decision.side,
+                            order_type="MARKET",  # Default to market orders for fast execution
+                            size_usd=enhanced_decision.size_usd,
+                            price=legacy_event.price,  # Keep current price
+                            strategy=enhanced_decision.metadata.get("strategy", legacy_event.strategy),
+                            confidence=enhanced_decision.confidence,
+                            allowed=legacy_event.allowed
+                        )
+            except Exception as e:
+                # Enhancement failed - use legacy decision
+                pass
+        
+        return legacy_event
 
     def update_portfolio_value(self, usd: float) -> None:
         """Called by execution feedback after fills."""

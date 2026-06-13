@@ -761,3 +761,62 @@ __all__ = [
     "PortfolioSynchronizer",
     "PortfolioSyncManager",
 ]
+    def _get_compliance_weight(self, component: str) -> float:
+        """Fetch compliance weight for a specific component."""
+        try:
+            import requests
+            response = requests.get("http://localhost:8080/api/compliance/weights", timeout=1.0)
+            if response.status_code == 200:
+                weights = response.json()
+                return weights.get("data", weights.get("trading", 1.0))
+        except Exception as e:
+            logger.warning(f"[PORTFOLIO_SYNC] Failed to fetch compliance weights: {e}")
+        return 1.0
+    
+    def _convert_to_stream_message(self, snapshot: PortfolioSnapshot) -> Any:
+        """Convert portfolio snapshot to StreamMessage."""
+        message_data = {
+            "event_type": "portfolio_update",
+            "timestamp_ns": snapshot.timestamp_ns,
+            "account_id": snapshot.account_id,
+            "total_value": snapshot.total_value,
+            "positions_count": len(snapshot.positions),
+            "positions": [
+                {
+                    "symbol": pos.symbol,
+                    "quantity": pos.quantity,
+                    "value": pos.value,
+                    "avg_entry_price": pos.avg_entry_price,
+                    "unrealized_pnl": pos.unrealized_pnl,
+                }
+                for pos in snapshot.positions
+            ],
+            "cash": snapshot.cash,
+            "metadata": snapshot.metadata
+        }
+        return message_data
+    
+    def _publish_with_guarantee(self, message: Any) -> None:
+        """Publish message with guaranteed delivery."""
+        try:
+            self._gateway.publish("PORTFOLIO", message, qos=1)
+        except Exception as e:
+            logger.error(f"[PORTFOLIO_SYNC] Guaranteed delivery publish failed: {e}")
+            raise
+    
+    def _publish_standard(self, message: Any) -> None:
+        """Publish message with standard delivery."""
+        try:
+            self._gateway.publish("PORTFOLIO", message, qos=0)
+        except Exception as e:
+            logger.error(f"[PORTFOLIO_SYNC] Standard publish failed: {e}")
+            raise
+    
+    def _log_snapshot(self, snapshot: PortfolioSnapshot) -> None:
+        """Log portfolio snapshot when real-time publishing is disabled."""
+        logger.info(
+            f"[PORTFOLIO_SYNC] Portfolio snapshot (log mode): "
+            f"total_value={snapshot.total_value}, "
+            f"positions={len(snapshot.positions)}, "
+            f"cash={snapshot.cash}"
+        )
