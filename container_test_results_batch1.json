@@ -1,0 +1,172 @@
+[
+  {
+    "container": "redis-service",
+    "build_status": "standard_image",
+    "runtime_status": "skipped",
+    "errors": [],
+    "timestamp": "2026-06-13T16:55:42.004110"
+  },
+  {
+    "container": "postgresql-service",
+    "build_status": "standard_image",
+    "runtime_status": "skipped",
+    "errors": [],
+    "timestamp": "2026-06-13T16:55:44.004650"
+  },
+  {
+    "container": "prometheus-service",
+    "build_status": "standard_image",
+    "runtime_status": "skipped",
+    "errors": [],
+    "timestamp": "2026-06-13T16:55:46.005465"
+  },
+  {
+    "container": "grafana-service",
+    "build_status": "standard_image",
+    "runtime_status": "skipped",
+    "errors": [],
+    "timestamp": "2026-06-13T16:55:48.005725"
+  },
+  {
+    "container": "ccxt-service",
+    "build_status": "failed",
+    "runtime_status": "skipped",
+    "errors": [
+      ".10, 4.5.11, 4.5.12, 4.5.13, 4.5.14, 4.5.15, 4.5.16, 4.5.17, 4.5.18, 4.5.19, 4.5.20, 4.5.21, 4.5.22, 4.5.23, 4.5.24, 4.5.25, 4.5.26, 4.5.27, 4.5.28, 4.5.29, 4.5.30, 4.5.31, 4.5.32, 4.5.33, 4.5.34, 4.5.35, 4.5.36, 4.5.37, 4.5.38, 4.5.39, 4.5.40, 4.5.41, 4.5.42, 4.5.43, 4.5.44, 4.5.45, 4.5.46, 4.5.47, 4.5.48, 4.5.49, 4.5.50, 4.5.51, 4.5.52, 4.5.53, 4.5.54, 4.5.55, 4.5.56, 4.5.57, 4.5.58)\n2.411 ERROR: No matching distribution found for ccxt==4.1.0\n2.561 \n2.561 [notice] A new release of pip is available: 24.0 -> 26.1.2\n2.561 [notice] To update, run: pip install --upgrade pip\n------\nDockerfile:28\n--------------------\n  26 |     # Install Python dependencies\n  27 |     COPY requirements.txt .\n  28 | >>> RUN pip install --no-cache-dir -r requirements.txt\n  29 |     \n  30 |     # Copy governance wrapper and domain adapter\n--------------------\nERROR: failed to build: failed to solve: process \"/bin/sh -c pip install --no-cache-dir -r requirements.txt\" did not complete successfully: exit code: 1\n"
+    ],
+    "timestamp": "2026-06-13T16:55:50.005888"
+  },
+  {
+    "container": "langchain-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T16:55:55.755366"
+  },
+  {
+    "container": "playwright-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T16:55:59.305462"
+  },
+  {
+    "container": "fastapi-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T16:56:03.102112"
+  },
+  {
+    "container": "celery-service",
+    "build_status": "failed",
+    "runtime_status": "skipped",
+    "errors": [
+      "N pip install --no-cache-dir -r requirements.txt:\n6.471     celery 5.3.6 depends on vine<6.0 and >=5.1.0\n6.471 \n6.471 To fix this you could try to:\n6.471 1. loosen the range of package versions you've specified\n6.471 2. remove package versions to allow pip attempt to solve the dependency conflict\n6.471 \n6.471 ERROR: ResolutionImpossible: for help visit https://pip.pypa.io/en/latest/topics/dependency-resolution/#dealing-with-dependency-conflicts\n6.609 \n6.609 [notice] A new release of pip is available: 24.0 -> 26.1.2\n6.609 [notice] To update, run: pip install --upgrade pip\n------\nDockerfile:26\n--------------------\n  24 |     # Install Python dependencies\n  25 |     COPY requirements.txt .\n  26 | >>> RUN pip install --no-cache-dir -r requirements.txt\n  27 |     \n  28 |     # Copy governance wrapper and domain adapter\n--------------------\nERROR: failed to build: failed to solve: process \"/bin/sh -c pip install --no-cache-dir -r requirements.txt\" did not complete successfully: exit code: 1\n"
+    ],
+    "timestamp": "2026-06-13T16:56:06.628110"
+  },
+  {
+    "container": "requests-service",
+    "build_status": "success",
+    "runtime_status": "timeout",
+    "errors": [],
+    "timestamp": "2026-06-13T16:56:16.628389"
+  },
+  {
+    "container": "aiohttp-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T16:56:29.681026"
+  },
+  {
+    "container": "airflow-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T16:56:33.226701"
+  },
+  {
+    "container": "apache-beam-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T16:56:36.754807"
+  },
+  {
+    "container": "argon-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T16:56:40.462471"
+  },
+  {
+    "container": "asyncio-enhanced-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T16:56:44.038968"
+  },
+  {
+    "container": "beautifulsoup4-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T16:56:47.496150"
+  },
+  {
+    "container": "blackbox-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T16:56:51.150250"
+  },
+  {
+    "container": "celery-enhanced-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T16:56:54.703175"
+  },
+  {
+    "container": "clickhouse-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T16:56:58.212368"
+  },
+  {
+    "container": "consul-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T16:57:01.843306"
+  }
+]

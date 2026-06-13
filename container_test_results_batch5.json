@@ -1,0 +1,173 @@
+[
+  {
+    "container": "scrapy-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T17:33:51.815951"
+  },
+  {
+    "container": "selenium-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T17:33:55.368786"
+  },
+  {
+    "container": "sentry-sdk-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T17:33:58.868747"
+  },
+  {
+    "container": "simpy-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T17:34:03.685961"
+  },
+  {
+    "container": "slowapi-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T17:34:07.256090"
+  },
+  {
+    "container": "socket.io-client-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T17:34:33.028470"
+  },
+  {
+    "container": "sqlalchemy-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T17:35:04.300378"
+  },
+  {
+    "container": "sqlalchemy-enhanced-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T17:35:16.945870"
+  },
+  {
+    "container": "statsmodels-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T17:35:29.001970"
+  },
+  {
+    "container": "structlog-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T17:36:16.709938"
+  },
+  {
+    "container": "telegrambot-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T17:36:43.283881"
+  },
+  {
+    "container": "tempo-service",
+    "build_status": "failed",
+    "runtime_status": "skipped",
+    "errors": [
+      "tice] A new release of pip is available: 24.0 -> 26.1.2\n#9 2.022 [notice] To update, run: pip install --upgrade pip\n#9 ERROR: process \"/bin/sh -c pip install --no-cache-dir -r requirements.txt\" did not complete successfully: exit code: 1\n------\n > [ 5/14] RUN pip install --no-cache-dir -r requirements.txt:\n1.742 ERROR: Could not find a version that satisfies the requirement tempo-client==0.1.0 (from versions: 0.0.1)\n1.742 ERROR: No matching distribution found for tempo-client==0.1.0\n2.022 \n2.022 [notice] A new release of pip is available: 24.0 -> 26.1.2\n2.022 [notice] To update, run: pip install --upgrade pip\n------\nDockerfile:20\n--------------------\n  18 |     \n  19 |     COPY requirements.txt .\n  20 | >>> RUN pip install --no-cache-dir -r requirements.txt\n  21 |     \n  22 |     COPY tempo_governance_wrapper.py .\n--------------------\nERROR: failed to build: failed to solve: process \"/bin/sh -c pip install --no-cache-dir -r requirements.txt\" did not complete successfully: exit code: 1\n"
+    ],
+    "timestamp": "2026-06-13T17:36:53.896612"
+  },
+  {
+    "container": "tensorflow-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T17:36:58.646810"
+  },
+  {
+    "container": "textblob-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T17:39:46.939482"
+  },
+  {
+    "container": "timescaledb-service",
+    "build_status": "failed",
+    "runtime_status": "skipped",
+    "errors": [
+      "ut.\n#9 3.137 \n#9 3.137 note: This is an issue with the package mentioned above, not pip.\n#9 3.137 hint: See above for details.\n#9 3.297 \n#9 3.297 [notice] A new release of pip is available: 24.0 -> 26.1.2\n#9 3.297 [notice] To update, run: pip install --upgrade pip\n#9 ERROR: process \"/bin/sh -c pip install --no-cache-dir -r requirements.txt\" did not complete successfully: exit code: 1\n------\n > [ 5/14] RUN pip install --no-cache-dir -r requirements.txt:\n3.137 error: metadata-generation-failed\n3.137 \n3.137 \u00d7 Encountered error while generating package metadata.\n3.137 \u2570\u2500> See above for output.\n3.137 \n3.137 note: This is an issue with the package mentioned above, not pip.\n3.137 hint: See above for details.\n3.297 \n3.297 [notice] A new release of pip is available: 24.0 -> 26.1.2\n3.297 [notice] To update, run: pip install --upgrade pip\n------\nERROR: failed to build: failed to solve: process \"/bin/sh -c pip install --no-cache-dir -r requirements.txt\" did not complete successfully: exit code: 1\n"
+    ],
+    "timestamp": "2026-06-13T17:40:19.444105"
+  },
+  {
+    "container": "tornado-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T17:40:22.784698"
+  },
+  {
+    "container": "twisted-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T17:40:54.333809"
+  },
+  {
+    "container": "vault-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T17:41:29.605643"
+  },
+  {
+    "container": "websockets-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T17:41:42.269305"
+  }
+]

@@ -1,0 +1,182 @@
+[
+  {
+    "container": "jupyter-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T17:04:57.487405"
+  },
+  {
+    "container": "kafka-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T17:05:01.049761"
+  },
+  {
+    "container": "kombu-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T17:05:04.658736"
+  },
+  {
+    "container": "kong-service",
+    "build_status": "failed",
+    "runtime_status": "skipped",
+    "errors": [
+      "#9 1.948 [notice] A new release of pip is available: 24.0 -> 26.1.2\n#9 1.948 [notice] To update, run: pip install --upgrade pip\n#9 ERROR: process \"/bin/sh -c pip install --no-cache-dir -r requirements.txt\" did not complete successfully: exit code: 1\n------\n > [ 5/14] RUN pip install --no-cache-dir -r requirements.txt:\n1.770 ERROR: Could not find a version that satisfies the requirement kong==3.3.0 (from versions: 0.1, 0.2.1)\n1.770 ERROR: No matching distribution found for kong==3.3.0\n1.948 \n1.948 [notice] A new release of pip is available: 24.0 -> 26.1.2\n1.948 [notice] To update, run: pip install --upgrade pip\n------\nDockerfile:20\n--------------------\n  18 |     \n  19 |     COPY requirements.txt .\n  20 | >>> RUN pip install --no-cache-dir -r requirements.txt\n  21 |     \n  22 |     COPY kong_governance_wrapper.py .\n--------------------\nERROR: failed to build: failed to solve: process \"/bin/sh -c pip install --no-cache-dir -r requirements.txt\" did not complete successfully: exit code: 1\n"
+    ],
+    "timestamp": "2026-06-13T17:05:30.868010"
+  },
+  {
+    "container": "kubernetes-service",
+    "build_status": "failed",
+    "runtime_status": "skipped",
+    "errors": [
+      "nfig.yaml /app/config/\n#14 ERROR: failed to calculate checksum of ref 1h050wbq5tk6j880s72gfh87a::l8weo60b2owqkh3udxoz3ngeo: \"/kubernetes_config.yaml\": not found\n\n#15 [12/14] RUN echo 'import sys\\nsys.exit(0)' > /app/health_check.py\n#15 CACHED\n\n#16 [13/14] COPY entry_point.sh /app/\n#16 ERROR: failed to calculate checksum of ref 1h050wbq5tk6j880s72gfh87a::l8weo60b2owqkh3udxoz3ngeo: \"/entry_point.sh\": not found\n\n#17 [ 4/14] COPY requirements.txt .\n#17 CANCELED\n------\n > [11/14] COPY kubernetes_config.yaml /app/config/:\n------\n------\n > [13/14] COPY entry_point.sh /app/:\n------\nDockerfile:33\n--------------------\n  31 |     RUN echo 'import sys\\nsys.exit(0)' > /app/health_check.py\n  32 |     \n  33 | >>> COPY entry_point.sh /app/\n  34 |     RUN chmod +x /app/entry_point.sh\n  35 |     \n--------------------\nERROR: failed to build: failed to solve: failed to compute cache key: failed to calculate checksum of ref 1h050wbq5tk6j880s72gfh87a::l8weo60b2owqkh3udxoz3ngeo: \"/entry_point.sh\": not found\n"
+    ],
+    "timestamp": "2026-06-13T17:05:35.788340"
+  },
+  {
+    "container": "kubernetes-python-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T17:05:38.532338"
+  },
+  {
+    "container": "loki-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T17:06:17.488456"
+  },
+  {
+    "container": "marshmallow-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T17:06:28.332750"
+  },
+  {
+    "container": "matplotlib-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T17:06:39.199389"
+  },
+  {
+    "container": "minio-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T17:07:27.578443"
+  },
+  {
+    "container": "montecarlo-python-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T17:07:38.562994"
+  },
+  {
+    "container": "neo4j-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T17:08:13.383591"
+  },
+  {
+    "container": "newspaper3k-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T17:08:30.676797"
+  },
+  {
+    "container": "nltk-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T17:09:16.748457"
+  },
+  {
+    "container": "numpy-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T17:09:47.955229"
+  },
+  {
+    "container": "opencv-service",
+    "build_status": "failed",
+    "runtime_status": "skipped",
+    "errors": [
+      "Get:6 http://deb.debian.org/debian-security trixie-security/main amd64 Packages [216 kB]\n2.098 Fetched 9983 kB in 2s (5564 kB/s)\n2.098 Reading package lists...\n\n\n4.104 Package libgl1-mesa-glx is not available, but is referred to by another package.\n4.104 This may mean that the package is missing, has been obsoleted, or\n4.104 is only available from another source\n4.104 \n4.108 E: Package 'libgl1-mesa-glx' has no installation candidate\n------\nDockerfile:14\n--------------------\n  13 |     \n  14 | >>> RUN apt-get update && apt-get install -y \\\n  15 | >>>     build-essential \\\n  16 | >>>     libssl-dev \\\n  17 | >>>     libgl1-mesa-glx \\\n  18 | >>>     libglib2.0-0 \\\n  19 | >>>     && rm -rf /var/lib/apt/lists/*\n  20 |     \n--------------------\nERROR: failed to build: failed to solve: process \"/bin/sh -c apt-get update && apt-get install -y     build-essential     libssl-dev     libgl1-mesa-glx     libglib2.0-0     && rm -rf /var/lib/apt/lists/*\" did not complete successfully: exit code: 100\n"
+    ],
+    "timestamp": "2026-06-13T17:10:34.321740"
+  },
+  {
+    "container": "openpyxl-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T17:10:38.404811"
+  },
+  {
+    "container": "opentelemetry-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T17:11:07.826122"
+  },
+  {
+    "container": "pandas-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T17:11:20.240006"
+  },
+  {
+    "container": "passlib-service",
+    "build_status": "success",
+    "runtime_status": "inconclusive",
+    "errors": [
+      "exec /app/entry_point.sh: no such file or directory\n"
+    ],
+    "timestamp": "2026-06-13T17:12:23.246288"
+  }
+]
