@@ -1,4 +1,4 @@
-version: '3.8'
+﻿version: '3.8'
 
 services:
   # ========================================
@@ -1074,3 +1074,4 @@ volumes:
 networks:
   dixvision-network:
     driver: bridge
+
