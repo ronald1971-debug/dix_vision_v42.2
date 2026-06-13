@@ -1,6 +1,6 @@
 # Kong Container Dockerfile
 # Use official Kong image with Python sidecar for governance
-FROM kong:3.4-alpine
+FROM kong:3.4-ubuntu
 
 LABEL maintainer="DIX VISION <devin@dixvision.ai>"
 LABEL version="42.2"

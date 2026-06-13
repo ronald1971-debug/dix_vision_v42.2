@@ -1,0 +1,19 @@
+# Kubernetes Configuration for DIX VISION
+governance:
+  permission_level: READ_ONLY
+  enabled: true
+  audit_logging: true
+  safety_checks: true
+
+kubernetes:
+  config_path: ~/.kube/config
+  default_namespace: default
+  max_pod_limit: 100
+
+monitoring:
+  enabled: true
+  metrics_interval: 60
+
+security:
+  tls_verify: true
+  certificate_authority: /app/config/ca.crt

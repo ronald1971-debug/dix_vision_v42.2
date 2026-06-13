@@ -1,7 +1,7 @@
 # CCXT Container Requirements
 # Core dependencies for cryptocurrency trading capabilities
 
-# CCXT library
+# CCXT library (use compatible version for Python 3.11)
 ccxt==2.5.10
 
 # Core dependencies
@@ -21,7 +21,6 @@ httpx==0.25.2
 
 # Async support
 aiohttp==3.9.1
-asyncio==3.4.3
 
 # Logging and monitoring
 structlog==23.2.0
@@ -38,9 +37,6 @@ cryptography==41.0.7
 
 # Timezone handling
 pytz==2023.3
-
-# Decimal precision
-decimal==1.1.0
 
 # JSON processing
 orjson==3.9.10
