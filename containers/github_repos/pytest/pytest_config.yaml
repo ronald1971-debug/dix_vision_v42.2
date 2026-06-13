@@ -1,0 +1,50 @@
+repository:
+  name: "pytest"
+  url: "https://github.com/pytest-dev/pytest.git"
+  version: "7.4.3"
+  description: "pytest testing for validation"
+
+domain:
+  type: "SYSTEM"
+  priority: "HIGH"
+  category: "testing"
+
+container:
+  enabled: true
+  image: "dix-pytest:latest"
+  build:
+    dockerfile: "containers/github_repos/pytest/Dockerfile"
+    context: "containers/github_repos/pytest"
+  ports:
+    - "9123:9123"
+  volumes:
+    - "./containers/github_repos/pytest/config:/app/config"
+    - "./containers/github_repos/pytest/data:/app/data"
+    - "./containers/github_repos/pytest/logs:/app/logs"
+    - "./containers/github_repos/pytest/tests:/app/tests"
+  environment:
+    - "PYTEST_LOG_LEVEL=INFO"
+    - "PYTEST_PERMISSION_LEVEL=READ_ONLY"
+  resources:
+    memory_limit: "512M"
+    cpu_limit: "1.0"
+    memory_reservation: "256M"
+    cpu_reservation: "0.5"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+
+governance:
+  enabled: true
+  permission_level: "READ_ONLY"
+  testing_limits:
+    max_test_duration: 300
+    max_parallel_tests: 50
+
+adapter:
+  type: "PytestDomainAdapter"
+  concept_mappings:
+    test: "validation_procedure"
+    test_case: "validation_scenario"

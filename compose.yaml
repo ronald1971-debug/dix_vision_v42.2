@@ -1197,6 +1197,106 @@ services:
           cpus: '0.5'
           memory: 256M
 
+  selenium-service:
+    build:
+      context: ./containers/github_repos/selenium
+      dockerfile: Dockerfile
+    image: "dix-selenium:latest"
+    container_name: dix-selenium-service
+    ports:
+      - "9122:9122"
+    volumes:
+      - ./containers/github_repos/selenium/config:/app/config
+      - ./containers/github_repos/selenium/data:/app/data
+      - ./containers/github_repos/selenium/logs:/app/logs
+      - ./containers/github_repos/selenium/browsers:/app/browsers
+    environment:
+      - "SELENIUM_LOG_LEVEL=INFO"
+      - "SELENIUM_PERMISSION_LEVEL=READ_ONLY"
+    restart: unless-stopped
+    networks:
+      - dixvision-network
+    healthcheck:
+      test: ["CMD", "python", "/app/health_check.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  pytest-service:
+    build:
+      context: ./containers/github_repos/pytest
+      dockerfile: Dockerfile
+    image: "dix-pytest:latest"
+    container_name: dix-pytest-service
+    ports:
+      - "9123:9123"
+    volumes:
+      - ./containers/github_repos/pytest/config:/app/config
+      - ./containers/github_repos/pytest/data:/app/data
+      - ./containers/github_repos/pytest/logs:/app/logs
+      - ./containers/github_repos/pytest/tests:/app/tests
+    environment:
+      - "PYTEST_LOG_LEVEL=INFO"
+      - "PYTEST_PERMISSION_LEVEL=READ_ONLY"
+    restart: unless-stopped
+    networks:
+      - dixvision-network
+    healthcheck:
+      test: ["CMD", "python", "/app/health_check.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+  docker-service:
+    build:
+      context: ./containers/github_repos/docker
+      dockerfile: Dockerfile
+    image: "dix-docker:latest"
+    container_name: dix-docker-service
+    ports:
+      - "9124:9124"
+    volumes:
+      - ./containers/github_repos/docker/config:/app/config
+      - ./containers/github_repos/docker/data:/app/data
+      - ./containers/github_repos/docker/logs:/app/logs
+      - ./containers/github_repos/docker/containers:/app/containers
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - "DOCKER_LOG_LEVEL=INFO"
+      - "DOCKER_PERMISSION_LEVEL=READ_ONLY"
+    restart: unless-stopped
+    networks:
+      - dixvision-network
+    healthcheck:
+      test: ["CMD", "python", "/app/health_check.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
 volumes:
   redis-data:
   postgres-data:

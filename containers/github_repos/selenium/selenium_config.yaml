@@ -1,0 +1,51 @@
+repository:
+  name: "selenium"
+  url: "https://github.com/SeleniumHQ/selenium.git"
+  version: "4.15.0"
+  description: "Selenium browser automation for web testing"
+
+domain:
+  type: "SYSTEM"
+  priority: "HIGH"
+  category: "browser_automation"
+
+container:
+  enabled: true
+  image: "dix-selenium:latest"
+  build:
+    dockerfile: "containers/github_repos/selenium/Dockerfile"
+    context: "containers/github_repos/selenium"
+  ports:
+    - "9122:9122"
+  volumes:
+    - "./containers/github_repos/selenium/config:/app/config"
+    - "./containers/github_repos/selenium/data:/app/data"
+    - "./containers/github_repos/selenium/logs:/app/logs"
+    - "./containers/github_repos/selenium/browsers:/app/browsers"
+  environment:
+    - "SELENIUM_LOG_LEVEL=INFO"
+    - "SELENIUM_PERMISSION_LEVEL=READ_ONLY"
+  resources:
+    memory_limit: "1G"
+    cpu_limit: "1.5"
+    memory_reservation: "512M"
+    cpu_reservation: "0.5"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+
+governance:
+  enabled: true
+  permission_level: "READ_ONLY"
+  automation_limits:
+    max_page_load_time: 30
+    max_script_execution_time: 60
+    max_concurrent_browsers: 10
+
+adapter:
+  type: "SeleniumDomainAdapter"
+  concept_mappings:
+    browser: "web_client"
+    element: "interface_component"

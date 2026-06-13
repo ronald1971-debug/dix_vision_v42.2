@@ -1,0 +1,52 @@
+repository:
+  name: "docker"
+  url: "https://github.com/docker/docker-ce.git"
+  version: "6.1.3"
+  description: "Docker container management for orchestration"
+
+domain:
+  type: "SYSTEM"
+  priority: "HIGH"
+  category: "container_management"
+
+container:
+  enabled: true
+  image: "dix-docker:latest"
+  build:
+    dockerfile: "containers/github_repos/docker/Dockerfile"
+    context: "containers/github_repos/docker"
+  ports:
+    - "9124:9124"
+  volumes:
+    - "./containers/github_repos/docker/config:/app/config"
+    - "./containers/github_repos/docker/data:/app/data"
+    - "./containers/github_repos/docker/logs:/app/logs"
+    - "./containers/github_repos/docker/containers:/app/containers"
+    - "/var/run/docker.sock:/var/run/docker.sock"
+  environment:
+    - "DOCKER_LOG_LEVEL=INFO"
+    - "DOCKER_PERMISSION_LEVEL=READ_ONLY"
+  resources:
+    memory_limit: "512M"
+    cpu_limit: "1.0"
+    memory_reservation: "256M"
+    cpu_reservation: "0.5"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+
+governance:
+  enabled: true
+  permission_level: "READ_ONLY"
+  container_limits:
+    max_containers: 100
+    max_build_time: 3600
+    max_image_size: 10737418240
+
+adapter:
+  type: "DockerDomainAdapter"
+  concept_mappings:
+    container: "compute_package"
+    image: "compute_blueprint"
