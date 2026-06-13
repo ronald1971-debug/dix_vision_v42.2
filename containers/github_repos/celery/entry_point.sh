@@ -22,6 +22,11 @@ mkdir -p /app/tasks
 # Start the Celery governance wrapper
 echo "Starting Celery Governance Wrapper..."
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from celery_governance_wrapper import CeleryGovernanceWrapper
 from celery_domain_adapter import CeleryDomainAdapter
 import logging

@@ -14,6 +14,10 @@ from typing import Any, Dict, List, Optional, Union
 from datetime import datetime, timedelta
 import time
 
+import sys
+import os
+sys.path.append('/app/governance')
+
 from base_external_repo_wrapper import (
     BaseExternalRepoGovernanceWrapper,
     PermissionLevel,

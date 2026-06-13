@@ -22,6 +22,11 @@ mkdir -p /app/computations
 # Start the NumPy governance wrapper
 echo "Starting NumPy Governance Wrapper..."
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from numpy_governance_wrapper import NumPyGovernanceWrapper
 from numpy_domain_adapter import NumPyDomainAdapter
 import logging

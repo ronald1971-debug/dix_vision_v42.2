@@ -4,6 +4,11 @@ echo "Starting Consul Container for DIX VISION..."
 echo "Version: 42.2"
 mkdir -p /app/logs /app/data /app/config /app/services
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from consul_governance_wrapper import ConsulGovernanceWrapper
 from consul_domain_adapter import ConsulDomainAdapter
 import logging

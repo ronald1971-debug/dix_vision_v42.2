@@ -4,6 +4,11 @@ echo "Starting Kong Container for DIX VISION..."
 echo "Version: 42.2"
 mkdir -p /app/logs /app/data /app/config /app/routes
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from kong_governance_wrapper import KongGovernanceWrapper
 from kong_domain_adapter import KongDomainAdapter
 import logging

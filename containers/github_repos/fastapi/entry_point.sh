@@ -22,6 +22,11 @@ mkdir -p /app/api
 # Start the FastAPI governance wrapper
 echo "Starting FastAPI Governance Wrapper..."
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from fastapi_governance_wrapper import FastAPIGovernanceWrapper
 from fastapi_domain_adapter import FastAPIDomainAdapter
 import logging

@@ -21,6 +21,11 @@ mkdir -p /app/config
 # Start the governance wrapper
 echo "Starting flask-limiter Governance Wrapper..."
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from flask_limiter_governance_wrapper import Flask_limiterGovernanceWrapper
 from flask_limiter_domain_adapter import Flask_limiterDomainAdapter
 import logging

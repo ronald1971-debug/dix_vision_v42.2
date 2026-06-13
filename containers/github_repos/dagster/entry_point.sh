@@ -21,6 +21,11 @@ mkdir -p /app/config
 # Start the governance wrapper
 echo "Starting dagster Governance Wrapper..."
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from dagster_governance_wrapper import DagsterGovernanceWrapper
 from dagster_domain_adapter import DagsterDomainAdapter
 import logging

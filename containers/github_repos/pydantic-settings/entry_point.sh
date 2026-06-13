@@ -21,6 +21,11 @@ mkdir -p /app/config
 # Start the governance wrapper
 echo "Starting pydantic-settings Governance Wrapper..."
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from pydantic_settings_governance_wrapper import Pydantic_settingsGovernanceWrapper
 from pydantic_settings_domain_adapter import Pydantic_settingsDomainAdapter
 import logging

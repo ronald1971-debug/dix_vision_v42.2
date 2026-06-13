@@ -4,6 +4,11 @@ echo "Starting Tempo Container for DIX VISION..."
 echo "Version: 42.2"
 mkdir -p /app/logs /app/data /app/config /app/metrics
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from tempo_governance_wrapper import TempoGovernanceWrapper
 from tempo_domain_adapter import TempoDomainAdapter
 import logging

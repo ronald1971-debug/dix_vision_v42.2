@@ -21,6 +21,11 @@ mkdir -p /app/config
 # Start the CCXT governance wrapper
 echo "Starting CCXT Governance Wrapper..."
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from ccxt_governance_wrapper import CCXTGovernanceWrapper
 from ccxt_domain_adapter import CCXTDomainAdapter
 import logging

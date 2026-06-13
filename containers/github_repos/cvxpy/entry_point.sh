@@ -21,6 +21,11 @@ mkdir -p /app/config
 # Start the governance wrapper
 echo "Starting cvxpy Governance Wrapper..."
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from cvxpy_governance_wrapper import CvxpyGovernanceWrapper
 from cvxpy_domain_adapter import CvxpyDomainAdapter
 import logging

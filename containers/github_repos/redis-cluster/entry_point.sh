@@ -4,6 +4,11 @@ echo "Starting Redis Cluster Container for DIX VISION..."
 echo "Version: 42.2"
 mkdir -p /app/logs /app/data /app/config /app/cluster
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from redis_cluster_governance_wrapper import RedisClusterGovernanceWrapper
 from redis_cluster_domain_adapter import RedisClusterDomainAdapter
 import logging

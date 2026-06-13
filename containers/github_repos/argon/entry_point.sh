@@ -21,6 +21,11 @@ mkdir -p /app/config
 # Start the governance wrapper
 echo "Starting argon Governance Wrapper..."
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from argon_governance_wrapper import ArgonGovernanceWrapper
 from argon_domain_adapter import ArgonDomainAdapter
 import logging

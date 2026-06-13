@@ -22,6 +22,12 @@ mkdir -p /app/sessions
 # Start the Requests governance wrapper
 echo "Starting Requests Governance Wrapper..."
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
+from base_external_repo_wrapper import PermissionLevel
 from requests_governance_wrapper import RequestsGovernanceWrapper
 from requests_domain_adapter import RequestsDomainAdapter
 import logging

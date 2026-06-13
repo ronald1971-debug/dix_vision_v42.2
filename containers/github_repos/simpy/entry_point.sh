@@ -21,6 +21,11 @@ mkdir -p /app/config
 # Start the governance wrapper
 echo "Starting simpy Governance Wrapper..."
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from simpy_governance_wrapper import SimpyGovernanceWrapper
 from simpy_domain_adapter import SimpyDomainAdapter
 import logging

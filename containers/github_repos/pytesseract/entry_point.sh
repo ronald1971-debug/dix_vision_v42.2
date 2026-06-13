@@ -21,6 +21,11 @@ mkdir -p /app/config
 # Start the governance wrapper
 echo "Starting pytesseract Governance Wrapper..."
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from pytesseract_governance_wrapper import PytesseractGovernanceWrapper
 from pytesseract_domain_adapter import PytesseractDomainAdapter
 import logging

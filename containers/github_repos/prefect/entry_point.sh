@@ -21,6 +21,11 @@ mkdir -p /app/config
 # Start the governance wrapper
 echo "Starting prefect Governance Wrapper..."
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from prefect_governance_wrapper import PrefectGovernanceWrapper
 from prefect_domain_adapter import PrefectDomainAdapter
 import logging

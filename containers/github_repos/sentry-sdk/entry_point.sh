@@ -21,6 +21,11 @@ mkdir -p /app/config
 # Start the governance wrapper
 echo "Starting sentry-sdk Governance Wrapper..."
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from sentry_sdk_governance_wrapper import Sentry_sdkGovernanceWrapper
 from sentry_sdk_domain_adapter import Sentry_sdkDomainAdapter
 import logging

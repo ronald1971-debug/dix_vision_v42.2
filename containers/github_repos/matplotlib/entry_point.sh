@@ -4,6 +4,11 @@ echo "Starting Matplotlib Container for DIX VISION..."
 echo "Version: 42.2"
 mkdir -p /app/logs /app/data /app/config /app/visualizations
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from matplotlib_governance_wrapper import MatplotlibGovernanceWrapper
 from matplotlib_domain_adapter import MatplotlibDomainAdapter
 import logging

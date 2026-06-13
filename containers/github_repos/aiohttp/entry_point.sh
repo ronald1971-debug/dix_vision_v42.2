@@ -4,6 +4,11 @@ echo "Starting AIOHTTP Container for DIX VISION..."
 echo "Version: 42.2"
 mkdir -p /app/logs /app/data /app/config /app/applications
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from aiohttp_governance_wrapper import AIOHTTPGovernanceWrapper
 from aiohttp_domain_adapter import AIOHTTPDomainAdapter
 import logging

@@ -4,6 +4,11 @@ echo "Starting Blackbox Container for DIX VISION..."
 echo "Version: 42.2"
 mkdir -p /app/logs /app/data /app/config /app/probes
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from blackbox_governance_wrapper import BlackboxGovernanceWrapper
 from blackbox_domain_adapter import BlackboxDomainAdapter
 import logging

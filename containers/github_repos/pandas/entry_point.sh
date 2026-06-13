@@ -22,6 +22,11 @@ mkdir -p /app/datasets
 # Start the Pandas governance wrapper
 echo "Starting Pandas Governance Wrapper..."
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from pandas_governance_wrapper import PandasGovernanceWrapper
 from pandas_domain_adapter import PandasDomainAdapter
 import logging

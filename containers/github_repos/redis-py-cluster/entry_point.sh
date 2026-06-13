@@ -21,6 +21,11 @@ mkdir -p /app/config
 # Start the governance wrapper
 echo "Starting redis-py-cluster Governance Wrapper..."
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from redis_py_cluster_governance_wrapper import Redis_py_clusterGovernanceWrapper
 from redis_py_cluster_domain_adapter import Redis_py_clusterDomainAdapter
 import logging

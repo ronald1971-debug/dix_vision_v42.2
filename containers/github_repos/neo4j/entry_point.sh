@@ -4,6 +4,11 @@ echo "Starting Neo4j Container for DIX VISION..."
 echo "Version: 42.2"
 mkdir -p /app/logs /app/data /app/config /app/graphs
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from neo4j_governance_wrapper import Neo4jGovernanceWrapper
 from neo4j_domain_adapter import Neo4jDomainAdapter
 import logging

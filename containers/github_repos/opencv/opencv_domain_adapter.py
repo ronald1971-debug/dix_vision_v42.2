@@ -8,6 +8,10 @@ import logging
 from typing import Any, Dict
 from datetime import datetime
 
+import sys
+import os
+sys.path.append('/app/adapters')
+
 from base_domain_adapter import SystemDomainAdapter, DataFormat
 
 class OpenCVDomainAdapter(SystemDomainAdapter):

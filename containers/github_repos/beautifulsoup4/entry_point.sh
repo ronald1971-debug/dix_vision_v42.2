@@ -21,6 +21,11 @@ mkdir -p /app/config
 # Start the governance wrapper
 echo "Starting beautifulsoup4 Governance Wrapper..."
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from beautifulsoup4_governance_wrapper import Beautifulsoup4GovernanceWrapper
 from beautifulsoup4_domain_adapter import Beautifulsoup4DomainAdapter
 import logging

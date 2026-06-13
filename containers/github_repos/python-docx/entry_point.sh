@@ -21,6 +21,11 @@ mkdir -p /app/config
 # Start the governance wrapper
 echo "Starting python-docx Governance Wrapper..."
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from python_docx_governance_wrapper import Python_docxGovernanceWrapper
 from python_docx_domain_adapter import Python_docxDomainAdapter
 import logging

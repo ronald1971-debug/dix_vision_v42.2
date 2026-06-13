@@ -21,6 +21,11 @@ mkdir -p /app/config
 # Start the governance wrapper
 echo "Starting montecarlo-python Governance Wrapper..."
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from montecarlo_python_governance_wrapper import Montecarlo_pythonGovernanceWrapper
 from montecarlo_python_domain_adapter import Montecarlo_pythonDomainAdapter
 import logging

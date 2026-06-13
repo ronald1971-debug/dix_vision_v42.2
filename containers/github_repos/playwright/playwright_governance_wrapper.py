@@ -15,6 +15,10 @@ from datetime import datetime
 import time
 import re
 
+import sys
+import os
+sys.path.append('/app/governance')
+
 from base_external_repo_wrapper import (
     BaseExternalRepoGovernanceWrapper,
     PermissionLevel,

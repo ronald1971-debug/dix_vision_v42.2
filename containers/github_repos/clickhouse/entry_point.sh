@@ -4,6 +4,11 @@ echo "Starting ClickHouse Container for DIX VISION..."
 echo "Version: 42.2"
 mkdir -p /app/logs /app/data /app/config /app/queries
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from clickhouse_governance_wrapper import ClickHouseGovernanceWrapper
 from clickhouse_domain_adapter import ClickHouseDomainAdapter
 import logging

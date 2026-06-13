@@ -21,6 +21,11 @@ mkdir -p /app/config
 # Start the governance wrapper
 echo "Starting pusher-python Governance Wrapper..."
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from pusher_python_governance_wrapper import Pusher_pythonGovernanceWrapper
 from pusher_python_domain_adapter import Pusher_pythonDomainAdapter
 import logging

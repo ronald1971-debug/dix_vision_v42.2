@@ -21,6 +21,11 @@ mkdir -p /app/config
 # Start the governance wrapper
 echo "Starting python-jose Governance Wrapper..."
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from python_jose_governance_wrapper import Python_joseGovernanceWrapper
 from python_jose_domain_adapter import Python_joseDomainAdapter
 import logging

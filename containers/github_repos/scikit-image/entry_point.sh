@@ -21,6 +21,11 @@ mkdir -p /app/config
 # Start the governance wrapper
 echo "Starting scikit-image Governance Wrapper..."
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from scikit_image_governance_wrapper import Scikit_imageGovernanceWrapper
 from scikit_image_domain_adapter import Scikit_imageDomainAdapter
 import logging

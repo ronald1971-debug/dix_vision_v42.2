@@ -4,6 +4,11 @@ echo "Starting Darts Container for DIX VISION..."
 echo "Version: 42.2"
 mkdir -p /app/logs /app/data /app/config /app/forecasts
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from darts_governance_wrapper import DartsGovernanceWrapper
 from darts_domain_adapter import DartsDomainAdapter
 import logging

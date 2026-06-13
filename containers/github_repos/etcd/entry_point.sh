@@ -4,6 +4,11 @@ echo "Starting Etcd Container for DIX VISION..."
 echo "Version: 42.2"
 mkdir -p /app/logs /app/data /app/config /app/kv
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from etcd_governance_wrapper import EtcdGovernanceWrapper
 from etcd_domain_adapter import EtcdDomainAdapter
 import logging

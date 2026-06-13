@@ -13,6 +13,10 @@ from typing import Any, Dict, List, Optional, Union
 from datetime import datetime
 from decimal import Decimal
 
+import sys
+import os
+sys.path.append('/app/adapters')
+
 from base_domain_adapter import (
     MarketDomainAdapter,
     DomainType,

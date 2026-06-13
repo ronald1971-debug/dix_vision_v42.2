@@ -21,6 +21,11 @@ mkdir -p /app/config
 # Start the governance wrapper
 echo "Starting nltk Governance Wrapper..."
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from nltk_governance_wrapper import NltkGovernanceWrapper
 from nltk_domain_adapter import NltkDomainAdapter
 import logging

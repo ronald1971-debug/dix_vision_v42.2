@@ -4,6 +4,11 @@ echo "Starting Apache Kafka Container for DIX VISION..."
 echo "Version: 42.2"
 mkdir -p /app/logs /app/data /app/config /app/topics
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from kafka_governance_wrapper import KafkaGovernanceWrapper
 from kafka_domain_adapter import KafkaDomainAdapter
 import logging

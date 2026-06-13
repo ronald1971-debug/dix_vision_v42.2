@@ -21,6 +21,11 @@ mkdir -p /app/config
 # Start the governance wrapper
 echo "Starting textblob Governance Wrapper..."
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from textblob_governance_wrapper import TextblobGovernanceWrapper
 from textblob_domain_adapter import TextblobDomainAdapter
 import logging

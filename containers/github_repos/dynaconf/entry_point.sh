@@ -21,6 +21,11 @@ mkdir -p /app/config
 # Start the governance wrapper
 echo "Starting dynaconf Governance Wrapper..."
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from dynaconf_governance_wrapper import DynaconfGovernanceWrapper
 from dynaconf_domain_adapter import DynaconfDomainAdapter
 import logging

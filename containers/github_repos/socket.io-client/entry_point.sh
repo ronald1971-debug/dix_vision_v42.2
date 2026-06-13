@@ -21,6 +21,11 @@ mkdir -p /app/config
 # Start the governance wrapper
 echo "Starting socket.io-client Governance Wrapper..."
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from socket_io_client_governance_wrapper import Socket_io_clientGovernanceWrapper
 from socket_io_client_domain_adapter import Socket_io_clientDomainAdapter
 import logging

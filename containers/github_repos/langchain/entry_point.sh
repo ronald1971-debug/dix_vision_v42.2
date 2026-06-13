@@ -22,6 +22,11 @@ mkdir -p /app/knowledge
 # Start the LangChain governance wrapper
 echo "Starting LangChain Governance Wrapper..."
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from langchain_governance_wrapper import LangChainGovernanceWrapper
 from langchain_domain_adapter import LangChainDomainAdapter
 import logging

@@ -21,6 +21,11 @@ mkdir -p /app/config
 # Start the governance wrapper
 echo "Starting timescaledb Governance Wrapper..."
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from timescaledb_governance_wrapper import TimescaledbGovernanceWrapper
 from timescaledb_domain_adapter import TimescaledbDomainAdapter
 import logging

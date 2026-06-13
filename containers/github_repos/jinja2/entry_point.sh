@@ -4,6 +4,11 @@ echo "Starting Jinja2 Container for DIX VISION..."
 echo "Version: 42.2"
 mkdir -p /app/logs /app/data /app/config /app/templates
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from jinja2_governance_wrapper import Jinja2GovernanceWrapper
 from jinja2_domain_adapter import Jinja2DomainAdapter
 import logging

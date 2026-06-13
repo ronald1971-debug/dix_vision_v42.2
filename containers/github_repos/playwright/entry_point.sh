@@ -27,6 +27,11 @@ mkdir -p /app/sessions
 # Start the Playwright governance wrapper
 echo "Starting Playwright Governance Wrapper..."
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from playwright_governance_wrapper import PlaywrightGovernanceWrapper
 from playwright_domain_adapter import PlaywrightDomainAdapter
 import logging

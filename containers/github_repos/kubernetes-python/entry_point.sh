@@ -21,6 +21,11 @@ mkdir -p /app/config
 # Start the governance wrapper
 echo "Starting kubernetes-python Governance Wrapper..."
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from kubernetes_python_governance_wrapper import Kubernetes_pythonGovernanceWrapper
 from kubernetes_python_domain_adapter import Kubernetes_pythonDomainAdapter
 import logging

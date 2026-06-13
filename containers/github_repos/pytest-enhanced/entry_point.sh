@@ -4,6 +4,11 @@ echo "Starting Pytest Enhanced Container for DIX VISION..."
 echo "Version: 42.2"
 mkdir -p /app/logs /app/data /app/config /app/tests
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from pytest_enhanced_governance_wrapper import PytestEnhancedGovernanceWrapper
 from pytest_enhanced_domain_adapter import PytestEnhancedDomainAdapter
 import logging

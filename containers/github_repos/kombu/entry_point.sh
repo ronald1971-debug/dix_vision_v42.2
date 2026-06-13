@@ -21,6 +21,11 @@ mkdir -p /app/config
 # Start the governance wrapper
 echo "Starting kombu Governance Wrapper..."
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from kombu_governance_wrapper import KombuGovernanceWrapper
 from kombu_domain_adapter import KombuDomainAdapter
 import logging

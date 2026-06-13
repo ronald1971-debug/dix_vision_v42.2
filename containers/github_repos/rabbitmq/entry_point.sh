@@ -4,6 +4,11 @@ echo "Starting RabbitMQ Container for DIX VISION..."
 echo "Version: 42.2"
 mkdir -p /app/logs /app/data /app/config /app/queues
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from rabbitmq_governance_wrapper import RabbitMQGovernanceWrapper
 from rabbitmq_domain_adapter import RabbitMQDomainAdapter
 import logging

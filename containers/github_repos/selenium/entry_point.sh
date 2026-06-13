@@ -4,6 +4,11 @@ echo "Starting Selenium Container for DIX VISION..."
 echo "Version: 42.2"
 mkdir -p /app/logs /app/data /app/config /app/browsers
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from selenium_governance_wrapper import SeleniumGovernanceWrapper
 from selenium_domain_adapter import SeleniumDomainAdapter
 import logging

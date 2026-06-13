@@ -21,6 +21,11 @@ mkdir -p /app/config
 # Start the governance wrapper
 echo "Starting scipy-optimize Governance Wrapper..."
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from scipy_optimize_governance_wrapper import Scipy_optimizeGovernanceWrapper
 from scipy_optimize_domain_adapter import Scipy_optimizeDomainAdapter
 import logging

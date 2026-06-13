@@ -21,6 +21,11 @@ mkdir -p /app/config
 # Start the governance wrapper
 echo "Starting tornado Governance Wrapper..."
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from tornado_governance_wrapper import TornadoGovernanceWrapper
 from tornado_domain_adapter import TornadoDomainAdapter
 import logging

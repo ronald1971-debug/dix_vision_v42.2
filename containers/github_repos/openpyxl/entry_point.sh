@@ -21,6 +21,11 @@ mkdir -p /app/config
 # Start the governance wrapper
 echo "Starting openpyxl Governance Wrapper..."
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from openpyxl_governance_wrapper import OpenpyxlGovernanceWrapper
 from openpyxl_domain_adapter import OpenpyxlDomainAdapter
 import logging

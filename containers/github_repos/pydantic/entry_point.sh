@@ -4,6 +4,11 @@ echo "Starting Pydantic Container for DIX VISION..."
 echo "Version: 42.2"
 mkdir -p /app/logs /app/data /app/config /app/schemas
 python3 -c "
+import sys
+sys.path.append('/app')
+sys.path.append('/app/governance')
+sys.path.append('/app/adapters')
+
 from pydantic_governance_wrapper import PydanticGovernanceWrapper
 from pydantic_domain_adapter import PydanticDomainAdapter
 import logging
