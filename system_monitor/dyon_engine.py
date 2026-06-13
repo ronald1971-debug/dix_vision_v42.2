@@ -43,17 +43,17 @@ class DyonEngine:
         self._running = False
         self._thread: threading.Thread | None = None
         
-        # New cognitive architecture integration (v42.2)
-        self._cognitive_architecture_adapter = None
+        # NEW: DYON brain adapter integration (v42.2)
+        self._dyon_brain_adapter = None
         try:
-            from cognitive_architecture_adapter import get_cognitive_adapter
-            from config.cognitive_config_loader import is_component_enabled
+            from system_monitor.dyon_brain_adapter import get_dyon_brain_adapter
             
-            if is_component_enabled('dyon_brain'):
-                self._cognitive_architecture_adapter = get_cognitive_adapter()
+            self._dyon_brain_adapter = get_dyon_brain_adapter()
+            self._dyon_adapter_initialized = True
         except Exception:
-            # New cognitive architecture optional - fail gracefully
-            pass
+            # New brain integration optional - fail gracefully
+            self._dyon_brain_adapter = None
+            self._dyon_adapter_initialized = False
 
     def start(self) -> None:
         self._detector.start()
@@ -91,6 +91,58 @@ class DyonEngine:
     def record_execution_latency(self, component: str, ms: float) -> None:
         """Pass execution latency to hazard detector for spike detection."""
         self._detector.record_latency(component, ms)
+
+    def analyze_system_issue_with_new_architecture(self, issue: str, context: dict = None) -> dict:
+        """
+        Analyze system issue with optional new cognitive architecture enhancement.
+        
+        This method provides enhanced system analysis using the new DYON Brain Adapter
+        when available, while maintaining backward compatibility with the legacy system.
+        
+        Args:
+            issue: Description of the system issue to analyze.
+            context: Additional context about the issue (optional).
+            
+        Returns:
+            dict: Analysis results with optional cognitive enhancement.
+        """
+        context = context or {}
+        system_data = {
+            "issue": issue,
+            "context": context,
+            "health": self._health.get_status() if hasattr(self._health, 'get_status') else {},
+            "state": self._state.get().__dict__ if hasattr(self._state, 'get') else {}
+        }
+        
+        # Try to enhance with new DYON brain adapter
+        if self._dyon_brain_adapter:
+            try:
+                enhanced = self._dyon_brain_adapter.analyze_system_issue(
+                    issue=issue,
+                    context=system_data,
+                    reasoning_mode="causal"  # Default to causal reasoning for system issues
+                )
+                
+                if enhanced and enhanced.get("analysis_type") == "enhanced_cognitive":
+                    return enhanced
+            except Exception as e:
+                self._log.warning(f"New DYON brain analysis failed: {e}")
+        
+        # Fallback to legacy analysis
+        return {
+            "analysis_type": "legacy",
+            "issue": issue,
+            "conclusion": f"Standard analysis: {issue}",
+            "confidence": 0.5,
+            "reasoning_mode": "simple",
+            "reasoning_steps": ["Basic system check"],
+            "neural_reasoning": "",
+            "symbolic_reasoning": "",
+            "recommendations": ["Monitor system health", "Check hazard detector"],
+            "latency_ms": 0.0,
+            "integration_mode": "fallback",
+            "reasoning_quality": "basic"
+        }
 
 
 _dyon: DyonEngine | None = None

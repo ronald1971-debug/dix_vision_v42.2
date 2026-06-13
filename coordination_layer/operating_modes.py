@@ -667,4 +667,20 @@ __all__ = [
     "ModePolicy",
     "OperatingModeManagerInterface",
     "OperatingModeManager",
+    "get_operating_mode_manager",
 ]
+
+
+# Global instance
+_operating_mode_manager: Optional[OperatingModeManager] = None
+_mode_lock = threading.Lock()
+
+
+def get_operating_mode_manager() -> OperatingModeManager:
+    """Get global operating mode manager instance."""
+    global _operating_mode_manager
+    if _operating_mode_manager is None:
+        with _mode_lock:
+            if _operating_mode_manager is None:
+                _operating_mode_manager = OperatingModeManager()
+    return _operating_mode_manager

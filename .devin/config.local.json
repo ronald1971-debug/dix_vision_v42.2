@@ -89,7 +89,8 @@
       "Exec(sleep)",
       "Exec(uvicorn)",
       "Exec(scripts\\windows\\start_dixvision.bat)",
-      "Exec(set)"
+      "Exec(set)",
+      "Exec(git restore)"
     ]
   }
 }

@@ -131,6 +131,32 @@ def run(env: str = "dev", verify_only: bool = False) -> None:
     except Exception as e:
         log.warning(f"[BOOT] Preservation layer initialization failed: {e}")
 
+    # Step 13: Cognitive architecture adapter (NEW - Cognitive Architecture Integration)
+    try:
+        from cognitive_architecture_adapter import initialize_cognitive_integration
+        from config.cognitive_config_loader import is_cognitive_architecture_enabled
+
+        if is_cognitive_architecture_enabled():
+            if initialize_cognitive_integration():
+                log.info("[BOOT] Cognitive architecture adapter initialized")
+            else:
+                log.warning("[BOOT] Cognitive architecture adapter initialization failed")
+        else:
+            log.info("[BOOT] Cognitive architecture disabled in configuration")
+    except Exception as e:
+        log.warning(f"[BOOT] Cognitive architecture adapter initialization failed: {e}")
+
+    # Step 14: Governance-coordination integration (NEW - Cognitive Architecture Integration)
+    try:
+        from governance_coordination_integration import initialize_governance_coordination
+
+        if initialize_governance_coordination():
+            log.info("[BOOT] Governance-coordination integration initialized")
+        else:
+            log.warning("[BOOT] Governance-coordination integration initialization failed")
+    except Exception as e:
+        log.warning(f"[BOOT] Governance-coordination integration initialization failed: {e}")
+
     state_mgr.set_mode("NORMAL")
     log.info("[BOOT] System ONLINE — all services running")
     audit.log("SYSTEM", "bootstrap", {"event": "BOOT_COMPLETE", "mode": "NORMAL"})

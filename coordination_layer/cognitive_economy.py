@@ -515,4 +515,20 @@ __all__ = [
     "ResourceAllocationDecision",
     "CognitiveEconomyManagerInterface",
     "CognitiveEconomyManager",
+    "get_cognitive_economy_manager",
 ]
+
+
+# Global instance
+_cognitive_economy_manager: Optional[CognitiveEconomyManager] = None
+_economy_lock = threading.Lock()
+
+
+def get_cognitive_economy_manager() -> CognitiveEconomyManager:
+    """Get global cognitive economy manager instance."""
+    global _cognitive_economy_manager
+    if _cognitive_economy_manager is None:
+        with _economy_lock:
+            if _cognitive_economy_manager is None:
+                _cognitive_economy_manager = CognitiveEconomyManager()
+    return _cognitive_economy_manager
