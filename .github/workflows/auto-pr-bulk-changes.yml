@@ -1,0 +1,57 @@
+name: Auto PR on Bulk Changes
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  check-changes:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Count changed files in last commit
+        id: count_changes
+        run: |
+          CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD | wc -l)
+          echo "changed_files=$CHANGED_FILES" >> $GITHUB_OUTPUT
+          echo "Number of files changed: $CHANGED_FILES"
+
+      - name: Create PR if 20+ files changed
+        if: steps.count_changes.outputs.changed_files >= 20
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: main
+          branch: auto-pr-bulk-changes-${{ github.run_number }}
+          title: "Auto PR: Bulk Changes - ${{ steps.count_changes.outputs.changed_files }} files"
+          body: |
+            ## Automatic PR for Bulk Changes
+            
+            This PR was automatically created because ${{ steps.count_changes.outputs.changed_files }} files were changed in a single commit.
+            
+            **Statistics:**
+            - Files changed: ${{ steps.count_changes.outputs.changed_files }}
+            - Commit: ${{ github.sha }}
+            - Triggered by: @${{ github.actor }}
+            
+            ## Review Guidelines
+            
+            Please review the changes for:
+            - Code quality and consistency
+            - Security implications
+            - Documentation updates
+            - Test coverage
+          labels: automated, bulk-changes
+          draft: false
+
+      - name: Summary
+        run: |
+          if [ ${{ steps.count_changes.outputs.changed_files }} -ge 20 ]; then
+            echo "✅ Created auto PR for ${{ steps.count_changes.outputs.changed_files }} file changes"
+          else
+            echo "ℹ️  No PR created - only ${{ steps.count_changes.outputs.changed_files }} files changed (threshold: 20)"
+          fi
