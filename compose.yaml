@@ -1065,6 +1065,138 @@ services:
           cpus: '0.5'
           memory: 512M
 
+  jupyter-service:
+    build:
+      context: ./containers/github_repos/jupyter
+      dockerfile: Dockerfile
+    image: "dix-jupyter:latest"
+    container_name: dix-jupyter-service
+    ports:
+      - "9118:9118"
+    volumes:
+      - ./containers/github_repos/jupyter/config:/app/config
+      - ./containers/github_repos/jupyter/data:/app/data
+      - ./containers/github_repos/jupyter/logs:/app/logs
+      - ./containers/github_repos/jupyter/notebooks:/app/notebooks
+    environment:
+      - "JUPYTER_LOG_LEVEL=INFO"
+      - "JUPYTER_PERMISSION_LEVEL=READ_ONLY"
+    restart: unless-stopped
+    networks:
+      - dixvision-network
+    healthcheck:
+      test: ["CMD", "python", "/app/health_check.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  scrapy-service:
+    build:
+      context: ./containers/github_repos/scrapy
+      dockerfile: Dockerfile
+    image: "dix-scrapy:latest"
+    container_name: dix-scrapy-service
+    ports:
+      - "9119:9119"
+    volumes:
+      - ./containers/github_repos/scrapy/config:/app/config
+      - ./containers/github_repos/scrapy/data:/app/data
+      - ./containers/github_repos/scrapy/logs:/app/logs
+      - ./containers/github_repos/scrapy/spiders:/app/spiders
+    environment:
+      - "SCRAPY_LOG_LEVEL=INFO"
+      - "SCRAPY_PERMISSION_LEVEL=READ_ONLY"
+    restart: unless-stopped
+    networks:
+      - dixvision-network
+    healthcheck:
+      test: ["CMD", "python", "/app/health_check.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+  telegrambot-service:
+    build:
+      context: ./containers/github_repos/telegrambot
+      dockerfile: Dockerfile
+    image: "dix-telegrambot:latest"
+    container_name: dix-telegrambot-service
+    ports:
+      - "9120:9120"
+    volumes:
+      - ./containers/github_repos/telegrambot/config:/app/config
+      - ./containers/github_repos/telegrambot/data:/app/data
+      - ./containers/github_repos/telegrambot/logs:/app/logs
+      - ./containers/github_repos/telegrambot/messages:/app/messages
+    environment:
+      - "TELEGRAMBOT_LOG_LEVEL=INFO"
+      - "TELEGRAMBOT_PERMISSION_LEVEL=READ_ONLY"
+    restart: unless-stopped
+    networks:
+      - dixvision-network
+    healthcheck:
+      test: ["CMD", "python", "/app/health_check.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+  discordbot-service:
+    build:
+      context: ./containers/github_repos/discordbot
+      dockerfile: Dockerfile
+    image: "dix-discordbot:latest"
+    container_name: dix-discordbot-service
+    ports:
+      - "9121:9121"
+    volumes:
+      - ./containers/github_repos/discordbot/config:/app/config"
+      - ./containers/github_repos/discordbot/data:/app/data
+      - ./containers/github_repos/discordbot/logs:/app/logs
+      - ./containers/github_repos/discordbot/messages:/app/messages
+    environment:
+      - "DISCORDBOT_LOG_LEVEL=INFO"
+      - "DISCORDBOT_PERMISSION_LEVEL=READ_ONLY"
+    restart: unless-stopped
+    networks:
+      - dixvision-network
+    healthcheck:
+      test: ["CMD", "python", "/app/health_check.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
 volumes:
   redis-data:
   postgres-data:

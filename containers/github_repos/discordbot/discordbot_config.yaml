@@ -1,0 +1,50 @@
+repository:
+  name: "discordbot"
+  url: "https://github.com/Rapptz/discord.py.git"
+  version: "2.3.2"
+  description: "DiscordBot communication for community management"
+
+domain:
+  type: "SYSTEM"
+  priority: "HIGH"
+  category: "communication"
+
+container:
+  enabled: true
+  image: "dix-discordbot:latest"
+  build:
+    dockerfile: "containers/github_repos/discordbot/Dockerfile"
+    context: "containers/github_repos/discordbot"
+  ports:
+    - "9121:9121"
+  volumes:
+    - "./containers/github_repos/discordbot/config:/app/config"
+    - "./containers/github_repos/discordbot/data:/app/data"
+    - "./containers/github_repos/discordbot/logs:/app/logs"
+    - "./containers/github_repos/discordbot/messages:/app/messages"
+  environment:
+    - "DISCORDBOT_LOG_LEVEL=INFO"
+    - "DISCORDBOT_PERMISSION_LEVEL=READ_ONLY"
+  resources:
+    memory_limit: "512M"
+    cpu_limit: "1.0"
+    memory_reservation: "256M"
+    cpu_reservation: "0.5"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+
+governance:
+  enabled: true
+  permission_level: "READ_ONLY"
+  communication_limits:
+    max_messages_per_minute: 50
+    max_server_members: 1000
+
+adapter:
+  type: "DiscordBotDomainAdapter"
+  concept_mappings:
+    message: "communication_signal"
+    channel: "communication_medium"

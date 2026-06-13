@@ -1,0 +1,51 @@
+repository:
+  name: "jupyter"
+  url: "https://github.com/jupyter/jupyter.git"
+  version: "1.0.0"
+  description: "Jupyter notebooks for interactive computing"
+
+domain:
+  type: "SYSTEM"
+  priority: "HIGH"
+  category: "notebooks"
+
+container:
+  enabled: true
+  image: "dix-jupyter:latest"
+  build:
+    dockerfile: "containers/github_repos/jupyter/Dockerfile"
+    context: "containers/github_repos/jupyter"
+  ports:
+    - "9118:9118"
+  volumes:
+    - "./containers/github_repos/jupyter/config:/app/config"
+    - "./containers/github_repos/jupyter/data:/app/data"
+    - "./containers/github_repos/jupyter/logs:/app/logs"
+    - "./containers/github_repos/jupyter/notebooks:/app/notebooks"
+  environment:
+    - "JUPYTER_LOG_LEVEL=INFO"
+    - "JUPYTER_PERMISSION_LEVEL=READ_ONLY"
+  resources:
+    memory_limit: "1G"
+    cpu_limit: "1.5"
+    memory_reservation: "512M"
+    cpu_reservation: "0.5"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+
+governance:
+  enabled: true
+  permission_level: "READ_ONLY"
+  notebook_limits:
+    max_notebook_size: 104857600
+    max_execution_time: 3600
+    max_memory_usage: 2147483648
+
+adapter:
+  type: "JupyterDomainAdapter"
+  concept_mappings:
+    notebook: "interactive_document"
+    kernel: "execution_environment"

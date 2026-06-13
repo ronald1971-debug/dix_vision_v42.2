@@ -1,0 +1,51 @@
+repository:
+  name: "scrapy"
+  url: "https://github.com/scrapy/scrapy.git"
+  version: "2.11.0"
+  description: "Scrapy web scraping for data extraction"
+
+domain:
+  type: "SYSTEM"
+  priority: "HIGH"
+  category: "web_scraping"
+
+container:
+  enabled: true
+  image: "dix-scrapy:latest"
+  build:
+    dockerfile: "containers/github_repos/scrapy/Dockerfile"
+    context: "containers/github_repos/scrapy"
+  ports:
+    - "9119:9119"
+  volumes:
+    - "./containers/github_repos/scrapy/config:/app/config"
+    - "./containers/github_repos/scrapy/data:/app/data"
+    - "./containers/github_repos/scrapy/logs:/app/logs"
+    - "./containers/github_repos/scrapy/spiders:/app/spiders"
+  environment:
+    - "SCRAPY_LOG_LEVEL=INFO"
+    - "SCRAPY_PERMISSION_LEVEL=READ_ONLY"
+  resources:
+    memory_limit: "512M"
+    cpu_limit: "1.0"
+    memory_reservation: "256M"
+    cpu_reservation: "0.5"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+
+governance:
+  enabled: true
+  permission_level: "READ_ONLY"
+  scraping_limits:
+    max_requests: 10000
+    max_pages: 1000
+    max_data_size: 104857600
+
+adapter:
+  type: "ScrapyDomainAdapter"
+  concept_mappings:
+    spider: "web_crawler"
+    scraper: "data_extractor"

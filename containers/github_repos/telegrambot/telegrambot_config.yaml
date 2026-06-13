@@ -1,0 +1,50 @@
+repository:
+  name: "telegrambot"
+  url: "https://github.com/python-telegram-bot/python-telegram-bot.git"
+  version: "20.7"
+  description: "TelegramBot communication for messaging"
+
+domain:
+  type: "SYSTEM"
+  priority: "HIGH"
+  category: "communication"
+
+container:
+  enabled: true
+  image: "dix-telegrambot:latest"
+  build:
+    dockerfile: "containers/github_repos/telegrambot/Dockerfile"
+    context: "containers/github_repos/telegrambot"
+  ports:
+    - "9120:9120"
+  volumes:
+    - "./containers/github_repos/telegrambot/config:/app/config"
+    - "./containers/github_repos/telegrambot/data:/app/data"
+    - "./containers/github_repos/telegrambot/logs:/app/logs"
+    - "./containers/github_repos/telegrambot/messages:/app/messages"
+  environment:
+    - "TELEGRAMBOT_LOG_LEVEL=INFO"
+    - "TELEGRAMBOT_PERMISSION_LEVEL=READ_ONLY"
+  resources:
+    memory_limit: "512M"
+    cpu_limit: "1.0"
+    memory_reservation: "256M"
+    cpu_reservation: "0.5"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+
+governance:
+  enabled: true
+  permission_level: "READ_ONLY"
+  communication_limits:
+    max_messages_per_minute: 60
+    max_broadcast_recipients: 1000
+
+adapter:
+  type: "TelegramBotDomainAdapter"
+  concept_mappings:
+    message: "communication_signal"
+    chat: "conversation_channel"
