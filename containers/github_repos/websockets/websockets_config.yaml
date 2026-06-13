@@ -1,13 +1,16 @@
+# WebSockets External Repository Configuration
+# Configuration for WebSocket real-time communication integration
+
 repository:
   name: "websockets"
   url: "https://github.com/python-websockets/websockets.git"
   version: "12.0"
-  description: "WebSocket implementation for real-time communication"
+  description: "WebSocket real-time communication for DIX VISION"
 
 domain:
   type: "SYSTEM"
-  priority: "HIGH"
-  category: "real_time_communication"
+  priority: "CRITICAL"
+  category: "realtime_communication"
 
 container:
   enabled: true
@@ -21,31 +24,157 @@ container:
     - "./containers/github_repos/websockets/config:/app/config"
     - "./containers/github_repos/websockets/data:/app/data"
     - "./containers/github_repos/websockets/logs:/app/logs"
-    - "./containers/github_repos/websockets/connections:/app/connections"
   environment:
     - "WEBSOCKETS_LOG_LEVEL=INFO"
     - "WEBSOCKETS_PERMISSION_LEVEL=READ_ONLY"
   resources:
-    memory_limit: "512M"
+    memory_limit: "512m"
     cpu_limit: "1.0"
-    memory_reservation: "256M"
+    memory_reservation: "256m"
     cpu_reservation: "0.5"
   health_check:
     enabled: true
     interval: "30s"
     timeout: "10s"
     retries: 3
+    command: "python /app/health_check.py"
 
 governance:
   enabled: true
   permission_level: "READ_ONLY"
-  communication_limits:
-    max_connections: 1000
+  safety_checks:
+    enabled: true
+    dangerous_keywords: ["disconnect", "close", "terminate"]
+    input_validation: true
+    output_sanitization: true
+    rate_limiting:
+      enabled: true
+      messages_per_minute: 1000
+      max_connections: 1000
     max_message_size: 1048576
-    max_connection_duration: 3600
+  audit_logging:
+    enabled: true
+    log_level: "INFO"
+    retention_days: 90
+  operator_authority:
+    required_for_execution: true
+    approval_timeout: "1h"
+    emergency_override: true
 
 adapter:
   type: "WebSocketsDomainAdapter"
+  data_format: "JSON"
   concept_mappings:
-    connection: "real_time_channel"
-    message: "stream_data"
+    connection: "realtime_link"
+    message: "data_transmission"
+    client: "cognitive_endpoint"
+    server: "central_hub"
+    ping: "heartbeat"
+  transformations:
+    - name: "connection_standardization"
+      enabled: true
+    - name: "message_enhancement"
+      enabled: true
+    - name: "heartbeat_classification"
+      enabled: true
+  enhancements:
+    add_metadata: true
+    add_context: true
+    cognitive_enhancement: true
+
+security:
+  credential_management:
+    use_secrets_manager: true
+    credential_file: ".dix_secrets.env"
+    api_keys_required: false
+  connection_security:
+    enabled: true
+    require_authentication: false
+    allowed_origins: ["*"]
+    blocked_ips: []
+    max_connections: 1000
+  input_validation:
+    enabled: true
+    max_size_mb: 1
+    allowed_message_types: ["text", "binary"]
+  output_sanitization:
+    enabled: true
+    remove_sensitive_data: true
+
+performance:
+  cache_enabled: false
+  connection_pool:
+    enabled: true
+    max_connections: 1000
+    min_connections: 10
+  timeout:
+    connection: 30
+    message: 60
+  retry_policy:
+    enabled: false
+
+monitoring:
+  enabled: true
+  metrics:
+    enabled: true
+    collection_interval: 30
+    metrics_port: 9146
+  logging:
+    enabled: true
+    log_level: "INFO"
+    log_file: "logs/websockets.log"
+  health_checks:
+    enabled: true
+    check_interval: 30
+    connection_health_check: true
+  alerting:
+    enabled: false
+
+integration:
+  enabled: true
+  startup_order: 40
+  dependencies: []
+  auto_discovery:
+    enabled: true
+  data_flow:
+    - source: "websocket_messages"
+      destination: "message_queue"
+      transform: "websockets_adapter"
+
+websocket_configuration:
+  host: "0.0.0.0"
+  port: 9146
+  ping_interval: 20
+  ping_timeout: 20
+  max_size: 1048576
+  max_queue: 32
+  read_limit: 65536
+  write_limit: 65536
+
+testing:
+  integration_tests:
+    enabled: true
+    test_directory: "containers/github_repos/websockets/tests"
+    test_timeout: 300
+  unit_tests:
+    enabled: true
+    coverage_threshold: 80
+
+documentation:
+  api_docs:
+    enabled: true
+    generate_on_build: true
+  integration_guide:
+    enabled: true
+    location: "docs/integrations/websockets.md"
+
+deployment:
+  environment: "development"
+  scaling:
+    min_instances: 1
+    max_instances: 3
+    target_cpu_percent: 70
+  rollout_strategy:
+    type: "rolling"
+    max_unavailable: 1
+    max_surge: 1

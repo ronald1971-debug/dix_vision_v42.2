@@ -1,0 +1,152 @@
+# montecarlo-python External Repository Configuration
+# Configuration for Monte Carlo simulation integration
+
+repository:
+  name: "montecarlo-python"
+  url: "https://github.com/llvll/python-montecarlo.git"
+  version: "latest"
+  description: "Monte Carlo simulation for DIX VISION"
+
+domain:
+  type: "SYSTEM"
+  priority: "HIGH"
+  category: "external_integration"
+
+container:
+  enabled: true
+  image: "dix-montecarlo-python:latest"
+  build:
+    dockerfile: "containers/github_repos/montecarlo-python/Dockerfile"
+    context: "containers/github_repos/montecarlo-python"
+  ports:
+    - "9159:9159"
+  volumes:
+    - "./containers/github_repos/montecarlo-python/config:/app/config"
+    - "./containers/github_repos/montecarlo-python/data:/app/data"
+    - "./containers/github_repos/montecarlo-python/logs:/app/logs"
+  environment:
+    - "MONTECARLO_PYTHON_LOG_LEVEL=INFO"
+    - "MONTECARLO_PYTHON_PERMISSION_LEVEL=READ_ONLY"
+  resources:
+    memory_limit: "512m"
+    cpu_limit: "1.0"
+    memory_reservation: "256m"
+    cpu_reservation: "0.5"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+    command: "python /app/health_check.py"
+
+governance:
+  enabled: true
+  permission_level: "READ_ONLY"
+  safety_checks:
+    enabled: true
+    dangerous_keywords: ["delete", "drop", "destroy"]
+    input_validation: true
+    output_sanitization: true
+    rate_limiting:
+      enabled: true
+      operations_per_minute: 1000
+    max_request_size: 10485760
+  audit_logging:
+    enabled: true
+    log_level: "INFO"
+    retention_days: 90
+  operator_authority:
+    required_for_execution: true
+    approval_timeout: "1h"
+    emergency_override: true
+
+adapter:
+  type: "Montecarlo_pythonDomainAdapter"
+  data_format: "JSON"
+  concept_mappings:
+    data: "cognitive_data"
+    config: "configuration"
+    operation: "cognitive_operation"
+  transformations:
+    - name: "data_standardization"
+      enabled: true
+    - name: "data_enhancement"
+      enabled: true
+  enhancements:
+    add_metadata: true
+    add_context: true
+    cognitive_enhancement: true
+
+security:
+  credential_management:
+    use_secrets_manager: true
+    credential_file: ".dix_secrets.env"
+    api_keys_required: false
+  input_validation:
+    enabled: true
+    max_size_mb: 10
+  output_sanitization:
+    enabled: true
+    remove_sensitive_data: true
+
+performance:
+  cache_enabled: true
+  cache_ttl: 60
+  timeout:
+    connection: 30
+    operation: 60
+  retry_policy:
+    enabled: true
+    max_retries: 3
+    backoff_factor: 2
+
+monitoring:
+  enabled: true
+  metrics:
+    enabled: true
+    collection_interval: 30
+    metrics_port: 9159
+  logging:
+    enabled: true
+    log_level: "INFO"
+    log_file: "logs/montecarlo-python.log"
+  health_checks:
+    enabled: true
+    check_interval: 30
+  alerting:
+    enabled: false
+
+integration:
+  enabled: true
+  startup_order: 50
+  dependencies: []
+  auto_discovery:
+    enabled: true
+
+testing:
+  integration_tests:
+    enabled: true
+    test_directory: "containers/github_repos/montecarlo-python/tests"
+    test_timeout: 300
+  unit_tests:
+    enabled: true
+    coverage_threshold: 80
+
+documentation:
+  api_docs:
+    enabled: true
+    generate_on_build: true
+  integration_guide:
+    enabled: true
+    location: "docs/integrations/montecarlo-python.md"
+
+deployment:
+  environment: "development"
+  scaling:
+    min_instances: 1
+    max_instances: 3
+    target_cpu_percent: 70
+  rollout_strategy:
+    type: "rolling"
+    max_unavailable: 1
+    max_surge: 1
