@@ -1,8 +1,0 @@
-
-> @dix-vision/dashboard-app@42.2.0 typecheck
-> cd ../../dashboard2026 && npm run typecheck
-
-
-> dixvision-dashboard2026@0.1.0 typecheck
-> tsc --noEmit
-

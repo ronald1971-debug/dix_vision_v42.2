@@ -1,0 +1,13 @@
+# Prometheus Configuration for CCXT Service
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'ccxt-service'
+    static_configs:
+      - targets: ['ccxt-service:9090']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+    scrape_timeout: 10s

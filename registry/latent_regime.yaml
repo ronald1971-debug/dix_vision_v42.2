@@ -1,9 +1,0 @@
-# registry/latent_regime.yaml
-# Latent regime embedding coefficients (Wave 2).
-
-version: v1
-
-embedder:
-  seed: 42
-  dim: 32
-  input_dim: 8

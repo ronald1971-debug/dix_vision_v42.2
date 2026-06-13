@@ -1,0 +1,183 @@
+# LangChain External Repository Configuration
+# Configuration for LangChain AI/LLM integration
+
+repository:
+  name: "langchain"
+  url: "https://github.com/langchain-ai/langchain.git"
+  version: "0.1.0"
+  description: "LangChain framework for building AI applications"
+
+domain:
+  type: "COGNITIVE"
+  priority: "CRITICAL"
+  category: "cognitive_enhancement"
+
+container:
+  enabled: true
+  image: "dix-langchain:latest"
+  build:
+    dockerfile: "containers/github_repos/langchain/Dockerfile"
+    context: "containers/github_repos/langchain"
+  ports:
+    - "8081:8081"
+  volumes:
+    - "./containers/github_repos/langchain/config:/app/config"
+    - "./containers/github_repos/langchain/data:/app/data"
+    - "./containers/github_repos/langchain/logs:/app/logs"
+    - "./containers/github_repos/langchain/knowledge:/app/knowledge"
+  environment:
+    - "LANGCHAIN_LOG_LEVEL=INFO"
+    - "LANGCHAIN_API_KEY=${OPENAI_API_KEY}"
+  resources:
+    memory_limit: "2g"
+    cpu_limit: "2.0"
+    memory_reservation: "1g"
+    cpu_reservation: "1.0"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+    command: "python /app/health_check.py"
+
+governance:
+  enabled: true
+  permission_level: "READ_ONLY"
+  safety_checks:
+    enabled: true
+    dangerous_keywords: ["illegal", "harmful", "weapon", "exploit"]
+    input_validation: true
+    output_sanitization: true
+    content_safety_filters:
+      harmful_content: true
+      bias_detection: true
+      hallucination_check: false
+    usage_limits:
+      max_daily_tokens: 100000
+      max_daily_cost: 10.0
+      max_prompt_length: 4096
+  audit_logging:
+    enabled: true
+    log_level: "INFO"
+    retention_days: 90
+  operator_authority:
+    required_for_execution: true
+    approval_timeout: "1h"
+    emergency_override: true
+
+adapter:
+  type: "LangChainDomainAdapter"
+  data_format: "JSON"
+  concept_mappings:
+    prompt: "cognitive_query"
+    completion: "cognitive_response"
+    context: "situational_awareness"
+    temperature: "creativity_parameter"
+    tokens: "cognitive_units"
+  transformations:
+    - name: "prompt_enhancement"
+      enabled: true
+    - name: "response_analysis"
+      enabled: true
+    - name: "chat_structuring"
+      enabled: true
+  enhancements:
+    add_metadata: true
+    add_context: true
+    cognitive_enhancement: true
+
+security:
+  credential_management:
+    use_secrets_manager: true
+    credential_file: ".dix_secrets.env"
+    api_keys_required: true
+  rate_limiting:
+    enabled: true
+    requests_per_minute: 60
+    burst_size: 10
+  input_validation:
+    enabled: true
+    max_size_mb: 1
+    allowed_formats: ["json", "text"]
+  output_sanitization:
+    enabled: true
+    remove_sensitive_data: true
+
+performance:
+  cache_enabled: true
+  cache_ttl: 300
+  connection_pool:
+    enabled: true
+    max_connections: 5
+    min_connections: 1
+  timeout:
+    connection: 60
+    read: 120
+    write: 60
+  retry_policy:
+    enabled: true
+    max_retries: 2
+    backoff_factor: 2
+
+monitoring:
+  enabled: true
+  metrics:
+    enabled: true
+    collection_interval: 60
+    metrics_port: 9091
+  logging:
+    enabled: true
+    log_level: "INFO"
+    log_file: "logs/langchain.log"
+  health_checks:
+    enabled: true
+    check_interval: 30
+  alerting:
+    enabled: false
+
+integration:
+  enabled: true
+  startup_order: 25
+  dependencies:
+    - "redis"
+    - "postgres"
+  auto_discovery:
+    enabled: false
+
+supported_models:
+  gpt-4:
+    enabled: true
+    pricing:
+      prompt: 0.03
+      completion: 0.06
+    max_tokens: 8192
+  gpt-3.5-turbo:
+    enabled: true
+    pricing:
+      prompt: 0.0015
+      completion: 0.002
+    max_tokens: 4096
+  claude-2:
+    enabled: false
+    pricing:
+      prompt: 0.008
+      completion: 0.024
+    max_tokens: 100000
+
+testing:
+  integration_tests:
+    enabled: true
+    test_directory: "containers/github_repos/langchain/tests"
+    test_timeout: 300
+
+documentation:
+  integration_guide:
+    enabled: true
+    location: "docs/integrations/langchain.md"
+
+deployment:
+  environment: "development"
+  scaling:
+    min_instances: 1
+    max_instances: 2
+    target_cpu_percent: 70

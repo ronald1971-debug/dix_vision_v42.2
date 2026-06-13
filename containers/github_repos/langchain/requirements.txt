@@ -1,0 +1,63 @@
+# LangChain Container Requirements
+# Core dependencies for AI/LLM capabilities
+
+# LangChain core
+langchain==0.1.0
+langchain-openai==0.0.2
+langchain-community==0.0.10
+langchain-core==0.1.10
+
+# OpenAI integration
+openai==1.6.1
+tiktoken==0.5.2
+
+# Core dependencies
+requests==2.31.0
+urllib3==2.0.7
+certifi==2023.11.17
+
+# Data processing
+pandas==2.1.3
+numpy==1.26.2
+
+# Web and HTTP
+httpx==0.25.2
+aiohttp==3.9.1
+
+# Async support
+asyncio==3.4.3
+async-timeout==4.0.3
+
+# Configuration and secrets
+pyyaml==6.0.1
+python-dotenv==1.0.0
+
+# Logging and monitoring
+structlog==23.2.0
+python-json-logger==2.0.7
+
+# Type checking
+typing-extensions==4.9.0
+pydantic==2.5.2
+
+# Security
+cryptography==41.0.7
+
+# Text processing
+regex==2023.12.25
+
+# Rate limiting
+ratelimit==2.2.1
+
+# Retry logic
+tenacity==8.2.3
+
+# File handling
+aiofiles==23.2.1
+
+# Vector database support (optional)
+chromadb==0.4.18
+faiss-cpu==1.7.4
+
+# Embeddings
+sentence-transformers==2.2.2

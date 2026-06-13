@@ -1,4 +1,78 @@
 services:
+  # ========================================
+  # DATA SERVICES (Infrastructure)
+  # ========================================
+  
+  redis-service:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    restart: unless-stopped
+    networks:
+      - dixvision-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgresql-service:
+    image: postgres:15-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=dixvision
+      - POSTGRES_USER=dixvision
+      - POSTGRES_PASSWORD=dixvision_secure_password
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - dixvision-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dixvision"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ========================================
+  # MONITORING SERVICES
+  # ========================================
+  
+  prometheus-service:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    restart: unless-stopped
+    networks:
+      - dixvision-network
+
+  grafana-service:
+    image: grafana/grafana:latest
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin_secure_password
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+    restart: unless-stopped
+    networks:
+      - dixvision-network
+
+  # ========================================
+  # DASHBOARD SERVICE (Existing)
+  # ========================================
+  
   dixvisiondashboard2026:
     image: dixvisiondashboard2026
     build:
@@ -6,5 +80,98 @@ services:
       dockerfile: ./Dockerfile
     environment:
       NODE_ENV: production
+      REDIS_URL: redis://redis-service:6379
     ports:
-      - 3000:3000
+      - "3000:3000"
+    depends_on:
+      - redis-service
+    networks:
+      - dixvision-network
+
+  # ========================================
+  # GITHUB REPOSITORY INTEGRATIONS
+  # ========================================
+  
+  ccxt-service:
+    build:
+      context: ./containers/github_repos/ccxt
+      dockerfile: Dockerfile
+    image: dix-ccxt:latest
+    container_name: dix-ccxt-service
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./containers/github_repos/ccxt/config:/app/config
+      - ./containers/github_repos/ccxt/data:/app/data
+      - ./containers/github_repos/ccxt/logs:/app/logs
+    environment:
+      - CCXT_LOG_LEVEL=INFO
+      - CCXT_RATE_LIMIT=true
+      - CCXT_PERMISSION_LEVEL=READ_ONLY
+    depends_on:
+      - redis-service
+      - postgresql-service
+      - prometheus-service
+    restart: unless-stopped
+    networks:
+      - dixvision-network
+    healthcheck:
+      test: ["CMD", "python", "/app/health_check.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  langchain-service:
+    build:
+      context: ./containers/github_repos/langchain
+      dockerfile: Dockerfile
+    image: dix-langchain:latest
+    container_name: dix-langchain-service
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./containers/github_repos/langchain/config:/app/config
+      - ./containers/github_repos/langchain/data:/app/data
+      - ./containers/github_repos/langchain/logs:/app/logs
+      - ./containers/github_repos/langchain/knowledge:/app/knowledge
+    environment:
+      - LANGCHAIN_LOG_LEVEL=INFO
+      - LANGCHAIN_PERMISSION_LEVEL=READ_ONLY
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    depends_on:
+      - redis-service
+      - postgresql-service
+    restart: unless-stopped
+    networks:
+      - dixvision-network
+    healthcheck:
+      test: ["CMD", "python", "/app/health_check.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '1.0'
+          memory: 1G
+
+volumes:
+  redis-data:
+  postgres-data:
+  prometheus-data:
+  grafana-data:
+
+networks:
+  dixvision-network:
+    driver: bridge
