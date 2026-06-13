@@ -22,7 +22,7 @@ class RedisClusterGovernanceWrapper(BaseExternalRepoGovernanceWrapper):
         self.redis_cluster_available = False
         self.operation_limits = {
             'max_memory_per_node': 4294967296,  # 4GB
-            'max_cluster_size': 100
+            'max_cluster_size': 100,
             'max_keys_per_node': 1000000
         }
         
