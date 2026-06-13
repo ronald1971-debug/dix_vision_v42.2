@@ -1,0 +1,476 @@
+# DIX VISION v42.2 - Cognitive Architecture Production Configuration
+# Optimized for production deployment with performance and reliability focus
+
+cognitive_architecture:
+  enabled: true
+  version: "42.2.0"
+  environment: "production"
+  
+  # System Performance Configuration
+  performance:
+    target_indira_latency_ms: 5  # Stricter target for production
+    target_dyon_latency_ms: 25  # Stricter target for production
+    max_cpu_percent: 70  # Lower threshold for production
+    max_memory_gb: 10  # Lower threshold for production
+    min_throughput_ops_per_sec: 1000  # Higher throughput target
+    
+  # Preservation Layer - Production-optimized backward compatibility
+  preservation_layer:
+    enabled: true
+    migration_mode: true
+    fallback_on_failure: true
+    performance_validation: true
+    functionality_loss_validation: true
+    performance_threshold_ms: 5  # Stricter threshold
+    auto_recovery: true  # Enable automatic recovery
+    legacy_engines:
+      cognitive_orchestrator: true
+      intelligence_orchestrator: true
+      reasoning_orchestrator: true
+      learning_orchestrator: true
+      knowledge_orchestrator: true
+      system_orchestrator: true
+      simulation_orchestrator: true
+  
+  # INDIRA Brain - Production-optimized trading cognition
+  indira_brain:
+    enabled: true
+    fast_path_caching: true
+    sub_5ms_target: true
+    neuro_symbolic_enabled: true
+    meta_learning_enabled: true
+    bayesian_attribution: true
+    
+    # Performance tuning
+    cache_size: 200  # Increased cache for production
+    pre_compute_decisions: true
+    max_concurrent_decisions: 20  # Higher concurrency
+    decision_timeout_ms: 10  # Strict timeout
+    
+    # Memory Framework - Production configuration
+    memory_framework:
+      enabled: true
+      long_term_memory: true
+      short_term_memory: true
+      episodic_memory: true
+      semantic_memory: true
+      memory_retention_days: 730  # 2 years retention for production
+      backup_enabled: true  # Enable memory backups
+      backup_interval_hours: 24  # Daily backups
+    
+    # Knowledge Retrieval - Production configuration
+    knowledge_retrieval:
+      enabled: true
+      vector_first: true
+      knowledge_graph: true
+      llm_enhanced: true
+      max_results: 20  # More results for production
+      similarity_threshold: 0.8  # Higher threshold for quality
+      cache_enabled: true  # Enable retrieval cache
+      cache_size: 100  # Retrieval cache size
+    
+    # Enhanced Reasoning - Production configuration
+    enhanced_reasoning:
+      enabled: true
+      llm_timeout_ms: 5000  # Strict LLM timeout
+      knowledge_graph_timeout_ms: 1000  # Strict KG timeout
+      fallback_on_timeout: true
+    
+    # Risk Management - Production enhancements
+    risk_management:
+      enabled: true
+      max_position_size_usd: 1000000  # Production limit
+      risk_limit_percent: 5  # 5% risk limit
+      stop_loss_enabled: true
+      position_limits_enabled: true
+  
+  # DYON Brain - Production-optimized engineering cognition
+  dyon_brain:
+    enabled: true
+    neuro_symbolic_enabled: true
+    meta_learning_enabled: true
+    continual_learning_enabled: true
+    curiosity_driven: true
+    
+    # Performance tuning
+    cache_size: 100  # Increased cache for production
+    analysis_timeout_ms: 25  # Stricter timeout
+    max_concurrent_analyses: 10  # Higher concurrency
+    
+    # Memory Framework - Production configuration
+    memory_framework:
+      enabled: true
+      long_term_memory: true
+      short_term_memory: true
+      episodic_memory: true
+      semantic_memory: true
+      memory_retention_days: 730  # 2 years retention
+      backup_enabled: true
+      backup_interval_hours: 24
+    
+    # Knowledge Retrieval - Production configuration
+    knowledge_retrieval:
+      enabled: true
+      vector_first: true
+      knowledge_graph: true
+      llm_enhanced: true
+      max_results: 15
+      similarity_threshold: 0.75
+      cache_enabled: true
+      cache_size: 75
+    
+    # Debugging - Production configuration
+    debugging:
+      enabled: true
+      auto_fix: false  # Manual fixes only in production
+      fix_validation_required: true  # Require validation
+      max_fix_attempts: 3  # Limit fix attempts
+    
+    # Causal Analysis - Production configuration
+    causal_analysis:
+      enabled: true
+      max_depth: 5  # Limit analysis depth
+      timeout_ms: 2000  # Strict timeout
+    
+    # Pattern Discovery - Production configuration
+    pattern_discovery:
+      enabled: true
+      min_confidence: 0.8  # Higher confidence threshold
+      max_patterns: 50  # Limit pattern discovery
+      discovery_interval_hours: 6  # Less frequent discovery
+    
+    # Learning - Production configuration
+    learning:
+      enabled: true
+      learning_rate: 0.005  # Lower learning rate for stability
+      batch_size: 32  # Larger batches for efficiency
+      validation_interval_hours: 12  # Regular validation
+      rollback_on_degradation: true  # Auto-rollback on degradation
+  
+  # Coordination Layer - Production-optimized cross-agent coordination
+  coordination_layer:
+    enabled: true
+    acl_protocol: "FIPA_ACL"  # Standard FIPA ACL protocol
+    message_validation: true
+    message_encryption: true  # Enable message encryption
+    audit_logging: true  # Enable audit logging
+    
+    # Performance tuning
+    message_queue_size: 2000  # Larger queue for production
+    message_priority_enabled: true
+    conflict_resolution_timeout_ms: 3000  # Stricter timeout
+    max_concurrent_conversations: 100  # Higher concurrency
+    message_ttl_seconds: 300  # Message time-to-live
+    
+    # Message Routing - Production configuration
+    message_routing:
+      default_strategy: "direct"  # Safe default routing
+      enable_broadcast: true
+      enable_multicast: true
+      enable_role_based: true
+      routing_cache_enabled: true
+      routing_cache_size: 50
+    
+    # Message Filtering - Production configuration
+    message_filtering:
+      enabled: true
+      default_policy: "allow"  # Allow by default
+      blocked_senders: []  # No blocked senders by default
+      rate_limiting_enabled: true  # Enable rate limiting
+      max_messages_per_minute: 1000  # Rate limit
+    
+    # Conflict Resolution - Production configuration
+    conflict_resolution:
+      enabled: true
+      default_strategy: "priority"  # Safe default strategy
+      negotiation_enabled: true
+      voting_enabled: true
+      arbitration_enabled: true
+      auto_resolution_enabled: true  # Enable auto-resolution
+      max_resolution_attempts: 5  # Limit resolution attempts
+    
+    # Shared Mental Models - Production configuration
+    shared_mental_models:
+      enabled: true
+      sync_interval_seconds: 60  # Regular synchronization
+      alignment_threshold: 0.7  # Alignment threshold
+      model_versioning: true  # Enable versioning
+      max_model_versions: 10  # Limit version history
+    
+    # Knowledge Exchange - Production configuration
+    knowledge_exchange:
+      enabled: true
+      validation_required: true  # Require validation
+      encryption_enabled: true  # Enable encryption
+      audit_trail: true  # Enable audit trail
+    
+    # Resource Allocation - Production configuration
+    resource_allocation:
+      enabled: true
+      optimization_interval_seconds: 300  # 5-minute optimization
+      fairness_algorithm: "weighted_round_robin"  # Fair allocation
+      resource_limits_enabled: true  # Enable resource limits
+      over_allocation_prevention: true  # Prevent over-allocation
+  
+  # Cognitive Economy Manager - Production-optimized resource allocation
+  cognitive_economy:
+    enabled: true
+    budget_management:
+      enabled: true
+      auto_budget_adjustment: false  # Manual budget adjustment
+      budget_validation: true
+      overspend_alerting: true
+      overspend_threshold_percent: 10  # Alert at 10% overspend
+    
+    # Resource Types - Production configuration
+    resources:
+      cpu:
+        enabled: true
+        total_budget: 80  # 80% CPU budget
+        allocation_strategy: "priority_based"
+        reservation_percent: 20  # 20% reserved
+      
+      memory:
+        enabled: true
+        total_budget: 10  # 10GB memory budget
+        allocation_strategy: "fair_share"
+        reservation_percent: 15  # 15% reserved
+      
+      compute:
+        enabled: true
+        total_budget: 100  # 100% compute budget
+        allocation_strategy: "cost_effective"
+        reservation_percent: 25  # 25% reserved
+      
+      io:
+        enabled: true
+        total_budget: 50  # 50% I/O budget
+        allocation_strategy: "round_robin"
+        reservation_percent: 10  # 10% reserved
+    
+    # Cost Analysis - Production configuration
+    cost_analysis:
+      enabled: true
+      real_time_tracking: true
+      cost_threshold_usd: 1000  # Alert threshold
+      cost_optimization_enabled: true
+      cost_optimization_interval_hours: 24
+    
+    # Performance Monitoring - Production configuration
+    performance_monitoring:
+      enabled: true
+      metrics_collection_interval_seconds: 30  # 30-second intervals
+      anomaly_detection: true
+      anomaly_threshold: 2.0  # 2 standard deviations
+      alerting_enabled: true
+  
+  # Operating Mode Manager - Production-optimized mode management
+  operating_modes:
+    enabled: true
+    default_mode: "ACTIVE"  # Default to ACTIVE mode
+    mode_transition_validation: true  # Validate transitions
+    mode_transition_timeout_ms: 5000  # Transition timeout
+    
+    # Mode Definitions - Production configuration
+    modes:
+      ACTIVE:
+        enabled: true
+        description: "Normal operation mode"
+        resource_allocation: 100  # Full resources
+        priority_level: "normal"
+        safety_checks: "standard"
+      
+      CONSERVATIVE:
+        enabled: true
+        description: "Conservative operation mode"
+        resource_allocation: 75  # 75% resources
+        priority_level: "high"
+        safety_checks: "enhanced"
+      
+      DEFENSIVE:
+        enabled: true
+        description: "Defensive operation mode"
+        resource_allocation: 50  # 50% resources
+        priority_level: "critical"
+        safety_checks: "maximum"
+      
+      RECOVERY:
+        enabled: true
+        description: "Recovery operation mode"
+        resource_allocation: 30  # 30% resources
+        priority_level: "emergency"
+        safety_checks: "maximum"
+        auto_transition: true  # Auto-transition when needed
+    
+    # Mode Transition Rules - Production configuration
+    transition_rules:
+      auto_transition_enabled: false  # Manual transitions only
+      transition_validation_required: true  # Require validation
+      rollback_on_failure: true  # Auto-rollback on failure
+      transition_audit_trail: true  # Audit trail
+  
+  # Learning Gate Manager - Production-optimized learning control
+  learning_gate:
+    enabled: true
+    default_state: "open"  # Default to open
+    learning_validation: true  # Validate learning
+    learning_rollback: true  # Rollback on degradation
+    
+    # Learning States - Production configuration
+    states:
+      open:
+        enabled: true
+        description: "Learning enabled"
+        learning_rate: 1.0  # Full learning rate
+        validation_interval_hours: 12
+      
+      restricted:
+        enabled: true
+        description: "Restricted learning"
+        learning_rate: 0.5  # 50% learning rate
+        validation_interval_hours: 6  # More frequent validation
+      
+      closed:
+        enabled: true
+        description: "Learning disabled"
+        learning_rate: 0.0  # No learning
+        validation_interval_hours: 24  # Daily validation
+    
+    # Learning Controls - Production configuration
+    controls:
+      performance_threshold_percent: 5  # 5% performance threshold
+      rollback_threshold_percent: 10  # 10% rollback threshold
+      max_learning_iterations: 1000  # Limit iterations
+      learning_timeout_hours: 24  # Learning timeout
+      auto_closure_on_degradation: true  # Auto-close on degradation
+  
+  # Shared Infrastructure - Production-optimized infrastructure
+  shared_infrastructure:
+    enabled: true
+    connection_pooling: true  # Enable connection pooling
+    connection_timeout_ms: 5000  # Connection timeout
+    retry_policy:
+      enabled: true
+      max_retries: 3  # 3 retry attempts
+      retry_delay_ms: 100  # Retry delay
+      exponential_backoff: true  # Exponential backoff
+    
+    # Memory Framework - Production configuration
+    memory_framework:
+      enabled: true
+      backup_enabled: true
+      backup_interval_hours: 6  # 6-hour backups
+      retention_policies:
+        long_term: 730  # 2 years
+        short_term: 30  # 30 days
+        episodic: 365  # 1 year
+        semantic: 730  # 2 years
+      compression_enabled: true  # Enable compression
+      encryption_enabled: true  # Enable encryption
+    
+    # Vector Database - Production configuration
+    vector_database:
+      enabled: true
+      index_type: "HNSW"  # HNSW index for performance
+      dimension: 1536  # Embedding dimension
+      ef_search: 100  # HNSW ef_search parameter
+      ef_construction: 200  # HNSW ef_construction parameter
+      cache_enabled: true
+      cache_size: 1000
+    
+    # Knowledge Graph - Production configuration
+    knowledge_graph:
+      enabled: true
+      query_timeout_ms: 2000  # Query timeout
+      cache_enabled: true
+      cache_size: 500
+      graph_backup_enabled: true
+      graph_backup_interval_hours: 12
+    
+    # Planning Engine - Production configuration
+    planning_engine:
+      enabled: true
+      max_plan_horizon_days: 30  # 30-day planning horizon
+      plan_timeout_ms: 3000  # Plan timeout
+      plan_cache_enabled: true
+      plan_cache_size: 200
+      optimization_enabled: true
+  
+  # Monitoring and Logging - Production configuration
+  monitoring:
+    enabled: true
+    health_check_interval_seconds: 30  # 30-second health checks
+    performance_monitoring_interval_seconds: 60  # 1-minute performance monitoring
+    alerting_enabled: true
+    
+    # Logging - Production configuration
+    logging:
+      level: "INFO"  # Info level for production
+      file_enabled: true
+      file_path: "logs/production.log"
+      max_file_size_mb: 100  # 100MB max file size
+      backup_count: 10  # 10 backup files
+      structured_logging: true  # Structured JSON logging
+      audit_logging: true  # Audit logging enabled
+    
+    # Metrics - Production configuration
+    metrics:
+      enabled: true
+      collection_interval_seconds: 30
+      retention_days: 30  # 30-day retention
+      export_enabled: true  # Export metrics
+      export_format: "prometheus"  # Prometheus format
+      export_endpoint: "/metrics"  # Metrics endpoint
+    
+    # Alerting - Production configuration
+    alerting:
+      enabled: true
+      channels:
+        - email
+        - slack
+        - pagerduty  # PagerDuty for critical alerts
+      severity_levels:
+        - INFO
+        - WARNING
+        - ERROR
+        - CRITICAL
+      alert_cooldown_seconds: 300  # 5-minute cooldown
+  
+  # Security - Production security configuration
+  security:
+    enabled: true
+    encryption_enabled: true
+    authentication_enabled: true
+    authorization_enabled: true
+    
+    # Encryption - Production configuration
+    encryption:
+      algorithm: "AES-256"
+      key_rotation_days: 90  # 90-day key rotation
+      data_at_rest_enabled: true
+      data_in_transit_enabled: true
+    
+    # Access Control - Production configuration
+    access_control:
+      enabled: true
+      role_based_access: true
+      principle_of_least_privilege: true
+      session_timeout_minutes: 30  # 30-minute session timeout
+      mfa_enabled: true  # Multi-factor authentication
+    
+    # Audit - Production configuration
+    audit:
+      enabled: true
+      audit_all_actions: true
+      audit_retention_days: 365  # 1-year retention
+      tamper_detection: true  # Tamper detection
+      immutable_logs: true  # Immutable audit logs
+
+# Environment-specific overrides
+environment_overrides:
+  production:
+    log_level: "INFO"
+    health_check_interval_seconds: 30
+    performance_monitoring_enabled: true
+    audit_logging_enabled: true
+    encryption_enabled: true
