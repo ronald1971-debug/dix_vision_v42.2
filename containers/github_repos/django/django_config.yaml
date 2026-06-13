@@ -1,0 +1,51 @@
+repository:
+  name: "django"
+  url: "https://github.com/django/django.git"
+  version: "5.0.0"
+  description: "Django web framework for enterprise applications"
+
+domain:
+  type: "SYSTEM"
+  priority: "HIGH"
+  category: "web_framework"
+
+container:
+  enabled: true
+  image: "dix-django:latest"
+  build:
+    dockerfile: "containers/github_repos/django/Dockerfile"
+    context: "containers/github_repos/django"
+  ports:
+    - "9136:9136"
+  volumes:
+    - "./containers/github_repos/django/config:/app/config"
+    - "./containers/github_repos/django/data:/app/data"
+    - "./containers/github_repos/django/logs:/app/logs"
+    - "./containers/github_repos/django/projects:/app/projects"
+  environment:
+    - "DJANGO_LOG_LEVEL=INFO"
+    - "DJANGO_PERMISSION_LEVEL=READ_ONLY"
+  resources:
+    memory_limit: "512M"
+    cpu_limit: "1.0"
+    memory_reservation: "256M"
+    cpu_reservation: "0.5"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+
+governance:
+  enabled: true
+  permission_level: "READ_ONLY"
+  framework_limits:
+    max_query_size: 10000
+    max_response_time: 30
+    max_request_size: 10485760
+
+adapter:
+  type: "DjangoDomainAdapter"
+  concept_mappings:
+    view: "web_handler"
+    model: "data_model"

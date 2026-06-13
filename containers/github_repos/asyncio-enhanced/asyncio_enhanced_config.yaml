@@ -1,0 +1,51 @@
+repository:
+  name: "asyncio-enhanced"
+  url: "https://github.com/python/cpython.git"
+  version: "3.11"
+  description: "AsyncIO enhanced async programming for concurrent operations"
+
+domain:
+  type: "SYSTEM"
+  priority: "HIGH"
+  category: "async_programming"
+
+container:
+  enabled: true
+  image: "dix-asyncio-enhanced:latest"
+  build:
+    dockerfile: "containers/github_repos/asyncio-enhanced/Dockerfile"
+    context: "containers/github_repos/asyncio-enhanced"
+  ports:
+    - "9139:9139"
+  volumes:
+    - "./containers/github_repos/asyncio-enhanced/config:/app/config"
+    - "./containers/github_repos/asyncio-enhanced/data:/app/data"
+    - "./containers/github_repos/asyncio-enhanced/logs:/app/logs"
+    - "./containers/github_repos/asyncio-enhanced/coroutines:/app/coroutines"
+  environment:
+    - "ASYNCIO_ENHANCED_LOG_LEVEL=INFO"
+    - "ASYNCIO_ENHANCED_PERMISSION_LEVEL=READ_ONLY"
+  resources:
+    memory_limit: "512M"
+    cpu_limit: "1.0"
+    memory_reservation: "256M"
+    cpu_reservation: "0.5"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+
+governance:
+  enabled: true
+  permission_level: "READ_ONLY"
+  async_limits:
+    max_concurrent_tasks: 10000
+    max_coroutine_depth: 100
+    max_event_loop_time: 300
+
+adapter:
+  type: "AsyncIOEnhancedDomainAdapter"
+  concept_mappings:
+    coroutine: "async_operation"
+    event_loop: "execution_context"

@@ -1627,6 +1627,171 @@ services:
           cpus: '0.5'
           memory: 256M
 
+  flask-service:
+    build:
+      context: ./containers/github_repos/flask
+      dockerfile: Dockerfile
+    image: "dix-flask:latest"
+    container_name: dix-flask-service
+    ports:
+      - "9135:9135"
+    volumes:
+      - ./containers/github_repos/flask/config:/app/config
+      - ./containers/github_repos/flask/data:/app/data
+      - ./containers/github_repos/flask/logs:/app/logs
+      - ./containers/github_repos/flask/applications:/app/applications
+    environment:
+      - "FLASK_LOG_LEVEL=INFO"
+      - "FLASK_PERMISSION_LEVEL=READ_ONLY"
+    restart: unless-stopped
+    networks:
+      - dixvision-network
+    healthcheck:
+      test: ["CMD", "python", "/app/health_check.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+  django-service:
+    build:
+      context: ./containers/github_repos/django
+      dockerfile: Dockerfile
+    image: "dix-django:latest"
+    container_name: dix-django-service
+    ports:
+      - "9136:9136"
+    volumes:
+      - ./containers/github_repos/django/config:/app/config
+      - ./containers/github_repos/django/data:/app/data
+      - ./containers/github_repos/django/logs:/app/logs
+      - ./containers/github_repos/django/projects:/app/projects
+    environment:
+      - "DJANGO_LOG_LEVEL=INFO"
+      - "DJANGO_PERMISSION_LEVEL=READ_ONLY"
+    restart: unless-stopped
+    networks:
+      - dixvision-network
+    healthcheck:
+      test: ["CMD", "python", "/app/health_check.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+  sqlalchemy-enhanced-service:
+    build:
+      context: ./containers/github_repos/sqlalchemy-enhanced
+      dockerfile: Dockerfile
+    image: "dix-sqlalchemy-enhanced:latest"
+    container_name: dix-sqlalchemy-enhanced-service
+    ports:
+      - "9137:9137"
+    volumes:
+      - ./containers/github_repos/sqlalchemy-enhanced/config:/app/config
+      - ./containers/github_repos/sqlalchemy-enhanced/data:/app/data
+      - ./containers/github_repos/sqlalchemy-enhanced/logs:/app/logs
+      - ./containers/github_repos/sqlalchemy-enhanced/models:/app/models
+    environment:
+      - "SQLALCHEMY_ENHANCED_LOG_LEVEL=INFO"
+      - "SQLALCHEMY_ENHANCED_PERMISSION_LEVEL=READ_ONLY"
+    restart: unless-stopped
+    networks:
+      - dixvision-network
+    healthcheck:
+      test: ["CMD", "python", "/app/health_check.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+  celery-enhanced-service:
+    build:
+      context: ./containers/github_repos/celery-enhanced
+      dockerfile: Dockerfile
+    image: "dix-celery-enhanced:latest"
+    container_name: dix-celery-enhanced-service
+    ports:
+      - "9138:9138"
+    volumes:
+      - ./containers/github_repos/celery-enhanced/config:/app/config
+      - ./containers/github_repos/celery-enhanced/data:/app/data
+      - ./containers/github_repos/celery-enhanced/logs:/app/logs
+      - ./containers/github_repos/celery-enhanced/tasks:/app/tasks
+    environment:
+      - "CELERY_ENHANCED_LOG_LEVEL=INFO"
+      - "CELERY_ENHANCED_PERMISSION_LEVEL=READ_ONLY"
+    restart: unless-stopped
+    networks:
+      - dixvision-network
+    healthcheck:
+      test: ["CMD", "python", "/app/health_check.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+  asyncio-enhanced-service:
+    build:
+      context: ./containers/github_repos/asyncio-enhanced
+      dockerfile: Dockerfile
+    image: "dix-asyncio-enhanced:latest"
+    container_name: dix-asyncio-enhanced-service
+    ports:
+      - "9139:9139"
+    volumes:
+      - ./containers/github_repos/asyncio-enhanced/config:/app/config
+      - ./containers/github_repos/asyncio-enhanced/data:/app/data
+      - ./containers/github_repos/asyncio-enhanced/logs:/app/logs
+      - ./containers/github_repos/asyncio-enhanced/coroutines:/app/coroutines
+    environment:
+      - "ASYNCIO_ENHANCED_LOG_LEVEL=INFO"
+      - "ASYNCIO_ENHANCED_PERMISSION_LEVEL=READ_ONLY"
+    restart: unless-stopped
+    networks:
+      - dixvision-network
+    healthcheck:
+      test: ["CMD", "python", "/app/health_check.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
 volumes:
   redis-data:
   postgres-data:
