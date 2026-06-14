@@ -18,7 +18,12 @@
       "Exec(Move-Item)",
       "Exec(git commit)",
       "Exec(grep)",
-      "Exec(git submodule)"
+      "Exec(git submodule)",
+      "Exec(git pull)",
+      "Exec(ls)",
+      "Exec(git reset)",
+      "Exec(git clean)",
+      "Exec(git rm)"
     ]
   }
 }
