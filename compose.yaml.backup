@@ -1,0 +1,3418 @@
+networks:
+  dixvision-network:
+    driver: bridge
+services:
+  aiohttp-service:
+    build:
+      context: ./containers/github_repos/aiohttp
+      dockerfile: Dockerfile
+    container_name: dix-aiohttp-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - AIOHTTP_LOG_LEVEL=INFO
+    - AIOHTTP_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-aiohttp:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9140:9140
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/aiohttp/config:/app/config
+    - ./containers/github_repos/aiohttp/data:/app/data
+    - ./containers/github_repos/aiohttp/logs:/app/logs
+    - ./containers/github_repos/aiohttp/applications:/app/applications
+  airflow-service:
+    build:
+      context: ./containers/github_repos/airflow
+      dockerfile: Dockerfile
+    container_name: dix-airflow-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    environment:
+    - AIRFLOW_LOG_LEVEL=INFO
+    - AIRFLOW_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-airflow:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9117:9117
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/airflow/config:/app/config
+    - ./containers/github_repos/airflow/data:/app/data
+    - ./containers/github_repos/airflow/logs:/app/logs
+    - ./containers/github_repos/airflow/dags:/app/dags"
+    - ./containers/github_repos/airflow/plugins:/app/plugins
+  apache-beam-service:
+    build:
+      context: ./containers/github_repos/apache-beam
+      dockerfile: Dockerfile
+    container_name: dix-apache-beam-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - APACHE_BEAM_LOG_LEVEL=INFO
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-apache-beam:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9163:9163
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/apache-beam/config:/app/config
+    - ./containers/github_repos/apache-beam/data:/app/data
+    - ./containers/github_repos/apache-beam/logs:/app/logs
+  argon-service:
+    build:
+      context: ./containers/github_repos/argon
+      dockerfile: Dockerfile
+    container_name: dix-argon-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - ARGON_LOG_LEVEL=INFO
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-argon:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9160:9160
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/argon/config:/app/config
+    - ./containers/github_repos/argon/data:/app/data
+    - ./containers/github_repos/argon/logs:/app/logs
+  asyncio-enhanced-service:
+    build:
+      context: ./containers/github_repos/asyncio-enhanced
+      dockerfile: Dockerfile
+    container_name: dix-asyncio-enhanced-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - ASYNCIO_ENHANCED_LOG_LEVEL=INFO
+    - ASYNCIO_ENHANCED_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-asyncio-enhanced:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9139:9139
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/asyncio-enhanced/config:/app/config
+    - ./containers/github_repos/asyncio-enhanced/data:/app/data
+    - ./containers/github_repos/asyncio-enhanced/logs:/app/logs
+    - ./containers/github_repos/asyncio-enhanced/coroutines:/app/coroutines
+  beautifulsoup4-service:
+    build:
+      context: ./containers/github_repos/beautifulsoup4
+      dockerfile: Dockerfile
+    container_name: dix-beautifulsoup4-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - BEAUTIFULSOUP4_LOG_LEVEL=INFO
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-beautifulsoup4:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9166:9166
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/beautifulsoup4/config:/app/config
+    - ./containers/github_repos/beautifulsoup4/data:/app/data
+    - ./containers/github_repos/beautifulsoup4/logs:/app/logs
+  blackbox-service:
+    build:
+      context: ./containers/github_repos/blackbox
+      dockerfile: Dockerfile
+    container_name: dix-blackbox-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - BLACKBOX_LOG_LEVEL=INFO
+    - BLACKBOX_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-blackbox:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9134:9134
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/blackbox/config:/app/config
+    - ./containers/github_repos/blackbox/data:/app/data
+    - ./containers/github_repos/blackbox/logs:/app/logs
+    - ./containers/github_repos/blackbox/probes:/app/probes
+  ccxt-service:
+    build:
+      context: ./containers/github_repos/ccxt
+      dockerfile: Dockerfile
+    container_name: dix-ccxt-service
+    depends_on:
+    - redis-service
+    - postgresql-service
+    - prometheus-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    environment:
+    - CCXT_LOG_LEVEL=INFO
+    - CCXT_RATE_LIMIT=true
+    - CCXT_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-ccxt:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 8080:8080
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/ccxt/config:/app/config
+    - ./containers/github_repos/ccxt/data:/app/data
+    - ./containers/github_repos/ccxt/logs:/app/logs
+  celery-enhanced-service:
+    build:
+      context: ./containers/github_repos/celery-enhanced
+      dockerfile: Dockerfile
+    container_name: dix-celery-enhanced-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - CELERY_ENHANCED_LOG_LEVEL=INFO
+    - CELERY_ENHANCED_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-celery-enhanced:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9138:9138
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/celery-enhanced/config:/app/config
+    - ./containers/github_repos/celery-enhanced/data:/app/data
+    - ./containers/github_repos/celery-enhanced/logs:/app/logs
+    - ./containers/github_repos/celery-enhanced/tasks:/app/tasks
+  celery-service:
+    build:
+      context: ./containers/github_repos/celery
+      dockerfile: Dockerfile
+    container_name: dix-celery-service
+    depends_on:
+    - redis-service
+    - postgresql-service
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G
+        reservations:
+          cpus: '1.0'
+          memory: 512M
+    environment:
+    - CELERY_LOG_LEVEL=INFO
+    - CELERY_PERMISSION_LEVEL=READ_ONLY
+    - CELERY_BROKER_URL=redis://redis-service:6379/0
+    - CELERY_RESULT_BACKEND=redis://redis-service:6379/0
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-celery:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 5555:5555
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/celery/config:/app/config
+    - ./containers/github_repos/celery/data:/app/data
+    - ./containers/github_repos/celery/logs:/app/logs
+    - ./containers/github_repos/celery/tasks:/app/tasks
+  clickhouse-service:
+    build:
+      context: ./containers/github_repos/clickhouse
+      dockerfile: Dockerfile
+    container_name: dix-clickhouse-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    environment:
+    - CLICKHOUSE_LOG_LEVEL=INFO
+    - CLICKHOUSE_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-clickhouse:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9111:9111
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/clickhouse/config:/app/config
+    - ./containers/github_repos/clickhouse/data:/app/data
+    - ./containers/github_repos/clickhouse/logs:/app/logs
+    - ./containers/github_repos/clickhouse/queries:/app/queries
+  consul-service:
+    build:
+      context: ./containers/github_repos/consul
+      dockerfile: Dockerfile
+    container_name: dix-consul-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - CONSUL_LOG_LEVEL=INFO
+    - CONSUL_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-consul:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9128:9128
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/consul/config:/app/config
+    - ./containers/github_repos/consul/data:/app/data
+    - ./containers/github_repos/consul/logs:/app/logs
+    - ./containers/github_repos/consul/services:/app/services
+  cvxpy-service:
+    build:
+      context: ./containers/github_repos/cvxpy
+      dockerfile: Dockerfile
+    container_name: dix-cvxpy-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - CVXPY_LOG_LEVEL=INFO
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-cvxpy:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9156:9156
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/cvxpy/config:/app/config
+    - ./containers/github_repos/cvxpy/data:/app/data
+    - ./containers/github_repos/cvxpy/logs:/app/logs
+  dagster-service:
+    build:
+      context: ./containers/github_repos/dagster
+      dockerfile: Dockerfile
+    container_name: dix-dagster-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - DAGSTER_LOG_LEVEL=INFO
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-dagster:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9162:9162
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/dagster/config:/app/config
+    - ./containers/github_repos/dagster/data:/app/data
+    - ./containers/github_repos/dagster/logs:/app/logs
+  darts-service:
+    build:
+      context: ./containers/github_repos/darts
+      dockerfile: Dockerfile
+    container_name: dix-darts-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    environment:
+    - DARTS_LOG_LEVEL=INFO
+    - DARTS_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-darts:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9112:9112
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/darts/config:/app/config
+    - ./containers/github_repos/darts/data:/app/data
+    - ./containers/github_repos/darts/logs:/app/logs
+    - ./containers/github_repos/darts/forecasts:/app/forecasts
+  desktop-agent-service:
+    build:
+      context: ./desktop_agent
+      dockerfile: Dockerfile
+    container_name: dix-desktop-agent-service
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '1.0'
+          memory: 1G
+    environment:
+    - DESKTOP_AGENT_LOG_LEVEL=INFO
+    - DASHBOARD_URL=http://dashboard2026-service:9003
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - -c
+      - import requests; requests.get("http://localhost:9186/health")
+      timeout: 10s
+    image: dix-desktop-agent:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9186:9186
+    restart: unless-stopped
+    volumes:
+    - ./desktop_agent/app_data:/app/data
+    - ./desktop_agent/logs:/app/logs
+    - ./desktop_agent/config:/app/config
+    - ./desktop_agent/learning:/app/learning
+  discordbot-service:
+    build:
+      context: ./containers/github_repos/discordbot
+      dockerfile: Dockerfile
+    container_name: dix-discordbot-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - DISCORDBOT_LOG_LEVEL=INFO
+    - DISCORDBOT_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-discordbot:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9121:9121
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/discordbot/config:/app/config"
+    - ./containers/github_repos/discordbot/data:/app/data
+    - ./containers/github_repos/discordbot/logs:/app/logs
+    - ./containers/github_repos/discordbot/messages:/app/messages
+  dixvisiondashboard2026:
+    build:
+      context: dashboard2026
+      dockerfile: ./Dockerfile
+    depends_on:
+    - redis-service
+    environment:
+      NODE_ENV: production
+      REDIS_URL: redis://redis-service:6379
+    image: dixvisiondashboard2026
+    networks:
+    - dixvision-network
+    ports:
+    - 3000:3000
+  django-service:
+    build:
+      context: ./containers/github_repos/django
+      dockerfile: Dockerfile
+    container_name: dix-django-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - DJANGO_LOG_LEVEL=INFO
+    - DJANGO_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-django:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9136:9136
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/django/config:/app/config
+    - ./containers/github_repos/django/data:/app/data
+    - ./containers/github_repos/django/logs:/app/logs
+    - ./containers/github_repos/django/projects:/app/projects
+  docker-py-service:
+    build:
+      context: ./containers/github_repos/docker-py
+      dockerfile: Dockerfile
+    container_name: dix-docker-py-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - DOCKER_PY_LOG_LEVEL=INFO
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-docker-py:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9165:9165
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/docker-py/config:/app/config
+    - ./containers/github_repos/docker-py/data:/app/data
+    - ./containers/github_repos/docker-py/logs:/app/logs
+  docker-service:
+    build:
+      context: ./containers/github_repos/docker
+      dockerfile: Dockerfile
+    container_name: dix-docker-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - DOCKER_LOG_LEVEL=INFO
+    - DOCKER_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-docker:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9124:9124
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/docker/config:/app/config
+    - ./containers/github_repos/docker/data:/app/data
+    - ./containers/github_repos/docker/logs:/app/logs
+    - ./containers/github_repos/docker/containers:/app/containers
+    - /var/run/docker.sock:/var/run/docker.sock
+  duckdb-service:
+    build:
+      context: ./containers/github_repos/duckdb
+      dockerfile: Dockerfile
+    container_name: dix-duckdb-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - DUCKDB_LOG_LEVEL=INFO
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-duckdb:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9149:9149
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/duckdb/config:/app/config
+    - ./containers/github_repos/duckdb/data:/app/data
+    - ./containers/github_repos/duckdb/logs:/app/logs
+  dynaconf-service:
+    build:
+      context: ./containers/github_repos/dynaconf
+      dockerfile: Dockerfile
+    container_name: dix-dynaconf-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - DYNACONF_LOG_LEVEL=INFO
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-dynaconf:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9176:9176
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/dynaconf/config:/app/config
+    - ./containers/github_repos/dynaconf/data:/app/data
+    - ./containers/github_repos/dynaconf/logs:/app/logs
+  elasticsearch-service:
+    build:
+      context: ./containers/github_repos/elasticsearch
+      dockerfile: Dockerfile
+    container_name: dix-elasticsearch-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    environment:
+    - ELASTICSEARCH_LOG_LEVEL=INFO
+    - ELASTICSEARCH_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-elasticsearch:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9115:9115
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/elasticsearch/config:/app/config
+    - ./containers/github_repos/elasticsearch/data:/app/data
+    - ./containers/github_repos/elasticsearch/logs:/app/logs
+    - ./containers/github_repos/elasticsearch/indices:/app/indices
+  etcd-service:
+    build:
+      context: ./containers/github_repos/etcd
+      dockerfile: Dockerfile
+    container_name: dix-etcd-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - ETCD_LOG_LEVEL=INFO
+    - ETCD_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-etcd:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9130:9130
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/etcd/config:/app/config
+    - ./containers/github_repos/etcd/data:/app/data
+    - ./containers/github_repos/etcd/logs:/app/logs
+    - ./containers/github_repos/etcd/kv:/app/kv
+  fastapi-enhanced-service:
+    build:
+      context: ./containers/github_repos/fastapi-enhanced
+      dockerfile: Dockerfile
+    container_name: dix-fastapi-enhanced-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - FASTAPI_ENHANCED_LOG_LEVEL=INFO
+    - FASTAPI_ENHANCED_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-fastapi-enhanced:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9141:9141
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/fastapi-enhanced/config:/app/config
+    - ./containers/github_repos/fastapi-enhanced/data:/app/data
+    - ./containers/github_repos/fastapi-enhanced/logs:/app/logs
+    - ./containers/github_repos/fastapi-enhanced/apis:/app/apis
+  fastapi-service:
+    build:
+      context: ./containers/github_repos/fastapi
+      dockerfile: Dockerfile
+    container_name: dix-fastapi-service
+    depends_on:
+    - redis-service
+    - postgresql-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - FASTAPI_LOG_LEVEL=INFO
+    - FASTAPI_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-fastapi:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 8000:8000
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/fastapi/config:/app/config
+    - ./containers/github_repos/fastapi/data:/app/data
+    - ./containers/github_repos/fastapi/logs:/app/logs
+    - ./containers/github_repos/fastapi/api:/app/api
+  flask-limiter-service:
+    build:
+      context: ./containers/github_repos/flask-limiter
+      dockerfile: Dockerfile
+    container_name: dix-flask-limiter-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - FLASK_LIMITER_LOG_LEVEL=INFO
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-flask-limiter:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9180:9180
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/flask-limiter/config:/app/config
+    - ./containers/github_repos/flask-limiter/data:/app/data
+    - ./containers/github_repos/flask-limiter/logs:/app/logs
+  flask-service:
+    build:
+      context: ./containers/github_repos/flask
+      dockerfile: Dockerfile
+    container_name: dix-flask-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - FLASK_LOG_LEVEL=INFO
+    - FLASK_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-flask:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9135:9135
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/flask/config:/app/config
+    - ./containers/github_repos/flask/data:/app/data
+    - ./containers/github_repos/flask/logs:/app/logs
+    - ./containers/github_repos/flask/applications:/app/applications
+  gensim-service:
+    build:
+      context: ./containers/github_repos/gensim
+      dockerfile: Dockerfile
+    container_name: dix-gensim-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - GENSIM_LOG_LEVEL=INFO
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-gensim:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9153:9153
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/gensim/config:/app/config
+    - ./containers/github_repos/gensim/data:/app/data
+    - ./containers/github_repos/gensim/logs:/app/logs
+  grafana-service:
+    environment:
+    - GF_SECURITY_ADMIN_PASSWORD=admin_secure_password
+    - GF_USERS_ALLOW_SIGN_UP=false
+    image: grafana/grafana:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 3001:3000
+    restart: unless-stopped
+    volumes:
+    - grafana-data:/var/lib/grafana
+  graphql-service:
+    build:
+      context: ./containers/github_repos/graphql
+      dockerfile: Dockerfile
+    container_name: dix-graphql-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - GRAPHQL_LOG_LEVEL=INFO
+    - GRAPHQL_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-graphql:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9110:9110
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/graphql/config:/app/config
+    - ./containers/github_repos/graphql/data:/app/data
+    - ./containers/github_repos/graphql/logs:/app/logs
+    - ./containers/github_repos/graphql/schemas:/app/schemas"
+  grpc-service:
+    build:
+      context: ./containers/github_repos/grpc
+      dockerfile: Dockerfile
+    container_name: dix-grpc-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - GRPC_LOG_LEVEL=INFO
+    - GRPC_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-grpc:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9145:9145
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/grpc/config:/app/config
+    - ./containers/github_repos/grpc/data:/app/data
+    - ./containers/github_repos/grpc/logs:/app/logs
+    - ./containers/github_repos/grpc/services:/app/services
+  influxdb-service:
+    build:
+      context: ./containers/github_repos/influxdb
+      dockerfile: Dockerfile
+    container_name: dix-influxdb-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    environment:
+    - INFLUXDB_LOG_LEVEL=INFO
+    - INFLUXDB_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-influxdb:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9147:9147
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/influxdb/config:/app/config
+    - ./containers/github_repos/influxdb/data:/app/data
+    - ./containers/github_repos/influxdb/logs:/app/logs
+    - ./containers/github_repos/influxdb/measurements:/app/measurements
+  jaeger-service:
+    build:
+      context: ./containers/github_repos/jaeger
+      dockerfile: Dockerfile
+    container_name: dix-jaeger-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - JAEGER_LOG_LEVEL=INFO
+    - JAEGER_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-jaeger:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9131:9131
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/jaeger/config:/app/config
+    - ./containers/github_repos/jaeger/data:/app/data
+    - ./containers/github_repos/jaeger/logs:/app/logs
+    - ./containers/github_repos/jaeger/traces:/app/traces
+  jinja2-service:
+    build:
+      context: ./containers/github_repos/jinja2
+      dockerfile: Dockerfile
+    container_name: dix-jinja2-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - JINJA2_LOG_LEVEL=INFO
+    - JINJA2_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-jinja2:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9105:9105
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/jinja2/config:/app/config
+    - ./containers/github_repos/jinja2/data:/app/data
+    - ./containers/github_repos/jinja2/logs:/app/logs
+    - ./containers/github_repos/jinja2/templates:/app/templates
+  jupyter-service:
+    build:
+      context: ./containers/github_repos/jupyter
+      dockerfile: Dockerfile
+    container_name: dix-jupyter-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    environment:
+    - JUPYTER_LOG_LEVEL=INFO
+    - JUPYTER_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-jupyter:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9118:9118
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/jupyter/config:/app/config
+    - ./containers/github_repos/jupyter/data:/app/data
+    - ./containers/github_repos/jupyter/logs:/app/logs
+    - ./containers/github_repos/jupyter/notebooks:/app/notebooks
+  kafka-service:
+    build:
+      context: ./containers/github_repos/kafka
+      dockerfile: Dockerfile
+    container_name: dix-kafka-service
+    depends_on:
+    - redis-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    environment:
+    - KAFKA_LOG_LEVEL=INFO
+    - KAFKA_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-kafka:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9106:9106
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/kafka/config:/app/config
+    - ./containers/github_repos/kafka/data:/app/data
+    - ./containers/github_repos/kafka/logs:/app/logs
+    - ./containers/github_repos/kafka/topics:/app/topics
+  kombu-service:
+    build:
+      context: ./containers/github_repos/kombu
+      dockerfile: Dockerfile
+    container_name: dix-kombu-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - KOMBU_LOG_LEVEL=INFO
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-kombu:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9184:9184
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/kombu/config:/app/config
+    - ./containers/github_repos/kombu/data:/app/data
+    - ./containers/github_repos/kombu/logs:/app/logs
+  kong-service:
+    build:
+      context: ./containers/github_repos/kong
+      dockerfile: Dockerfile
+    container_name: dix-kong-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - KONG_LOG_LEVEL=INFO
+    - KONG_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-kong:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9127:9127
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/kong/config:/app/config
+    - ./containers/github_repos/kong/data:/app/data
+    - ./containers/github_repos/kong/logs:/app/logs
+    - ./containers/github_repos/kong/routes:/app/routes
+  kubernetes-python-service:
+    build:
+      context: ./containers/github_repos/kubernetes-python
+      dockerfile: Dockerfile
+    container_name: dix-kubernetes-python-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - KUBERNETES_PYTHON_LOG_LEVEL=INFO
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-kubernetes-python:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9164:9164
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/kubernetes-python/config:/app/config
+    - ./containers/github_repos/kubernetes-python/data:/app/data
+    - ./containers/github_repos/kubernetes-python/logs:/app/logs
+  kubernetes-service:
+    build:
+      context: ./containers/github_repos/kubernetes
+      dockerfile: Dockerfile
+    container_name: dix-kubernetes-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - KUBERNETES_LOG_LEVEL=INFO
+    - KUBERNETES_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-kubernetes:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9114:9114
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/kubernetes/config:/app/config
+    - ./containers/github_repos/kubernetes/data:/app/data
+    - ./containers/github_repos/kubernetes/logs:/app/logs
+    - ./containers/github_repos/kubernetes/deployments:/app/deployments
+  langchain-service:
+    build:
+      context: ./containers/github_repos/langchain
+      dockerfile: Dockerfile
+    container_name: dix-langchain-service
+    depends_on:
+    - redis-service
+    - postgresql-service
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '1.0'
+          memory: 1G
+    environment:
+    - LANGCHAIN_LOG_LEVEL=INFO
+    - LANGCHAIN_PERMISSION_LEVEL=READ_ONLY
+    - OPENAI_API_KEY=${OPENAI_API_KEY}
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-langchain:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 8081:8081
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/langchain/config:/app/config
+    - ./containers/github_repos/langchain/data:/app/data
+    - ./containers/github_repos/langchain/logs:/app/logs
+    - ./containers/github_repos/langchain/knowledge:/app/knowledge
+  loki-service:
+    build:
+      context: ./containers/github_repos/loki
+      dockerfile: Dockerfile
+    container_name: dix-loki-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - LOKI_LOG_LEVEL=INFO
+    - LOKI_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-loki:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9133:9133
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/loki/config:/app/config
+    - ./containers/github_repos/loki/data:/app/data
+    - ./containers/github_repos/loki/logs:/app/logs
+    - ./containers/github_repos/loki/streams:/app/streams
+  marshmallow-service:
+    build:
+      context: ./containers/github_repos/marshmallow
+      dockerfile: Dockerfile
+    container_name: dix-marshmallow-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - MARSHMALLOW_LOG_LEVEL=INFO
+    - MARSHMALLOW_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-marshmallow:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9143:9143
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/marshmallow/config:/app/config
+    - ./containers/github_repos/marshmallow/data:/app/data
+    - ./containers/github_repos/marshmallow/logs:/app/logs
+    - ./containers/github_repos/marshmallow/schemas:/app/schemas
+  matplotlib-service:
+    build:
+      context: ./containers/github_repos/matplotlib
+      dockerfile: Dockerfile
+    container_name: dix-matplotlib-service
+    depends_on:
+    - numpy-service
+    - pandas-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    environment:
+    - MATPLOTLIB_LOG_LEVEL=INFO
+    - MATPLOTLIB_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-matplotlib:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9098:9098
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/matplotlib/config:/app/config
+    - ./containers/github_repos/matplotlib/data:/app/data
+    - ./containers/github_repos/matplotlib/logs:/app/logs
+    - ./containers/github_repos/matplotlib/visualizations:/app/visualizations
+  minio-service:
+    build:
+      context: ./containers/github_repos/minio
+      dockerfile: Dockerfile
+    container_name: dix-minio-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    environment:
+    - MINIO_LOG_LEVEL=INFO
+    - MINIO_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-minio:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9126:9126
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/minio/config:/app/config
+    - ./containers/github_repos/minio/data:/app/data
+    - ./containers/github_repos/minio/logs:/app/logs
+    - ./containers/github_repos/minio/buckets:/app/buckets
+  montecarlo-python-service:
+    build:
+      context: ./containers/github_repos/montecarlo-python
+      dockerfile: Dockerfile
+    container_name: dix-montecarlo-python-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - MONTECARLO_PYTHON_LOG_LEVEL=INFO
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-montecarlo-python:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9159:9159
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/montecarlo-python/config:/app/config
+    - ./containers/github_repos/montecarlo-python/data:/app/data
+    - ./containers/github_repos/montecarlo-python/logs:/app/logs
+  neo4j-service:
+    build:
+      context: ./containers/github_repos/neo4j
+      dockerfile: Dockerfile
+    container_name: dix-neo4j-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    environment:
+    - NEO4J_LOG_LEVEL=INFO
+    - NEO4J_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-neo4j:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9107:9107
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/neo4j/config:/app/config
+    - ./containers/github_repos/neo4j/data:/app/data
+    - ./containers/github_repos/neo4j/logs:/app/logs
+    - ./containers/github_repos/neo4j/graphs:/app/graphs
+  newspaper3k-service:
+    build:
+      context: ./containers/github_repos/newspaper3k
+      dockerfile: Dockerfile
+    container_name: dix-newspaper3k-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - NEWSPAPER3K_LOG_LEVEL=INFO
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-newspaper3k:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9167:9167
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/newspaper3k/config:/app/config
+    - ./containers/github_repos/newspaper3k/data:/app/data
+    - ./containers/github_repos/newspaper3k/logs:/app/logs
+  nltk-service:
+    build:
+      context: ./containers/github_repos/nltk
+      dockerfile: Dockerfile
+    container_name: dix-nltk-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - NLTK_LOG_LEVEL=INFO
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-nltk:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9155:9155
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/nltk/config:/app/config
+    - ./containers/github_repos/nltk/data:/app/data
+    - ./containers/github_repos/nltk/logs:/app/logs
+  numpy-service:
+    build:
+      context: ./containers/github_repos/numpy
+      dockerfile: Dockerfile
+    container_name: dix-numpy-service
+    depends_on:
+    - redis-service
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '1.0'
+          memory: 1G
+    environment:
+    - NUMPY_LOG_LEVEL=INFO
+    - NUMPY_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-numpy:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9096:9096
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/numpy/config:/app/config
+    - ./containers/github_repos/numpy/data:/app/data
+    - ./containers/github_repos/numpy/logs:/app/logs
+    - ./containers/github_repos/numpy/computations:/app/computations
+  opencv-service:
+    build:
+      context: ./containers/github_repos/opencv
+      dockerfile: Dockerfile
+    container_name: dix-opencv-service
+    depends_on:
+    - numpy-service
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '1.0'
+          memory: 1G
+    environment:
+    - OPENCV_LOG_LEVEL=INFO
+    - OPENCV_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-opencv:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9102:9102
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/opencv/config:/app/config
+    - ./containers/github_repos/opencv/data:/app/data
+    - ./containers/github_repos/opencv/logs:/app/logs
+    - ./containers/github_repos/opencv/images:/app/images
+  openpyxl-service:
+    build:
+      context: ./containers/github_repos/openpyxl
+      dockerfile: Dockerfile
+    container_name: dix-openpyxl-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - OPENPYXL_LOG_LEVEL=INFO
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-openpyxl:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9170:9170
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/openpyxl/config:/app/config
+    - ./containers/github_repos/openpyxl/data:/app/data
+    - ./containers/github_repos/openpyxl/logs:/app/logs
+  opentelemetry-service:
+    build:
+      context: ./containers/github_repos/opentelemetry
+      dockerfile: Dockerfile
+    container_name: dix-opentelemetry-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - OPENTELEMETRY_LOG_LEVEL=INFO
+    - OPENTELEMETRY_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-opentelemetry:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9109:9109
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/opentelemetry/config:/app/config
+    - ./containers/github_repos/opentelemetry/data:/app/data
+    - ./containers/github_repos/opentelemetry/logs:/app/logs
+    - ./containers/github_repos/opentelemetry/traces:/app/traces
+  pandas-service:
+    build:
+      context: ./containers/github_repos/pandas
+      dockerfile: Dockerfile
+    container_name: dix-pandas-service
+    depends_on:
+    - redis-service
+    - numpy-service
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '1.0'
+          memory: 1G
+    environment:
+    - PANDAS_LOG_LEVEL=INFO
+    - PANDAS_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-pandas:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9097:9097
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/pandas/config:/app/config
+    - ./containers/github_repos/pandas/data:/app/data
+    - ./containers/github_repos/pandas/logs:/app/logs
+    - ./containers/github_repos/pandas/datasets:/app/datasets
+  passlib-service:
+    build:
+      context: ./containers/github_repos/passlib
+      dockerfile: Dockerfile
+    container_name: dix-passlib-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - PASSLIB_LOG_LEVEL=INFO
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-passlib:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9183:9183
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/passlib/config:/app/config
+    - ./containers/github_repos/passlib/data:/app/data
+    - ./containers/github_repos/passlib/logs:/app/logs
+  pdfplumber-service:
+    build:
+      context: ./containers/github_repos/pdfplumber
+      dockerfile: Dockerfile
+    container_name: dix-pdfplumber-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - PDFPLUMBER_LOG_LEVEL=INFO
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-pdfplumber:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9168:9168
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/pdfplumber/config:/app/config
+    - ./containers/github_repos/pdfplumber/data:/app/data
+    - ./containers/github_repos/pdfplumber/logs:/app/logs
+  pillow-service:
+    build:
+      context: ./containers/github_repos/pillow
+      dockerfile: Dockerfile
+    container_name: dix-pillow-service
+    depends_on:
+    - numpy-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - PILLOW_LOG_LEVEL=INFO
+    - PILLOW_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-pillow:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9104:9104
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/pillow/config:/app/config
+    - ./containers/github_repos/pillow/data:/app/data
+    - ./containers/github_repos/pillow/logs:/app/logs
+    - ./containers/github_repos/pillow/images:/app/images
+  playwright-service:
+    build:
+      context: ./containers/github_repos/playwright
+      dockerfile: Dockerfile
+    container_name: dix-playwright-service
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '1.0'
+          memory: 1G
+    environment:
+    - PLAYWRIGHT_LOG_LEVEL=INFO
+    - PLAYWRIGHT_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-playwright:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9222:9222
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/playwright/config:/app/config
+    - ./containers/github_repos/playwright/data:/app/data
+    - ./containers/github_repos/playwright/logs:/app/logs
+    - ./containers/github_repos/playwright/screenshots:/app/screenshots
+    - ./containers/github_repos/playwright/sessions:/app/sessions
+  postgresql-service:
+    environment:
+    - POSTGRES_DB=dixvision
+    - POSTGRES_USER=dixvision
+    - POSTGRES_PASSWORD=dixvision_secure_password
+    healthcheck:
+      interval: 10s
+      retries: 5
+      test:
+      - CMD-SHELL
+      - pg_isready -U dixvision
+      timeout: 5s
+    image: postgres:15-alpine
+    networks:
+    - dixvision-network
+    ports:
+    - 5432:5432
+    restart: unless-stopped
+    volumes:
+    - postgres-data:/var/lib/postgresql/data
+  prefect-service:
+    build:
+      context: ./containers/github_repos/prefect
+      dockerfile: Dockerfile
+    container_name: dix-prefect-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - PREFECT_LOG_LEVEL=INFO
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-prefect:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9161:9161
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/prefect/config:/app/config
+    - ./containers/github_repos/prefect/data:/app/data
+    - ./containers/github_repos/prefect/logs:/app/logs
+  prometheus-service:
+    command:
+    - --config.file=/etc/prometheus/prometheus.yml
+    - --storage.tsdb.path=/prometheus
+    image: prom/prometheus:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9090:9090
+    restart: unless-stopped
+    volumes:
+    - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    - prometheus-data:/prometheus
+  pulp-service:
+    build:
+      context: ./containers/github_repos/pulp
+      dockerfile: Dockerfile
+    container_name: dix-pulp-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - PULP_LOG_LEVEL=INFO
+    - PULP_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-pulp:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9113:9113
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/pulp/config:/app/config
+    - ./containers/github_repos/pulp/data:/app/data
+    - ./containers/github_repos/pulp/logs:/app/logs
+    - ./containers/github_repos/pulp/problems:/app/problems
+  pusher-python-service:
+    build:
+      context: ./containers/github_repos/pusher-python
+      dockerfile: Dockerfile
+    container_name: dix-pusher-python-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - PUSHER_PYTHON_LOG_LEVEL=INFO
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-pusher-python:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9173:9173
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/pusher-python/config:/app/config
+    - ./containers/github_repos/pusher-python/data:/app/data
+    - ./containers/github_repos/pusher-python/logs:/app/logs
+  pydantic-service:
+    build:
+      context: ./containers/github_repos/pydantic
+      dockerfile: Dockerfile
+    container_name: dix-pydantic-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - PYDANTIC_LOG_LEVEL=INFO
+    - PYDANTIC_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-pydantic:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9142:9142
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/pydantic/config:/app/config
+    - ./containers/github_repos/pydantic/data:/app/data
+    - ./containers/github_repos/pydantic/logs:/app/logs
+    - ./containers/github_repos/pydantic/schemas:/app/schemas
+  pydantic-settings-service:
+    build:
+      context: ./containers/github_repos/pydantic-settings
+      dockerfile: Dockerfile
+    container_name: dix-pydantic-settings-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - PYDANTIC_SETTINGS_LOG_LEVEL=INFO
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-pydantic-settings:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9175:9175
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/pydantic-settings/config:/app/config
+    - ./containers/github_repos/pydantic-settings/data:/app/data
+    - ./containers/github_repos/pydantic-settings/logs:/app/logs
+  pytesseract-service:
+    build:
+      context: ./containers/github_repos/pytesseract
+      dockerfile: Dockerfile
+    container_name: dix-pytesseract-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - PYTESSERACT_LOG_LEVEL=INFO
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-pytesseract:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9152:9152
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/pytesseract/config:/app/config
+    - ./containers/github_repos/pytesseract/data:/app/data
+    - ./containers/github_repos/pytesseract/logs:/app/logs
+  pytest-enhanced-service:
+    build:
+      context: ./containers/github_repos/pytest-enhanced
+      dockerfile: Dockerfile
+    container_name: dix-pytest-enhanced-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - PYTEST_ENHANCED_LOG_LEVEL=INFO
+    - PYTEST_ENHANCED_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-pytest-enhanced:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9144:9144
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/pytest-enhanced/config:/app/config
+    - ./containers/github_repos/pytest-enhanced/data:/app/data
+    - ./containers/github_repos/pytest-enhanced/logs:/app/logs
+    - ./containers/github_repos/pytest-enhanced/tests:/app/tests
+  pytest-service:
+    build:
+      context: ./containers/github_repos/pytest
+      dockerfile: Dockerfile
+    container_name: dix-pytest-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - PYTEST_LOG_LEVEL=INFO
+    - PYTEST_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-pytest:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9123:9123
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/pytest/config:/app/config
+    - ./containers/github_repos/pytest/data:/app/data
+    - ./containers/github_repos/pytest/logs:/app/logs
+    - ./containers/github_repos/pytest/tests:/app/tests
+  python-docx-service:
+    build:
+      context: ./containers/github_repos/python-docx
+      dockerfile: Dockerfile
+    container_name: dix-python-docx-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - PYTHON_DOCX_LOG_LEVEL=INFO
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-python-docx:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9169:9169
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/python-docx/config:/app/config
+    - ./containers/github_repos/python-docx/data:/app/data
+    - ./containers/github_repos/python-docx/logs:/app/logs
+  python-jose-service:
+    build:
+      context: ./containers/github_repos/python-jose
+      dockerfile: Dockerfile
+    container_name: dix-python-jose-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - PYTHON_JOSE_LOG_LEVEL=INFO
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-python-jose:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9182:9182
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/python-jose/config:/app/config
+    - ./containers/github_repos/python-jose/data:/app/data
+    - ./containers/github_repos/python-jose/logs:/app/logs
+  pytorch-service:
+    build:
+      context: ./containers/github_repos/pytorch
+      dockerfile: Dockerfile
+    container_name: dix-pytorch-service
+    depends_on:
+    - numpy-service
+    - pandas-service
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
+    environment:
+    - PYTORCH_LOG_LEVEL=INFO
+    - PYTORCH_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-pytorch:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9101:9101
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/pytorch/config:/app/config
+    - ./containers/github_repos/pytorch/data:/app/data
+    - ./containers/github_repos/pytorch/logs:/app/logs
+    - ./containers/github_repos/pytorch/models:/app/models
+  rabbitmq-service:
+    build:
+      context: ./containers/github_repos/rabbitmq
+      dockerfile: Dockerfile
+    container_name: dix-rabbitmq-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-rabbitmq:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9116:9116
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/rabbitmq/config:/app/config
+    - ./containers/github_repos/rabbitmq/data:/app/data
+    - ./containers/github_repos/rabbitmq/logs:/app/logs
+    - ./containers/github_repos/rabbitmq/queues:/app/queues
+  ray-service:
+    build:
+      context: ./containers/github_repos/ray
+      dockerfile: Dockerfile
+    container_name: dix-ray-service
+    depends_on:
+    - redis-service
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '1.0'
+          memory: 1G
+    environment:
+    - RAY_LOG_LEVEL=INFO
+    - RAY_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-ray:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9108:9108
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/ray/config:/app/config
+    - ./containers/github_repos/ray/data:/app/data
+    - ./containers/github_repos/ray/logs:/app/logs
+    - ./containers/github_repos/ray/tasks:/app/tasks
+  redis-cluster-service:
+    build:
+      context: ./containers/github_repos/redis-cluster
+      dockerfile: Dockerfile
+    container_name: dix-redis-cluster-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    environment:
+    - REDIS_CLUSTER_LOG_LEVEL=INFO
+    - REDIS_CLUSTER_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-redis-cluster:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9125:9125
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/redis-cluster/config:/app/config
+    - ./containers/github_repos/redis-cluster/data:/app/data
+    - ./containers/github_repos/redis-cluster/logs:/app/logs
+    - ./containers/github_repos/redis-cluster/cluster:/app/cluster
+  redis-py-cluster-service:
+    build:
+      context: ./containers/github_repos/redis-py-cluster
+      dockerfile: Dockerfile
+    container_name: dix-redis-py-cluster-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - REDIS_PY_CLUSTER_LOG_LEVEL=INFO
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-redis-py-cluster:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9181:9181
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/redis-py-cluster/config:/app/config
+    - ./containers/github_repos/redis-py-cluster/data:/app/data
+    - ./containers/github_repos/redis-py-cluster/logs:/app/logs
+  redis-service:
+    command: redis-server --appendonly yes
+    healthcheck:
+      interval: 10s
+      retries: 5
+      test:
+      - CMD
+      - redis-cli
+      - ping
+      timeout: 5s
+    image: redis:alpine
+    networks:
+    - dixvision-network
+    ports:
+    - 6379:6379
+    restart: unless-stopped
+    volumes:
+    - redis-data:/data
+  requests-service:
+    build:
+      context: ./containers/github_repos/requests
+      dockerfile: Dockerfile
+    container_name: dix-requests-service
+    depends_on:
+    - redis-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - REQUESTS_LOG_LEVEL=INFO
+    - REQUESTS_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-requests:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 8888:8888
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/requests/config:/app/config
+    - ./containers/github_repos/requests/data:/app/data
+    - ./containers/github_repos/requests/logs:/app/logs
+    - ./containers/github_repos/requests/sessions:/app/sessions
+  scikit-image-service:
+    build:
+      context: ./containers/github_repos/scikit-image
+      dockerfile: Dockerfile
+    container_name: dix-scikit-image-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - SCIKIT_IMAGE_LOG_LEVEL=INFO
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-scikit-image:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9151:9151
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/scikit-image/config:/app/config
+    - ./containers/github_repos/scikit-image/data:/app/data
+    - ./containers/github_repos/scikit-image/logs:/app/logs
+  scikit-learn-service:
+    build:
+      context: ./containers/github_repos/scikit-learn
+      dockerfile: Dockerfile
+    container_name: dix-scikit-learn-service
+    depends_on:
+    - numpy-service
+    - pandas-service
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '1.0'
+          memory: 1G
+    environment:
+    - SKLEARN_LOG_LEVEL=INFO
+    - SKLEARN_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-scikit-learn:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9099:9099
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/scikit-learn/config:/app/config
+    - ./containers/github_repos/scikit-learn/data:/app/data
+    - ./containers/github_repos/scikit-learn/logs:/app/logs
+    - ./containers/github_repos/scikit-learn/models:/app/models
+  scipy-optimize-service:
+    build:
+      context: ./containers/github_repos/scipy-optimize
+      dockerfile: Dockerfile
+    container_name: dix-scipy-optimize-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - SCIPY_OPTIMIZE_LOG_LEVEL=INFO
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-scipy-optimize:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9157:9157
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/scipy-optimize/config:/app/config
+    - ./containers/github_repos/scipy-optimize/data:/app/data
+    - ./containers/github_repos/scipy-optimize/logs:/app/logs
+  scrapy-service:
+    build:
+      context: ./containers/github_repos/scrapy
+      dockerfile: Dockerfile
+    container_name: dix-scrapy-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - SCRAPY_LOG_LEVEL=INFO
+    - SCRAPY_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-scrapy:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9119:9119
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/scrapy/config:/app/config
+    - ./containers/github_repos/scrapy/data:/app/data
+    - ./containers/github_repos/scrapy/logs:/app/logs
+    - ./containers/github_repos/scrapy/spiders:/app/spiders
+  selenium-service:
+    build:
+      context: ./containers/github_repos/selenium
+      dockerfile: Dockerfile
+    container_name: dix-selenium-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    environment:
+    - SELENIUM_LOG_LEVEL=INFO
+    - SELENIUM_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-selenium:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9122:9122
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/selenium/config:/app/config
+    - ./containers/github_repos/selenium/data:/app/data
+    - ./containers/github_repos/selenium/logs:/app/logs
+    - ./containers/github_repos/selenium/browsers:/app/browsers
+  sentry-sdk-service:
+    build:
+      context: ./containers/github_repos/sentry-sdk
+      dockerfile: Dockerfile
+    container_name: dix-sentry-sdk-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - SENTRY_SDK_LOG_LEVEL=INFO
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-sentry-sdk:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9178:9178
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/sentry-sdk/config:/app/config
+    - ./containers/github_repos/sentry-sdk/data:/app/data
+    - ./containers/github_repos/sentry-sdk/logs:/app/logs
+  simpy-service:
+    build:
+      context: ./containers/github_repos/simpy
+      dockerfile: Dockerfile
+    container_name: dix-simpy-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - SIMPY_LOG_LEVEL=INFO
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-simpy:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9158:9158
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/simpy/config:/app/config
+    - ./containers/github_repos/simpy/data:/app/data
+    - ./containers/github_repos/simpy/logs:/app/logs
+  slowapi-service:
+    build:
+      context: ./containers/github_repos/slowapi
+      dockerfile: Dockerfile
+    container_name: dix-slowapi-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - SLOWAPI_LOG_LEVEL=INFO
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-slowapi:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9179:9179
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/slowapi/config:/app/config
+    - ./containers/github_repos/slowapi/data:/app/data
+    - ./containers/github_repos/slowapi/logs:/app/logs
+  socket.io-client-service:
+    build:
+      context: ./containers/github_repos/socket.io-client
+      dockerfile: Dockerfile
+    container_name: dix-socket.io-client-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - SOCKET_IO_CLIENT_LOG_LEVEL=INFO
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-socket.io-client:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9174:9174
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/socket.io-client/config:/app/config
+    - ./containers/github_repos/socket.io-client/data:/app/data
+    - ./containers/github_repos/socket.io-client/logs:/app/logs
+  sqlalchemy-enhanced-service:
+    build:
+      context: ./containers/github_repos/sqlalchemy-enhanced
+      dockerfile: Dockerfile
+    container_name: dix-sqlalchemy-enhanced-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - SQLALCHEMY_ENHANCED_LOG_LEVEL=INFO
+    - SQLALCHEMY_ENHANCED_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-sqlalchemy-enhanced:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9137:9137
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/sqlalchemy-enhanced/config:/app/config
+    - ./containers/github_repos/sqlalchemy-enhanced/data:/app/data
+    - ./containers/github_repos/sqlalchemy-enhanced/logs:/app/logs
+    - ./containers/github_repos/sqlalchemy-enhanced/models:/app/models
+  sqlalchemy-service:
+    build:
+      context: ./containers/github_repos/sqlalchemy
+      dockerfile: Dockerfile
+    container_name: dix-sqlalchemy-service
+    depends_on:
+    - postgresql-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    environment:
+    - SQLALCHEMY_LOG_LEVEL=INFO
+    - SQLALCHEMY_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-sqlalchemy:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9103:9103
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/sqlalchemy/config:/app/config
+    - ./containers/github_repos/sqlalchemy/data:/app/data
+    - ./containers/github_repos/sqlalchemy/logs:/app/logs
+    - ./containers/github_repos/sqlalchemy/migrations:/app/migrations
+  statsmodels-service:
+    build:
+      context: ./containers/github_repos/statsmodels
+      dockerfile: Dockerfile
+    container_name: dix-statsmodels-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - STATSMODELS_LOG_LEVEL=INFO
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-statsmodels:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9150:9150
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/statsmodels/config:/app/config
+    - ./containers/github_repos/statsmodels/data:/app/data
+    - ./containers/github_repos/statsmodels/logs:/app/logs
+  structlog-service:
+    build:
+      context: ./containers/github_repos/structlog
+      dockerfile: Dockerfile
+    container_name: dix-structlog-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - STRUCTLOG_LOG_LEVEL=INFO
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-structlog:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9177:9177
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/structlog/config:/app/config
+    - ./containers/github_repos/structlog/data:/app/data
+    - ./containers/github_repos/structlog/logs:/app/logs
+  telegrambot-service:
+    build:
+      context: ./containers/github_repos/telegrambot
+      dockerfile: Dockerfile
+    container_name: dix-telegrambot-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - TELEGRAMBOT_LOG_LEVEL=INFO
+    - TELEGRAMBOT_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-telegrambot:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9120:9120
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/telegrambot/config:/app/config
+    - ./containers/github_repos/telegrambot/data:/app/data
+    - ./containers/github_repos/telegrambot/logs:/app/logs
+    - ./containers/github_repos/telegrambot/messages:/app/messages
+  tempo-service:
+    build:
+      context: ./containers/github_repos/tempo
+      dockerfile: Dockerfile
+    container_name: dix-tempo-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - TEMPO_LOG_LEVEL=INFO
+    - TEMPO_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-tempo:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9132:9132
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/tempo/config:/app/config
+    - ./containers/github_repos/tempo/data:/app/data
+    - ./containers/github_repos/tempo/logs:/app/logs
+    - ./containers/github_repos/tempo/metrics:/app/metrics
+  tensorflow-service:
+    build:
+      context: ./containers/github_repos/tensorflow
+      dockerfile: Dockerfile
+    container_name: dix-tensorflow-service
+    depends_on:
+    - numpy-service
+    - pandas-service
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
+    environment:
+    - TENSORFLOW_LOG_LEVEL=INFO
+    - TENSORFLOW_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-tensorflow:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9100:9100
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/tensorflow/config:/app/config
+    - ./containers/github_repos/tensorflow/data:/app/data
+    - ./containers/github_repos/tensorflow/logs:/app/logs
+    - ./containers/github_repos/tensorflow/models:/app/models
+  textblob-service:
+    build:
+      context: ./containers/github_repos/textblob
+      dockerfile: Dockerfile
+    container_name: dix-textblob-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - TEXTBLOB_LOG_LEVEL=INFO
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-textblob:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9154:9154
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/textblob/config:/app/config
+    - ./containers/github_repos/textblob/data:/app/data
+    - ./containers/github_repos/textblob/logs:/app/logs
+  timescaledb-service:
+    build:
+      context: ./containers/github_repos/timescaledb
+      dockerfile: Dockerfile
+    container_name: dix-timescaledb-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    environment:
+    - TIMESCALEDB_LOG_LEVEL=INFO
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-timescaledb:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9148:9148
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/timescaledb/config:/app/config
+    - ./containers/github_repos/timescaledb/data:/app/data
+    - ./containers/github_repos/timescaledb/logs:/app/logs
+  tornado-service:
+    build:
+      context: ./containers/github_repos/tornado
+      dockerfile: Dockerfile
+    container_name: dix-tornado-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - TORNADO_LOG_LEVEL=INFO
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-tornado:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9172:9172
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/tornado/config:/app/config
+    - ./containers/github_repos/tornado/data:/app/data
+    - ./containers/github_repos/tornado/logs:/app/logs
+  twisted-service:
+    build:
+      context: ./containers/github_repos/twisted
+      dockerfile: Dockerfile
+    container_name: dix-twisted-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - TWISTED_LOG_LEVEL=INFO
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-twisted:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9171:9171
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/twisted/config:/app/config
+    - ./containers/github_repos/twisted/data:/app/data
+    - ./containers/github_repos/twisted/logs:/app/logs
+  vault-service:
+    build:
+      context: ./containers/github_repos/vault
+      dockerfile: Dockerfile
+    container_name: dix-vault-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - VAULT_LOG_LEVEL=INFO
+    - VAULT_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-vault:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9129:9129
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/vault/config:/app/config
+    - ./containers/github_repos/vault/data:/app/data
+    - ./containers/github_repos/vault/logs:/app/logs
+    - ./containers/github_repos/vault/secrets:/app/secrets
+  websockets-service:
+    build:
+      context: ./containers/github_repos/websockets
+      dockerfile: Dockerfile
+    container_name: dix-websockets-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+    - WEBSOCKETS_LOG_LEVEL=INFO
+    - WEBSOCKETS_PERMISSION_LEVEL=READ_ONLY
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - python
+      - /app/health_check.py
+      timeout: 10s
+    image: dix-websockets:latest
+    networks:
+    - dixvision-network
+    ports:
+    - 9146:9146
+    restart: unless-stopped
+    volumes:
+    - ./containers/github_repos/websockets/config:/app/config
+    - ./containers/github_repos/websockets/data:/app/data
+    - ./containers/github_repos/websockets/logs:/app/logs
+    - ./containers/github_repos/websockets/connections:/app/connections
+volumes:
+  grafana-data: null
+  postgres-data: null
+  prometheus-data: null
+  redis-data: null

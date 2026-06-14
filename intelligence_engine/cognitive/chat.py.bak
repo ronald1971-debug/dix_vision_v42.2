@@ -1,0 +1,10 @@
+"""Stub cognitive chat."""
+
+FEATURE_FLAG_ENV_VAR = "COGNITIVE_CHAT_FEATURE_FLAG"
+
+
+class CognitiveChatFeatureFlag:
+    """Stub chat feature flag."""
+
+    def __init__(self, **kwargs: object):
+        pass

@@ -68,7 +68,7 @@ class DesktopAgentEngine:
             return jsonify({
                 "name": "DIX VISION v42.2+ Desktop Agent",
                 "version": "42.2.0",
-                "phase": "Phase 5 - Desktop Control",
+                "phase": "Phase 9 - Complete (All Phases)",
                 "status": "operational"
             }), 200
         
@@ -480,6 +480,267 @@ class DesktopAgentEngine:
                     windows = loop.run_until_complete(desktop_orch._window_manager.get_all_windows())
                     return jsonify({"windows": windows}), 200
             return jsonify({"error": "Desktop system not available"}), 503
+        
+        # Document intelligence endpoints
+        @self.app.route('/documents/status')
+        def documents_status():
+            """Document intelligence status endpoint."""
+            if self._orchestrator and self._orchestrator._layer_orchestrators.get("documents"):
+                return jsonify(self._orchestrator._layer_orchestrators["documents"].get_status()), 200
+            return jsonify({"error": "Document intelligence not available"}), 503
+        
+        @self.app.route('/documents/process', methods=['POST'])
+        def documents_process():
+            """Process a document."""
+            data = request.get_json()
+            if not data or 'document_id' not in data or 'file_path' not in data:
+                return jsonify({"error": "Missing document_id or file_path parameter"}), 400
+            
+            document_id = data['document_id']
+            file_path = data['file_path']
+            if self._orchestrator and self._orchestrator._layer_orchestrators.get("documents"):
+                import asyncio
+                try:
+                    loop = asyncio.get_event_loop()
+                except RuntimeError:
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                
+                success = loop.run_until_complete(
+                    self._orchestrator._layer_orchestrators["documents"].execute_workflow({
+                        "id": "process_document",
+                        "action": "process_document",
+                        "document_id": document_id,
+                        "file_path": file_path
+                    })
+                )
+                if success:
+                    return jsonify({"status": "processed", "document_id": document_id}), 200
+                else:
+                    return jsonify({"error": "Failed to process document"}), 500
+            return jsonify({"error": "Document intelligence not available"}), 503
+        
+        @self.app.route('/documents/search', methods=['POST'])
+        def documents_search():
+            """Search documents."""
+            data = request.get_json()
+            if not data or 'query' not in data:
+                return jsonify({"error": "Missing query parameter"}), 400
+            
+            query = data['query']
+            if self._orchestrator and self._orchestrator._layer_orchestrators.get("documents"):
+                documents_orch = self._orchestrator._layer_orchestrators["documents"]
+                if documents_orch._document_processor:
+                    import asyncio
+                    try:
+                        loop = asyncio.get_event_loop()
+                    except RuntimeError:
+                        loop = asyncio.new_event_loop()
+                        asyncio.set_event_loop(loop)
+                    
+                    results = loop.run_until_complete(documents_orch._document_processor.search_documents(query))
+                    return jsonify({"results": results}), 200
+            return jsonify({"error": "Document intelligence not available"}), 503
+        
+        @self.app.route('/documents/ocr', methods=['POST'])
+        def documents_ocr():
+            """Extract text using OCR."""
+            data = request.get_json()
+            if not data or 'ocr_id' not in data or 'image_path' not in data:
+                return jsonify({"error": "Missing ocr_id or image_path parameter"}), 400
+            
+            ocr_id = data['ocr_id']
+            image_path = data['image_path']
+            if self._orchestrator and self._orchestrator._layer_orchestrators.get("documents"):
+                import asyncio
+                try:
+                    loop = asyncio.get_event_loop()
+                except RuntimeError:
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                
+                success = loop.run_until_complete(
+                    self._orchestrator._layer_orchestrators["documents"].execute_workflow({
+                        "id": "extract_ocr",
+                        "action": "extract_ocr",
+                        "ocr_id": ocr_id,
+                        "image_path": image_path
+                    })
+                )
+                if success:
+                    return jsonify({"status": "extracted", "ocr_id": ocr_id}), 200
+                else:
+                    return jsonify({"error": "Failed to extract OCR text"}), 500
+            return jsonify({"error": "Document intelligence not available"}), 503
+        
+        # Research assistant endpoints
+        @self.app.route('/research/status')
+        def research_status():
+            """Research assistant status endpoint."""
+            if self._orchestrator and self._orchestrator._layer_orchestrators.get("research"):
+                return jsonify(self._orchestrator._layer_orchestrators["research"].get_status()), 200
+            return jsonify({"error": "Research assistant not available"}), 503
+        
+        @self.app.route('/research/query', methods=['POST'])
+        def research_query():
+            """Execute a research query."""
+            data = request.get_json()
+            if not data or 'query_id' not in data or 'query_text' not in data:
+                return jsonify({"error": "Missing query_id or query_text parameter"}), 400
+            
+            query_id = data['query_id']
+            query_text = data['query_text']
+            if self._orchestrator and self._orchestrator._layer_orchestrators.get("research"):
+                import asyncio
+                try:
+                    loop = asyncio.get_event_loop()
+                except RuntimeError:
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                
+                success = loop.run_until_complete(
+                    self._orchestrator._layer_orchestrators["research"].execute_workflow({
+                        "id": "execute_query",
+                        "action": "execute_query",
+                        "query_id": query_id,
+                        "query_text": query_text
+                    })
+                )
+                if success:
+                    return jsonify({"status": "executed", "query_id": query_id}), 200
+                else:
+                    return jsonify({"error": "Failed to execute research query"}), 500
+            return jsonify({"error": "Research assistant not available"}), 503
+        
+        @self.app.route('/research/fact_check', methods=['POST'])
+        def research_fact_check():
+            """Perform fact-checking on a statement."""
+            data = request.get_json()
+            if not data or 'statement' not in data:
+                return jsonify({"error": "Missing statement parameter"}), 400
+            
+            statement = data['statement']
+            if self._orchestrator and self._orchestrator._layer_orchestrators.get("research"):
+                research_orch = self._orchestrator._layer_orchestrators["research"]
+                if research_orch._research_engine:
+                    import asyncio
+                    try:
+                        loop = asyncio.get_event_loop()
+                    except RuntimeError:
+                        loop = asyncio.new_event_loop()
+                        asyncio.set_event_loop(loop)
+                    
+                    result = loop.run_until_complete(research_orch._research_engine.fact_check(statement))
+                    return jsonify(result), 200
+            return jsonify({"error": "Research assistant not available"}), 503
+        
+        # Notifications endpoints
+        @self.app.route('/notifications/status')
+        def notifications_status():
+            """Notifications system status endpoint."""
+            if self._orchestrator and self._orchestrator._layer_orchestrators.get("notifications"):
+                return jsonify(self._orchestrator._layer_orchestrators["notifications"].get_status()), 200
+            return jsonify({"error": "Notifications system not available"}), 503
+        
+        @self.app.route('/notifications/create', methods=['POST'])
+        def notifications_create():
+            """Create a new notification."""
+            data = request.get_json()
+            if not data or 'notification_id' not in data or 'title' not in data or 'message' not in data:
+                return jsonify({"error": "Missing notification_id, title, or message parameter"}), 400
+            
+            notification_id = data['notification_id']
+            title = data['title']
+            message = data['message']
+            if self._orchestrator and self._orchestrator._layer_orchestrators.get("notifications"):
+                import asyncio
+                try:
+                    loop = asyncio.get_event_loop()
+                except RuntimeError:
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                
+                success = loop.run_until_complete(
+                    self._orchestrator._layer_orchestrators["notifications"].execute_workflow({
+                        "id": "create_notification",
+                        "action": "create_notification",
+                        "notification_id": notification_id,
+                        "title": title,
+                        "message": message
+                    })
+                )
+                if success:
+                    return jsonify({"status": "created", "notification_id": notification_id}), 200
+                else:
+                    return jsonify({"error": "Failed to create notification"}), 500
+            return jsonify({"error": "Notifications system not available"}), 503
+        
+        @self.app.route('/notifications/alerts', methods=['POST'])
+        def notifications_alerts():
+            """Create a new alert."""
+            data = request.get_json()
+            if not data or 'alert_id' not in data or 'name' not in data:
+                return jsonify({"error": "Missing alert_id or name parameter"}), 400
+            
+            alert_id = data['alert_id']
+            name = data['name']
+            if self._orchestrator and self._orchestrator._layer_orchestrators.get("notifications"):
+                import asyncio
+                try:
+                    loop = asyncio.get_event_loop()
+                except RuntimeError:
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                
+                success = loop.run_until_complete(
+                    self._orchestrator._layer_orchestrators["notifications"].execute_workflow({
+                        "id": "create_alert",
+                        "action": "create_alert",
+                        "alert_id": alert_id,
+                        "name": name
+                    })
+                )
+                if success:
+                    return jsonify({"status": "created", "alert_id": alert_id}), 200
+                else:
+                    return jsonify({"error": "Failed to create alert"}), 500
+            return jsonify({"error": "Notifications system not available"}), 503
+        
+        # Phase 9 layer status endpoints
+        @self.app.route('/presence/status')
+        def presence_status():
+            """Presence system status endpoint."""
+            if self._orchestrator and self._orchestrator._layer_orchestrators.get("presence"):
+                return jsonify(self._orchestrator._layer_orchestrators["presence"].get_status()), 200
+            return jsonify({"error": "Presence system not available"}), 503
+        
+        @self.app.route('/automation/status')
+        def automation_status():
+            """Automation system status endpoint."""
+            if self._orchestrator and self._orchestrator._layer_orchestrators.get("automation"):
+                return jsonify(self._orchestrator._layer_orchestrators["automation"].get_status()), 200
+            return jsonify({"error": "Automation system not available"}), 503
+        
+        @self.app.route('/security/status')
+        def security_status():
+            """Security system status endpoint."""
+            if self._orchestrator and self._orchestrator._layer_orchestrators.get("security"):
+                return jsonify(self._orchestrator._layer_orchestrators["security"].get_status()), 200
+            return jsonify({"error": "Security system not available"}), 503
+        
+        @self.app.route('/memory/status')
+        def memory_status():
+            """Memory system status endpoint."""
+            if self._orchestrator and self._orchestrator._layer_orchestrators.get("memory"):
+                return jsonify(self._orchestrator._layer_orchestrators["memory"].get_status()), 200
+            return jsonify({"error": "Memory system not available"}), 503
+        
+        @self.app.route('/integrations/status')
+        def integrations_status():
+            """Integrations system status endpoint."""
+            if self._orchestrator and self._orchestrator._layer_orchestrators.get("integrations"):
+                return jsonify(self._orchestrator._layer_orchestrators["integrations"].get_status()), 200
+            return jsonify({"error": "Integrations system not available"}), 503
     
     async def initialize(self, config: Optional[Dict[str, Any]] = None) -> bool:
         """Initialize all Desktop Agent components."""

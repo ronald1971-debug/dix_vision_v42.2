@@ -23,7 +23,8 @@
       "Exec(ls)",
       "Exec(git reset)",
       "Exec(git clean)",
-      "Exec(git rm)"
+      "Exec(git rm)",
+      "Exec(python)"
     ]
   }
 }

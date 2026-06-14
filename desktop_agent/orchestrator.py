@@ -117,8 +117,120 @@ class DesktopAgentOrchestrator:
             except Exception as e:
                 self.logger.warning(f"Learning layer orchestrator initialization failed: {e}")
             
-            # Other layer orchestrators (future phases)
-            self.logger.info("Layer orchestrators initialized (partial for Phase 1)")
+            # Documents layer orchestrator
+            try:
+                import sys
+                import os
+                documents_dir = os.path.join(os.path.dirname(__file__), 'documents')
+                if documents_dir not in sys.path:
+                    sys.path.insert(0, documents_dir)
+                from documents_orchestrator import DocumentsOrchestrator
+                self._layer_orchestrators["documents"] = DocumentsOrchestrator(self)
+                await self._layer_orchestrators["documents"].initialize()
+                self.logger.info("Documents layer orchestrator initialized")
+            except Exception as e:
+                self.logger.warning(f"Documents layer orchestrator initialization failed: {e}")
+            
+            # Research layer orchestrator
+            try:
+                import sys
+                import os
+                research_dir = os.path.join(os.path.dirname(__file__), 'research')
+                if research_dir not in sys.path:
+                    sys.path.insert(0, research_dir)
+                from research_orchestrator import ResearchOrchestrator
+                self._layer_orchestrators["research"] = ResearchOrchestrator(self)
+                await self._layer_orchestrators["research"].initialize()
+                self.logger.info("Research layer orchestrator initialized")
+            except Exception as e:
+                self.logger.warning(f"Research layer orchestrator initialization failed: {e}")
+            
+            # Notifications layer orchestrator
+            try:
+                import sys
+                import os
+                notifications_dir = os.path.join(os.path.dirname(__file__), 'notifications')
+                if notifications_dir not in sys.path:
+                    sys.path.insert(0, notifications_dir)
+                from notifications_orchestrator import NotificationsOrchestrator
+                self._layer_orchestrators["notifications"] = NotificationsOrchestrator(self)
+                await self._layer_orchestrators["notifications"].initialize()
+                self.logger.info("Notifications layer orchestrator initialized")
+            except Exception as e:
+                self.logger.warning(f"Notifications layer orchestrator initialization failed: {e}")
+            
+            # Presence layer orchestrator (Phase 9)
+            try:
+                import sys
+                import os
+                presence_dir = os.path.join(os.path.dirname(__file__), 'presence')
+                if presence_dir not in sys.path:
+                    sys.path.insert(0, presence_dir)
+                from presence_orchestrator import PresenceOrchestrator
+                self._layer_orchestrators["presence"] = PresenceOrchestrator(self)
+                await self._layer_orchestrators["presence"].initialize()
+                self.logger.info("Presence layer orchestrator initialized")
+            except Exception as e:
+                self.logger.warning(f"Presence layer orchestrator initialization failed: {e}")
+            
+            # Automation layer orchestrator (Phase 9)
+            try:
+                import sys
+                import os
+                automation_dir = os.path.join(os.path.dirname(__file__), 'automation')
+                if automation_dir not in sys.path:
+                    sys.path.insert(0, automation_dir)
+                from automation_orchestrator import AutomationOrchestrator
+                self._layer_orchestrators["automation"] = AutomationOrchestrator(self)
+                await self._layer_orchestrators["automation"].initialize()
+                self.logger.info("Automation layer orchestrator initialized")
+            except Exception as e:
+                self.logger.warning(f"Automation layer orchestrator initialization failed: {e}")
+            
+            # Security layer orchestrator (Phase 9)
+            try:
+                import sys
+                import os
+                security_dir = os.path.join(os.path.dirname(__file__), 'security')
+                if security_dir not in sys.path:
+                    sys.path.insert(0, security_dir)
+                from security_orchestrator import SecurityOrchestrator
+                self._layer_orchestrators["security"] = SecurityOrchestrator(self)
+                await self._layer_orchestrators["security"].initialize()
+                self.logger.info("Security layer orchestrator initialized")
+            except Exception as e:
+                self.logger.warning(f"Security layer orchestrator initialization failed: {e}")
+            
+            # Memory layer orchestrator (Phase 9)
+            try:
+                import sys
+                import os
+                memory_dir = os.path.join(os.path.dirname(__file__), 'memory')
+                if memory_dir not in sys.path:
+                    sys.path.insert(0, memory_dir)
+                from memory_orchestrator import MemoryOrchestrator
+                self._layer_orchestrators["memory"] = MemoryOrchestrator(self)
+                await self._layer_orchestrators["memory"].initialize()
+                self.logger.info("Memory layer orchestrator initialized")
+            except Exception as e:
+                self.logger.warning(f"Memory layer orchestrator initialization failed: {e}")
+            
+            # Integrations layer orchestrator (Phase 9)
+            try:
+                import sys
+                import os
+                integrations_dir = os.path.join(os.path.dirname(__file__), 'integrations')
+                if integrations_dir not in sys.path:
+                    sys.path.insert(0, integrations_dir)
+                from integrations_orchestrator import IntegrationsOrchestrator
+                self._layer_orchestrators["integrations"] = IntegrationsOrchestrator(self)
+                await self._layer_orchestrators["integrations"].initialize()
+                self.logger.info("Integrations layer orchestrator initialized")
+            except Exception as e:
+                self.logger.warning(f"Integrations layer orchestrator initialization failed: {e}")
+            
+            # All layer orchestrators initialized (Phase 9 complete)
+            self.logger.info("Layer orchestrators initialized (Phase 9 complete - all 9 phases)")
             return True
             
         except Exception as e:

@@ -1,0 +1,1205 @@
+{
+  "test_metadata": {
+    "timestamp": "2026-06-13T23:11:22.395069",
+    "base_url": "http://localhost:8000",
+    "total_duration": 15.379160404205322,
+    "timeout": 15.0
+  },
+  "test_statistics": {
+    "total_tests": 79,
+    "successful_tests": 79,
+    "failed_tests": 0,
+    "success_rate": 100.0,
+    "average_response_time": 0.32,
+    "max_response_time": 0.532,
+    "min_response_time": 0.263,
+    "total_test_duration": 15.38
+  },
+  "test_results": [
+    {
+      "endpoint": "/api/health",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.468,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 54,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:07.015926"
+    },
+    {
+      "endpoint": "/api/indira/market/regimes",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.28,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 244,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:07.483917"
+    },
+    {
+      "endpoint": "/api/indira/market/narratives",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.279,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 268,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:07.764426"
+    },
+    {
+      "endpoint": "/api/indira/market/liquidity",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.267,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 212,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:08.043387"
+    },
+    {
+      "endpoint": "/api/indira/market/volatility",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.281,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 206,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:08.310128"
+    },
+    {
+      "endpoint": "/api/indira/market/orderflow",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.277,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 106,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:08.590880"
+    },
+    {
+      "endpoint": "/api/indira/market/crossasset",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.278,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 176,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:08.868248"
+    },
+    {
+      "endpoint": "/api/indira/traders/top",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.265,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 2007,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:09.146252"
+    },
+    {
+      "endpoint": "/api/indira/traders/profile/0x1234567890abcdef",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.264,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 206,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:09.411337"
+    },
+    {
+      "endpoint": "/api/indira/traders/clusters",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.279,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 324,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:09.675616"
+    },
+    {
+      "endpoint": "/api/indira/traders/relationships",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.267,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 159,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:09.954794"
+    },
+    {
+      "endpoint": "/api/indira/traders/similarity/0x1234567890abcdef",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.278,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 328,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:10.222269"
+    },
+    {
+      "endpoint": "/api/indira/traders/performance/overview",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.264,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 161,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:10.500466"
+    },
+    {
+      "endpoint": "/api/indira/strategy/creation",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.265,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 107,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:10.764901"
+    },
+    {
+      "endpoint": "/api/indira/strategy/evolution",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.265,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 257,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:11.029793"
+    },
+    {
+      "endpoint": "/api/indira/strategy/optimization",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.263,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 121,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:11.294389"
+    },
+    {
+      "endpoint": "/api/indira/strategy/backtesting",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.267,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 185,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:11.557888"
+    },
+    {
+      "endpoint": "/api/indira/strategy/deployment",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.266,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 206,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:11.824567"
+    },
+    {
+      "endpoint": "/api/indira/portfolio/analysis",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.278,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 116,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:12.090220"
+    },
+    {
+      "endpoint": "/api/indira/portfolio/allocation",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.264,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 254,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:12.368323"
+    },
+    {
+      "endpoint": "/api/indira/portfolio/risk",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.266,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 132,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:12.632258"
+    },
+    {
+      "endpoint": "/api/indira/portfolio/performance",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.279,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 127,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:12.897974"
+    },
+    {
+      "endpoint": "/api/indira/portfolio/attribution",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.279,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 238,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:13.177481"
+    },
+    {
+      "endpoint": "/api/indira/research/queue",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.276,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 118,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:13.456561"
+    },
+    {
+      "endpoint": "/api/indira/research/knowledge-graph",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.268,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 93,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:13.732617"
+    },
+    {
+      "endpoint": "/api/indira/research/learning",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.276,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 145,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:14.000350"
+    },
+    {
+      "endpoint": "/api/indira/research/publications",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.269,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 114,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:14.276768"
+    },
+    {
+      "endpoint": "/api/indira/research/collaboration",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.266,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 141,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:14.545664"
+    },
+    {
+      "endpoint": "/api/markets/quote/BTC",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.265,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 266,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:14.811226"
+    },
+    {
+      "endpoint": "/api/markets/quote/ETH",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.266,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 265,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:15.075809"
+    },
+    {
+      "endpoint": "/api/markets/ohlcv/BTC",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.267,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 1612,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:15.342220"
+    },
+    {
+      "endpoint": "/api/markets/ohlcv/BTC",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.269,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 1590,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:15.608963"
+    },
+    {
+      "endpoint": "/api/markets/ohlcv/BTC",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.273,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 1592,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:15.878474"
+    },
+    {
+      "endpoint": "/api/markets/quotes/Crypto",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.269,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 1083,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:16.151866"
+    },
+    {
+      "endpoint": "/api/markets/orderflow/BTC/dom",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.279,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 1376,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:16.420810"
+    },
+    {
+      "endpoint": "/api/markets/orderflow/BTC/footprint",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.278,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 88,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:16.699842"
+    },
+    {
+      "endpoint": "/api/markets/orderflow/BTC/volume-delta",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.265,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 1005,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:16.977925"
+    },
+    {
+      "endpoint": "/api/markets/orderflow/BTC/heatmap",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.266,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 175,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:17.243207"
+    },
+    {
+      "endpoint": "/api/markets/orderflow/BTC/liquidity-heatmap",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.277,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 178,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:17.509400"
+    },
+    {
+      "endpoint": "/api/markets/watchlist",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.266,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 917,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:17.786741"
+    },
+    {
+      "endpoint": "/api/markets/watchlist",
+      "method": "POST",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.267,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 16,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:18.052797"
+    },
+    {
+      "endpoint": "/api/markets/watchlist/BTC",
+      "method": "DELETE",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.264,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 16,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:18.319901"
+    },
+    {
+      "endpoint": "/api/markets/scanner",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.293,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 2118,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:18.584051"
+    },
+    {
+      "endpoint": "/api/markets/scanner/gainers",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.266,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 2116,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:18.877033"
+    },
+    {
+      "endpoint": "/api/markets/scanner/losers",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.28,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 2106,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:19.142923"
+    },
+    {
+      "endpoint": "/api/markets/scanner/volume",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.274,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 2111,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:19.422464"
+    },
+    {
+      "endpoint": "/api/markets/scanner/volatility",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.274,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 635,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:19.696364"
+    },
+    {
+      "endpoint": "/api/markets/news",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.265,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 780,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:19.970475"
+    },
+    {
+      "endpoint": "/api/markets/news/Crypto",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.267,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 780,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:20.235103"
+    },
+    {
+      "endpoint": "/api/markets/events",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.266,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 430,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:20.501952"
+    },
+    {
+      "endpoint": "/api/markets/quote/INVALID_SYMBOL",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.265,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 275,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:20.768162"
+    },
+    {
+      "endpoint": "/api/indira/traders/profile/invalid",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.268,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 198,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:21.033298"
+    },
+    {
+      "endpoint": "/api/markets/scanner",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.28,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 2109,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:21.301004"
+    },
+    {
+      "endpoint": "/api/markets/ohlcv/BTC",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.268,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 15557,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:21.581495"
+    },
+    {
+      "endpoint": "/api/indira/market/regimes",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.532,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 244,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:21.849385"
+    },
+    {
+      "endpoint": "/api/markets/quote/BTC",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.523,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 261,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:21.858571"
+    },
+    {
+      "endpoint": "/api/indira/traders/top?limit=5",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.515,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 2054,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:21.868066"
+    },
+    {
+      "endpoint": "/api/markets/orderflow/BTC/dom?depth=5",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.506,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 2689,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:21.877067"
+    },
+    {
+      "endpoint": "/api/indira/market/regimes",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.487,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 244,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:21.895788"
+    },
+    {
+      "endpoint": "/api/markets/scanner/gainers?assetClass=Crypto&limit=5",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.497,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 2107,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:21.886024"
+    },
+    {
+      "endpoint": "/api/markets/quote/BTC",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.478,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 260,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:21.904852"
+    },
+    {
+      "endpoint": "/api/markets/scanner/gainers?assetClass=Crypto&limit=5",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.443,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 2114,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:21.939969"
+    },
+    {
+      "endpoint": "/api/indira/traders/top?limit=5",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.472,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 2025,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:21.914147"
+    },
+    {
+      "endpoint": "/api/markets/orderflow/BTC/dom?depth=5",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.455,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 2655,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:21.931026"
+    },
+    {
+      "endpoint": "/api/indira/market/regimes",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.441,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 244,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:21.949052"
+    },
+    {
+      "endpoint": "/api/indira/traders/top?limit=5",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.422,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 2022,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:21.968704"
+    },
+    {
+      "endpoint": "/api/markets/orderflow/BTC/dom?depth=5",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.411,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 2652,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:21.979196"
+    },
+    {
+      "endpoint": "/api/markets/quote/BTC",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.432,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 261,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:21.958857"
+    },
+    {
+      "endpoint": "/api/markets/quote/BTC",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.38,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 262,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:22.011608"
+    },
+    {
+      "endpoint": "/api/markets/scanner/gainers?assetClass=Crypto&limit=5",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.402,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 2111,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:21.989332"
+    },
+    {
+      "endpoint": "/api/indira/market/regimes",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.39,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 244,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:22.000968"
+    },
+    {
+      "endpoint": "/api/indira/traders/top?limit=5",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.369,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 2024,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:22.021989"
+    },
+    {
+      "endpoint": "/api/markets/orderflow/BTC/dom?depth=5",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.363,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 2677,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:22.031917"
+    },
+    {
+      "endpoint": "/api/markets/scanner/gainers?assetClass=Crypto&limit=5",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.303,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 2112,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:22.092180"
+    },
+    {
+      "endpoint": "/api/indira/market/regimes",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.343,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 244,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:22.052085"
+    },
+    {
+      "endpoint": "/api/markets/orderflow/BTC/dom?depth=5",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.312,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 2660,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:22.082672"
+    },
+    {
+      "endpoint": "/api/markets/scanner/gainers?assetClass=Crypto&limit=5",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.353,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 2113,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:22.042351"
+    },
+    {
+      "endpoint": "/api/indira/traders/top?limit=5",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.322,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 2051,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:22.072392"
+    },
+    {
+      "endpoint": "/api/markets/quote/BTC",
+      "method": "GET",
+      "status_code": 200,
+      "expected_status": 200,
+      "response_time": 0.333,
+      "success": true,
+      "error": null,
+      "details": {
+        "response_length": 260,
+        "content_type": "application/json",
+        "status_text": "200"
+      },
+      "timestamp": "2026-06-13T23:11:22.062203"
+    }
+  ]
+}

@@ -223,6 +223,3 @@ export function SharedToolLayers() {
     </div>
   );
 }
-
-// Add the import for PanelLayout if not already imported
-import { PanelLayout } from '@/components/agent/Panel';

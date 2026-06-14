@@ -2018,6 +2018,16 @@ app.include_router(build_operator_router(lambda: STATE))
 # any legacy ``uvicorn cockpit:app`` deployments.
 app.include_router(build_cockpit_router())
 
+# Dashboard Build A Phase 2 & 3 - INDIRA Cognitive Center and Unified Markets
+try:
+    from dashboard2026.api.indira_intelligence_api import router as indira_intelligence_router
+    from dashboard2026.api.markets_api import router as unified_markets_router
+    app.include_router(indira_intelligence_router)
+    app.include_router(unified_markets_router)
+    _logger.info("[BOOT] Dashboard Build A API routers loaded successfully")
+except ImportError as e:
+    _logger.warning(f"[BOOT] Dashboard Build A API routers not available: {e}")
+
 # Wave-Live PR-4 — root URL routes operators to the live SPA. PR #105
 # redirected the named legacy paths (``/operator``, ``/indira-chat`` etc.)
 # but missed ``/`` itself, so the Windows launcher (which opens

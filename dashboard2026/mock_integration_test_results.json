@@ -1,0 +1,452 @@
+{
+  "test_metadata": {
+    "timestamp": "2026-06-13T22:18:58.852387",
+    "test_type": "MOCK",
+    "base_url": "http://localhost:8080 (not available)",
+    "note": "This is a mock test demonstrating the testing framework",
+    "actual_server_available": false
+  },
+  "test_statistics": {
+    "total_tests": 48,
+    "successful_tests": 48,
+    "failed_tests": 0,
+    "success_rate": 100.0,
+    "average_response_time": 0.1,
+    "max_response_time": 0.138,
+    "min_response_time": 0.076
+  },
+  "test_results": [
+    {
+      "endpoint": "/api/indira/market/regimes",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.07600000000000001,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852252",
+      "mock": true
+    },
+    {
+      "endpoint": "/api/indira/market/narratives",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.079,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852282",
+      "mock": true
+    },
+    {
+      "endpoint": "/api/indira/market/liquidity",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.078,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852285",
+      "mock": true
+    },
+    {
+      "endpoint": "/api/indira/market/volatility",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.079,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852287",
+      "mock": true
+    },
+    {
+      "endpoint": "/api/indira/market/orderflow",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.078,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852288",
+      "mock": true
+    },
+    {
+      "endpoint": "/api/indira/market/crossasset",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.079,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852290",
+      "mock": true
+    },
+    {
+      "endpoint": "/api/indira/traders/top?limit=10",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.082,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852293",
+      "mock": true
+    },
+    {
+      "endpoint": "/api/indira/traders/profile/0x1234567890abcdef",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.096,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852295",
+      "mock": true
+    },
+    {
+      "endpoint": "/api/indira/traders/clusters",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.078,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852296",
+      "mock": true
+    },
+    {
+      "endpoint": "/api/indira/traders/relationships",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.083,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852298",
+      "mock": true
+    },
+    {
+      "endpoint": "/api/indira/traders/similarity/0x1234567890abcdef",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.099,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852299",
+      "mock": true
+    },
+    {
+      "endpoint": "/api/indira/traders/performance/overview",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.09,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852301",
+      "mock": true
+    },
+    {
+      "endpoint": "/api/indira/strategy/creation",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.079,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852302",
+      "mock": true
+    },
+    {
+      "endpoint": "/api/indira/strategy/evolution",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.08,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852304",
+      "mock": true
+    },
+    {
+      "endpoint": "/api/indira/strategy/optimization",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.083,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852305",
+      "mock": true
+    },
+    {
+      "endpoint": "/api/indira/strategy/backtesting",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.082,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852307",
+      "mock": true
+    },
+    {
+      "endpoint": "/api/indira/strategy/deployment",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.081,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852308",
+      "mock": true
+    },
+    {
+      "endpoint": "/api/indira/portfolio/analysis",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.08,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852310",
+      "mock": true
+    },
+    {
+      "endpoint": "/api/indira/portfolio/allocation",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.082,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852311",
+      "mock": true
+    },
+    {
+      "endpoint": "/api/indira/portfolio/risk",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.07600000000000001,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852313",
+      "mock": true
+    },
+    {
+      "endpoint": "/api/indira/portfolio/performance",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.083,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852314",
+      "mock": true
+    },
+    {
+      "endpoint": "/api/indira/portfolio/attribution",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.083,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852316",
+      "mock": true
+    },
+    {
+      "endpoint": "/api/indira/research/queue",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.07600000000000001,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852317",
+      "mock": true
+    },
+    {
+      "endpoint": "/api/indira/research/knowledge-graph",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.08600000000000001,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852318",
+      "mock": true
+    },
+    {
+      "endpoint": "/api/indira/research/learning",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.079,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852320",
+      "mock": true
+    },
+    {
+      "endpoint": "/api/markets/quote/BTC",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.10200000000000001,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852326",
+      "mock": true
+    },
+    {
+      "endpoint": "/api/markets/quote/ETH",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.10200000000000001,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852332",
+      "mock": true
+    },
+    {
+      "endpoint": "/api/markets/ohlcv/BTC?timeframe=1m&limit=10",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.124,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852334",
+      "mock": true
+    },
+    {
+      "endpoint": "/api/markets/ohlcv/BTC?chartType=heikin_ashi&limit=10",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.133,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852336",
+      "mock": true
+    },
+    {
+      "endpoint": "/api/markets/ohlcv/BTC?chartType=renko&limit=10",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.127,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852337",
+      "mock": true
+    },
+    {
+      "endpoint": "/api/markets/quotes/Crypto?limit=10",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.115,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852338",
+      "mock": true
+    },
+    {
+      "endpoint": "/api/markets/orderflow/BTC/dom?depth=10",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.119,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852340",
+      "mock": true
+    },
+    {
+      "endpoint": "/api/markets/orderflow/BTC/footprint?limit=10",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.125,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852341",
+      "mock": true
+    },
+    {
+      "endpoint": "/api/markets/orderflow/BTC/volume-delta?limit=10",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.128,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852344",
+      "mock": true
+    },
+    {
+      "endpoint": "/api/markets/orderflow/BTC/heatmap?levels=10",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.124,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852346",
+      "mock": true
+    },
+    {
+      "endpoint": "/api/markets/orderflow/BTC/liquidity-heatmap?levels=10",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.134,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852347",
+      "mock": true
+    },
+    {
+      "endpoint": "/api/markets/watchlist",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.10200000000000001,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852349",
+      "mock": true
+    },
+    {
+      "endpoint": "/api/markets/scanner?assetClass=Crypto&limit=10",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.127,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852350",
+      "mock": true
+    },
+    {
+      "endpoint": "/api/markets/scanner/gainers?assetClass=Crypto&limit=10",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.135,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852351",
+      "mock": true
+    },
+    {
+      "endpoint": "/api/markets/scanner/losers?assetClass=Crypto&limit=10",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.134,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852353",
+      "mock": true
+    },
+    {
+      "endpoint": "/api/markets/scanner/volume?assetClass=Crypto&limit=10",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.134,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852354",
+      "mock": true
+    },
+    {
+      "endpoint": "/api/markets/scanner/volatility?assetClass=Crypto&limit=10",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.138,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852356",
+      "mock": true
+    },
+    {
+      "endpoint": "/api/markets/news?symbol=BTC&limit=10",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.11699999999999999,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852357",
+      "mock": true
+    },
+    {
+      "endpoint": "/api/markets/news/Crypto?limit=10",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.113,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852359",
+      "mock": true
+    },
+    {
+      "endpoint": "/api/markets/events?limit=10",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.108,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852360",
+      "mock": true
+    },
+    {
+      "endpoint": "/api/markets/quote/INVALID_SYMBOL",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.1,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852366",
+      "mock": true
+    },
+    {
+      "endpoint": "/api/indira/traders/profile/invalid",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.1,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852368",
+      "mock": true
+    },
+    {
+      "endpoint": "/api/markets/scanner?assetClass=INVALID",
+      "method": "GET",
+      "status_code": 200,
+      "response_time": 0.1,
+      "success": true,
+      "timestamp": "2026-06-13T22:18:58.852371",
+      "mock": true
+    }
+  ]
+}
