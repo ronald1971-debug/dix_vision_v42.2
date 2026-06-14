@@ -1,0 +1,45 @@
+# DIX VISION v42.2+ Desktop Agent Requirements
+# Foundation layer dependencies
+
+# Core dependencies
+requests==2.31.0
+urllib3==2.0.7
+certifi==2023.11.17
+aiohttp==3.9.1
+asyncio==3.4.3
+
+# Configuration
+pyyaml==6.0.1
+python-dotenv==1.0.0
+
+# Logging
+structlog==23.2.0
+
+# Type checking
+typing-extensions==4.9.0
+
+# Security
+cryptography==41.0.7
+
+# Desktop automation (future phases)
+# pyautogui==0.9.54
+# pywinauto==0.6.8
+# keyboard==0.13.5
+
+# Browser automation (future phases)
+# selenium==4.15.2
+# playwright==1.40.0
+
+# Voice processing (future phases)
+# speechrecognition==3.10.0
+# pyttsx3==2.90
+# pyaudio==0.2.13
+
+# Document processing (future phases)
+# pdfplumber==0.9.0
+# python-docx==0.8.11
+# openpyxl==3.1.2
+
+# Research (future phases)
+# newspaper3k==0.2.8
+# beautifulsoup4==4.12.2
