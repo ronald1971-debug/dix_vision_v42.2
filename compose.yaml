@@ -2478,9 +2478,6 @@ services:
         reservations:
           cpus: '0.5'
           memory: 256M
-    environment:
-    - RABBITMQ_LOG_LEVEL=INFO
-    - RABBITMQ_PERMISSION_LEVEL=READ_ONLY
     healthcheck:
       interval: 30s
       retries: 3
@@ -3007,7 +3004,7 @@ services:
       dockerfile: Dockerfile
     container_name: dix-sqlalchemy-service
     depends_on:
-    - postgres-service
+    - postgresql-service
     deploy:
       resources:
         limits:
@@ -3419,4 +3416,3 @@ volumes:
   postgres-data: null
   prometheus-data: null
   redis-data: null
-"\xEF\xBB\xBFversion": '3.8'

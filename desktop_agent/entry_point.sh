@@ -18,26 +18,12 @@ sys.path.append('/app/coordination_layer')
 sys.path.append('/app/system')
 
 import asyncio
-from engine import DesktopAgentEngine
-
-async def main():
-    engine = DesktopAgentEngine()
-    success = await engine.start()
-    if success:
-        print('Desktop Agent Engine started successfully')
-        print('Phase 1 Foundation Layer operational')
-        # Keep engine running
-        while engine.is_running:
-            await asyncio.sleep(1)
-    else:
-        print('Failed to start Desktop Agent Engine')
-        sys.exit(1)
+from engine import main
 
 try:
     asyncio.run(main())
 except KeyboardInterrupt:
     print('Shutting down Desktop Agent Engine...')
-    asyncio.run(engine.stop())
 except Exception as e:
     print(f'Desktop Agent error: {e}')
     import traceback

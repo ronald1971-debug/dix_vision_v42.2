@@ -63,7 +63,12 @@ class DesktopAgentOrchestrator:
         try:
             # Voice layer orchestrator
             try:
-                from voice.voice_orchestrator import VoiceOrchestrator
+                import sys
+                import os
+                voice_dir = os.path.join(os.path.dirname(__file__), 'voice')
+                if voice_dir not in sys.path:
+                    sys.path.insert(0, voice_dir)
+                from voice_orchestrator import VoiceOrchestrator
                 self._layer_orchestrators["voice"] = VoiceOrchestrator(self)
                 await self._layer_orchestrators["voice"].initialize()
                 self.logger.info("Voice layer orchestrator initialized")
@@ -72,7 +77,12 @@ class DesktopAgentOrchestrator:
             
             # Browser layer orchestrator
             try:
-                from browser.browser_orchestrator import BrowserOrchestrator
+                import sys
+                import os
+                browser_dir = os.path.join(os.path.dirname(__file__), 'browser')
+                if browser_dir not in sys.path:
+                    sys.path.insert(0, browser_dir)
+                from browser_orchestrator import BrowserOrchestrator
                 self._layer_orchestrators["browser"] = BrowserOrchestrator(self)
                 await self._layer_orchestrators["browser"].initialize()
                 self.logger.info("Browser layer orchestrator initialized")
@@ -81,12 +91,31 @@ class DesktopAgentOrchestrator:
             
             # Desktop layer orchestrator
             try:
-                from desktop.desktop_orchestrator import DesktopOrchestrator
+                import sys
+                import os
+                desktop_dir = os.path.join(os.path.dirname(__file__), 'desktop')
+                if desktop_dir not in sys.path:
+                    sys.path.insert(0, desktop_dir)
+                from desktop_orchestrator import DesktopOrchestrator
                 self._layer_orchestrators["desktop"] = DesktopOrchestrator(self)
                 await self._layer_orchestrators["desktop"].initialize()
                 self.logger.info("Desktop layer orchestrator initialized")
             except Exception as e:
                 self.logger.warning(f"Desktop layer orchestrator initialization failed: {e}")
+            
+            # Learning layer orchestrator
+            try:
+                import sys
+                import os
+                learning_dir = os.path.join(os.path.dirname(__file__), 'learning')
+                if learning_dir not in sys.path:
+                    sys.path.insert(0, learning_dir)
+                from learning_orchestrator import LearningOrchestrator
+                self._layer_orchestrators["learning"] = LearningOrchestrator(self)
+                await self._layer_orchestrators["learning"].initialize()
+                self.logger.info("Learning layer orchestrator initialized")
+            except Exception as e:
+                self.logger.warning(f"Learning layer orchestrator initialization failed: {e}")
             
             # Other layer orchestrators (future phases)
             self.logger.info("Layer orchestrators initialized (partial for Phase 1)")

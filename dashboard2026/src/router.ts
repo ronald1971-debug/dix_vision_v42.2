@@ -5,8 +5,11 @@ import { useEffect, useState } from "react";
  *
  * The 2026 dashboard rebuild (DASH-A) extends the route space from the
  * original three system pages (credentials/operator/chat) to also
- * cover the asset-class surfaces called out in PR #2 §3:
- * spot, perps, dex, forex, stocks, nft.
+ * cover the asset-class surfaces called out in PR #2 §3.
+ *
+ * PHASE 3 UPDATE: Asset class surfaces (spot, perps, dex, forex, stocks, nft)
+ * have been consolidated into a unified MARKETS workspace accessible via
+ * the "markets" route. Legacy asset routes redirect to markets.
  *
  * Memecoin lives on its own DEXtools-styled dashboard at ``/meme/``
  * (see ``dash_meme/``). Operators jump there from the OperatorPage
@@ -30,6 +33,7 @@ export type SystemRoute =
   | "credentials"
   | "chat"
   | "indira"
+  | "indira-cognitive-center"
   | "dyon"
   | "agent-ops"
   | "indira-workspace"
@@ -44,6 +48,7 @@ export type SystemRoute =
   | "risk"
   | "charting"
   | "market"
+  | "markets"
   | "portfolio"
   | "execution"
   | "positions"
@@ -85,6 +90,7 @@ const SYSTEM_ROUTES: readonly SystemRoute[] = [
   "credentials",
   "chat",
   "indira",
+  "indira-cognitive-center",
   "dyon",
   "agent-ops",
   "indira-workspace",
@@ -99,6 +105,7 @@ const SYSTEM_ROUTES: readonly SystemRoute[] = [
   "risk",
   "charting",
   "market",
+  "markets",
   "portfolio",
   "execution",
   "positions",

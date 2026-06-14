@@ -10,6 +10,7 @@ import logging
 import sys
 from pathlib import Path
 from typing import Any, Dict, Optional
+from flask import Flask, jsonify, request
 
 # Add parent directory to path for imports
 sys.path.append(str(Path(__file__).parent.parent))
@@ -39,7 +40,446 @@ class DesktopAgentEngine:
         # Configuration
         self._config: Dict[str, Any] = {}
         
+        # Flask app for health checks
+        self.app = Flask(__name__)
+        self._setup_flask_routes()
+        
         self.logger.info("Desktop Agent Engine initialized")
+    
+    def _setup_flask_routes(self):
+        """Setup Flask routes for health checks and status."""
+        @self.app.route('/health')
+        def health_check():
+            """Health check endpoint."""
+            return jsonify({
+                "status": "healthy",
+                "running": self._running,
+                "initialized": self._initialized
+            }), 200
+        
+        @self.app.route('/status')
+        def status_check():
+            """Detailed status endpoint."""
+            return jsonify(self.get_status()), 200
+        
+        @self.app.route('/')
+        def index():
+            """Root endpoint."""
+            return jsonify({
+                "name": "DIX VISION v42.2+ Desktop Agent",
+                "version": "42.2.0",
+                "phase": "Phase 5 - Desktop Control",
+                "status": "operational"
+            }), 200
+        
+        # Voice system endpoints
+        @self.app.route('/voice/status')
+        def voice_status():
+            """Voice system status endpoint."""
+            if self._orchestrator and self._orchestrator._layer_orchestrators.get("voice"):
+                return jsonify(self._orchestrator._layer_orchestrators["voice"].get_status()), 200
+            return jsonify({"error": "Voice system not available"}), 503
+        
+        @self.app.route('/voice/start', methods=['POST'])
+        def voice_start():
+            """Start voice listening."""
+            if self._orchestrator and self._orchestrator._layer_orchestrators.get("voice"):
+                import asyncio
+                try:
+                    # Get event loop or create one
+                    try:
+                        loop = asyncio.get_event_loop()
+                    except RuntimeError:
+                        loop = asyncio.new_event_loop()
+                        asyncio.set_event_loop(loop)
+                    
+                    success = loop.run_until_complete(
+                        self._orchestrator._layer_orchestrators["voice"].execute_workflow({
+                            "id": "manual_start",
+                            "action": "start_listening"
+                        })
+                    )
+                    if success:
+                        return jsonify({"status": "started"}), 200
+                    else:
+                        return jsonify({"error": "Failed to start voice listening"}), 500
+                except Exception as e:
+                    return jsonify({"error": str(e)}), 500
+            return jsonify({"error": "Voice system not available"}), 503
+        
+        @self.app.route('/voice/stop', methods=['POST'])
+        def voice_stop():
+            """Stop voice listening."""
+            if self._orchestrator and self._orchestrator._layer_orchestrators.get("voice"):
+                import asyncio
+                try:
+                    # Get event loop or create one
+                    try:
+                        loop = asyncio.get_event_loop()
+                    except RuntimeError:
+                        loop = asyncio.new_event_loop()
+                        asyncio.set_event_loop(loop)
+                    
+                    success = loop.run_until_complete(
+                        self._orchestrator._layer_orchestrators["voice"].execute_workflow({
+                            "id": "manual_stop",
+                            "action": "stop_listening"
+                        })
+                    )
+                    if success:
+                        return jsonify({"status": "stopped"}), 200
+                    else:
+                        return jsonify({"error": "Failed to stop voice listening"}), 500
+                except Exception as e:
+                    return jsonify({"error": str(e)}), 500
+            return jsonify({"error": "Voice system not available"}), 503
+        
+        @self.app.route('/voice/speak', methods=['POST'])
+        def voice_speak():
+            """Speak text through voice system."""
+            data = request.get_json()
+            if not data or 'text' not in data:
+                return jsonify({"error": "Missing text parameter"}), 400
+            
+            text = data['text']
+            if self._orchestrator and self._orchestrator._layer_orchestrators.get("voice"):
+                import asyncio
+                try:
+                    # Get event loop or create one
+                    try:
+                        loop = asyncio.get_event_loop()
+                    except RuntimeError:
+                        loop = asyncio.new_event_loop()
+                        asyncio.set_event_loop(loop)
+                    
+                    success = loop.run_until_complete(
+                        self._orchestrator._layer_orchestrators["voice"].execute_workflow({
+                            "id": "manual_speak",
+                            "action": "speak",
+                            "text": text
+                        })
+                    )
+                    if success:
+                        return jsonify({"status": "speaking", "text": text}), 200
+                    else:
+                        return jsonify({"error": "Failed to speak text"}), 500
+                except Exception as e:
+                    return jsonify({"error": str(e)}), 500
+            return jsonify({"error": "Voice system not available"}), 503
+        
+        # Browser system endpoints
+        @self.app.route('/browser/status')
+        def browser_status():
+            """Browser system status endpoint."""
+            if self._orchestrator and self._orchestrator._layer_orchestrators.get("browser"):
+                return jsonify(self._orchestrator._layer_orchestrators["browser"].get_status()), 200
+            return jsonify({"error": "Browser system not available"}), 503
+        
+        @self.app.route('/browser/navigate', methods=['POST'])
+        def browser_navigate():
+            """Navigate browser to URL."""
+            data = request.get_json()
+            if not data or 'url' not in data:
+                return jsonify({"error": "Missing url parameter"}), 400
+            
+            url = data['url']
+            if self._orchestrator and self._orchestrator._layer_orchestrators.get("browser"):
+                import asyncio
+                try:
+                    loop = asyncio.get_event_loop()
+                except RuntimeError:
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                
+                success = loop.run_until_complete(
+                    self._orchestrator._layer_orchestrators["browser"].execute_workflow({
+                        "id": "manual_navigate",
+                        "action": "navigate",
+                        "url": url
+                    })
+                )
+                if success:
+                    return jsonify({"status": "navigated", "url": url}), 200
+                else:
+                    return jsonify({"error": "Failed to navigate"}), 500
+            return jsonify({"error": "Browser system not available"}), 503
+        
+        @self.app.route('/browser/click', methods=['POST'])
+        def browser_click():
+            """Click element on page."""
+            data = request.get_json()
+            if not data or 'selector' not in data:
+                return jsonify({"error": "Missing selector parameter"}), 400
+            
+            selector = data['selector']
+            if self._orchestrator and self._orchestrator._layer_orchestrators.get("browser"):
+                import asyncio
+                try:
+                    loop = asyncio.get_event_loop()
+                except RuntimeError:
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                
+                success = loop.run_until_complete(
+                    self._orchestrator._layer_orchestrators["browser"].execute_workflow({
+                        "id": "manual_click",
+                        "action": "click",
+                        "selector": selector
+                    })
+                )
+                if success:
+                    return jsonify({"status": "clicked", "selector": selector}), 200
+                else:
+                    return jsonify({"error": "Failed to click element"}), 500
+            return jsonify({"error": "Browser system not available"}), 503
+        
+        @self.app.route('/browser/tabs', methods=['GET'])
+        def browser_tabs():
+            """Get browser tabs."""
+            if self._orchestrator and self._orchestrator._layer_orchestrators.get("browser"):
+                browser_orch = self._orchestrator._layer_orchestrators["browser"]
+                if browser_orch._tab_manager:
+                    import asyncio
+                    try:
+                        loop = asyncio.get_event_loop()
+                    except RuntimeError:
+                        loop = asyncio.new_event_loop()
+                        asyncio.set_event_loop(loop)
+                    
+                    tabs = loop.run_until_complete(browser_orch._tab_manager.get_all_tabs())
+                    return jsonify({"tabs": tabs}), 200
+            return jsonify({"error": "Browser system not available"}), 503
+        
+        @self.app.route('/browser/tabs', methods=['POST'])
+        def browser_create_tab():
+            """Create new browser tab."""
+            data = request.get_json()
+            url = data.get('url', None) if data else None
+            
+            if self._orchestrator and self._orchestrator._layer_orchestrators.get("browser"):
+                browser_orch = self._orchestrator._layer_orchestrators["browser"]
+                if browser_orch._tab_manager:
+                    import asyncio
+                    try:
+                        loop = asyncio.get_event_loop()
+                    except RuntimeError:
+                        loop = asyncio.new_event_loop()
+                        asyncio.set_event_loop(loop)
+                    
+                    tab_id = loop.run_until_complete(browser_orch.create_tab(url))
+                    if tab_id:
+                        return jsonify({"status": "created", "tab_id": tab_id}), 200
+                    else:
+                        return jsonify({"error": "Failed to create tab"}), 500
+            return jsonify({"error": "Browser system not available"}), 503
+        
+        # Learning system endpoints
+        @self.app.route('/learning/status')
+        def learning_status():
+            """Learning system status endpoint."""
+            if self._orchestrator and self._orchestrator._layer_orchestrators.get("learning"):
+                return jsonify(self._orchestrator._layer_orchestrators["learning"].get_status()), 200
+            return jsonify({"error": "Learning system not available"}), 503
+        
+        @self.app.route('/learning/analyze_platform', methods=['POST'])
+        def learning_analyze_platform():
+            """Analyze a platform."""
+            data = request.get_json()
+            if not data or 'platform_id' not in data or 'url' not in data:
+                return jsonify({"error": "Missing platform_id or url parameter"}), 400
+            
+            platform_id = data['platform_id']
+            url = data['url']
+            if self._orchestrator and self._orchestrator._layer_orchestrators.get("learning"):
+                learning_orch = self._orchestrator._layer_orchestrators["learning"]
+                if learning_orch._platform_profiler:
+                    import asyncio
+                    try:
+                        loop = asyncio.get_event_loop()
+                    except RuntimeError:
+                        loop = asyncio.new_event_loop()
+                        asyncio.set_event_loop(loop)
+                    
+                    success = loop.run_until_complete(
+                        learning_orch.execute_workflow({
+                            "id": "analyze_platform",
+                            "action": "analyze_platform",
+                            "platform_id": platform_id,
+                            "url": url
+                        })
+                    )
+                    if success:
+                        return jsonify({"status": "analyzed", "platform_id": platform_id}), 200
+                    else:
+                        return jsonify({"error": "Failed to analyze platform"}), 500
+            return jsonify({"error": "Learning system not available"}), 503
+        
+        @self.app.route('/learning/platforms', methods=['GET'])
+        def learning_platforms():
+            """Get learned platforms."""
+            if self._orchestrator and self._orchestrator._layer_orchestrators.get("learning"):
+                learning_orch = self._orchestrator._layer_orchestrators["learning"]
+                if learning_orch._platform_profiler:
+                    import asyncio
+                    try:
+                        loop = asyncio.get_event_loop()
+                    except RuntimeError:
+                        loop = asyncio.new_event_loop()
+                        asyncio.set_event_loop(loop)
+                    
+                    profiles = loop.run_until_complete(learning_orch._platform_profiler.get_all_profiles())
+                    return jsonify({"platforms": profiles}), 200
+            return jsonify({"error": "Learning system not available"}), 503
+        
+        @self.app.route('/learning/workflows', methods=['GET'])
+        def learning_workflows():
+            """Get learned workflow patterns."""
+            if self._orchestrator and self._orchestrator._layer_orchestrators.get("learning"):
+                learning_orch = self._orchestrator._layer_orchestrators["learning"]
+                if learning_orch._workflow_profiler:
+                    import asyncio
+                    try:
+                        loop = asyncio.get_event_loop()
+                    except RuntimeError:
+                        loop = asyncio.new_event_loop()
+                        asyncio.set_event_loop(loop)
+                    
+                    patterns = loop.run_until_complete(learning_orch._workflow_profiler.get_all_patterns())
+                    return jsonify({"patterns": patterns}), 200
+            return jsonify({"error": "Learning system not available"}), 503
+        
+        # Desktop system endpoints
+        @self.app.route('/desktop/status')
+        def desktop_status():
+            """Desktop system status endpoint."""
+            if self._orchestrator and self._orchestrator._layer_orchestrators.get("desktop"):
+                return jsonify(self._orchestrator._layer_orchestrators["desktop"].get_status()), 200
+            return jsonify({"error": "Desktop system not available"}), 503
+        
+        @self.app.route('/desktop/click', methods=['POST'])
+        def desktop_click():
+            """Click at specified coordinates."""
+            data = request.get_json()
+            if not data or 'x' not in data or 'y' not in data:
+                return jsonify({"error": "Missing x or y parameter"}), 400
+            
+            x = data['x']
+            y = data['y']
+            if self._orchestrator and self._orchestrator._layer_orchestrators.get("desktop"):
+                import asyncio
+                try:
+                    loop = asyncio.get_event_loop()
+                except RuntimeError:
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                
+                success = loop.run_until_complete(
+                    self._orchestrator._layer_orchestrators["desktop"].execute_workflow({
+                        "id": "manual_click",
+                        "action": "click",
+                        "x": x,
+                        "y": y
+                    })
+                )
+                if success:
+                    return jsonify({"status": "clicked", "x": x, "y": y}), 200
+                else:
+                    return jsonify({"error": "Failed to click"}), 500
+            return jsonify({"error": "Desktop system not available"}), 503
+        
+        @self.app.route('/desktop/type', methods=['POST'])
+        def desktop_type():
+            """Type text using keyboard."""
+            data = request.get_json()
+            if not data or 'text' not in data:
+                return jsonify({"error": "Missing text parameter"}), 400
+            
+            text = data['text']
+            if self._orchestrator and self._orchestrator._layer_orchestrators.get("desktop"):
+                import asyncio
+                try:
+                    loop = asyncio.get_event_loop()
+                except RuntimeError:
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                
+                success = loop.run_until_complete(
+                    self._orchestrator._layer_orchestrators["desktop"].execute_workflow({
+                        "id": "manual_type",
+                        "action": "type",
+                        "text": text
+                    })
+                )
+                if success:
+                    return jsonify({"status": "typed", "text": text}), 200
+                else:
+                    return jsonify({"error": "Failed to type text"}), 500
+            return jsonify({"error": "Desktop system not available"}), 503
+        
+        @self.app.route('/desktop/applications', methods=['GET'])
+        def desktop_applications():
+            """Get desktop applications."""
+            if self._orchestrator and self._orchestrator._layer_orchestrators.get("desktop"):
+                desktop_orch = self._orchestrator._layer_orchestrators["desktop"]
+                if desktop_orch._application_manager:
+                    import asyncio
+                    try:
+                        loop = asyncio.get_event_loop()
+                    except RuntimeError:
+                        loop = asyncio.new_event_loop()
+                        asyncio.set_event_loop(loop)
+                    
+                    applications = loop.run_until_complete(desktop_orch._application_manager.get_all_applications())
+                    return jsonify({"applications": applications}), 200
+            return jsonify({"error": "Desktop system not available"}), 503
+        
+        @self.app.route('/desktop/applications', methods=['POST'])
+        def desktop_create_application():
+            """Create new application."""
+            data = request.get_json()
+            app_id = data.get('app_id', None) if data else None
+            name = data.get('name', None) if data else None
+            
+            if self._orchestrator and self._orchestrator._layer_orchestrators.get("desktop"):
+                desktop_orch = self._orchestrator._layer_orchestrators["desktop"]
+                if desktop_orch._application_manager:
+                    import asyncio
+                    try:
+                        loop = asyncio.get_event_loop()
+                    except RuntimeError:
+                        loop = asyncio.new_event_loop()
+                        asyncio.set_event_loop(loop)
+                    
+                    result = loop.run_until_complete(
+                        desktop_orch.execute_workflow({
+                            "id": "create_application",
+                            "action": "start_application",
+                            "app_id": app_id,
+                            "name": name
+                        })
+                    )
+                    if result:
+                        return jsonify({"status": "created", "app_id": app_id}), 200
+                    else:
+                        return jsonify({"error": "Failed to create application"}), 500
+            return jsonify({"error": "Desktop system not available"}), 503
+        
+        @self.app.route('/desktop/windows', methods=['GET'])
+        def desktop_windows():
+            """Get desktop windows."""
+            if self._orchestrator and self._orchestrator._layer_orchestrators.get("desktop"):
+                desktop_orch = self._orchestrator._layer_orchestrators["desktop"]
+                if desktop_orch._window_manager:
+                    import asyncio
+                    try:
+                        loop = asyncio.get_event_loop()
+                    except RuntimeError:
+                        loop = asyncio.new_event_loop()
+                        asyncio.set_event_loop(loop)
+                    
+                    windows = loop.run_until_complete(desktop_orch._window_manager.get_all_windows())
+                    return jsonify({"windows": windows}), 200
+            return jsonify({"error": "Desktop system not available"}), 503
     
     async def initialize(self, config: Optional[Dict[str, Any]] = None) -> bool:
         """Initialize all Desktop Agent components."""
@@ -170,6 +610,19 @@ class DesktopAgentEngine:
             "session_manager_status": self._session_manager.get_status() if self._session_manager else None,
             "activity_tracker_status": self._activity_tracker.get_status() if self._activity_tracker else None,
         }
+    
+    def run_flask_server(self, host='0.0.0.0', port=9186):
+        """Run the Flask server in a separate thread."""
+        from threading import Thread
+        import threading
+        
+        def run_app():
+            self.app.run(host=host, port=port, threaded=True)
+        
+        flask_thread = Thread(target=run_app, daemon=True)
+        flask_thread.start()
+        self.logger.info(f"Flask server started on {host}:{port}")
+        return flask_thread
 
 
 async def main():
@@ -177,6 +630,9 @@ async def main():
     engine = DesktopAgentEngine()
     
     try:
+        # Start Flask server for health checks
+        engine.run_flask_server()
+        
         success = await engine.start()
         if success:
             print("Desktop Agent Engine started successfully")

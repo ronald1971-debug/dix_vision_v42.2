@@ -11,7 +11,6 @@
 
 import {
   Activity,
-  Archive,
   Banknote,
   BarChart3,
   Bot,
@@ -74,14 +73,14 @@ const MISSION_CONTROL_NAV: Record<string, NavItem<SystemRoute>> = {
 };
 
 const TRADING_NAV: Record<string, NavItem<SystemRoute | AssetRoute>> = {
-  market: { key: "market", label: "Markets", href: "#/market", icon: Compass },
+  markets: { key: "markets", label: "Unified Markets", href: "#/markets", icon: Compass },
   charting: { key: "charting", label: "Charting", href: "#/charting", icon: LineChart },
   orderflow: { key: "orderflow", label: "Order Flow", href: "#/orderflow", icon: CandlestickChart },
-  spot: { key: "spot", label: "Spot", href: "#/spot", icon: BarChart3 },
-  perps: { key: "perps", label: "Perps", href: "#/perps", icon: Activity },
-  dex: { key: "dex", label: "DEX", href: "#/dex", icon: Layers },
-  forex: { key: "forex", label: "Forex", href: "#/forex", icon: Banknote },
-  stocks: { key: "stocks", label: "Stocks", href: "#/stocks", icon: TrendingUp },
+  spot: { key: "spot", label: "Spot (Legacy)", href: "#/spot", icon: BarChart3 },
+  perps: { key: "perps", label: "Perps (Legacy)", href: "#/perps", icon: Activity },
+  dex: { key: "dex", label: "DEX (Legacy)", href: "#/dex", icon: Layers },
+  forex: { key: "forex", label: "Forex (Legacy)", href: "#/forex", icon: Banknote },
+  stocks: { key: "stocks", label: "Stocks (Legacy)", href: "#/stocks", icon: TrendingUp },
   trading: { key: "trading", label: "Trading", href: "#/trading", icon: Target },
   positions: { key: "positions", label: "Positions", href: "#/positions", icon: Briefcase },
   execution: { key: "execution", label: "Execution", href: "#/execution", icon: Target },
@@ -94,6 +93,7 @@ const TRADING_NAV: Record<string, NavItem<SystemRoute | AssetRoute>> = {
 };
 
 const INTELLIGENCE_NAV: Record<string, NavItem<SystemRoute>> = {
+  "indira-cognitive-center": { key: "indira-cognitive-center", label: "INDIRA Cognitive Center", href: "#/indira-cognitive-center", icon: Brain },
   "indira-workspace": { key: "indira-workspace", label: "INDIRA Workspace", href: "#/indira-workspace", icon: Brain },
   indira: { key: "indira", label: "INDIRA Learning", href: "#/indira", icon: Sparkles },
   "dyon-workspace": { key: "dyon-workspace", label: "DYON Workspace", href: "#/dyon-workspace", icon: Wrench },
@@ -119,14 +119,6 @@ const GOVERNANCE_NAV: Record<string, NavItem<SystemRoute>> = {
   risk: { key: "risk", label: "Risk", href: "#/risk", icon: Gauge },
   audit: { key: "audit", label: "Audit", href: "#/audit", icon: ClipboardList },
   hazards: { key: "hazards", label: "Hazards", href: "#/hazards", icon: AlertTriangle },
-};
-
-const LEARNING_NAV: Record<string, NavItem<SystemRoute>> = {
-  indira: { key: "indira", label: "INDIRA Learning", href: "#/indira", icon: Brain },
-  dyon: { key: "dyon", label: "DYON Learning", href: "#/dyon", icon: Wrench },
-  memory: { key: "memory", label: "Memory Layer", href: "#/memory", icon: Archive },
-  fabric: { key: "fabric", label: "Event Fabric", href: "#/fabric", icon: Network },
-  simulation: { key: "simulation", label: "Simulation", href: "#/simulation", icon: Activity },
 };
 
 const TOOLS_NAV: Record<string, NavItem<SystemRoute>> = {

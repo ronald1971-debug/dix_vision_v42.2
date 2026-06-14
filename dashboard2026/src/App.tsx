@@ -47,6 +47,7 @@ import { SimulationPage } from "@/pages/SimulationPage";
 import { ObservatoryPage } from "@/pages/ObservatoryPage";
 import { AgentOpsPage } from "@/pages/AgentOpsPage";
 import { IndiraWorkspacePage } from "@/pages/IndiraWorkspacePage";
+import { IndiraCognitiveCenterPage } from "@/pages/IndiraCognitiveCenterPage";
 import { DyonWorkspacePage } from "@/pages/DyonWorkspacePage";
 import { OperatorWorkspacePage } from "@/pages/OperatorWorkspacePage";
 import { AgentOpsProvider } from "@/context/AgentOpsContext";
@@ -62,21 +63,28 @@ import { useGlobalHotkeys } from "@/state/hotkeys";
 import { pushToast } from "@/state/toast";
 
 function renderRoute(route: Route) {
+  // Phase 3: Redirect legacy asset routes to unified markets page
+  if (["spot", "perps", "dex", "forex", "stocks", "nft"].includes(route)) {
+    return <MarketsPage />;
+  }
+
   switch (route) {
     case "mission-control":
       return <MissionControlPage />;
+    case "markets":
+      return <MarketsPage />;
     case "spot":
-      return <SpotPage />;
+      return <MarketsPage />; // Redirect to unified markets
     case "perps":
-      return <PerpsPage />;
+      return <MarketsPage />; // Redirect to unified markets
     case "dex":
-      return <DexPage />;
+      return <MarketsPage />; // Redirect to unified markets
     case "forex":
-      return <ForexPage />;
+      return <MarketsPage />; // Redirect to unified markets
     case "stocks":
-      return <StocksPage />;
+      return <MarketsPage />; // Redirect to unified markets
     case "nft":
-      return <NftPage />;
+      return <MarketsPage />; // Redirect to unified markets
     case "operator":
       return <OperatorPage />;
     case "credentials":
@@ -85,6 +93,8 @@ function renderRoute(route: Route) {
       return <CognitiveChatPage />;
     case "indira":
       return <IndiraLearningPage />;
+    case "indira-cognitive-center":
+      return <IndiraCognitiveCenterPage />;
     case "dyon":
       return <DyonLearningPage />;
     case "agent-ops":
