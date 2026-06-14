@@ -17,7 +17,8 @@
       "Exec($dirs)",
       "Exec(Move-Item)",
       "Exec(git commit)",
-      "Exec(grep)"
+      "Exec(grep)",
+      "Exec(git submodule)"
     ]
   }
 }
