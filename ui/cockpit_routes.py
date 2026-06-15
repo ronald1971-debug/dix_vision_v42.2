@@ -48,7 +48,7 @@ from cognitive_control_center.shared_services.qr import qr_png_bytes
 # Compatibility shims for pairing service
 _pairing = get_device_pairing_service()
 from core.charter import Voice, all_charters
-from mind import custom_strategies as _cs
+from mind.custom_strategies import *
 from mind.knowledge.trader_knowledge import get_trader_knowledge
 from mind.sources.providers import bootstrap_all_providers, provider_summary
 from mind.strategy_arbiter import get_arbiter

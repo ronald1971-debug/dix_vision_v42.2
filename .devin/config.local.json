@@ -24,7 +24,8 @@
       "Exec(git reset)",
       "Exec(git clean)",
       "Exec(git rm)",
-      "Exec(python)"
+      "Exec(python)",
+      "Exec(mkdir)"
     ]
   }
 }
