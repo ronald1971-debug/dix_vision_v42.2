@@ -1,0 +1,68 @@
+{
+  "setup_log": [
+    {
+      "step": "install_dependencies",
+      "status": "in_progress",
+      "message": "",
+      "timestamp": 1781534878.3059065
+    },
+    {
+      "step": "install_dependencies",
+      "status": "success",
+      "message": "Python dependencies installed",
+      "timestamp": 1781534887.5168104
+    },
+    {
+      "step": "install_cryptography",
+      "status": "in_progress",
+      "message": "",
+      "timestamp": 1781534887.5170877
+    },
+    {
+      "step": "install_cryptography",
+      "status": "success",
+      "message": "cryptography 49.0.0 available",
+      "timestamp": 1781534887.5198898
+    },
+    {
+      "step": "create_directories",
+      "status": "in_progress",
+      "message": "",
+      "timestamp": 1781534887.5200803
+    },
+    {
+      "step": "create_directories",
+      "status": "success",
+      "message": "Created 7 directories",
+      "timestamp": 1781534887.5222704
+    },
+    {
+      "step": "setup_environment",
+      "status": "in_progress",
+      "message": "",
+      "timestamp": 1781534887.5224268
+    },
+    {
+      "step": "setup_environment",
+      "status": "success",
+      "message": ".env file already exists",
+      "timestamp": 1781534887.5225902
+    },
+    {
+      "step": "verify_installation",
+      "status": "in_progress",
+      "message": "",
+      "timestamp": 1781534887.52271
+    },
+    {
+      "step": "verify_installation",
+      "status": "success",
+      "message": "Production components verified",
+      "timestamp": 1781534887.7244387
+    }
+  ],
+  "success_count": 5,
+  "error_count": 0,
+  "warning_count": 0,
+  "total_steps": 10
+}

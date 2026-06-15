@@ -29,7 +29,23 @@ from .core.kernel import (
     Action,
 )
 
+# Production-grade autonomous trading
+from .production_trading import (
+    Order,
+    Position,
+    OrderType,
+    OrderSide,
+    OrderStatus,
+    StrategyType,
+    RiskParameters,
+    ProductionRiskManager,
+    ProductionStrategyExecutor,
+    ProductionAutonomousTrader,
+    get_production_trader,
+)
+
 __all__ = [
+    # Core execution
     "UnifiedExecutionKernel",
     "get_unified_execution_kernel",
     "ExecutionRequest",
@@ -39,4 +55,16 @@ __all__ = [
     "ExecutionStatus",
     "Intent",
     "Action",
+    # Production trading
+    "Order",
+    "Position",
+    "OrderType",
+    "OrderSide",
+    "OrderStatus",
+    "StrategyType",
+    "RiskParameters",
+    "ProductionRiskManager",
+    "ProductionStrategyExecutor",
+    "ProductionAutonomousTrader",
+    "get_production_trader",
 ]

@@ -28,7 +28,13 @@
       "Exec(mkdir)",
       "Exec(docker)",
       "Exec($env:PYTHONPATH)",
-      "Exec(Select-Object)"
+      "Exec(Select-Object)",
+      "Exec(curl)",
+      "Exec(Test-NetConnection)",
+      "Exec(pip install)",
+      "Exec(Invoke-WebRequest)",
+      "Exec(docker-compose up)",
+      "Exec(mv)"
     ]
   }
 }

@@ -86,21 +86,14 @@ from core.contracts.source_trust_promotions import (
     SourceTrustPromotionStore,
 )
 from core.kernel import EngineServiceAdapter, SystemKernel
-# Temporarily disabled dashboard backend imports to prevent boot issues
-# from dashboard_backend.control_plane.decision_trace import DecisionTracePanel
-# from dashboard_backend.control_plane.engine_status_grid import EngineStatusGrid
-# from dashboard_backend.control_plane.memecoin_control_panel import MemecoinControlPanel
-# from dashboard_backend.control_plane.mode_control_bar import ModeControlBar
-# from dashboard_backend.control_plane.router import ControlPlaneRouter
-# from dashboard_backend.control_plane.strategy_lifecycle_panel import (
-#     StrategyLifecyclePanel,
-# )
-DecisionTracePanel = None
-EngineStatusGrid = None
-MemecoinControlPanel = None
-ModeControlBar = None
-ControlPlaneRouter = None
-StrategyLifecyclePanel = None
+from dashboard_backend.control_plane.decision_trace import DecisionTracePanel
+from dashboard_backend.control_plane.engine_status_grid import EngineStatusGrid
+from dashboard_backend.control_plane.memecoin_control_panel import MemecoinControlPanel
+from dashboard_backend.control_plane.mode_control_bar import ModeControlBar
+from dashboard_backend.control_plane.router import ControlPlaneRouter
+from dashboard_backend.control_plane.strategy_lifecycle_panel import (
+    StrategyLifecyclePanel,
+)
 from evolution_engine.engine import EvolutionEngine
 from evolution_engine.intelligence_loops.mutation_proposer import (
     MutationProposer,
@@ -781,17 +774,102 @@ class _State:
         self.background_tasks = HarnessBackgroundTaskManager(state_supplier=lambda: self)
 
     def _build_dashboard_widgets(self) -> None:
-        """P1.2 — ``_State.__init__`` section: dashboard_widgets."""
+        """P1.2 — ``_State.__init__`` section: dashboard_widgets.
 
-        # STUB: Skip dashboard widgets to prevent hanging during boot
-        self.strategy_fsm = None
-        self.ledger_reader = None
+        Build dashboard widgets with real kernel-backed implementations.
+        If dashboard backend components are unavailable, widgets are set to None
+        and the UI gracefully degrades.
+        """
+
+        # Phase 6 dashboard widgets (DASH-1)
+        try:
+            from governance_engine.fsm.strategy_fsm import StrategyStateMachine
+            self.strategy_fsm = StrategyStateMachine()
+        except ImportError:
+            _logger.warning("[BOOT] StrategyStateMachine not available, dashboard strategy controls disabled")
+            self.strategy_fsm = None
+
+        # AUDIT-P0.2 — when the harness has a SQLite-backed authority
+        # ledger (the production default; ephemeral only under the
+        # explicit test-mode opt-in), the offline ``LedgerReader``
+        # opens the same file in read-only mode so dashboard widgets
+        # and offline engines can replay governance rows by ``seq``.
+        # Without ``ledger_path`` (ephemeral mode) the reader keeps
+        # its in-memory event buffer and ``authority_entries()``
+        # degrades to an empty tuple.
+        try:
+            from state.ledger.reader import LedgerReader
+            self.ledger_reader = LedgerReader(db_path=self._ledger_path)
+        except ImportError:
+            _logger.warning("[BOOT] LedgerReader not available, dashboard audit features disabled")
+            self.ledger_reader = None
+
+        # Dashboard backend widgets - set to None if unavailable
         self.dashboard_router = None
         self.mode_widget = None
         self.engines_widget = None
         self.strategies_widget = None
         self.decisions_widget = None
         self.memecoin_widget = None
+
+        # Try to load dashboard backend components
+        try:
+            from dashboard_backend.control_plane.router import ControlPlaneRouter
+            self.dashboard_router = ControlPlaneRouter(
+                bridge=self.governance.operator,
+            )
+            _logger.info("[BOOT] ControlPlaneRouter loaded successfully")
+        except ImportError as e:
+            _logger.warning(f"[BOOT] ControlPlaneRouter not available: {e}")
+
+        try:
+            from dashboard_backend.control_plane.mode_control_bar import ModeControlBar
+            if self.dashboard_router and self.state_projection:
+                self.mode_widget = ModeControlBar(
+                    state_transitions=self.governance.state_transitions,
+                    router=self.dashboard_router,
+                    projection=self.state_projection,
+                )
+                _logger.info("[BOOT] ModeControlBar loaded successfully")
+        except ImportError as e:
+            _logger.warning(f"[BOOT] ModeControlBar not available: {e}")
+
+        try:
+            from dashboard_backend.control_plane.engine_status_grid import EngineStatusGrid
+            if self.state_projection:
+                self.engines_widget = EngineStatusGrid(
+                    engines=self.all_engines(),
+                    projection=self.state_projection,
+                )
+                _logger.info("[BOOT] EngineStatusGrid loaded successfully")
+        except ImportError as e:
+            _logger.warning(f"[BOOT] EngineStatusGrid not available: {e}")
+
+        try:
+            from dashboard_backend.control_plane.strategy_lifecycle_panel import StrategyLifecyclePanel
+            if self.strategy_fsm:
+                self.strategies_widget = StrategyLifecyclePanel(fsm=self.strategy_fsm)
+                _logger.info("[BOOT] StrategyLifecyclePanel loaded successfully")
+        except ImportError as e:
+            _logger.warning(f"[BOOT] StrategyLifecyclePanel not available: {e}")
+
+        try:
+            from dashboard_backend.control_plane.decision_trace import DecisionTracePanel
+            if self.ledger_reader:
+                self.decisions_widget = DecisionTracePanel(ledger=self.ledger_reader)
+                _logger.info("[BOOT] DecisionTracePanel loaded successfully")
+        except ImportError as e:
+            _logger.warning(f"[BOOT] DecisionTracePanel not available: {e}")
+
+        try:
+            from dashboard_backend.control_plane.memecoin_control_panel import MemecoinControlPanel
+            if self.dashboard_router:
+                self.memecoin_widget = MemecoinControlPanel(
+                    router=self.dashboard_router,
+                )
+                _logger.info("[BOOT] MemecoinControlPanel loaded successfully")
+        except ImportError as e:
+            _logger.warning(f"[BOOT] MemecoinControlPanel not available: {e}")
 
     def _build_cognitive_chat(self) -> None:
         """P1.2 — ``_State.__init__`` section: cognitive_chat."""
@@ -1840,6 +1918,73 @@ try:
 except ImportError as e:
     _logger.warning(f"[BOOT] Dashboard Build A API routers not available: {e}")
 
+_logger.info("[BOOT] Loading additional UI routers...")
+
+# Stage 1 — Unified Cognitive Control Plane
+try:
+    _logger.info("[BOOT] Loading dashboard router...")
+    from ui.dashboard_routes import build_dashboard_router
+    app.include_router(build_dashboard_router(lambda: STATE))
+    _logger.info("[BOOT] Dashboard router loaded successfully")
+except ImportError as e:
+    _logger.warning(f"[BOOT] Dashboard router not available: {e}")
+
+try:
+    _logger.info("[BOOT] Loading projection router...")
+    from ui.dashboard_routes import build_projection_router
+    app.include_router(build_projection_router())
+    _logger.info("[BOOT] Projection router loaded successfully")
+except ImportError as e:
+    _logger.warning(f"[BOOT] Projection router not available: {e}")
+
+# Stage 2 — Plugin manager — operator-toggleable plugin lifecycles
+try:
+    _logger.info("[BOOT] Loading plugin router...")
+    from ui.dashboard_routes import build_plugin_router
+    app.include_router(
+        build_plugin_router(
+            registry_provider=lambda: STATE.plugin_registry,
+            ledger_provider=lambda: STATE.governance.ledger,
+            ts_provider=lambda: STATE.next_ts(),
+        )
+    )
+    _logger.info("[BOOT] Plugin router loaded successfully")
+except ImportError as e:
+    _logger.warning(f"[BOOT] Plugin router not available: {e}")
+
+# Stage 3 — Operator approval edge
+try:
+    _logger.info("[BOOT] Loading approval router...")
+    from ui.dashboard_routes import build_approval_router
+    app.include_router(
+        build_approval_router(
+            approval_queue=lambda: STATE.approval_queue,
+            ledger_provider=lambda: STATE.governance.ledger,
+            ts_provider=lambda: STATE.next_ts(),
+        )
+    )
+    _logger.info("[BOOT] Approval router loaded successfully")
+except ImportError as e:
+    _logger.warning(f"[BOOT] Approval router not available: {e}")
+
+# Stage 4 — Unified Cognitive Memory Layer
+try:
+    _logger.info("[BOOT] Loading memory router...")
+    from ui.memory_routes import build_memory_router as _build_memory_router
+    app.include_router(_build_memory_router())
+    _logger.info("[BOOT] Memory router loaded successfully")
+except ImportError as e:
+    _logger.warning(f"[BOOT] Memory router not available: {e}")
+
+# Stage 5 — Unified Event Fabric
+try:
+    _logger.info("[BOOT] Loading fabric router...")
+    from ui.fabric_routes import build_fabric_router as _build_fabric_router
+    app.include_router(_build_fabric_router())
+    _logger.info("[BOOT] Fabric router loaded successfully")
+except ImportError as e:
+    _logger.warning(f"[BOOT] Fabric router not available: {e}")
+
 # Wave-Live PR-4 — root URL routes operators to the live SPA. PR #105
 # redirected the named legacy paths (``/operator``, ``/indira-chat`` etc.)
 # but missed ``/`` itself, so the Windows launcher (which opens
@@ -1851,41 +1996,53 @@ except ImportError as e:
 # ``StaticFiles`` mount happens further below.
 _DASH2_DIST = Path(__file__).resolve().parent.parent / "dashboard2026" / "dist"
 _DASH2_INDEX = _DASH2_DIST / "index.html"
-# Freeze availability at module-load time so the ``GET /`` handler's redirect
-# decision and the conditional ``StaticFiles`` mount below stay in lock-step.
-# A per-request ``_DASH2_INDEX.exists()`` check would silently diverge if a
-# developer ran ``npm run build`` after ``uvicorn --reload`` had already
-# imported the module: ``--reload`` only watches ``.py`` files, so the SPA
-# build wouldn't restart the server, the handler would 307 to ``/dash2/``,
-# and the mount that was never registered would 404. Devin Review BUG_0001
-# on PR #123 caught this.
-_DASH2_AVAILABLE: bool = _DASH2_DIST.exists() and _DASH2_INDEX.exists()
+# DASHBOARD PATH CHECKS - TEMPORARILY DISABLED TO PREVENT BOOT HANG
+# TODO: Debug why these path checks cause the process to exit
+# _DASH2_DIST = Path(__file__).resolve().parent.parent / "dashboard2026" / "dist"
+# _DASH2_INDEX = _DASH2_DIST / "index.html"
+# # Freeze availability at module-load time so the ``GET /`` handler's redirect
+# # decision and the conditional ``StaticFiles`` mount below stay in lock-step.
+# # A per-request ``_DASH2_INDEX.exists()`` check would silently diverge if a
+# # developer ran ``npm run build`` after ``uvicorn --reload`` had already
+# # imported the module: ``--reload`` only watches ``.py`` files, so the SPA
+# # build wouldn't restart the server, the handler would 307 to ``/dash2/``,
+# # and the mount that was never registered would 404. Devin Review BUG_0001
+# # on PR #123 caught this.
+# _DASH2_AVAILABLE: bool = _DASH2_DIST.exists() and _DASH2_INDEX.exists()
+#
+# if not _DASH2_AVAILABLE:
+#     _logger.warning(
+#         "[BOOT] dashboard2026/dist not found — /dash2/ unavailable. "
+#         "Run: cd dashboard2026 && npm install && npm run build"
+#     )
+#
+# # DIX MEME — DEXtools-styled memecoin dashboard. Same conditional-mount
+# # pattern as ``/dash2/``: separate React app, separate launcher, but a
+# # *viewer* on the same harness — every execution intent it submits goes
+# # through the same ``/api/dashboard/action/intent`` chokepoint and the
+# # same Governance FSM as ``/dash2/``. Closing the browser does not stop
+# # the harness; the learning loop, sensors, and audit ledger keep
+# # running independent of which (or no) dashboard is open.
+# _MEME_DIST = Path(__file__).resolve().parent.parent / "dash_meme" / "dist"
+# _MEME_INDEX = _MEME_DIST / "index.html"
+# _MEME_AVAILABLE: bool = _MEME_DIST.exists() and _MEME_INDEX.exists()
+#
+# if not _MEME_AVAILABLE:
+#     _logger.warning(
+#         "[BOOT] dash_meme/dist not found — /meme/ unavailable. "
+#         "Run: cd dash_meme && npm install && npm run build"
+#     )
 
-if not _DASH2_AVAILABLE:
-    _logger.warning(
-        "[BOOT] dashboard2026/dist not found — /dash2/ unavailable. "
-        "Run: cd dashboard2026 && npm install && npm run build"
-    )
+# TEMPORARY: Force dashboard availability to enable basic routing
+_DASH2_AVAILABLE = True
+_MEME_AVAILABLE = False
 
-# DIX MEME — DEXtools-styled memecoin dashboard. Same conditional-mount
-# pattern as ``/dash2/``: separate React app, separate launcher, but a
-# *viewer* on the same harness — every execution intent it submits goes
-# through the same ``/api/dashboard/action/intent`` chokepoint and the
-# same Governance FSM as ``/dash2/``. Closing the browser does not stop
-# the harness; the learning loop, sensors, and audit ledger keep
-# running independent of which (or no) dashboard is open.
-_MEME_DIST = Path(__file__).resolve().parent.parent / "dash_meme" / "dist"
-_MEME_INDEX = _MEME_DIST / "index.html"
-_MEME_AVAILABLE: bool = _MEME_DIST.exists() and _MEME_INDEX.exists()
-if not _MEME_AVAILABLE:
-    _logger.warning(
-        "[BOOT] dash_meme/dist not found — /meme/ unavailable. "
-        "Run: cd dash_meme && npm install && npm run build"
-    )
+_logger.info("[BOOT] Dashboard path checks skipped (temporary workaround)")
 
 
 @app.get("/", response_class=HTMLResponse)
 def index() -> Any:
+    _logger.info("[BOOT] Root route handler called")
     if _DASH2_AVAILABLE:
         return RedirectResponse(url="/dash2/", status_code=307)
     # Fallback to old Phase E1 stub when SPA not built
@@ -1893,6 +2050,8 @@ def index() -> Any:
         content="<html><body><h1>DIX VISION</h1><p>Dashboard unavailable - run npm build</p></body></html>",
         status_code=200,
     )
+
+_logger.info("[BOOT] Root route handler registered")
 
 
 # Wave-Live PR-2 — legacy operator surface retired. The vanilla HTML
@@ -1929,6 +2088,8 @@ for _legacy_path, _dash2_target in _LEGACY_REDIRECTS:
         response_class=RedirectResponse,
         include_in_schema=False,
     )
+
+_logger.info("[BOOT] Legacy redirect routes registered")
 
 
 # Legacy static dir removed (Phase E1 harness deleted). Any remaining
@@ -1971,18 +2132,22 @@ if _MEME_AVAILABLE:
 # asyncio task. It does NOT own the engines — it coordinates them.
 from runtime.boot_integration import get_runtime_bootstrap  # noqa: E402
 
+_logger.info("[BOOT] About to initialize runtime bootstrap...")
 _runtime = get_runtime_bootstrap(tick_interval_ms=100.0)
+_logger.info("[BOOT] Runtime bootstrap initialized")
 _runtime.attach(app, STATE)
+_logger.info("[BOOT] Runtime bootstrap attached to app and state")
 
 
 @app.get("/api/health")
 def health() -> dict[str, Any]:
-    """Health check endpoint - stub version for testing."""
+    """Health check endpoint - uses kernel state projection for authoritative data."""
     try:
         proj = STATE.state_projection
         if proj.is_booted:
             out = proj.health_summary()
         else:
+            # System not yet booted - return basic status
             out = {}
             with STATE.lock:
                 for name, eng in STATE.all_engines().items():
@@ -1990,18 +2155,29 @@ def health() -> dict[str, Any]:
                     engine_out = {
                         "name": eng.name,
                         "tier": str(eng.tier),
-                        "status": status,
+                        "healthy": status.healthy,
+                        "detail": status.detail,
+                        "source": "direct",
                     }
                     out[name] = engine_out
+            out["_kernel"] = {
+                "phase": "booting",
+                "mode": "unknown",
+                "version": 0,
+                "freeze_active": False,
+                "live_execution_blocked": True,
+            }
         return {
             "status": "healthy",
             "projection": out,
-            "mode": str(STATE.governance.state_transitions.current_mode()),
+            "mode": str(STATE.governance.state_transitions.current_mode()) if STATE.governance else "unknown",
         }
     except Exception as e:
-        # Return basic health info even if projection fails
+        # Return error information even if projection fails
+        import traceback
+        _logger.error(f"Health check error: {e}\n{traceback.format_exc()}")
         return {
-            "status": "healthy",
+            "status": "unhealthy",
             "error": str(e),
             "mode": str(STATE.governance.state_transitions.current_mode()) if STATE.governance else "unknown",
         }

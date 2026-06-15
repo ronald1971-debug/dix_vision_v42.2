@@ -1,0 +1,143 @@
+# Docker Compose configuration for DIX VISION production infrastructure
+
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: dix_vision_postgres
+    environment:
+      POSTGRES_DB: dix_vision
+      POSTGRES_USER: dix_user
+      POSTGRES_PASSWORD: dix_secure_password_change_in_production
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init_postgres.sql:/docker-entrypoint-initdb.d/init_postgres.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dix_user -d dix_vision"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - dix_network
+    restart: unless-stopped
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: dix_vision_redis
+    command: redis-server --appendonly yes --requirepass redis_secure_password_change_in_production
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "redis_secure_password_change_in_production", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - dix_network
+    restart: unless-stopped
+
+  # InfluxDB (Time-series Database)
+  influxdb:
+    image: influxdb:2.7-alpine
+    container_name: dix_vision_influxdb
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: influx_secure_password_change_in_production
+      DOCKER_INFLUXDB_INIT_ORG: dix_vision
+      DOCKER_INFLUXDB_INIT_BUCKET: market_data
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: influx_token_change_in_production
+    ports:
+      - "8086:8086"
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+      - influxdb_config:/etc/influxdb2
+    healthcheck:
+      test: ["CMD", "influx", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - dix_network
+    restart: unless-stopped
+
+  # Redis Commander (Redis Management UI)
+  redis_commander:
+    image: rediscommander/redis-commander:latest
+    container_name: dix_vision_redis_commander
+    environment:
+      REDIS_HOSTS: local:redis:6379:0:redis_secure_password_change_in_production
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
+    networks:
+      - dix_network
+    restart: unless-stopped
+
+  # PgAdmin (PostgreSQL Management UI)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: dix_vision_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@dix_vision.local
+      PGADMIN_DEFAULT_PASSWORD: pgadmin_secure_password_change_in_production
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    networks:
+      - dix_network
+    restart: unless-stopped
+
+  # DIX VISION Application (commented out for now, can be enabled when ready)
+  # dix_vision_app:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: dix_vision_app
+  #   environment:
+  #     - DIX_ENVIRONMENT=production
+  #     - POSTGRES_HOST=postgres
+  #     - POSTGRES_PORT=5432
+  #     - POSTGRES_DB=dix_vision
+  #     - POSTGRES_USER=dix_user
+  #     - POSTGRES_PASSWORD=dix_secure_password_change_in_production
+  #     - REDIS_HOST=redis
+  #     - REDIS_PORT=6379
+  #     - REDIS_PASSWORD=redis_secure_password_change_in_production
+  #   ports:
+  #     - "8080:8080"
+  #   depends_on:
+  #     - postgres
+  #     - redis
+  #   networks:
+  #     - dix_network
+  #   restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  influxdb_data:
+    driver: local
+  influxdb_config:
+    driver: local
+  pgadmin_data:
+    driver: local
+
+networks:
+  dix_network:
+    driver: bridge

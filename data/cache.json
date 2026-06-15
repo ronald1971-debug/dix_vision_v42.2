@@ -1,0 +1,25 @@
+{
+  "status": "initialized",
+  "version": "42.2",
+  "init_time": 1781534865.3615386,
+  "cache": {
+    "market_data": {},
+    "decisions": {},
+    "risk_metrics": {},
+    "patterns": {}
+  },
+  "config": {
+    "cache:market_data:ttl": "60",
+    "cache:decisions:ttl": "300",
+    "cache:risk_metrics:ttl": "600",
+    "cache:patterns:ttl": "1800",
+    "cache:enabled": "true"
+  },
+  "monitoring": {
+    "health:status": "ok",
+    "health:last_check": "1781534865.3615408",
+    "metrics:total_requests": "0",
+    "metrics:errors": "0",
+    "metrics:latency_avg": "0"
+  }
+}

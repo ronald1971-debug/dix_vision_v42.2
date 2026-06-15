@@ -96,8 +96,18 @@ class ProductionPatternRecognition:
         self.price_history.append(current_price)
         self.volume_history.append(volume)
 
-        if len(self.price_history) < 10:
-            return {"pattern_confidence": 0.0}
+        if len(self.price_history) < 2:
+            return {
+                "momentum": 0.0,
+                "volatility": 0.0,
+                "trend": 0.0,
+                "sma_short": current_price,
+                "sma_long": current_price,
+                "rsi": 50.0,
+                "macd_signal": 0.0,
+                "pattern_confidence": 0.0,
+                "volume_trend": 0.0
+            }
 
         prices = np.array(list(self.price_history))
         volumes = np.array(list(self.volume_history))

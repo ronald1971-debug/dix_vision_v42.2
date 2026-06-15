@@ -991,6 +991,634 @@ class PluginDocumentationManager {
 
 ---
 
+## INDIRA System Preservation & Enhancement
+
+### Current INDIRA Architecture
+
+**INDIRA (Intelligent Neural Decision & Reasoning Architecture) - Trading Intelligence Component:**
+
+INDIRA is the trading intelligence and market cognition engine of DIX VISION v42.2, responsible for fast trading decisions, market analysis, trader profiling, strategy research, and portfolio management. INDIRA owns five critical intelligence domains:
+
+1. **Market Intelligence** - Market regimes, narratives, liquidity, volatility, order flow, cross-asset analysis
+2. **Trader Intelligence** - Trader discovery, profiles, clustering, relationships, similarity, performance
+3. **Strategy Intelligence** - Strategy creation, evolution, optimization, backtesting, deployment
+4. **Portfolio Intelligence** - Portfolio analysis, allocation, risk, performance, attribution
+5. **Research Intelligence** - Research queue, knowledge graph, learning, publication, collaboration
+
+**INDIRA Brain Capabilities** (`indira_cognitive/indira_brain/`):
+
+**Enhanced Trading Cognition:**
+- Fast trading decisions with <5ms latency
+- Unified memory framework integration
+- Vector-first knowledge retrieval
+- Neuro-symbolic market analysis (LLM + knowledge graph)
+- Meta-learning capabilities
+- Event-driven execution
+- Bayesian performance attribution
+- Advanced hypothesis evaluation
+
+**INDIRA Brain Interface Methods:**
+```python
+class INDIRABrainInterface(ABC):
+    # Core trading decision and analysis
+    execute_fast_trading_decision(market_state, asset) -> TradingDecision
+    analyze_market(market_data, asset, analysis_type) -> MarketAnalysis
+    manage_portfolio(portfolio_state) -> PortfolioAction
+    evaluate_hypothesis(hypothesis_id) -> HypothesisEvaluation
+    
+    # Memory and knowledge
+    retrieve_trading_memory(query, memory_type, limit) -> List[MemoryRetrievalResult]
+    retrieve_trading_knowledge(query, context) -> List[MemoryRetrievalResult]
+    store_trading_memory(memory_item) -> MemoryStorageResult
+    
+    # Learning and attribution
+    learn_from_feedback(feedback, decision_id) -> str
+    attribute_performance(trade_result) -> PerformanceAttribution
+    
+    # Event-driven execution
+    on_market_event(event) -> TradingDecision
+    on_portfolio_event(event) -> PortfolioAction
+```
+
+**INDIRA Mind Capabilities** (`indira_cognitive/indira_mind/`):
+
+**Trading Consciousness:**
+- Consciousness state management (ACTIVE, FOCUSED, REFLECTING, LEARNING, OFFLINE)
+- Market beliefs with vector storage and confidence tracking
+- Trading hypotheses with Bayesian evaluation
+- Self-awareness capabilities
+- Advanced attention management
+- Metacognitive monitoring
+
+**INDIRA Mind Components:**
+- **Consciousness Interface** (`indira_mind/consciousness/__init__.py`)
+  - MarketBelief management with vector embeddings
+  - TradingHypothesis with Bayesian probability
+  - ConsciousnessState tracking
+  - Evidence-based belief validation
+
+- **Self-Awareness** (`indira_mind/self_awareness/__init__.py`)
+  - Performance self-monitoring
+  - Confidence calibration
+  - Error recognition and correction
+  - Learning progress tracking
+
+**INDIRA Dashboard Integration** (`dashboard2026/src/pages/`):
+
+**INDIRA Cognitive Center (5 Intelligence Tabs):**
+- `IndiraCognitiveCenterPage.tsx` - Main cognitive center with 5 tabs
+  - Market Intelligence Tab (6 panels: regimes, narratives, liquidity, volatility, order flow, cross-asset)
+  - Trader Intelligence Tab (6 panels: discovery, profiles, clustering, relationships, similarity, performance)
+  - Strategy Intelligence Tab (5 panels: creation, evolution, optimization, backtesting, deployment)
+  - Portfolio Intelligence Tab (5 panels: analysis, allocation, risk, performance, attribution)
+  - Research Intelligence Tab (5 panels: queue, knowledge graph, learning, publication, collaboration)
+
+**INDIRA Supporting Pages:**
+- `IndiraLearningPage.tsx` - INDIRA learning and training interface
+- `IndiraWorkspacePage.tsx` - INDIRA workspace for daily operations
+
+**INDIRA Widgets** (`dashboard2026/src/widgets/`):
+- `IndiraChat.tsx` - Cognitive chat interface
+- `IndiraCognitiveStream.tsx` - Real-time cognitive event stream
+- `IndiraConsciousnessPanel.tsx` - Consciousness state visualization
+- `IndiraLearningMode.tsx` - Learning mode interface
+
+**INDIRA API Backend** (`dashboard2026/api/indira_intelligence_api.py`):
+
+**25+ Endpoints across 5 Intelligence Domains:**
+
+**Market Intelligence Endpoints (6):**
+- `/api/indira/market/regimes` - Market regime detection
+- `/api/indira/market/narratives` - Market narrative analysis
+- `/api/indira/market/liquidity` - Liquidity depth analysis
+- `/api/indira/market/volatility` - Volatility regime analysis
+- `/api/indira/market/order-flow` - Order flow sentiment
+- `/api/indira/market/cross-asset` - Cross-asset correlation
+
+**Trader Intelligence Endpoints (6):**
+- `/api/indira/traders/top` - Top trader discovery
+- `/api/indira/traders/profile` - Individual trader profiles
+- `/api/indira/traders/clusters` - Trader clustering
+- `/api/indira/traders/relationships` - Trader relationship mapping
+- `/api/indira/traders/similarity` - Trader similarity analysis
+- `/api/indira/traders/performance` - Trader performance overview
+
+**Strategy Intelligence Endpoints (5):**
+- `/api/indira/strategy/create` - Strategy creation
+- `/api/indira/strategy/evolve` - Strategy evolution
+- `/api/indira/strategy/optimize` - Strategy optimization
+- `/api/indira/strategy/backtest` - Strategy backtesting
+- `/api/indira/strategy/deploy` - Strategy deployment
+
+**Portfolio Intelligence Endpoints (5):**
+- `/api/indira/portfolio/analysis` - Portfolio analysis
+- `/api/indira/portfolio/allocation` - Portfolio allocation
+- `/api/indira/portfolio/risk` - Portfolio risk analysis
+- `/api/indira/portfolio/performance` - Portfolio performance
+- `/api/indira/portfolio/attribution` - Performance attribution
+
+**Research Intelligence Endpoints (5):**
+- `/api/indira/research/queue` - Research queue management
+- `/api/indira/research/knowledge-graph` - Knowledge graph queries
+- `/api/indira/research/learning` - Model learning progress
+- `/api/indira/research/publication` - Research publication
+- `/api/indira/research/collaboration` - Research collaboration
+
+**INDIRA Shared Interfaces** (`indira_cognitive/shared_interfaces/enhanced_types.py`):
+
+**Enhanced Types for Cognitive Processing:**
+- NeuroSymbolicReasoningResult - Combined LLM + knowledge graph reasoning
+- MemoryRetrievalResult - Vector-based memory retrieval
+- AdvancedAttentionAllocation - Sophisticated attention management
+- MetacognitiveState - Self-monitoring state
+- ConfidenceLevel - Calibrated confidence tracking
+- SelfAwarenessLevel - Self-awareness assessment
+- CuriosityScore - Curiosity-driven exploration
+
+### Current INDIRA Capabilities
+
+**Market Intelligence:**
+- Real-time market regime detection (TRENDING, RANGE, VOLATILE, QUIET)
+- Market narrative analysis with sentiment scoring
+- Liquidity depth and spread analysis
+- Volatility regime tracking
+- Order flow sentiment analysis
+- Cross-asset correlation monitoring
+
+**Trader Intelligence:**
+- Top trader discovery across markets
+- Comprehensive trader profiling (PNL, win rate, preferred markets)
+- Trader clustering based on behavior patterns
+- Trader relationship mapping
+- Trader similarity analysis
+- Performance tracking and attribution
+
+**Strategy Intelligence:**
+- AI-assisted strategy creation
+- Strategy evolution based on market conditions
+- Parameter optimization for strategies
+- Comprehensive backtesting with multiple metrics
+- Strategy deployment and monitoring
+
+**Portfolio Intelligence:**
+- Portfolio composition analysis
+- Optimal allocation recommendations
+- Risk assessment and monitoring
+- Performance tracking and benchmarking
+- Bayesian performance attribution
+
+**Research Intelligence:**
+- Research queue management
+- Knowledge graph queries and visualization
+- Model learning progress tracking
+- Research publication and sharing
+- Collaboration tools for research teams
+
+**Cognitive Brain Capabilities:**
+- Sub-5ms trading decision latency
+- Neuro-symbolic reasoning for market analysis
+- Vector-first knowledge retrieval
+- Event-driven execution architecture
+- Meta-learning from feedback
+- Bayesian performance attribution
+
+**Trading Consciousness:**
+- Consciousness state management
+- Market belief formation and validation
+- Trading hypothesis generation and evaluation
+- Self-awareness and metacognition
+- Advanced attention allocation
+
+### INDIRA Preservation Strategy
+
+**Zero-Loss Guarantee:**
+- All existing INDIRA functionality will be preserved
+- INDIRA API compatibility maintained throughout refactor
+- All five intelligence domains preserved and enhanced
+- INDIRA cognitive brain capabilities maintained
+- INDIRA trading consciousness preserved
+- Existing INDIRA integrations remain functional
+- INDIRA state migration without data loss
+- Backward compatibility for existing INDIRA contracts
+
+**Preservation Categories:**
+1. **Market Intelligence** - 100% preservation of all 6 market analysis capabilities
+2. **Trader Intelligence** - 100% preservation of all 6 trader profiling capabilities
+3. **Strategy Intelligence** - 100% preservation of all 5 strategy management capabilities
+4. **Portfolio Intelligence** - 100% preservation of all 5 portfolio analysis capabilities
+5. **Research Intelligence** - 100% preservation of all 5 research capabilities
+6. **Cognitive Brain** - 100% preservation of all trading cognition capabilities
+7. **Trading Consciousness** - 100% preservation of all mind/consciousness capabilities
+8. **Dashboard Integration** - 100% preservation of all INDIRA UI components
+
+### INDIRA Enhancement Plan
+
+#### Phase 1: INDIRA Architecture Modernization (Weeks 1-2)
+
+**Enhanced INDIRA Infrastructure:**
+```python
+# Enhanced INDIRA system architecture
+class EnhancedINDIRASystem:
+    def __init__(self):
+        # Enhanced intelligence domains
+        self.market_intelligence = EnhancedMarketIntelligence()
+        self.trader_intelligence = EnhancedTraderIntelligence()
+        self.strategy_intelligence = EnhancedStrategyIntelligence()
+        self.portfolio_intelligence = EnhancedPortfolioIntelligence()
+        self.research_intelligence = EnhancedResearchIntelligence()
+        
+        # Enhanced cognitive brain
+        self.cognitive_brain = EnhancedINDIRABrain()
+        
+        # Enhanced trading consciousness
+        self.trading_consciousness = EnhancedTradingConsciousness()
+        
+        # Enhanced coordination
+        self.intelligence_coordinator = IntelligenceCoordinator()
+        self.memory_integrator = UnifiedMemoryIntegrator()
+        self.learning_orchestrator = LearningOrchestrator()
+    
+    def coordinate_intelligence(self, context: Dict[str, Any]) -> Dict[str, Any]:
+        """Coordinate all five intelligence domains."""
+        market_insights = self.market_intelligence.analyze(context)
+        trader_insights = self.trader_intelligence.analyze(context)
+        strategy_insights = self.strategy_intelligence.analyze(context)
+        portfolio_insights = self.portfolio_intelligence.analyze(context)
+        research_insights = self.research_intelligence.analyze(context)
+        
+        return self.intelligence_coordinator.coordinate({
+            'market': market_insights,
+            'trader': trader_insights,
+            'strategy': strategy_insights,
+            'portfolio': portfolio_insights,
+            'research': research_insights
+        })
+```
+
+**Enhanced INDIRA Brain:**
+```python
+class EnhancedINDIRABrain(INDIRABrainInterface):
+    """Enhanced INDIRA brain with advanced trading cognition."""
+    
+    def __init__(self):
+        # Original capabilities preserved
+        self.decision_engine = FastDecisionEngine()
+        self.market_analyzer = NeuroSymbolicMarketAnalyzer()
+        self.portfolio_manager = EventDrivenPortfolioManager()
+        self.hypothesis_evaluator = BayesianHypothesisEvaluator()
+        
+        # Enhanced capabilities
+        self.attention_manager = AdvancedAttentionManager()
+        self.memory_integrator = VectorMemoryIntegrator()
+        self.learning_accelerator = MetaLearningEngine()
+        self.reasoning_enhancer = NeuroSymbolicReasoningEnhancer()
+    
+    def execute_fast_trading_decision(self, market_state: Dict[str, Any], asset: str) -> TradingDecision:
+        """Enhanced fast trading decision with attention optimization."""
+        # Original decision logic preserved
+        basic_decision = self.decision_engine.decide(market_state, asset)
+        
+        # Enhanced with attention management
+        attention = self.attention_manager.allocate_attention(market_state, asset)
+        enhanced_decision = self.decision_engine.decide_with_attention(market_state, asset, attention)
+        
+        # Memory integration
+        relevant_memories = self.memory_integrator.retrieve_relevant(market_state, asset)
+        
+        # Neuro-symbolic reasoning enhancement
+        reasoning = self.reasoning_enhancer.enhance_reasoning(enhanced_decision, relevant_memories)
+        
+        return TradingDecision(
+            decision_id=generate_id(),
+            asset=asset,
+            decision_type=enhanced_decision.decision_type,
+            side=enhanced_decision.side,
+            size_usd=enhanced_decision.size_usd,
+            confidence=enhanced_decision.confidence,
+            basic_decision=basic_decision,
+            enhanced_decision=enhanced_decision,
+            attention_used=attention,
+            memory_ids_used=[m.id for m in relevant_memories],
+            reasoning_chain=reasoning.reasoning_chain
+        )
+```
+
+#### Phase 2: INDIRA Intelligence Domain Enhancement (Weeks 3-6)
+
+**Enhanced Market Intelligence:**
+```python
+class EnhancedMarketIntelligence(MarketIntelligence):
+    """Enhanced market intelligence with predictive capabilities."""
+    
+    def __init__(self):
+        super().__init__()
+        self.predictive_regime_detector = PredictiveRegimeDetector()
+        self.narrative_sentiment_analyzer = AdvancedSentimentAnalyzer()
+        self.liquidity_forecaster = LiquidityForecaster()
+        self.volatility_predictor = VolatilityPredictor()
+        self.cross_asset_predictor = CrossAssetPredictor()
+    
+    def predict_market_regime(self) -> RegimePrediction:
+        """Predict market regime changes before they occur."""
+        current_state = self.get_current_market_state()
+        return self.predictive_regime_detector.predict_regime(current_state)
+    
+    def analyze_market_narratives(self) -> NarrativeAnalysis:
+        """Enhanced narrative analysis with multi-source sentiment."""
+        narratives = self.collect_narratives()
+        sentiment = self.narrative_sentiment_analyzer.analyze_multi_source(narratives)
+        return NarrativeAnalysis(narratives=narratives, sentiment=sentiment)
+```
+
+**Enhanced Trader Intelligence:**
+```python
+class EnhancedTraderIntelligence(TraderIntelligence):
+    """Enhanced trader intelligence with behavioral analysis."""
+    
+    def __init__(self):
+        super().__init__()
+        self.behavioral_profiler = BehavioralProfiler()
+        self.predictive_performance_model = PredictivePerformanceModel()
+        self.relationship_analyzer = AdvancedRelationshipAnalyzer()
+        self.similarity_engine = VectorSimilarityEngine()
+    
+    def profile_trader_behavior(self, trader_address: str) -> BehavioralProfile:
+        """Comprehensive behavioral profiling of traders."""
+        trading_history = self.get_trader_history(trader_address)
+        behavior_patterns = self.behavioral_profiler.analyze(trading_history)
+        predicted_performance = self.predictive_performance_model.predict(trader_address)
+        
+        return BehavioralProfile(
+            trader_address=trader_address,
+            behavior_patterns=behavior_patterns,
+            predicted_performance=predicted_performance,
+            risk_profile=self.assess_risk_profile(trading_history)
+        )
+```
+
+**Enhanced Strategy Intelligence:**
+```python
+class EnhancedStrategyIntelligence(StrategyIntelligence):
+    """Enhanced strategy intelligence with AI-driven optimization."""
+    
+    def __init__(self):
+        super().__init__()
+        self.ai_strategy_generator = AIStrategyGenerator()
+        self.adaptive_optimizer = AdaptiveOptimizer()
+        self.ensemble_backtester = EnsembleBacktester()
+        self.deployment_optimizer = DeploymentOptimizer()
+    
+    def generate_ai_strategy(self, market_context: Dict[str, Any]) -> Strategy:
+        """AI-powered strategy generation."""
+        strategy_concept = self.ai_strategy_generator.generate(market_context)
+        optimized_parameters = self.adaptive_optimizer.optimize(strategy_concept)
+        backtest_results = self.ensemble_backtester.backtest(strategy_concept, optimized_parameters)
+        
+        return Strategy(
+            concept=strategy_concept,
+            parameters=optimized_parameters,
+            backtest_results=backtest_results,
+            deployment_readiness=self.assess_deployment_readiness(backtest_results)
+        )
+```
+
+#### Phase 3: INDIRA Dashboard Integration Enhancement (Weeks 7-8)
+
+**Enhanced INDIRA Cognitive Center:**
+```typescript
+// Enhanced INDIRA cognitive center with AI features
+interface EnhancedIndiraCognitiveCenter {
+  // 5 intelligence tabs enhanced
+  market_intelligence_tab: {
+    predictive_regimes: PredictiveRegimePanel;
+    advanced_narratives: AdvancedNarrativePanel;
+    liquidity_forecasting: LiquidityForecastingPanel;
+    volatility_prediction: VolatilityPredictionPanel;
+    order_flow_prediction: OrderFlowPredictionPanel;
+    cross_asset_prediction: CrossAssetPredictionPanel;
+  };
+  
+  trader_intelligence_tab: {
+    behavioral_profiling: BehavioralProfilingPanel;
+    predictive_performance: PredictivePerformancePanel;
+    advanced_relationships: AdvancedRelationshipPanel;
+    vector_similarity: VectorSimilarityPanel;
+    network_analysis: NetworkAnalysisPanel;
+  };
+  
+  strategy_intelligence_tab: {
+    ai_strategy_generator: AIStrategyGeneratorPanel;
+    adaptive_optimization: AdaptiveOptimizationPanel;
+    ensemble_backtesting: EnsembleBacktestingPanel;
+    deployment_optimizer: DeploymentOptimizerPanel;
+  };
+  
+  portfolio_intelligence_tab: {
+    advanced_allocation: AdvancedAllocationPanel;
+    predictive_risk: PredictiveRiskPanel;
+    attribution_enhanced: EnhancedAttributionPanel;
+  };
+  
+  research_intelligence_tab: {
+    collaborative_research: CollaborativeResearchPanel;
+    knowledge_graph_advanced: AdvancedKnowledgeGraphPanel;
+    ai_research_assistant: AIResearchAssistantPanel;
+  };
+}
+```
+
+**Enhanced INDIRA Learning Page:**
+```typescript
+// Enhanced INDIRA learning interface
+interface EnhancedIndiraLearningPage {
+  cognitive_health_strip: CognitiveHealthStrip;
+  indira_workspace: EnhancedIndiraWorkspace;
+  indira_learning_mode: {
+    learning_progress: LearningProgressTracker;
+    skill_development: SkillDevelopmentDashboard;
+    performance_metrics: PerformanceMetricsDashboard;
+    consciousness_monitoring: ConsciousnessMonitoringPanel;
+  };
+  indira_cognitive_stream: {
+    real_time_stream: CognitiveEventStream;
+    anomaly_detection: AnomalyDetectionAlerts;
+    pattern_recognition: PatternRecognitionFeed;
+    decision_tracking: DecisionTrackingPanel;
+  };
+}
+```
+
+#### Phase 4: INDIRA Advanced Features (Weeks 9-10)
+
+**Real-Time INDIRA Monitoring Dashboard:**
+```typescript
+// INDIRA monitoring dashboard interface
+interface INDIRAMonitoringDashboard {
+  // Five intelligence domains monitoring
+  market_intelligence_health: DomainHealthStatus;
+  trader_intelligence_health: DomainHealthStatus;
+  strategy_intelligence_health: DomainHealthStatus;
+  portfolio_intelligence_health: DomainHealthStatus;
+  research_intelligence_health: DomainHealthStatus;
+  
+  // Cognitive brain monitoring
+  cognitive_brain: {
+    decision_latency: DecisionLatencyMetrics;
+    reasoning_performance: ReasoningPerformanceMetrics;
+    attention_allocation: AttentionAllocationVisualization;
+    memory_usage: MemoryUsageMetrics;
+    learning_progress: LearningProgressMetrics;
+  };
+  
+  // Trading consciousness monitoring
+  trading_consciousness: {
+    consciousness_state: ConsciousnessStateVisualization;
+    belief_system: BeliefSystemHealth;
+    hypothesis_management: HypothesisManagementStatus;
+    self_awareness: SelfAwarenessMetrics;
+  };
+}
+```
+
+**INDIRA AI-Powered Features:**
+```python
+class INDIRAAIEnhancements:
+    """AI-powered enhancements for INDIRA."""
+    
+    def __init__(self):
+        self.market_predictor = AIMarketPredictor()
+        self.trader_behavior_analyzer = AITraderBehaviorAnalyzer()
+        self.strategy_optimizer = AIStrategyOptimizer()
+        self.portfolio_optimizer = AIPortfolioOptimizer()
+        self.research_assistant = AIResearchAssistant()
+    
+    def generate_market_prediction(self, context: Dict[str, Any]) -> MarketPrediction:
+        """AI-powered market prediction."""
+        return self.market_predictor.predict(context)
+    
+    def analyze_trader_behavior(self, trader_data: Dict[str, Any]) -> BehaviorAnalysis:
+        """AI-powered trader behavior analysis."""
+        return self.trader_behavior_analyzer.analyze(trader_data)
+    
+    def optimize_strategy(self, strategy: Strategy) -> OptimizedStrategy:
+        """AI-powered strategy optimization."""
+        return self.strategy_optimizer.optimize(strategy)
+```
+
+### INDIRA Feature Preservation Matrix
+
+| Current INDIRA Feature | Preservation Strategy | Enhancement Opportunity |
+|------------------------|----------------------|----------------------|
+| Market Intelligence (6 capabilities) | 100% preservation of all market analysis | Add predictive regime detection and AI forecasting |
+| Trader Intelligence (6 capabilities) | 100% preservation of all trader profiling | Add behavioral analysis and predictive performance modeling |
+| Strategy Intelligence (5 capabilities) | 100% preservation of all strategy management | Add AI strategy generation and adaptive optimization |
+| Portfolio Intelligence (5 capabilities) | 100% preservation of all portfolio analysis | Add AI portfolio optimization and predictive risk |
+| Research Intelligence (5 capabilities) | 100% preservation of all research capabilities | Add AI research assistant and collaboration tools |
+| Cognitive Brain (decision engine) | Preserve all trading cognition capabilities | Add enhanced reasoning and learning acceleration |
+| Trading Consciousness (mind/consciousness) | Preserve all consciousness capabilities | Add advanced self-awareness and metacognition |
+| Dashboard Integration (5 tabs, 27 panels) | Preserve all UI components and functionality | Add AI-enhanced panels and predictive features |
+| API Backend (25+ endpoints) | Preserve all API endpoints and functionality | Add enhanced endpoints with AI capabilities |
+| Memory Framework (vector storage) | Preserve vector-first memory retrieval | Add advanced memory management and optimization |
+
+### INDIRA Testing & Validation
+
+**Comprehensive INDIRA Testing:**
+```python
+class INDIRATestSuite:
+    def test_market_intelligence(self):
+        """Test market intelligence capabilities."""
+        return {
+            'regime_detection': self.test_regime_detection(),
+            'narrative_analysis': self.test_narrative_analysis(),
+            'liquidity_analysis': self.test_liquidity_analysis(),
+            'volatility_analysis': self.test_volatility_analysis(),
+            'order_flow_analysis': self.test_order_flow_analysis(),
+            'cross_asset_analysis': self.test_cross_asset_analysis()
+        }
+    
+    def test_cognitive_brain(self):
+        """Test cognitive brain capabilities."""
+        return {
+            'decision_latency': self.test_decision_latency(),
+            'market_analysis': self.test_market_analysis(),
+            'memory_retrieval': self.test_memory_retrieval(),
+            'knowledge_retrieval': self.test_knowledge_retrieval(),
+            'learning_feedback': self.test_learning_feedback(),
+            'performance_attribution': self.test_performance_attribution()
+        }
+    
+    def validate_indira_migration(self, old_version, new_version):
+        """Validate INDIRA produces identical results after migration."""
+        old_results = {
+            'market_intelligence': self.run_market_intelligence(old_version),
+            'trader_intelligence': self.run_trader_intelligence(old_version),
+            'strategy_intelligence': self.run_strategy_intelligence(old_version),
+            'cognitive_brain': self.run_cognitive_brain(old_version)
+        }
+        
+        new_results = {
+            'market_intelligence': self.run_market_intelligence(new_version),
+            'trader_intelligence': self.run_trader_intelligence(new_version),
+            'strategy_intelligence': self.run_strategy_intelligence(new_version),
+            'cognitive_brain': self.run_cognitive_brain(new_version)
+        }
+        
+        return self.compare_intelligence_results(old_results, new_results)
+```
+
+### INDIRA Documentation & Training
+
+**Enhanced INDIRA Documentation:**
+```typescript
+// INDIRA documentation system
+interface INDIRADocumentation {
+  architecture_guide: ArchitectureGuide;
+  intelligence_domains_guide: IntelligenceDomainsGuide;
+  cognitive_brain_guide: CognitiveBrainGuide;
+  trading_consciousness_guide: TradingConsciousnessGuide;
+  api_reference: APIReference;
+  integration_guide: IntegrationGuide;
+  best_practices: BestPractices[];
+  troubleshooting: TroubleshootingGuide[];
+}
+
+class INDIRADocumentationManager {
+  generate_documentation(): INDIRADocumentation {
+    // Auto-generate comprehensive INDIRA documentation
+  }
+  
+  create_migration_guide(old_version, new_version): MigrationGuide {
+    // Create step-by-step INDIRA migration guide
+  }
+  
+  create_intelligence_domain_guide(domain: string): DomainGuide {
+    // Create detailed guide for specific intelligence domain
+  }
+}
+```
+
+### INDIRA Integration with Lightweight Architecture
+
+**INDIRA Plugin Integration:**
+- INDIRA intelligence domains as lightweight plugins
+- On-demand activation of INDIRA capabilities
+- Resource-efficient cognitive brain operations
+- Lazy loading of intelligence analysis modules
+
+**INDIRA Dashboard Consolidation:**
+- INDIRA cognitive center as part of Intelligence Hub
+- 5-tab structure preserved with on-demand loading
+- Real-time intelligence streaming with efficient data management
+- AI-enhanced features as optional plugin
+
+**INDIRA Cognitive Optimization:**
+- Decision latency optimization for sub-5ms performance
+- Memory integration with smart vector caching
+- Learning acceleration with incremental updates
+- Neuro-symbolic reasoning with efficient computation
+
+---
+
 ## DYON System Preservation & Enhancement
 
 ### Current DYON Architecture
@@ -2485,7 +3113,42 @@ Enhanced caching strategies
 - Community plugin support
 - Plugin rating and review system
 
-### DYON Preservation Phase (Weeks 15-24) - ZERO LOSS GUARANTEE
+### INDIRA Preservation Phase (Weeks 15-24) - ZERO LOSS GUARANTEE
+**Team:** 2 backend developers, 1 trading specialist, 1 INDIRA specialist, 1 QA engineer
+**Risk:** Low - focused on preservation and enhancement of existing INDIRA capabilities
+**Key Deliverables:**
+- Complete INDIRA architecture modernization
+- All five intelligence domains enhanced with predictive and AI capabilities
+- INDIRA cognitive brain enhanced with advanced reasoning and learning
+- INDIRA trading consciousness enhanced with advanced self-awareness
+- INDIRA dashboard integration enhancement (5-tab cognitive center)
+- Real-time INDIRA monitoring dashboard
+- AI-powered INDIRA features and enhancements
+- Comprehensive INDIRA testing and validation
+- Zero data loss guarantee for all intelligence domains
+
+**Phase 6 (Weeks 15-18): INDIRA Architecture Modernization**
+- Enhanced INDIRA infrastructure with intelligence coordination
+- INDIRA cognitive brain enhancement with attention optimization
+- Trading consciousness enhancement with advanced self-awareness
+- Memory integration enhancement with vector optimization
+- Learning acceleration engine implementation
+
+**Phase 7 (Weeks 19-22): INDIRA Intelligence Domain Enhancement**
+- Enhanced market intelligence with predictive regime detection
+- Enhanced trader intelligence with behavioral analysis
+- Enhanced strategy intelligence with AI-powered generation
+- Enhanced portfolio intelligence with AI optimization
+- Enhanced research intelligence with AI research assistant
+
+**Phase 8 (Weeks 23-24): INDIRA Dashboard Integration & Advanced Features**
+- Enhanced INDIRA cognitive center with AI-enhanced panels
+- Real-time INDIRA monitoring dashboard implementation
+- AI-powered INDIRA features implementation
+- INDIRA testing and validation comprehensive suite
+- INDIRA documentation and training materials
+
+### DYON Preservation Phase (Weeks 25-34) - ZERO LOSS GUARANTEE
 **Team:** 2 backend developers, 1 system engineer, 1 DYON specialist, 1 QA engineer
 **Risk:** Low - focused on preservation and enhancement of existing DYON capabilities
 **Key Deliverables:**
@@ -2498,14 +3161,14 @@ Enhanced caching strategies
 - Comprehensive DYON testing and validation
 - Zero data loss guarantee for all four truths
 
-**Phase 6 (Weeks 15-18): DYON Architecture Modernization**
+**Phase 9 (Weeks 25-28): DYON Architecture Modernization**
 - Enhanced DYON infrastructure with truth synchronization
 - DYON cognitive brain enhancement with attention management
 - Intelligence domain coordination and optimization
 - Memory integration enhancement with smart caching
 - Learning acceleration engine implementation
 
-**Phase 7 (Weeks 19-22): DYON Intelligence Domain Enhancement**
+**Phase 10 (Weeks 29-32): DYON Intelligence Domain Enhancement**
 - Enhanced repository intelligence with real-time tracking
 - Enhanced architecture intelligence with predictive drift detection
 - Enhanced runtime intelligence with predictive performance monitoring
@@ -2513,54 +3176,54 @@ Enhanced caching strategies
 - Enhanced research intelligence with collaboration features
 - Enhanced advisory intelligence with AI-powered recommendations
 
-**Phase 8 (Weeks 23-24): DYON Dashboard Integration & Advanced Features**
+**Phase 11 (Weeks 33-34): DYON Dashboard Integration & Advanced Features**
 - Enhanced DYON workspace with 5-tab structure implementation
 - Real-time DYON monitoring dashboard implementation
 - Automated patch generation with safety validation
 - DYON testing and validation comprehensive suite
 - DYON documentation and training materials
 
-### Traditional Trading Enhancement Phase (Weeks 25-60)
+### Traditional Trading Enhancement Phase (Weeks 35-70)
 **Team:** 12-15 developers across disciplines
 **Risk:** Medium to High (varies by phase)
 **Key Deliverables:** Professional trading command center features
 
-**Phase 9 (Weeks 25-28): Real-Time Intelligence**
+**Phase 12 (Weeks 35-38): Real-Time Intelligence**
 - **Team:** 2 backend developers, 1 frontend developer, 1 ML engineer
 - **Key Deliverables:** News integration, audio alerts, economic calendar
 - **Risk:** Low - building on existing infrastructure
 
-**Phase 10 (Weeks 29-32): Advanced AI/ML
+**Phase 13 (Weeks 39-42): Advanced AI/ML
 - **Team:** 2 ML engineers, 1 data engineer, 1 frontend developer  
 - **Key Deliverables:** ML indicators, NLP strategies, 3D visualization
 - **Risk:** Medium - requires ML expertise and model validation
 
-**Phase 11 (Weeks 33-36): Professional Execution
+**Phase 14 (Weeks 43-46): Professional Execution
 - **Team:** 2 backend developers, 1 frontend developer, 1 QA
 - **Key Deliverables:** OMS, paper trading, portfolio analytics
 - **Risk:** High - requires broker integration and financial precision
 
-**Phase 12 (Weeks 37-40): Quantitative Research
+**Phase 15 (Weeks 47-50): Quantitative Research
 - **Team:** 2 quant developers, 1 data engineer, 1 ML engineer
 - **Key Deliverables:** Backtesting, alternative data, factor analysis
 - **Risk:** Medium - complex quantitative algorithms
 
-**Phase 13 (Weeks 41-44): Collaboration & Social
+**Phase 16 (Weeks 51-54): Collaboration & Social
 - **Team:** 2 frontend developers, 1 backend developer, 1 UI/UX designer
 - **Key Deliverables:** Community features, team tools, education platform
 - **Risk:** Low - primarily frontend work
 
-**Phase 14 (Weeks 45-52): Asset Class-Specific
+**Phase 17 (Weeks 55-62): Asset Class-Specific
 - **Team:** 4 backend developers, 4 frontend developers, 4 domain experts
 - **Key Deliverables:** Stock, forex, futures, options enhancements
 - **Risk:** Medium - requires domain expertise
 
-**Phase 15 (Weeks 53-56): Risk & Compliance
+**Phase 18 (Weeks 63-66): Risk & Compliance
 - **Team:** 2 backend developers, 1 compliance specialist, 1 risk analyst
 - **Key Deliverables:** Risk management, compliance, governance
 - **Risk:** High - regulatory requirements
 
-**Phase 16 (Weeks 57-60): Mobile & Cross-Platform
+**Phase 19 (Weeks 67-70): Mobile & Cross-Platform
 - **Team:** 2 mobile developers, 1 frontend developer, 1 DevOps engineer
 - **Key Deliverables:** Mobile apps, desktop application, API ecosystem
 - **Risk:** Medium - cross-platform complexity
@@ -2602,6 +3265,27 @@ Enhanced caching strategies
 - Plugin execution latency < 50ms
 - Plugin hot-swap time < 5 seconds
 - Lazy load time < 2 seconds for on-demand features
+
+### INDIRA-Specific Metrics
+- **INDIRA Preservation:** 100% of INDIRA functionality preserved without data loss
+- **Five Intelligence Domains Integrity:** 100% preservation of Market, Trader, Strategy, Portfolio, Research intelligence
+- **Cognitive Brain Preservation:** 100% preservation of trading cognition capabilities
+- **Trading Consciousness Preservation:** 100% preservation of mind/consciousness capabilities
+- **INDIRA Enhancement Success Rate:** 95%+ enhanced INDIRA components perform better than originals
+- **INDIRA Migration Time:** Average INDIRA component migration < 45 minutes
+- **INDIRA Uptime:** 99.9%+ uptime for all five intelligence domains
+- **INDIRA Performance:** Enhanced INDIRA components show 35%+ performance improvement
+- **INDIRA Error Rate:** < 0.05% error rate for INDIRA operations
+- **INDIRA Compatibility:** 100% backward compatibility maintained for all INDIRA APIs
+- **Decision Latency:** < 5ms for fast trading decisions (maintained)
+- **Market Analysis Accuracy:** 90%+ accuracy for market regime detection
+- **Trader Profiling Quality:** 85%+ relevance rating for trader profiles
+- **Strategy Performance:** 20%+ improvement in strategy performance through AI enhancement
+- **Portfolio Attribution Accuracy:** 90%+ accuracy in Bayesian performance attribution
+- **Memory Retrieval Efficiency:** 40%+ improvement in vector memory retrieval
+- **Real-Time Intelligence Latency:** < 100ms for real-time intelligence updates
+- **Research Quality:** 85%+ relevance rating for research outputs
+- **AI Feature Adoption:** 70%+ adoption rate for AI-enhanced INDIRA features
 
 ### Plugin-Specific Metrics
 - **Plugin Preservation:** 100% of existing plugins functional without data loss
@@ -2724,7 +3408,7 @@ This comprehensive refactor plan transforms Dashboard2026 into a world-class pro
 - Real-time plugin monitoring and auto-scaling
 - All 11 existing plugins consolidated into 3 enhanced plugins with full feature preservation
 
-**Expected Timeline:** 60 weeks total (4 weeks lightweight optimization + 10 weeks plugin preservation + 10 weeks DYON preservation + 36 weeks traditional trading enhancements) + 18 weeks dashmeme development (parallel)  
+**Expected Timeline:** 70 weeks total (4 weeks lightweight optimization + 10 weeks plugin preservation + 10 weeks INDIRA preservation + 10 weeks DYON preservation + 36 weeks traditional trading enhancements) + 18 weeks dashmeme development (parallel)  
 **Recommended Team Size:** 15-18 developers across disciplines (including optimization specialists)  
 **Investment:** Significant but justified by competitive positioning and operational efficiency gains
 
@@ -2734,10 +3418,11 @@ This comprehensive refactor plan transforms Dashboard2026 into a world-class pro
 - Clean, modular architecture with minimal core footprint
 - 3 consolidated feature hubs (Trading, Intelligence, Operations) with on-demand loading
 - 3 enhanced consolidated plugins (Microstructure, Intelligence, Advanced) with full feature preservation
+- Enhanced INDIRA system with all five intelligence domains preserved and enhanced
 - Enhanced DYON system with all four truths preserved and six intelligence domains enhanced
 - User profile-based customization for different use cases (minimal, standard, professional)
 - Resource-efficient system suitable for production deployment
-- 100% feature parity with current system including all DYON capabilities
+- 100% feature parity with current system including all INDIRA and DYON capabilities
 - 70% reduction in resource usage
 
 **dashmeme (Specialized Platform):**
@@ -2748,6 +3433,8 @@ This comprehensive refactor plan transforms Dashboard2026 into a world-class pro
 **Shared Infrastructure:**
 - Common authentication and user management
 - Cognitive engine integration (INDIRA/DYON with enhanced capabilities)
+- INDIRA five intelligence domains (Market, Trader, Strategy, Portfolio, Research) preserved and enhanced
+- INDIRA cognitive brain and trading consciousness preserved and enhanced
 - DYON four truths system (Repository, Architecture, Runtime, Infrastructure)
 - DYON six intelligence domains preserved and enhanced
 - Lightweight core framework
@@ -2758,13 +3445,14 @@ This comprehensive refactor plan transforms Dashboard2026 into a world-class pro
 - **Lightweight Core:** Minimal system footprint with essential components only
 - **Modular Design:** Features loaded on-demand based on user needs
 - **Plugin Ecosystem:** Extensible through consolidated plugin architecture
+- **INDIRA System:** Enhanced trading intelligence with preserved capabilities and AI enhancements
 - **DYON System:** Enhanced system engineer with preserved capabilities and predictive features
 - **Customizable:** User profiles determine which features to load
 - **Efficient:** 70% resource reduction while maintaining 100% feature parity
 - **Clean:** Well-organized, maintainable codebase with clear separation of concerns
 - **Production-Ready:** Optimized for deployment and resource efficiency
 
-The result achieves the user's goal: **a clean, lightweight end product for system use** while **preserving all current capabilities** including the complete DYON system engineer component through intelligent architecture decisions, consolidation, and on-demand loading strategies. The system will be highly efficient, customizable, and maintainable while losing absolutely no functionality, including all DYON cognitive brain capabilities, four truths system, and six intelligence domains.
+The result achieves the user's goal: **a clean, lightweight end product for system use** while **preserving all current capabilities** including the complete INDIRA trading intelligence and DYON system engineer components through intelligent architecture decisions, consolidation, and on-demand loading strategies. The system will be highly efficient, customizable, and maintainable while losing absolutely no functionality, including all INDIRA cognitive brain capabilities, five intelligence domains, trading consciousness, and all DYON cognitive brain capabilities, four truths system, and six intelligence domains.
 
 ---
 
@@ -2772,6 +3460,7 @@ The result achieves the user's goal: **a clean, lightweight end product for syst
 *Status: Ready for Review and Approval*  
 *Lightweight Guarantee: 70% Resource Reduction with 100% Feature Parity*  
 *Plugin Preservation: 100% Guarantee with Consolidation Strategy*  
+*INDIRA Preservation: 100% Guarantee with Enhancement Strategy*  
 *DYON Preservation: 100% Guarantee with Enhancement Strategy*  
 *Clean End Product: Modular Architecture with Minimal Core Footprint*  
 *Integration: dashmeme as specialized memecoin platform*  
