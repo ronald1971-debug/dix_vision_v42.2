@@ -1,0 +1,41 @@
+# DIX VISION Authority Matrix Configuration
+# This file defines the authority matrix for the governance system
+
+version: v3.3-T1a
+
+actors:
+  - id: AUTH-system
+    role: root
+    module: system
+    
+  - id: intelligence
+    role: intelligence
+    module: intelligence
+    
+  - id: execution
+    role: execution
+    module: execution
+    
+  - id: AUTH-operator
+    role: admin
+    module: governance
+    
+  - id: AUTH-trader
+    role: trader
+    module: trading
+    
+  - id: AUTH-viewer
+    role: viewer
+    module: ui
+
+precedence:
+  - AUTH-system
+  - intelligence
+  - execution
+  - AUTH-operator
+  - AUTH-trader
+  - AUTH-viewer
+
+conflicts: []
+
+overrides: []
