@@ -1,37 +1,43 @@
-"""execution — Trade execution + emergency execution domain.
+"""execution — DEPRECATED: Use execution_unified instead.
 
-⚠️ DEPRECATED - This package is the pre-convergence execution layer.
+DEPRECATED: This package is deprecated. All execution functionality
+has been consolidated into the single unified execution system at
+``execution_unified/`` as specified in the DIX VISION comprehensive
+integration plan.
 
-The canonical execution engine lives in ``execution_engine/``. New code
-should import from ``execution_engine`` instead. This package is
-retained for backward compatibility and will be removed in a future
-major version.
+New code should import from ``execution_unified`` instead.
+This package is retained only for backward compatibility during the
+transition period and will be removed in a future major version.
 
-Migration:
-  - execution.live_trading → execution_engine.live_trading
-  - execution.protections.* → execution_engine.protections.*
-  - execution.monitoring.* → execution_engine.monitoring.*
-  - execution.testing.* → execution_engine.testing.*
-  - execution.analysis.* → execution_engine.analysis.*
+The system now has ONE unified execution system instead of the
+previously fragmented approach (execution/, execution_engine/).
 
-Canonical split:
-  Indira (market) → ``trade_executor`` → adapters
-  Hazard      → ``emergency_executor`` → mode transitions / kill switch
-
-Dyon system maintenance lives under the same package but CANNOT touch
-adapters or the trade_executor.
+Migration: Replace imports like:
+  from execution.engine import DyonEngine
+With:
+  from execution_unified import UnifiedExecutionKernel
 """
 
 import warnings
 
-# Issue deprecation warning on import
 warnings.warn(
-    "The 'execution' package is deprecated. Please use 'execution_engine' instead. "
-    "See package docstring for migration guide.",
+    "The 'execution' package is deprecated. "
+    "Use 'execution_unified' instead. "
+    "This module will be removed in a future version.",
     DeprecationWarning,
     stacklevel=2,
 )
 
-from .engine import DyonEngine, get_dyon_engine
-
-__all__ = ["DyonEngine", "get_dyon_engine"]
+# Redirect to unified execution system for backward compatibility
+try:
+    from execution_unified import (
+        UnifiedExecutionKernel as DyonEngine,
+        get_unified_execution_kernel as get_dyon_engine,
+    )
+    
+    __all__ = ["DyonEngine", "get_dyon_engine"]
+except ImportError:
+    # If execution_unified is not available, fall back to legacy
+    from .engine import DyonEngine, get_dyon_engine
+    
+    __all__ = ["DyonEngine", "get_dyon_engine"]

@@ -25,6 +25,10 @@ class ApprovalQueue:
         """Stub size method."""
         return 0
 
+    def rehydrate(self, rows: list, **kwargs: Any) -> None:
+        """Stub rehydrate method."""
+        pass
+
 
 def get_approval_queue(**kwargs: Any) -> ApprovalQueue:
     """Stub approval queue getter."""

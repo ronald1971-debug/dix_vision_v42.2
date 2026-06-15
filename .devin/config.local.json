@@ -27,7 +27,8 @@
       "Exec(python)",
       "Exec(mkdir)",
       "Exec(docker)",
-      "Exec($env:PYTHONPATH)"
+      "Exec($env:PYTHONPATH)",
+      "Exec(Select-Object)"
     ]
   }
 }

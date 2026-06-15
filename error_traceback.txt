@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "C:\dix_vision_v42.2\test_import.py", line 24, in <module>
+    import ui.server
+  File "C:\dix_vision_v42.2\ui\server.py", line 1994, in <module>
+    _runtime.attach(app, STATE)
+    ^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'attach'

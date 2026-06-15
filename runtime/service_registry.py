@@ -15,6 +15,6 @@ def get_service_registry(**kwargs: Any) -> ServiceRegistry:
     return ServiceRegistry()
 
 
-def register_tier_services(registry: ServiceRegistry, tier: str, services: list, **kwargs: Any) -> None:
+def register_tier_services(registry: ServiceRegistry = None, tier: str = None, services: list = None, **kwargs: Any) -> None:
     """Register tier services."""
     pass

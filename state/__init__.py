@@ -1,7 +1,39 @@
-"""Authoritative state — append-only hash-chained ledger + snapshots.
+"""State Layer - Enhanced with Replay Validation and Deterministic Verification.
 
-The ``state.ledger.reader`` module is on the authority-lint allow-list:
-offline engines may import it, but no engine may import any other
-``state.ledger`` symbol directly. Writes go through Governance only
-(GOV-CP-05).
+This is the comprehensive state layer implementation that provides:
+- Replay validation for event sourcing
+- Deterministic verification for system components
+- Enhanced state consistency checks
 """
+
+# Existing state layer components
+from .memory.edge_case_memory import EdgeCaseMemory
+from .memory.contracts import MemoryRecord, MemoryKind
+
+# Enhanced validation components
+from .replay_validator import (
+    ReplayValidator,
+    get_replay_validator,
+    ReplayResult,
+    ReplayStatus,
+)
+from .deterministic_verifier import (
+    DeterministicVerifier,
+    get_deterministic_verifier,
+    DeterminismReport,
+)
+
+__all__ = [
+    # Existing components
+    "EdgeCaseMemory",
+    "MemoryRecord",
+    "MemoryKind",
+    # Enhanced validation
+    "ReplayValidator",
+    "get_replay_validator",
+    "ReplayResult",
+    "ReplayStatus",
+    "DeterministicVerifier",
+    "get_deterministic_verifier",
+    "DeterminismReport",
+]

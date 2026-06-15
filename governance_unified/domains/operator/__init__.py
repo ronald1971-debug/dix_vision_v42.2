@@ -5,12 +5,13 @@ authority management, consent routing, override priorities, and
 manual control mechanisms.
 """
 
-from .authority_escalation import authority_escalation
-from .consent_router import consent_router
-from .governance_visibility import governance_visibility
-from .manual_lockout import manual_lockout
-from .override_priority import override_priority
-from .operator_constitution import operator_constitution
+# Import the modules themselves rather than specific functions
+from . import authority_escalation
+from . import consent_router
+from . import governance_visibility
+from . import manual_lockout
+from . import override_priority
+from . import operator_constitution
 
 __all__ = [
     "authority_escalation",

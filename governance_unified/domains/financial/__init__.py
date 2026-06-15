@@ -5,12 +5,14 @@ capital management, exposure control, leverage monitoring, and
 trading hazard management.
 """
 
-from .capital_throttle import capital_throttle
-from .exposure_guard import exposure_guard
-from .leverage_monitor import leverage_monitor
-from .liquidation_sentinel import liquidation_sentinel
-from .execution_hazard import execution_hazard
-from .kill_switch import financial_kill_switch
+# Import the modules themselves rather than specific functions
+# The actual functions/classes can be accessed via the modules
+from . import capital_throttle
+from . import exposure_guard
+from . import leverage_monitor
+from . import liquidation_sentinel
+from . import execution_hazard
+from . import kill_switch as financial_kill_switch_module
 
 __all__ = [
     "capital_throttle",
@@ -18,5 +20,5 @@ __all__ = [
     "leverage_monitor",
     "liquidation_sentinel",
     "execution_hazard",
-    "financial_kill_switch",
+    "financial_kill_switch_module",
 ]

@@ -45,7 +45,7 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-async def boot_system(args: argparse.Namespace) -> None:
+def boot_system(args: argparse.Namespace) -> None:
     """Boot the system in the correct dependency order."""
     from core.time_source import WallClock
     from immutable_core.constants import AXIOMS, SYSTEM_NAME, SYSTEM_VERSION
@@ -62,32 +62,53 @@ async def boot_system(args: argparse.Namespace) -> None:
 
     # Load operator authority
     try:
+        print("DEBUG: About to import ui.server...")
+        logging.info("Importing ui.server...")
         from ui.server import create_app
 
+        print("DEBUG: Import completed, about to call create_app()...")
+        logging.info("Calling create_app()...")
         app = create_app()
+        print("DEBUG: create_app() completed successfully")
+        print(f"DEBUG: App object type: {type(app)}")
+        print("DEBUG: About to call logging.info")
+        logging.info("App created successfully")
+        print("DEBUG: logging.info completed successfully")
+        print("DEBUG: About to call second logging.info")
         logging.info("Operator authority loaded from registry/operator.yaml")
+        print("DEBUG: second logging.info completed successfully")
+        print("DEBUG: About to leave try block")
     except Exception as e:
+        import traceback
+        print(f"DEBUG ERROR: {e}")
         logging.error("Failed to create app: %s", e)
+        logging.error("Traceback: %s", traceback.format_exc())
         sys.exit(1)
 
-    # Start server
-    import uvicorn
+    print("DEBUG: Successfully left try block")
 
-    config = uvicorn.Config(
+    # Start server
+    print("DEBUG: About to import uvicorn")
+    import uvicorn
+    print("DEBUG: uvicorn imported successfully")
+
+    print("DEBUG: About to call uvicorn.run()")
+    # Try using uvicorn.run() directly instead of creating a Server object
+    uvicorn.run(
         app,
         host=args.host,
         port=args.port,
         log_level="debug" if args.debug else "info",
         access_log=args.debug,
     )
-    server = uvicorn.Server(config)
-    logging.info("Starting server on %s:%d (mode=%s)", args.host, args.port, args.mode)
-    await server.serve()
+    print("DEBUG: uvicorn.run() completed (should never reach here)")
 
 
 def main() -> None:
     """Main entry point."""
+    print("DEBUG: main() called")
     args = parse_args()
+    print(f"DEBUG: args parsed: host={args.host}, port={args.port}")
 
     log_level = logging.DEBUG if args.debug else logging.INFO
     logging.basicConfig(
@@ -96,12 +117,14 @@ def main() -> None:
         datefmt="%Y-%m-%dT%H:%M:%S",
     )
 
+    print("DEBUG: About to call boot_system(args)")
     try:
-        asyncio.run(boot_system(args))
-    except KeyboardInterrupt:
-        logging.info("Operator shutdown (Ctrl+C)")
+        boot_system(args)
+        print("DEBUG: boot_system(args) completed successfully")
     except Exception as e:
-        logging.critical("Fatal boot failure: %s", e)
+        print(f"DEBUG ERROR in boot_system: {e}")
+        import traceback
+        traceback.print_exc()
         sys.exit(1)
 
 

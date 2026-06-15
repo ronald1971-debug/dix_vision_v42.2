@@ -35,24 +35,9 @@ from .core.kernel import (
     IntentType,
 )
 
-# Domain-specific governance
-from .domains.financial import (
-    capital_throttle,
-    exposure_guard,
-    leverage_monitor,
-    liquidation_sentinel,
-    execution_hazard,
-    kill_switch as financial_kill_switch,
-)
-
-from .domains.operator import (
-    authority_escalation,
-    consent_router,
-    governance_visibility,
-    manual_lockout,
-    override_priority,
-    operator_constitution,
-)
+# Domain-specific governance (module-level imports)
+from .domains import financial as financial_domain
+from .domains import operator as operator_domain
 
 # Policy management
 from .policies.policy_engine import get_policy_engine
@@ -76,18 +61,9 @@ __all__ = [
     "SystemMode",
     "IntentType",
     # Financial domain
-    "capital_throttle",
-    "exposure_guard",
-    "leverage_monitor",
-    "liquidation_sentinel",
-    "execution_hazard",
+    "financial_domain",
     # Operator domain
-    "authority_escalation",
-    "consent_router",
-    "governance_visibility",
-    "manual_lockout",
-    "override_priority",
-    "operator_constitution",
+    "operator_domain",
     # Policy and mode management
     "get_policy_engine",
     "get_mode_manager",

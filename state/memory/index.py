@@ -442,6 +442,9 @@ class MemoryIndexAuthority:
         return timestamp_ns // bucket_size_ns
 
 
+# Alias for backward compatibility
+MemoryIndex = MemoryIndexAuthority
+
 _singleton: MemoryIndexAuthority | None = None
 _lock = threading.Lock()
 
@@ -455,4 +458,4 @@ def get_memory_index() -> MemoryIndexAuthority:
     return _singleton
 
 
-__all__ = ["MemoryIndexAuthority", "get_memory_index"]
+__all__ = ["MemoryIndexAuthority", "MemoryIndex", "get_memory_index"]

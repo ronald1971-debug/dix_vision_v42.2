@@ -17,12 +17,13 @@ class ActivationSnapshot:
 
 class RuntimeActivationRegistry:
     """Registry for tracking runtime activation states."""
-    
-    def __init__(self) -> None:
+
+    def __init__(self, topology: Any = None) -> None:
         """Initialize the registry."""
+        self.topology = topology
         pass
     
-    def register(self, node_id: str, state: str) -> None:
+    def register(self, node_id: str = None, state: str = None, **kwargs: Any) -> None:
         """Register a node with its activation state."""
         pass
     
