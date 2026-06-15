@@ -1,0 +1,6 @@
+# Pressure Configuration - Stub
+version: "v3.3-T1a"
+alpha: 0.5
+beta: 0.5
+entropy_high_water: 0.6
+entropy_high_water_modifier: 1.5

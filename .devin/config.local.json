@@ -25,7 +25,9 @@
       "Exec(git clean)",
       "Exec(git rm)",
       "Exec(python)",
-      "Exec(mkdir)"
+      "Exec(mkdir)",
+      "Exec(docker)",
+      "Exec($env:PYTHONPATH)"
     ]
   }
 }

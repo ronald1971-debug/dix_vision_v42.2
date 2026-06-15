@@ -44,3 +44,11 @@ class IntelligenceEngine(RuntimeEngine):
     async def stop(self) -> None:
         """Stop the engine."""
         pass
+
+    def set_learning_gate(self, gate: Any, **kwargs: Any) -> None:
+        """Set the learning gate for the intelligence engine."""
+        self._learning_gate = gate
+
+    def get_learning_gate(self, **kwargs: Any) -> Any:
+        """Get the current learning gate."""
+        return getattr(self, "_learning_gate", None)
