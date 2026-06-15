@@ -34,7 +34,11 @@
       "Exec(pip install)",
       "Exec(Invoke-WebRequest)",
       "Exec(docker-compose up)",
-      "Exec(mv)"
+      "Exec(mv)",
+      "Exec(npx tsc)",
+      "Exec(cat)",
+      "Exec((Get-Content)",
+      "Exec(rm)"
     ]
   }
 }

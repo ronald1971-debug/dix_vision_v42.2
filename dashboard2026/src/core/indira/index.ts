@@ -1,10 +1,10 @@
 /**
  * INDIRA Cognitive System - Core Index
- * DIX VISION v42.2 - Phase 4 (Phase 6): INDIRA Architecture Modernization
+ * DIX VISION v42.2 - Phase 4 (Phase 6): INDIRA Architecture Modernization + Phase 7 (Domain Intelligence Enhancement)
  * 
  * Production-grade INDIRA cognitive system with intelligence coordination,
  * cognitive brain optimization, trading consciousness, memory integration,
- * and learning acceleration capabilities.
+ * learning acceleration, and enhanced domain intelligence capabilities.
  */
 
 export { indiraIntelligenceCoordinator } from './IndiraIntelligenceCoordinator';
@@ -21,3 +21,18 @@ export type { MemoryVector, VectorSearchResult, MemoryConsolidationResult, Memor
 
 export { indiraLearningAcceleration } from './IndiraLearningAcceleration';
 export type { LearningPattern, LearningModel, LearningRequest, LearningResult, LearningAccelerationMetrics } from './IndiraLearningAcceleration';
+
+export { enhancedMarketIntelligence } from './domain-intelligence/EnhancedMarketIntelligence';
+export type { MarketRegime, MarketPrediction, RegimeTransition } from './domain-intelligence/EnhancedMarketIntelligence';
+
+export { enhancedTraderIntelligence } from './domain-intelligence/EnhancedTraderIntelligence';
+export type { TraderBehavior, TraderProfile, BehavioralInsight, BehavioralCoaching } from './domain-intelligence/EnhancedTraderIntelligence';
+
+export { enhancedStrategyIntelligence } from './domain-intelligence/EnhancedStrategyIntelligence';
+export type { TradingStrategy, StrategyGenerationRequest, StrategyOptimizationResult, StrategyRecommendation } from './domain-intelligence/EnhancedStrategyIntelligence';
+
+export { enhancedPortfolioIntelligence } from './domain-intelligence/EnhancedPortfolioIntelligence';
+export type { PortfolioPosition, PortfolioMetrics, OptimizationConstraints, OptimizationResult } from './domain-intelligence/EnhancedPortfolioIntelligence';
+
+export { enhancedResearchIntelligence } from './domain-intelligence/EnhancedResearchIntelligence';
+export type { ResearchQuery, ResearchResult, ResearchAssistant, ResearchSession } from './domain-intelligence/EnhancedResearchIntelligence';
