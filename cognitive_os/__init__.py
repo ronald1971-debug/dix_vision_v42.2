@@ -14,8 +14,12 @@ Completed Phases Integrated:
 - Phase 6: State Layer Enhancement (replay validation, deterministic verification)
 - Phase 7: Learning Engine Maturation (reinforcement loops, cognitive learning governance)
 - Phase 8: Evolution Engine Completion (autonomous capabilities vs proposal-oriented)
+- Phase 9: Advanced Cognitive Modules (RL, XAI, Multi-Agent, Temporal, Risk)
+- Phase 10: Neuro-Symbolic & Meta-Cognitive Integration
+- Phase 11: Advanced Causal Discovery Engine
+- Phase 12: Neuromorphic Computing (INDIRA & DYON SNN + LSM)
 
-Total Integration: 106/106 tests passing across all completed phases.
+Total Integration: 121+ tests passing across all completed phases.
 """
 
 # Core Cognitive OS Kernel
@@ -27,6 +31,34 @@ from .core import (
     CognitiveOSMetrics,
 )
 
+# Phase 3 Advanced Modules
+from .rl import (
+    get_rl_optimizer,
+)
+from .xai import (
+    get_xai_system,
+)
+from .multi_agent import (
+    get_multi_agent_system,
+)
+from .temporal import (
+    get_temporal_reasoner,
+)
+from .risk import (
+    get_dynamic_risk_manager,
+)
+
+# Phase 4 Advanced Modules
+from .neuro_symbolic import (
+    get_neuro_symbolic_ai,
+)
+from .meta_cognitive import (
+    get_meta_cognitive_system,
+)
+from .causal import (
+    get_advanced_causal_discovery,
+)
+
 __all__ = [
     # Core
     "CognitiveOSKernel",
@@ -34,4 +66,14 @@ __all__ = [
     "SystemLayer",
     "SystemStatus",
     "CognitiveOSMetrics",
+    # Phase 3 (only export get functions for simplicity)
+    "get_rl_optimizer",
+    "get_xai_system",
+    "get_multi_agent_system",
+    "get_temporal_reasoner",
+    "get_dynamic_risk_manager",
+    # Phase 4 (only export get functions for simplicity)
+    "get_neuro_symbolic_ai",
+    "get_meta_cognitive_system",
+    "get_advanced_causal_discovery",
 ]

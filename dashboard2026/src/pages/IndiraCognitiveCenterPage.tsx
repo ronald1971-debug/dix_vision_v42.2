@@ -12,7 +12,7 @@
  * and strategy research capabilities.
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   useMarketRegimes,
   useMarketNarratives,
@@ -42,6 +42,8 @@ import {
   useResearchPublication,
   useResearchCollaboration,
 } from '@/hooks/useIndiraIntelligence';
+import { getAIOrchestrator, getPerformanceMonitor } from '@/core/ai';
+import { AIAssistantPanel } from '@/components/ai/AIAssistantPanel';
 import { 
   Brain, 
   TrendingUp, 
@@ -65,7 +67,7 @@ import {
 // TAB CONFIGURATION
 // ============================================================================
 
-type IntelligenceTab = 'market' | 'trader' | 'strategy' | 'portfolio' | 'research';
+type IntelligenceTab = 'market' | 'trader' | 'strategy' | 'portfolio' | 'research' | 'ai-assistant';
 
 interface TabConfig {
   id: IntelligenceTab;
@@ -104,6 +106,12 @@ const INTELLIGENCE_TABS: TabConfig[] = [
     label: 'Research Intelligence',
     icon: BookOpen,
     description: 'Research queue, knowledge graph, learning, publication, collaboration'
+  },
+  {
+    id: 'ai-assistant',
+    label: 'AI Assistant',
+    icon: Sparkles,
+    description: 'Unified AI assistance with recommendations, predictions, and cross-system intelligence'
   },
 ];
 
@@ -176,6 +184,7 @@ export function IndiraCognitiveCenterPage() {
         {activeTab === 'strategy' && <StrategyIntelligenceTab />}
         {activeTab === 'portfolio' && <PortfolioIntelligenceTab />}
         {activeTab === 'research' && <ResearchIntelligenceTab />}
+        {activeTab === 'ai-assistant' && <AIAssistantIntegrationsTab />}
       </div>
     </div>
   );
@@ -1782,7 +1791,6 @@ function ResearchIntelligenceTab() {
         <KnowledgeGraphPanel data={knowledgeGraph} isLoading={knowledgeGraphLoading} />
         <LearningPanel data={learning} isLoading={learningLoading} />
         <PublicationPanel data={publication} isLoading={publicationLoading} />
-        <CollaborationPanel data={collaboration} isLoading={collaborationLoading} />
       </div>
     </div>
   );
@@ -2073,71 +2081,210 @@ function PublicationPanel({ data, isLoading }: { data?: any, isLoading?: boolean
   );
 }
 
-function CollaborationPanel({ data, isLoading }: { data?: any, isLoading?: boolean }) {
-  if (isLoading) {
-    return (
-      <div className="panel rounded-lg border border-border bg-surface p-4">
-        <div className="flex items-center gap-2 mb-4">
-          <Users className="w-4 h-4 text-blue-500" />
-          <h3 className="text-sm font-semibold">Collaboration</h3>
-        </div>
-        <div className="p-3 bg-surface-raised rounded border border-border">
-          <p className="text-xs text-slate-400">Loading collaboration...</p>
-        </div>
-      </div>
-    );
-  }
+// ============================================================================
+// AI ASSISTANT INTEGRATIONS TAB
+// ============================================================================
 
-  if (!data) {
-    return (
-      <div className="panel rounded-lg border border-border bg-surface p-4">
-        <div className="flex items-center gap-2 mb-4">
-          <Users className="w-4 h-4 text-blue-500" />
-          <h3 className="text-sm font-semibold">Collaboration</h3>
+function AIAssistantIntegrationsTab() {
+  return (
+    <div className="ai-assistant-integrations-tab h-full">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">
+        {/* AI Assistant Panel */}
+        <div className="lg:col-span-2">
+          <div className="bg-gradient-to-br from-purple-900/20 to-blue-900/20 rounded-lg border border-purple-500/30 p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <Sparkles className="w-6 h-6 text-purple-400" />
+              <div>
+                <h2 className="text-xl font-bold text-white">Unified AI Assistant</h2>
+                <p className="text-sm text-slate-400">Cross-system AI intelligence from INDIRA, DYON, and Unified Orchestrator</p>
+              </div>
+            </div>
+
+            {/* Embedded AI Assistant Panel */}
+            <div className="bg-slate-900 rounded-lg p-4 border border-slate-700">
+              <AIAssistantPanel currentPage="indira-cognitive-center" />
+            </div>
+          </div>
         </div>
-        <div className="p-3 bg-surface-raised rounded border border-border">
-          <p className="text-xs text-slate-400">No collaboration data available</p>
+
+        {/* AI System Status */}
+        <div className="bg-surface rounded-lg border border-border p-4">
+          <div className="flex items-center gap-2 mb-4">
+            <Brain className="w-5 h-5 text-blue-500" />
+            <h3 className="font-semibold">AI System Status</h3>
+          </div>
+          <AISystemStatus />
+        </div>
+
+        {/* Cross-System Integration */}
+        <div className="bg-surface rounded-lg border border-border p-4">
+          <div className="flex items-center gap-2 mb-4">
+            <Network className="w-5 h-5 text-green-500" />
+            <h3 className="font-semibold">Cross-System Integration</h3>
+          </div>
+          <CrossSystemIntegration />
         </div>
       </div>
-    );
-  }
+    </div>
+  );
+}
+
+function AISystemStatus() {
+  const aiOrchestrator = getAIOrchestrator();
+  const performanceMonitor = getPerformanceMonitor();
+  const [status, setStatus] = useState(aiOrchestrator.getAIStatus());
+  const [systemStatus, setSystemStatus] = useState(performanceMonitor.getSystemStatus());
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setStatus(aiOrchestrator.getAIStatus());
+      setSystemStatus(performanceMonitor.getSystemStatus());
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
-    <div className="panel rounded-lg border border-border bg-surface p-4">
-      <div className="flex items-center gap-2 mb-4">
-        <Users className="w-4 h-4 text-blue-500" />
-        <h3 className="text-sm font-semibold">Collaboration</h3>
+    <div className="space-y-3">
+      <div className="p-3 bg-surface-raised rounded border border-border">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs font-medium">Active Assistants</span>
+          <span className="text-xs text-green-500">{status.assistants.filter(a => a.status === 'active').length}/{status.assistants.length}</span>
+        </div>
+        <div className="space-y-1">
+          {status.assistants.map(assistant => (
+            <div key={assistant.id} className="flex items-center justify-between text-xs">
+              <span className="text-slate-400">{assistant.name}</span>
+              <span className={`px-2 py-0.5 rounded ${
+                assistant.status === 'active' ? 'bg-green-500/20 text-green-400' :
+                assistant.status === 'processing' ? 'bg-yellow-500/20 text-yellow-400' :
+                'bg-slate-500/20 text-slate-400'
+              }`}>
+                {assistant.status}
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
-      <div className="space-y-3">
-        <div className="grid grid-cols-2 gap-3">
-          <div className="p-3 bg-surface-raised rounded border border-border text-center">
-            <div className="text-lg font-semibold">{data.activeCollaborators}</div>
-            <div className="text-xs text-slate-400">Collaborators</div>
+
+      <div className="p-3 bg-surface-raised rounded border border-border">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs font-medium">Active Recommendations</span>
+          <span className="text-xs text-blue-500">{status.recommendations.length}</span>
+        </div>
+        <div className="flex items-center justify-between mb-1">
+          <span className="text-xs text-slate-400">Predictions</span>
+          <span className="text-xs text-purple-500">{status.predictions.length}</span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-slate-400">Cross-System Insights</span>
+          <span className="text-xs text-green-500">{status.crossSystemInsights.size}</span>
+        </div>
+      </div>
+
+      {/* AI vs INDIRA Performance */}
+      <div className="p-3 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded border border-purple-500/30">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs font-medium text-purple-400">AI vs INDIRA</span>
+          <span className={`text-xs ${systemStatus.performanceGap > 0 ? 'text-green-400' : 'text-blue-400'}`}>
+            {systemStatus.performanceGap > 0 ? '+' : ''}{(systemStatus.performanceGap * 100).toFixed(1)}%
+          </span>
+        </div>
+        <div className="flex items-center justify-between mb-1">
+          <span className="text-xs text-slate-400">Current Controller</span>
+          <span className={`text-xs font-medium ${systemStatus.currentController === 'AI' ? 'text-purple-400' : 'text-blue-400'}`}>
+            {systemStatus.currentController}
+          </span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-slate-400">Takeover Enabled</span>
+          <span className={`text-xs ${systemStatus.takeoverEnabled ? 'text-green-400' : 'text-slate-500'}`}>
+            {systemStatus.takeoverEnabled ? 'Yes' : 'No'}
+          </span>
+        </div>
+      </div>
+
+      <div className="p-3 bg-surface-raised rounded border border-border">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs font-medium">Configuration</span>
+        </div>
+        <div className="space-y-1 text-xs">
+          <div className="flex items-center justify-between">
+            <span className="text-slate-400">Predictive AI</span>
+            <span className={status.config.enablePredictiveAI ? 'text-green-500' : 'text-slate-500'}>
+              {status.config.enablePredictiveAI ? 'Enabled' : 'Disabled'}
+            </span>
           </div>
-          <div className="p-3 bg-surface-raised rounded border border-border text-center">
-            <div className="text-lg font-semibold text-purple-500">{data.sharedProjects}</div>
-            <div className="text-xs text-slate-400">Shared Projects</div>
+          <div className="flex items-center justify-between">
+            <span className="text-slate-400">Contextual Assistance</span>
+            <span className={status.config.enableContextualAssistance ? 'text-green-500' : 'text-slate-500'}>
+              {status.config.enableContextualAssistance ? 'Enabled' : 'Disabled'}
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-slate-400">Cross-System Learning</span>
+            <span className={status.config.enableCrossSystemLearning ? 'text-green-500' : 'text-slate-500'}>
+              {status.config.enableCrossSystemLearning ? 'Enabled' : 'Disabled'}
+            </span>
           </div>
         </div>
-        <div className="grid grid-cols-3 gap-2">
-          <div className="p-2 bg-surface-raised rounded border border-border text-center">
-            <div className="text-sm font-medium">{data.contributions}</div>
-            <div className="text-xs text-slate-400">Contributions</div>
-          </div>
-          <div className="p-2 bg-surface-raised rounded border border-border text-center">
-            <div className="text-sm font-medium text-yellow-500">{data.pendingRequests}</div>
-            <div className="text-xs text-slate-400">Pending</div>
-          </div>
-          <div className="p-2 bg-surface-raised rounded border border-border text-center">
-            <div className="text-sm font-medium text-blue-500">{data.activeDiscussions}</div>
-            <div className="text-xs text-slate-400">Discussions</div>
-          </div>
+      </div>
+    </div>
+  );
+}
+
+function CrossSystemIntegration() {
+  const aiOrchestrator = getAIOrchestrator();
+  const [insights, setInsights] = useState(aiOrchestrator.getCrossSystemInsights());
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setInsights(aiOrchestrator.getCrossSystemInsights());
+    }, 10000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const insightArray = Array.from(insights.entries());
+
+  return (
+    <div className="space-y-3">
+      {insightArray.length === 0 ? (
+        <div className="p-4 bg-surface-raised rounded border border-border text-center">
+          <p className="text-xs text-slate-400">No cross-system patterns detected yet</p>
+          <p className="text-xs text-slate-500 mt-1">AI will learn from your interactions across the dashboard</p>
         </div>
-        <div className="p-3 bg-surface-raised rounded border border-border">
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-slate-400">Last Collaboration</span>
-            <span className="font-medium">{data.lastCollaboration}</span>
+      ) : (
+        insightArray.map(([id, insight]) => (
+          <div key={id} className="p-3 bg-surface-raised rounded border border-border">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-medium capitalize">{insight.action.replace(/_/g, ' ')}</span>
+              <span className="text-xs text-blue-500">{insight.frequency}x</span>
+            </div>
+            <div className="flex items-center gap-2 text-xs">
+              <span className="text-slate-400">Last seen:</span>
+              <span className="text-slate-300">
+                {new Date(insight.lastSeen).toLocaleTimeString()}
+              </span>
+            </div>
+            {insight.automationOpportunity && (
+              <div className="mt-2 p-2 bg-green-500/10 rounded border border-green-500/20">
+                <span className="text-xs text-green-400">⚡ Automation Opportunity</span>
+              </div>
+            )}
           </div>
+        ))
+      )}
+
+      <div className="p-3 bg-blue-500/10 rounded border border-blue-500/20">
+        <div className="text-xs text-blue-400 mb-1">INDIRA Integration</div>
+        <div className="text-xs text-slate-400">
+          Market, Trader, Strategy, Portfolio, and Research intelligence active
+        </div>
+      </div>
+
+      <div className="p-3 bg-purple-500/10 rounded border border-purple-500/20">
+        <div className="text-xs text-purple-400 mb-1">DYON Integration</div>
+        <div className="text-xs text-slate-400">
+          Repository, Architecture, Runtime, Infrastructure, Research, and Advisory intelligence active
         </div>
       </div>
     </div>

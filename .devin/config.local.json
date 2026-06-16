@@ -39,7 +39,10 @@
       "Exec(cat)",
       "Exec((Get-Content)",
       "Exec(rm)",
-      "Exec(copy)"
+      "Exec(copy)",
+      "Exec(.\\launcher-dashmeme.bat)",
+      "Exec(Remove-Item)",
+      "Exec(Measure-Object)"
     ]
   }
 }

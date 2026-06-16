@@ -69,6 +69,11 @@ export type SystemRoute =
   | "security"
   | "hazards"
   | "dashmeme"
+  | "memecoin-security"
+  | "memecoin-discovery"
+  | "memecoin-trading"
+  | "memecoin-whales"
+  | "memecoin-profiles"
   | "open-orders"
   | "nft";
 
@@ -127,6 +132,11 @@ const SYSTEM_ROUTES: readonly SystemRoute[] = [
   "security",
   "hazards",
   "dashmeme",
+  "memecoin-security",
+  "memecoin-discovery",
+  "memecoin-trading",
+  "memecoin-whales",
+  "memecoin-profiles",
 ];
 
 const ALL_ROUTES: readonly Route[] = [...ASSET_ROUTES, ...SYSTEM_ROUTES];

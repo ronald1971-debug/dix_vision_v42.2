@@ -125,6 +125,11 @@ const TOOLS_NAV: Record<string, NavItem<SystemRoute>> = {
   plugins: { key: "plugins", label: "Plugins", href: "#/plugins", icon: Puzzle },
   adapters: { key: "adapters", label: "Adapters", href: "#/adapters", icon: Network },
   dashmeme: { key: "dashmeme", label: "DashMeme", href: "#/dashmeme", icon: Coins },
+  "memecoin-security": { key: "memecoin-security", label: "Memecoin Security", href: "#/memecoin-security", icon: ShieldCheck },
+  "memecoin-discovery": { key: "memecoin-discovery", label: "Memecoin Discovery", href: "#/memecoin-discovery", icon: Telescope },
+  "memecoin-trading": { key: "memecoin-trading", label: "Trading Automation", href: "#/memecoin-trading", icon: Target },
+  "memecoin-whales": { key: "memecoin-whales", label: "Smart Money Tracking", href: "#/memecoin-whales", icon: Users },
+  "memecoin-profiles": { key: "memecoin-profiles", label: "Token Profiles", href: "#/memecoin-profiles", icon: FileText },
   nft: { key: "nft", label: "NFT", href: "#/nft", icon: ImageIcon },
 };
 

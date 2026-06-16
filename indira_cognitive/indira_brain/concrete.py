@@ -33,6 +33,10 @@ from indira_cognitive.shared_interfaces.enhanced_types import (
 
 logger = logging.getLogger(__name__)
 
+# Import neuromorphic modules for Phase 5 integration
+from indira_cognitive.neuromorphic.indira_spiking_network import get_indira_spiking_intelligence
+from indira_cognitive.neuromorphic.indira_lsm import get_indira_lsm_intelligence
+
 
 class ConcreteINDIRABrain(INDIRABrainInterface):
     """
