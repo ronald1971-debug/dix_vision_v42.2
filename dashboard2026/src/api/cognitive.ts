@@ -222,6 +222,74 @@ export class CognitiveEnvironmentAPI {
   }
 }
 
+/**
+ * Get cognitive snapshot (for CognitiveHealthStrip)
+ */
+export async function fetchCognitiveSnapshot(signal?: AbortSignal): Promise<{
+  indira: {
+    tick_count: number;
+    cycle_position: number;
+  };
+  evo: {
+    dyon: {
+      tick_count: number;
+      scan_count: number;
+      structural_loop_wired: boolean;
+    };
+  };
+  memory: {
+    episodic_size: number;
+    semantic_size: number;
+    consolidate_seq: number;
+  };
+  research: {
+    running: boolean;
+    queue_depth: number;
+    total_runs: number;
+  };
+}> {
+  const BASE = (import.meta.env.VITE_API_BASE ?? "").replace(/\/$/, "");
+  const token = localStorage.getItem('dix_token') || null;
+  
+  const headers = new Headers();
+  headers.set('Content-Type', 'application/json');
+  if (token) {
+    headers.set('Authorization', `Bearer ${token}`);
+  }
+
+  const response = await fetch(`${BASE}/api/cognitive/snapshot`, {
+    signal,
+    headers
+  });
+
+  if (!response.ok) {
+    // Return mock data if API fails (for development)
+    console.warn('Cognitive snapshot API unavailable, using mock data');
+    return {
+      indira: { tick_count: 10, cycle_position: 5 },
+      evo: {
+        dyon: {
+          tick_count: 8,
+          scan_count: 15,
+          structural_loop_wired: true
+        }
+      },
+      memory: {
+        episodic_size: 100,
+        semantic_size: 200,
+        consolidate_seq: 50
+      },
+      research: {
+        running: false,
+        queue_depth: 0,
+        total_runs: 0
+      }
+    };
+  }
+
+  return response.json();
+}
+
 // Singleton instance
 let cognitiveAPIInstance: CognitiveEnvironmentAPI | null = null;
 

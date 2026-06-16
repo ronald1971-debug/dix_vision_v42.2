@@ -38,7 +38,8 @@
       "Exec(npx tsc)",
       "Exec(cat)",
       "Exec((Get-Content)",
-      "Exec(rm)"
+      "Exec(rm)",
+      "Exec(copy)"
     ]
   }
 }

@@ -51,12 +51,12 @@ import { IndiraCognitiveCenterPage } from "@/pages/IndiraCognitiveCenterPage";
 import { DyonWorkspacePage } from "@/pages/DyonWorkspacePage";
 import { OperatorWorkspacePage } from "@/pages/OperatorWorkspacePage";
 import { AgentOpsProvider } from "@/context/AgentOpsContext";
-import { DexPage } from "@/pages/asset/DexPage";
-import { ForexPage } from "@/pages/asset/ForexPage";
-import { NftPage } from "@/pages/asset/NftPage";
-import { PerpsPage } from "@/pages/asset/PerpsPage";
-import { SpotPage } from "@/pages/asset/SpotPage";
-import { StocksPage } from "@/pages/asset/StocksPage";
+
+
+
+
+
+
 import { useApplyPreferences } from "@/preferences/store";
 import { isPopoutRoute, useHashRoute, useIsPopout, type Route } from "@/router";
 import { useGlobalHotkeys } from "@/state/hotkeys";
