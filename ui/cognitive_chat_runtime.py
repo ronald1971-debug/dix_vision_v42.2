@@ -55,10 +55,10 @@ from core.contracts.api.cognitive_chat import (
 from core.contracts.api.cognitive_chat_approvals import (
     ApprovalDecisionRequest,
 )
-from governance_engine.control_plane.ledger_authority_writer import (
+from governance_unified.control_plane.ledger_authority_writer import (
     LedgerAuthorityWriter,
 )
-from governance_engine.control_plane.operator_attention import (
+from governance_unified.control_plane.operator_attention import (
     AUTO_DECIDED_BY_TAG,
     OperatorAttention,
 )

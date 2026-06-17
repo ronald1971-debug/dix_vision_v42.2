@@ -1,0 +1,16 @@
+{
+  "checkpoint_id": "test_component_1781657042082",
+  "timestamp": "2026-06-17T00:44:02.082883",
+  "component": "test_component",
+  "state_data": {
+    "version": 2,
+    "data": "synchronized"
+  },
+  "metadata": {
+    "sync_replicas": [
+      "replica_1",
+      "replica_2"
+    ]
+  },
+  "checksum": "0bff97ab32c56f76fe3ed8a4b463a8ca075ce63afb6630f6baf71593011ba6ff"
+}

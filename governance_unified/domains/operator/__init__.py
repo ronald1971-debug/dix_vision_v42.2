@@ -1,23 +1,39 @@
-"""Operator Governance Domain.
+"""
+governance_unified.domains.operator
+Operator sovereignty and human-in-the-loop governance guards.
 
-Domain-specific governance for operator interactions including
-authority management, consent routing, override priorities, and
-manual control mechanisms.
+This module contains guards to ensure operator authority, consent 
+management, and human oversight.
 """
 
-# Import the modules themselves rather than specific functions
-from . import authority_escalation
-from . import consent_router
-from . import governance_visibility
-from . import manual_lockout
-from . import override_priority
-from . import operator_constitution
+from __future__ import annotations
+
+from .authority_escalation import AuthorityEscalationGuard, get_authority_escalation_guard
+from .consent_router import ConsentRouter, get_consent_router
+from .governance_visibility import GovernanceVisibilityMonitor, get_governance_visibility_monitor
+from .manual_lockout import ManualLockoutGuard, get_manual_lockout_guard
+from .operator_constitution import OperatorConstitution, get_operator_constitution
+from .override_priority import OverridePriorityManager, get_override_priority_manager
+
+# Domain-specific operator governance components
+from .operator_charter import OPERATOR_GOVERNANCE_CHARTER
+from .operator_engine import OperatorGovernanceEngine
 
 __all__ = [
-    "authority_escalation",
-    "consent_router",
-    "governance_visibility",
-    "manual_lockout",
-    "override_priority",
-    "operator_constitution",
+    # Core components
+    "AuthorityEscalationGuard",
+    "get_authority_escalation_guard",
+    "ConsentRouter",
+    "get_consent_router",
+    "GovernanceVisibilityMonitor",
+    "get_governance_visibility_monitor",
+    "ManualLockoutGuard",
+    "get_manual_lockout_guard",
+    "OperatorConstitution",
+    "get_operator_constitution",
+    "OverridePriorityManager",
+    "get_override_priority_manager",
+    # Domain-specific operator governance components
+    "OPERATOR_GOVERNANCE_CHARTER",
+    "OperatorGovernanceEngine",
 ]

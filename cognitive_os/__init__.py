@@ -18,8 +18,9 @@ Completed Phases Integrated:
 - Phase 10: Neuro-Symbolic & Meta-Cognitive Integration
 - Phase 11: Advanced Causal Discovery Engine
 - Phase 12: Neuromorphic Computing (INDIRA & DYON SNN + LSM)
+- Priority 3: Advanced AI Capabilities (Semantic Reasoning, AutoML, Knowledge Graph, Multi-Agent Orchestration, Cross-Modal)
 
-Total Integration: 121+ tests passing across all completed phases.
+Total Integration: 121+ tests passing across all completed phases + Priority 3 enhancements.
 """
 
 # Core Cognitive OS Kernel
@@ -59,6 +60,29 @@ from .causal import (
     get_advanced_causal_discovery,
 )
 
+# Integration Layer
+from .integration import (
+    get_advanced_ai_integration,
+    get_complete_system_integration,
+)
+
+# Priority 3 Advanced AI Capabilities
+from .semantic import (
+    get_semantic_reasoning_engine,
+)
+from .automl import (
+    get_automl_engine,
+)
+from .knowledge import (
+    get_advanced_graph_engine,
+)
+from .agents import (
+    get_multi_agent_engine,
+)
+from .multimodal import (
+    get_cross_modal_engine,
+)
+
 __all__ = [
     # Core
     "CognitiveOSKernel",
@@ -76,4 +100,13 @@ __all__ = [
     "get_neuro_symbolic_ai",
     "get_meta_cognitive_system",
     "get_advanced_causal_discovery",
+    # Integration Layer
+    "get_advanced_ai_integration",
+    "get_complete_system_integration",
+    # Priority 3 Advanced AI Capabilities
+    "get_semantic_reasoning_engine",
+    "get_automl_engine",
+    "get_advanced_graph_engine",
+    "get_multi_agent_engine",
+    "get_cross_modal_engine",
 ]

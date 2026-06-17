@@ -1,19 +1,51 @@
-# Kubernetes Configuration for DIX VISION
+repository:
+  name: "kubernetes"
+  url: "https://github.com/kubernetes/kubernetes.git"
+  version: "28.1.0"
+  description: "Kubernetes orchestration for container management"
+
+domain:
+  type: "SYSTEM"
+  priority: "HIGH"
+  category: "orchestration"
+
+container:
+  enabled: true
+  image: "dix-kubernetes:latest"
+  build:
+    dockerfile: "containers/github_repos/kubernetes/Dockerfile"
+    context: "containers/github_repos/kubernetes"
+  ports:
+    - "9114:9114"
+  volumes:
+    - "./containers/github_repos/kubernetes/config:/app/config"
+    - "./containers/github_repos/kubernetes/data:/app/data"
+    - "./containers/github_repos/kubernetes/logs:/app/logs"
+    - "./containers/github_repos/kubernetes/deployments:/app/deployments"
+  environment:
+    - "KUBERNETES_LOG_LEVEL=INFO"
+    - "KUBERNETES_PERMISSION_LEVEL=READ_ONLY"
+  resources:
+    memory_limit: "512M"
+    cpu_limit: "1.0"
+    memory_reservation: "256M"
+    cpu_reservation: "0.5"
+  health_check:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+    retries: 3
+
 governance:
-  permission_level: READ_ONLY
   enabled: true
-  audit_logging: true
-  safety_checks: true
+  permission_level: "READ_ONLY"
+  orchestration_limits:
+    max_pods: 1000
+    max_services: 100
+    max_deployment_time: 600
 
-kubernetes:
-  config_path: ~/.kube/config
-  default_namespace: default
-  max_pod_limit: 100
-
-monitoring:
-  enabled: true
-  metrics_interval: 60
-
-security:
-  tls_verify: true
-  certificate_authority: /app/config/ca.crt
+adapter:
+  type: "KubernetesDomainAdapter"
+  concept_mappings:
+    pod: "compute_instance"
+    service: "access_endpoint"

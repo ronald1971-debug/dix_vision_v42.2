@@ -49,7 +49,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
 from core.contracts.engine import MicrostructurePlugin, PluginLifecycle
-from governance_engine.control_plane.ledger_authority_writer import (
+from governance_unified.control_plane.ledger_authority_writer import (
     LedgerAuthorityWriter,
 )
 

@@ -337,7 +337,7 @@ def build_cognitive_report_router() -> APIRouter:
           - limits: configured max_drawdown_pct, max_exposure_notional, max_position_qty
         """
         try:
-            from governance_engine.risk_engine.risk_tracker import get_risk_tracker
+            from governance_unified.risk_engine.risk_tracker import get_risk_tracker
             return {"ts_iso": utc_now().isoformat(), **get_risk_tracker().snapshot()}
         except Exception as exc:
             return {"error": str(exc)}

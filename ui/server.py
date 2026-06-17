@@ -111,26 +111,26 @@ from evolution_engine.patch_pipeline.pipeline import PatchPipeline
 from execution_engine.engine import ExecutionEngine
 from execution_engine.execution_gate import AuthorityGuard
 from execution_engine.protections.feedback import FeedbackCollector
-from governance_engine.control_plane.decision_signer import (
+from governance_unified.control_plane.decision_signer import (
     DecisionSigner,
     make_decision_signer,
 )
-from governance_engine.control_plane.exposure_store import ExposureStore
-from governance_engine.control_plane.ledger_authority_writer import (
+from governance_unified.control_plane.exposure_store import ExposureStore
+from governance_unified.control_plane.ledger_authority_writer import (
     LedgerAuthorityWriter,
 )
-from governance_engine.control_plane.policy_hash_anchor import (
+from governance_unified.control_plane.policy_hash_anchor import (
     PolicyHashAnchor,
 )
-from governance_engine.engine import GovernanceEngine
-from governance_engine.harness_approver import (
+from governance_unified.engine import GovernanceEngine
+from governance_unified.harness_approver import (
     HARNESS_APPROVER_ENV_VAR,
     approve_signal_for_execution,
 )
-from governance_engine.services.patch_pipeline_bridge import (
+from governance_unified.services.patch_pipeline_bridge import (
     PatchApprovalBridge,
 )
-from governance_engine.strategy_registry import StrategyRegistry
+from governance_unified.strategy_registry import StrategyRegistry
 from ui.state_projection import StateProjection, init_state_projection
 
 # Hardening-S1 item 1 — explicit opt-in for the harness approval shim.

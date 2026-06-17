@@ -127,7 +127,7 @@ function AppContent() {
         {/* Main Content Area */}
         <div className="flex flex-1 overflow-hidden">
           {/* Sidebar */}
-          <Sidebar collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
+          <Sidebar active={route} collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
 
           {/* Route Content */}
           <main className="flex-1 overflow-auto">
@@ -136,7 +136,11 @@ function AppContent() {
         </div>
 
         {/* Command Palette */}
-        <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
+        <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} onNavigate={(navigateRoute: Route) => {
+          // For navigation, we need to change the hash
+          window.location.hash = `#/${navigateRoute}`;
+          setPaletteOpen(false);
+        }} />
 
         {/* Widget Toggle Panel */}
         <WidgetTogglePanel />

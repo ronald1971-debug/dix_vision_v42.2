@@ -1,0 +1,13 @@
+{
+  "checkpoint_id": "test_component_1781657011566",
+  "timestamp": "2026-06-17T00:43:31.566711",
+  "component": "test_component",
+  "state_data": {
+    "version": 2,
+    "data": "new"
+  },
+  "metadata": {
+    "transaction_id": "trans_1"
+  },
+  "checksum": "6dda91b3d518e5984b13f2e83c42785c7169015dfd80a8e1cb02d8fabd558a7c"
+}

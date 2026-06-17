@@ -325,10 +325,10 @@ export function App() {
             <Sidebar active={route} collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
             <main className="flex-1 overflow-auto">
               {paletteOpen && (
-                <CommandPalette
+                <CommandPalette open={paletteOpen}
                   onClose={() => setPaletteOpen(false)}
-                  onSelect={(route: string) => {
-                    goRoute(route);
+                  onNavigate={(navigateRoute: Route) => {
+                    goRoute(navigateRoute);
                     setPaletteOpen(false);
                   }}
                 />

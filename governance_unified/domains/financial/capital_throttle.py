@@ -1,5 +1,5 @@
 """
-financial_governance/capital_throttle.py
+governance_unified.domains.financial.capital_throttle
 DIX VISION v42.2 — Capital Throttle
 
 Limits the rate at which capital is deployed. A large burst of orders
@@ -98,7 +98,7 @@ class CapitalThrottle:
             append_event(
                 "GOVERNANCE",
                 "FINGOV_CAPITAL_RATE_EXCEEDED",
-                "financial_governance.capital_throttle",
+                "governance_engine.domains.financial.capital_throttle",
                 {
                     "deployed_usd": deployed,
                     "limit_usd": self._limit_usd,

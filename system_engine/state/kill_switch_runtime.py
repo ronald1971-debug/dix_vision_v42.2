@@ -2,7 +2,7 @@
 DIX VISION v42.2 — Kill Switch Runtime
 
 Provides the system-level kill-switch that halts ALL autonomous
-operations immediately. Distinct from financial_governance/kill_switch.py
+operations immediately. Distinct from governance_unified/domains/financial/kill_switch.py
 (which governs capital deployment) — this governs process-level
 execution: trading, learning, and evolution pipelines.
 

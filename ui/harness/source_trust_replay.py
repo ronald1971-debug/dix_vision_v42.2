@@ -25,7 +25,7 @@ from core.contracts.source_trust_promotions import (
     SourceTrustPromotionStore,
     is_promotable_target,
 )
-from governance_engine.control_plane.ledger_authority_writer import (
+from governance_unified.control_plane.ledger_authority_writer import (
     LedgerAuthorityWriter,
 )
 

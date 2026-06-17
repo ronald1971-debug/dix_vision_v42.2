@@ -1,0 +1,14 @@
+{
+  "checkpoint_id": "integrated_1781656627875",
+  "timestamp": "2026-06-17T00:37:07.875390",
+  "component": "integrated",
+  "state_data": {
+    "timestamp": "2026-06-17T00:37:07.875381",
+    "service": "integrated_service",
+    "circuit_state": "CLOSED"
+  },
+  "metadata": {
+    "service": "integrated_service"
+  },
+  "checksum": "f2ec179a3695933ec88372501ec621b6c1048995fc90118848d2df33eba6792d"
+}

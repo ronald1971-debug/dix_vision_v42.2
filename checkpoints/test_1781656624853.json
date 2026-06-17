@@ -1,0 +1,14 @@
+{
+  "checkpoint_id": "test_1781656624853",
+  "timestamp": "2026-06-17T00:37:04.853491",
+  "component": "test",
+  "state_data": {
+    "timestamp": "2026-06-17T00:37:04.853472",
+    "service": "test_service",
+    "circuit_state": "CLOSED"
+  },
+  "metadata": {
+    "service": "test_service"
+  },
+  "checksum": "ea6bd4d6753676b050ecc9a44a2dc79c2459eebe45e3eba91f1a305d2ff62711"
+}

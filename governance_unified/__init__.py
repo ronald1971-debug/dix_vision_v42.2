@@ -1,71 +1,62 @@
-"""Unified Governance System - Single Authority Layer.
+"""governance_unified — Unified Governance System.
 
-This is the consolidated governance system that replaces the fragmented
-governance/, governance_engine/, financial_governance/, and operator_governance/
-modules with a single, coherent governance architecture as specified in the
-DIX VISION system vision.
+Single authoritative governance system consolidating all governance functionality
+from the previously fragmented approach (governance/, governance_engine/,
+financial_governance/, operator_governance/, cognitive_governance/).
 
-System Vision: "a robust governance layer with permission-based access control"
-Implementation: Single unified governance system with domain-specific modules
-
-Architecture:
-- Core: Unified governance kernel and authority management
-- Domains: Financial, Operator, Cognitive, Execution governance
-- Policies: Unified policy engine and compilation
-- Modes: System mode management and transitions
-- Risk: Unified risk assessment and hazard response
-- Integration: External system integration and coordination
-
-This provides the single governance layer called for in the system vision.
+This provides the unified governance layer with comprehensive control plane,
+domain-specific governance, security hardening, and operational features.
 """
 
-# Core governance components
-from .core.kernel import (
-    UnifiedGovernanceKernel,
-    get_unified_governance_kernel,
-    GovernanceRequest,
-    GovernanceDecision,
-    GovernanceOutcome,
-    AuthorityRequest,
-    AuthorityDecision,
-    ModeTransitionRequest,
-    ModeTransitionResult,
-    RiskAssessment,
-    SystemMode,
-    IntentType,
+from .engine import GovernanceEngine
+from .policy_compiler import compile_invariant, check_policy_violation
+from .kill_switch import get_governance_kill_switch
+from .strategy_registry import StrategyRegistry
+
+# Oracle system (from governance/)
+from .oracle import (
+    approve_l1_fast,
+    approve_l2_balanced,
+    approve_l3_deep,
 )
 
-# Domain-specific governance (module-level imports)
-from .domains import financial as financial_domain
-from .domains import operator as operator_domain
+# Mode system (from governance/)
+from .mode import (
+    ModeManager,
+    OperationalMode,
+    FsmMode,
+    get_mode_manager,
+    enter_safe_mode,
+    exit_safe_mode,
+    enter_degraded_mode,
+    exit_degraded_mode,
+    enter_halted_mode,
+)
 
-# Policy management
-from .policies.policy_engine import get_policy_engine
-from .modes.mode_manager import get_mode_manager
-
-# Risk management
-from .risk.risk_engine import get_risk_engine
+# Signals system (from governance/)
+from .signals import (
+    get_neuromorphic_risk,
+    NeuromorphicRisk,
+)
 
 __all__ = [
-    # Core governance
-    "UnifiedGovernanceKernel",
-    "get_unified_governance_kernel",
-    "GovernanceRequest",
-    "GovernanceDecision",
-    "GovernanceOutcome",
-    "AuthorityRequest",
-    "AuthorityDecision",
-    "ModeTransitionRequest",
-    "ModeTransitionResult",
-    "RiskAssessment",
-    "SystemMode",
-    "IntentType",
-    # Financial domain
-    "financial_domain",
-    # Operator domain
-    "operator_domain",
-    # Policy and mode management
-    "get_policy_engine",
+    "GovernanceEngine",
+    "compile_invariant",
+    "check_policy_violation",
+    "get_governance_kill_switch",
+    "StrategyRegistry",
+    "approve_l1_fast",
+    "approve_l2_balanced",
+    "approve_l3_deep",
+    "ModeManager",
+    "OperationalMode",
+    "FsmMode",
     "get_mode_manager",
-    "get_risk_engine",
+    "enter_safe_mode",
+    "exit_safe_mode",
+    "enter_degraded_mode",
+    "exit_degraded_mode",
+    "enter_halted_mode",
+    "get_neuromorphic_risk",
+    "NeuromorphicRisk",
 ]

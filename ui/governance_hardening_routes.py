@@ -67,42 +67,42 @@ def _ts(ts_ns: int) -> int:
 
 
 def _hardening():
-    from governance_engine.hardening.coordinator import get_hardening_coordinator
+    from governance_unified.hardening.coordinator import get_hardening_coordinator
     return get_hardening_coordinator()
 
 
 def _firewall():
-    from governance_engine.hardening.mutation_firewall import get_mutation_firewall
+    from governance_unified.hardening.mutation_firewall import get_mutation_firewall
     return get_mutation_firewall()
 
 
 def _lock_mgr():
-    from governance_engine.hardening.policy_lock import get_policy_lock_manager
+    from governance_unified.hardening.policy_lock import get_policy_lock_manager
     return get_policy_lock_manager()
 
 
 def _invariant():
-    from governance_engine.hardening.invariant_monitor import get_invariant_monitor
+    from governance_unified.hardening.invariant_monitor import get_invariant_monitor
     return get_invariant_monitor()
 
 
 def _replay():
-    from governance_engine.hardening.replay_engine import get_replay_engine
+    from governance_unified.hardening.replay_engine import get_replay_engine
     return get_replay_engine()
 
 
 def _isolation():
-    from governance_engine.hardening.isolation_boundary import get_isolation_boundary
+    from governance_unified.hardening.isolation_boundary import get_isolation_boundary
     return get_isolation_boundary()
 
 
 def _trust():
-    from governance_engine.hardening.trust_scorer import get_trust_scorer
+    from governance_unified.hardening.trust_scorer import get_trust_scorer
     return get_trust_scorer()
 
 
 def _auditor():
-    from governance_engine.hardening.execution_auditor import get_execution_auditor
+    from governance_unified.hardening.execution_auditor import get_execution_auditor
     return get_execution_auditor()
 
 
@@ -127,7 +127,7 @@ def build_governance_hardening_router() -> APIRouter:
 
     @router.get("/invariants")
     def get_invariants() -> dict[str, Any]:
-        from governance_engine.hardening.invariant_monitor import _report_to_dict
+        from governance_unified.hardening.invariant_monitor import _report_to_dict
         report = _invariant().last_report
         if report is None:
             return {"status": "no report yet"}

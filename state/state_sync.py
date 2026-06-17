@@ -95,7 +95,7 @@ class UnifiedStateSync:
     @staticmethod
     def _read_risk() -> dict[str, Any]:
         try:
-            from governance_engine.risk_engine.risk_tracker import get_risk_tracker
+            from governance_unified.risk_engine.risk_tracker import get_risk_tracker
             snap = get_risk_tracker().snapshot()
             return {
                 "halted": snap.get("halted", False),

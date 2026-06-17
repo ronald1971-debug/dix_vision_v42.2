@@ -1,0 +1,14 @@
+{
+  "checkpoint_id": "test_composition_1781656548277",
+  "timestamp": "2026-06-17T00:35:48.277714",
+  "component": "test_composition",
+  "state_data": {
+    "timestamp": "2026-06-17T00:35:48.277698",
+    "service": "test_composition",
+    "circuit_state": "CLOSED"
+  },
+  "metadata": {
+    "service": "test_composition"
+  },
+  "checksum": "6e5f1b5c8135b9be4a5460b82674b400ea4f3e57d2ee1d48891751867c56d826"
+}

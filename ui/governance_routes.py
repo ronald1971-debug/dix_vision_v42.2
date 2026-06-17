@@ -46,7 +46,7 @@ from core.contracts.api.governance import (
     PromotionGatesResponse,
     SourcesResponse,
 )
-from governance_engine.control_plane.promotion_gates import (
+from governance_unified.control_plane.promotion_gates import (
     DEFAULT_PROMOTION_GATES_PATH,
     compute_file_hash,
 )
