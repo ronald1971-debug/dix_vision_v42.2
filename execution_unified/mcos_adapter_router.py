@@ -1,90 +1,36 @@
-"""Adapter Router – routes execution to the correct venue adapter.
-
-Supports multiple venue types with a pluggable adapter interface.
+"""
+Execution Unified MCOS Adapter Router - MCOS Adapter Routing
+Provides MCOS-specific adapter routing capabilities
+NO LAZY LOADING - All components load directly
 """
 
-from __future__ import annotations
+from typing import Dict, List, Optional, Any
+import logging
 
-import time
-import uuid
-from abc import ABC, abstractmethod
+logger = logging.getLogger(__name__)
 
-from core.types import ExecutionIntent, TradeResult
-
-
-class VenueAdapter(ABC):
-    """Base class for venue adapters."""
-
-    @abstractmethod
-    def name(self) -> str: ...
-
-    @abstractmethod
-    def is_available(self) -> bool: ...
-
-    @abstractmethod
-    def execute(self, intent: ExecutionIntent) -> TradeResult: ...
-
-
-class PaperAdapter(VenueAdapter):
-    """Paper trading adapter – simulates fills with no capital risk."""
-
-    def __init__(self) -> None:
-        self._fills: list[TradeResult] = []
-
-    def name(self) -> str:
-        return "paper"
-
-    def is_available(self) -> bool:
+class MCOSAdapterRouter:
+    """MCOS adapter router for multi-cognitive operations"""
+    
+    def __init__(self):
+        self._mcos_routes = {}
+        self._cognitive_profiles = {}
+        
+    def register_mcos_adapter(self, adapter_id: str, cognitive_profile: Dict[str, Any]) -> bool:
+        """Register MCOS adapter with cognitive profile"""
+        self._mcos_routes[adapter_id] = cognitive_profile
+        self._cognitive_profiles[adapter_id] = cognitive_profile
         return True
+    
+    def route_to_mcos_adapter(self, cognitive_request: Dict[str, Any]) -> Optional[str]:
+        """Route cognitive request to appropriate MCOS adapter"""
+        for adapter_id, profile in self._cognitive_profiles.items():
+            if profile.get("active", False):
+                return adapter_id
+        return None
+    
+    def get_cognitive_profile(self, adapter_id: str) -> Optional[Dict[str, Any]]:
+        """Get cognitive profile for adapter"""
+        return self._cognitive_profiles.get(adapter_id)
 
-    def execute(self, intent: ExecutionIntent) -> TradeResult:
-        result = TradeResult(
-            trade_id=uuid.uuid4().hex[:12],
-            intent_id=intent.intent_id,
-            symbol=intent.symbol,
-            direction=intent.direction,
-            fill_price=intent.price_limit or 100.0,
-            fill_quantity=intent.quantity,
-            fees=0.0,
-            slippage=0.0,
-            timestamp=time.time(),
-            venue="paper",
-            status="filled",
-        )
-        self._fills.append(result)
-        return result
-
-
-class AdapterRouter:
-    """Routes intents to the appropriate venue adapter."""
-
-    def __init__(self) -> None:
-        self._adapters: dict[str, VenueAdapter] = {}
-        self._default_venue: str = "paper"
-
-        paper = PaperAdapter()
-        self._adapters["paper"] = paper
-
-    def register_adapter(self, adapter: VenueAdapter) -> None:
-        self._adapters[adapter.name()] = adapter
-
-    def route(
-        self, intent: ExecutionIntent, venue: str | None = None
-    ) -> TradeResult:
-        target = venue or self._default_venue
-        adapter = self._adapters.get(target)
-        if not adapter:
-            raise ValueError(f"No adapter for venue '{target}'")
-        if not adapter.is_available():
-            raise RuntimeError(f"Venue '{target}' is not available")
-        return adapter.execute(intent)
-
-    def get_available_venues(self) -> list[str]:
-        return [
-            name for name, adapter in self._adapters.items() if adapter.is_available()
-        ]
-
-    def set_default_venue(self, venue: str) -> None:
-        if venue not in self._adapters:
-            raise ValueError(f"Unknown venue: {venue}")
-        self._default_venue = venue
+__all__ = ['MCOSAdapterRouter']

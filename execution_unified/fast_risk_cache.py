@@ -25,7 +25,7 @@ from __future__ import annotations
 import threading
 from dataclasses import dataclass
 
-from system_unified_unified_unified import time_source
+from system_unified import time_source
 
 
 @dataclass(frozen=True, slots=True)

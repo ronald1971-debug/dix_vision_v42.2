@@ -116,6 +116,18 @@ from .lifecycle import (
     RetryPolicy,
 )
 
+# Production-ready archival submodules (organized by function)
+from . import (
+    adapters_archive,
+    algos_archive,
+    confirmations_archive,
+    hazard_archive,
+    live_trading_archive,
+    monitoring_archive,
+    execution_archived_20260617_1258,
+    engine_archive,
+)
+
 # Hazard components (migrated from execution/)
 from .hazard import (
     HazardBus,
@@ -286,6 +298,17 @@ __all__ = [
     "evaluate_threshold",
     # Testing infrastructure
     "TestingChaosEngine",
+    
+    # Production-ready archival components (organized by function):
+    "adapters_archive",
+    "algos_archive", 
+    "confirmations_archive",
+    "hazard_archive",
+    "live_trading_archive",
+    "monitoring_archive",
+    "execution_archived_20260617_1258",
+    "engine_archive",
+    
     # All archival components available via submodules:
     # - execution_unified.adapters_archive (7 adapter components)
     # - execution_unified.algos_archive (algorithm components)

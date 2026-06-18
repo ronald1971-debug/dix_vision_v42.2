@@ -433,7 +433,8 @@ from system_unified.time_source import (
     TimeSource,
     get_time_source,
     get_current_time_ns,
-    get_current_time_s
+    get_current_time_s,
+    now
 )
 
 from system_unified.kill_switch import (
@@ -445,6 +446,46 @@ from system_unified.kill_switch import (
     trigger_kill_switch,
     arm_kill_switch,
     reset_kill_switch
+)
+
+from system_unified.fast_risk_cache import (
+    FastRiskCache,
+    get_fast_risk_cache,
+    get_risk_data,
+    set_risk_data,
+    invalidate_risk_data,
+    get_risk_cache
+)
+
+from system_unified.config import (
+    SystemConfig,
+    get_config,
+    get_config_value,
+    get
+)
+
+config = get_config()
+
+# Add alias for backward compatibility
+# get = config.get  # Already defined in config module
+
+from system_unified.state import (
+    State,
+    StateManager,
+    get_state_manager,
+    set_state,
+    get_state,
+    get_current_state
+)
+
+from system_unified.health_monitor import (
+    HealthStatus,
+    HealthMetric,
+    HealthMonitor,
+    get_health_monitor,
+    record_health_metric,
+    get_health_status,
+    check_health
 )
 
 
@@ -464,6 +505,7 @@ __all__ = [
     'get_time_source',
     'get_current_time_ns',
     'get_current_time_s',
+    'now',
     'KillSwitchState',
     'KillReason',
     'KillSwitchEvent',
@@ -471,5 +513,29 @@ __all__ = [
     'get_kill_switch',
     'trigger_kill_switch',
     'arm_kill_switch',
-    'reset_kill_switch'
+    'reset_kill_switch',
+    'FastRiskCache',
+    'get_fast_risk_cache',
+    'get_risk_data',
+    'set_risk_data',
+    'invalidate_risk_data',
+    'get_risk_cache',
+    'config',
+    'SystemConfig',
+    'get_config',
+    'get_config_value',
+    'get',
+    'State',
+    'StateManager',
+    'get_state_manager',
+    'set_state',
+    'get_state',
+    'get_current_state',
+    'HealthStatus',
+    'HealthMetric',
+    'HealthMonitor',
+    'get_health_monitor',
+    'record_health_metric',
+    'get_health_status',
+    'check_health'
 ]

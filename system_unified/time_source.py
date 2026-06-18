@@ -60,11 +60,17 @@ def now() -> datetime:
     """Get current datetime"""
     return get_time_source().now()
 
+def wall_ns() -> int:
+    """Get wall clock time in nanoseconds"""
+    return get_time_source().get_time_ns()
+
 # Export now as a module-level function
 def __getattr__(name):
     """Allow import of 'now' from this module"""
     if name == 'now':
         return now
+    if name == 'wall_ns':
+        return wall_ns
     raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
 
 __all__ = [

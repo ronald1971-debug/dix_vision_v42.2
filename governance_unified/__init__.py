@@ -42,6 +42,11 @@ from .signals import (
     NeuromorphicRisk,
 )
 
+# Production-ready legacy archival components (organized by function)
+from . import (
+    legacy_archive,
+)
+
 # Authority and hazard system (from governance/ - for INDIRA/DYON decision making)
 from .authority_graph import AuthorityLevel, AuthorityNode, AuthorityGraph
 from .hazard_classifier import classify, HazardClassification
@@ -70,6 +75,7 @@ __all__ = [
     "enter_halted_mode",
     "get_neuromorphic_risk",
     "NeuromorphicRisk",
+    "legacy_archive",
     "AuthorityLevel",
     "AuthorityNode",
     "AuthorityGraph",
