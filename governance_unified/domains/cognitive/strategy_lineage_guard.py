@@ -149,7 +149,7 @@ class StrategyLineageGuard:
 
         Useful for periodic integrity sweeps of the strategy registry.
         """
-        from system.time_source import wall_ns
+        from system_unified.time_source import wall_ns
         ts_ns = wall_ns()
 
         with self._lock:

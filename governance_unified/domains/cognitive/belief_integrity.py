@@ -106,7 +106,7 @@ class BeliefIntegrityGuard:
         passed = len(violations) == 0
 
         if not passed:
-            from system.time_source import wall_ns
+            from system_unified.time_source import wall_ns
             ts_ns = wall_ns()
             append_event(
                 "GOVERNANCE",
@@ -136,7 +136,7 @@ class BeliefIntegrityGuard:
         Returns a BeliefIntegrityReport. Callers MUST check report.passed
         before applying the update.
         """
-        from system.time_source import wall_ns
+        from system_unified.time_source import wall_ns
         ts_ns = wall_ns()
 
         confidence = max(0.0, min(1.0, confidence))

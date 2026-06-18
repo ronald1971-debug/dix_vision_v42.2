@@ -108,7 +108,7 @@ class CognitivePhysicsEngine:
         New confidence = target_confidence + (propagation_factor * 0.3)
         Capped at 1.0 to prevent runaway amplification.
         """
-        from system.time_source import wall_ns
+        from system_unified.time_source import wall_ns
 
         ts_ns = wall_ns()
         flow = evidence_overlap * source_confidence
@@ -145,7 +145,7 @@ class CognitivePhysicsEngine:
         Decay formula: C(t) = C0 * e^(-λt) where λ = ln(2) / half_life
         Returns decayed confidence.
         """
-        from system.time_source import wall_ns
+        from system_unified.time_source import wall_ns
 
         now = wall_ns()
 
@@ -190,7 +190,7 @@ class CognitivePhysicsEngine:
         Combined uncertainty from all sources (with overlap adjustment):
         U_total = 1 - Π(1 - U_source_i)
         """
-        from system.time_source import wall_ns
+        from system_unified.time_source import wall_ns
 
         now = wall_ns()
 

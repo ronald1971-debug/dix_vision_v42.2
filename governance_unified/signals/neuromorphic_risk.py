@@ -133,7 +133,7 @@ class NeuromorphicRisk:
         context: str,
         details: dict[str, Any],
     ) -> RiskSignalEvent:
-        from system.time_source import now
+        from system_unified.time_source import now
 
         ts = now().utc_time.isoformat()
         event = RiskSignalEvent(

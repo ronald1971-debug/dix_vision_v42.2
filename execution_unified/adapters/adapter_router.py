@@ -8,7 +8,7 @@ from __future__ import annotations
 import threading
 from dataclasses import dataclass
 
-from execution.adapters.base import BaseAdapter
+from execution_unified.adapters.base import BaseAdapter
 
 
 @dataclass

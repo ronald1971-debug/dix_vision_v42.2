@@ -30,7 +30,7 @@ import hashlib
 import hmac
 from dataclasses import dataclass
 
-from system.time_source import wall_ns
+from system_unified.time_source import wall_ns
 
 
 @dataclass(frozen=True, slots=True)

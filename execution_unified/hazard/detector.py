@@ -12,8 +12,8 @@ import threading
 import time
 
 from execution_unified.hazard.event_emitter import get_hazard_emitter
-from system.config import get as get_config
-from system.health_monitor import get_health_monitor
+from system_unified.config import get as get_config
+from system_unified.health_monitor import get_health_monitor
 
 
 class HazardDetector:

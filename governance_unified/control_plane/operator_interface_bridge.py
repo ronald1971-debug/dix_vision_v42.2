@@ -52,7 +52,7 @@ from .policy_engine import PolicyEngine
 from .state_transition_manager import (
     StateTransitionManager,
 )
-from system.kill_switch import KillSwitch
+from system_unified.kill_switch import KillSwitch
 
 
 def _parse_mode(name: str) -> SystemMode | None:

@@ -43,7 +43,7 @@ from core.contracts.events import (
     Side,
     SignalEvent,
 )
-from execution_engine.adapters._live_base import (
+from execution_unified.core.adapters._live_base import (
     AdapterState,
     LiveAdapterBase,
 )

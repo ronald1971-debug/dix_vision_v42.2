@@ -82,7 +82,7 @@ def _row_bytes(
 # Table schema (one row per ledger entry, append-only):
 #
 #   seq         INTEGER PRIMARY KEY  — gap-free, matches LedgerEntry.seq
-#   ts_ns       INTEGER NOT NULL     — wall-ns from system.time_source
+#   ts_ns       INTEGER NOT NULL     — wall-ns from system_unified.time_source
 #   kind        TEXT NOT NULL        — non-empty
 #   payload     TEXT NOT NULL        — JSON of dict[str, str]
 #   prev_hash   TEXT NOT NULL        — 64 hex

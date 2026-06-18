@@ -49,12 +49,12 @@ class EmergencyExecutor:
     # -- concrete actions -------------------------------------------------
 
     def _halt_trading(self, reason: str = "") -> None:
-        from governance.mode_manager import get_mode_manager
+        from governance_unified.mode_manager import get_mode_manager
 
         get_mode_manager().halt(reason=reason)
 
     def _enter_safe_mode(self, reason: str = "") -> None:
-        from governance.mode.safe_mode import enter_safe_mode
+        from governance_unified.mode.safe_mode import enter_safe_mode
 
         enter_safe_mode(reason=reason)
 

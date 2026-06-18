@@ -83,17 +83,14 @@ class ImportPathFixer:
         
         for root, dirs, files in os.walk(directory):
             # Skip cache directories
-            dirs[:] = [d for d in dirs if d not in ['__pycache__', '.git', 'node_modules']]
+            dirs[:] = [d for d in dirs if d not in ['__pycache__', '.git', 'node_modules', 'core']]
             
             for file in files:
                 if file.endswith('.py'):
                     file_path = os.path.join(root, file)
                     relative_path = os.path.relpath(file_path, directory)
                     
-                    # Skip if not an archival component
-                    if 'archive' not in root.lower() and '_archive' not in file:
-                        continue
-                    
+                    # Fix all files, not just archival ones
                     fixes = self.fix_import_paths(file_path)
                     if fixes >= 0:
                         fixed_files.append((relative_path, fixes))

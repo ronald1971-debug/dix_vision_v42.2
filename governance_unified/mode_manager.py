@@ -20,8 +20,8 @@ from enum import StrEnum
 
 from core.contracts.governance import SystemMode as FsmMode
 from state.ledger.event_store import append_event
-from system.fast_risk_cache import get_risk_cache
-from system.state import get_state_manager
+from system_unified.fast_risk_cache import get_risk_cache
+from system_unified.state import get_state_manager
 
 
 class OperationalMode(StrEnum):

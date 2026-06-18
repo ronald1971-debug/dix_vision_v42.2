@@ -13,13 +13,13 @@ from __future__ import annotations
 
 from typing import Any
 
-from execution.adapters._ccxt_backed import (
+from execution_unified.adapters._ccxt_backed import (
     ccxt_cancel_order,
     ccxt_connect,
     ccxt_get_balance,
     ccxt_place_order,
 )
-from execution.adapters.base import BaseAdapter
+from execution_unified.adapters.base import BaseAdapter
 
 
 class BinanceAdapter(BaseAdapter):

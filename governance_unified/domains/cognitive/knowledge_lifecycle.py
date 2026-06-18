@@ -97,7 +97,7 @@ class KnowledgeLifecycleManager:
 
     def birth(self, knowledge_id: str, initial_confidence: float = 0.5) -> KnowledgeState:
         """Initialize a new knowledge item."""
-        from system.time_source import wall_ns
+        from system_unified.time_source import wall_ns
 
         ts_ns = wall_ns()
         state = KnowledgeState(
@@ -124,7 +124,7 @@ class KnowledgeLifecycleManager:
         confidence_boost: float = 0.1,
     ) -> KnowledgeState | None:
         """Add evidence and increase confidence."""
-        from system.time_source import wall_ns
+        from system_unified.time_source import wall_ns
 
         ts_ns = wall_ns()
         with self._lock:
@@ -155,7 +155,7 @@ class KnowledgeLifecycleManager:
 
     def validate(self, knowledge_id: str, passed: bool) -> KnowledgeState | None:
         """Mark validation status."""
-        from system.time_source import wall_ns
+        from system_unified.time_source import wall_ns
 
         ts_ns = wall_ns()
         with self._lock:
@@ -183,7 +183,7 @@ class KnowledgeLifecycleManager:
 
     def challenge(self, knowledge_id: str, challenger: str) -> KnowledgeState | None:
         """Record a challenge attempt against knowledge."""
-        from system.time_source import wall_ns
+        from system_unified.time_source import wall_ns
 
         ts_ns = wall_ns()
         with self._lock:
@@ -211,7 +211,7 @@ class KnowledgeLifecycleManager:
 
     def decay(self, knowledge_id: str, reason: str = "age") -> KnowledgeState | None:
         """Apply decay to knowledge confidence."""
-        from system.time_source import wall_ns
+        from system_unified.time_source import wall_ns
 
         ts_ns = wall_ns()
         with self._lock:
@@ -246,7 +246,7 @@ class KnowledgeLifecycleManager:
 
     def retire(self, knowledge_id: str, reason: str = "superseded") -> KnowledgeState | None:
         """Retire knowledge from active use."""
-        from system.time_source import wall_ns
+        from system_unified.time_source import wall_ns
 
         ts_ns = wall_ns()
         with self._lock:

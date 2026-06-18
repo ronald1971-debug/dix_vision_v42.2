@@ -1,29 +1,25 @@
-"""Core Execution Kernel.
-
-Central execution kernel providing unified execution orchestration,
-strategic and tactical separation, and execution management.
+"""
+Execution Unified Core Package
+Core execution infrastructure for the unified system
+NO LAZY LOADING - All components load directly
 """
 
-from .kernel import (
-    UnifiedExecutionKernel,
-    get_unified_execution_kernel,
-    ExecutionRequest,
-    ExecutionResult,
-    ExecutionType,
-    ExecutionLane,
-    ExecutionStatus,
-    Intent,
-    Action,
+from execution_unified.core.engine import (
+    ExecutionMode,
+    OrderPriority,
+    OrderRouting,
+    ExecutionConfig,
+    ExecutionMetrics,
+    ExecutionEngine,
+    get_execution_engine
 )
 
 __all__ = [
-    "UnifiedExecutionKernel",
-    "get_unified_execution_kernel",
-    "ExecutionRequest",
-    "ExecutionResult",
-    "ExecutionType",
-    "ExecutionLane",
-    "ExecutionStatus",
-    "Intent",
-    "Action",
+    'ExecutionMode',
+    'OrderPriority',
+    'OrderRouting',
+    'ExecutionConfig',
+    'ExecutionMetrics',
+    'ExecutionEngine',
+    'get_execution_engine'
 ]

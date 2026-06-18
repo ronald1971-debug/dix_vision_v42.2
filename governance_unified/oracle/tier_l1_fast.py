@@ -69,7 +69,7 @@ def approve_l1_fast(ctx: dict[str, Any]) -> tuple[bool, str]:
     """
     start_ns = time_source.now_ns()
 
-    from system.fast_risk_cache import get_risk_cache
+    from system_unified.fast_risk_cache import get_risk_cache
 
     rc = get_risk_cache().get()
 

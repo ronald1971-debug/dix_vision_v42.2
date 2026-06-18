@@ -23,7 +23,7 @@ GOVERNANCE_CHARTER = Charter(
         "Enforce authority firewall: cross-domain imports and hot-path DB reads fail CI.",
     ],
     why=[
-        "Manifest \u00a72 \u2014 control plane is separate from execution.",
+        "Manifest \u00a72 \u2014 control plane is separate from execution_unified.",
         "Manifest \u00a77 \u2014 risk cache authored by governance, read by INDIRA.",
         "Manifest \u00a79 \u2014 mode transitions are append-only + cited.",
         "Manifest \u00a711 \u2014 promotion gates + signed releases + audit.",

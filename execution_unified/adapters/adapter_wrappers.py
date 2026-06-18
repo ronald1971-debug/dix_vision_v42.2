@@ -21,14 +21,14 @@ logger = logging.getLogger(__name__)
 
 # Import the migrated adapters (they may need sys.path updates)
 try:
-    from execution.adapters.binance import BinanceAdapter
+    from execution_unified.adapters.binance import BinanceAdapter
     BINANCE_AVAILABLE = True
 except ImportError:
     BINANCE_AVAILABLE = False
     logger.warning("Binance adapter not available")
 
 try:
-    from execution.adapters.kraken import KrakenAdapter
+    from execution_unified.adapters.kraken import KrakenAdapter
     KRAKEN_AVAILABLE = True
 except ImportError:
     KRAKEN_AVAILABLE = False
