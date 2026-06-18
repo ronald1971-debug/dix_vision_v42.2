@@ -669,9 +669,9 @@ class KnowledgeValidator:
 
     def _get_timestamp(self) -> int:
         """Get current timestamp in nanoseconds."""
-        # In production, this would use the system time source
-        # For now, return a placeholder
-        return 0  # TODO: Integrate with proper time source
+        # Use Python's time module for current timestamp
+        import time
+        return int(time.time_ns())
 
     def _get_required_fields(self, source_type: KnowledgeSourceType) -> set[str]:
         """Get required fields for a given source type."""
@@ -709,13 +709,66 @@ class KnowledgeValidator:
         knowledge: KnowledgeGraph,
     ) -> list[str]:
         """Find conflicts between source and existing knowledge graph."""
-        # TODO: Implement knowledge graph conflict detection
-        return []
+        conflicts = []
+        
+        try:
+            # Check if knowledge graph has conflicting information
+            if knowledge is None:
+                return conflicts
+            
+            # Check for contradictory key-value pairs
+            for key, value in source.content.items():
+                if knowledge.has_fact(key):
+                    existing_value = knowledge.get_fact(key)
+                    if str(existing_value) != str(value):
+                        conflicts.append(f"Contradictory value for {key}: existing={existing_value}, new={value}")
+            
+            # Check for timestamp conflicts (newer vs older data)
+            if knowledge.has_fact("timestamp"):
+                existing_timestamp = knowledge.get_fact("timestamp")
+                if source.timestamp_ns < int(existing_timestamp):
+                    conflicts.append(f"Outdated information: timestamp {source.timestamp_ns} vs existing {existing_timestamp}")
+            
+            # Check for source reliability conflicts
+            if knowledge.has_fact("source_reliability"):
+                existing_reliability = float(knowledge.get_fact("source_reliability"))
+                if source.reliability_score < existing_reliability * 0.8:
+                    conflicts.append(f"Lower reliability source: {source.reliability_score:.2f} vs existing {existing_reliability:.2f}")
+            
+        except Exception as e:
+            _logger.warning(f"Error finding knowledge graph conflicts: {e}")
+            conflicts.append(f"Error during conflict detection: {str(e)}")
+        
+        return conflicts
 
     def _group_sources_by_time(self, sources: list[KnowledgeSource]) -> list[list[KnowledgeSource]]:
         """Group sources by time windows."""
-        # TODO: Implement time-based grouping
-        return [[s] for s in sources]
+        if not sources:
+            return []
+        
+        # Define time window size (1 minute in nanoseconds)
+        time_window_ns = 60 * 1_000_000_000  # 1 minute
+        
+        # Sort sources by timestamp
+        sorted_sources = sorted(sources, key=lambda s: s.timestamp_ns)
+        
+        # Group into time windows
+        groups = []
+        current_group = [sorted_sources[0]]
+        current_window_start = sorted_sources[0].timestamp_ns
+        
+        for source in sorted_sources[1:]:
+            if source.timestamp_ns - current_window_start < time_window_ns:
+                current_group.append(source)
+            else:
+                groups.append(current_group)
+                current_group = [source]
+                current_window_start = source.timestamp_ns
+        
+        if current_group:
+            groups.append(current_group)
+        
+        return groups
 
     def _has_temporal_conflict(
         self,

@@ -49,4 +49,105 @@ class CognitiveGovernancePolicy:
         if self.updated_at == 0:
             self.updated_at = int(datetime.now().timestamp() * 1_000_000_000)
 
-__all__ = []
+# Import domain-specific governance modules
+try:
+    from .cognitive import (
+        BeliefIntegrityGuard,
+        CausalConsistencyGuard,
+        CognitiveConstitution,
+        CognitiveMaturityRegistry,
+        CognitivePhysicsEngine
+    )
+except ImportError:
+    BeliefIntegrityGuard = None
+    CausalConsistencyGuard = None
+    CognitiveConstitution = None
+    CognitiveMaturityRegistry = None
+    CognitivePhysicsEngine = None
+
+try:
+    from .financial import (
+        CapitalThrottle,
+        ExecutionHazardDetector,
+        ExposureGuard,
+        KillSwitch,
+        LeverageMonitor,
+        LiquidationSentinel,
+        FinancialGovernanceEngine
+    )
+except ImportError:
+    CapitalThrottle = None
+    ExecutionHazardDetector = None
+    ExposureGuard = None
+    KillSwitch = None
+    LeverageMonitor = None
+    LiquidationSentinel = None
+    FinancialGovernanceEngine = None
+
+try:
+    from .operator import (
+        AuthorityEscalationGuard,
+        ConsentRouter,
+        GovernanceVisibilityMonitor,
+        ManualLockoutGuard,
+        OperatorConstitution,
+        OverridePriorityManager
+    )
+except ImportError:
+    AuthorityEscalationGuard = None
+    ConsentRouter = None
+    GovernanceVisibilityMonitor = None
+    ManualLockoutGuard = None
+    OperatorConstitution = None
+    OverridePriorityManager = None
+
+try:
+    from .system import (
+        ContractIntegrityGuard,
+        TopologyGuard,
+        RuntimeConsistencyMonitor,
+        DependencyValidator,
+        ReplayIntegrityGuard,
+        ConvergenceMonitor
+    )
+except ImportError:
+    ContractIntegrityGuard = None
+    TopologyGuard = None
+    RuntimeConsistencyMonitor = None
+    DependencyValidator = None
+    ReplayIntegrityGuard = None
+    ConvergenceMonitor = None
+
+__all__ = [
+    'GovernanceDomain',
+    'PolicyStatus',
+    'CognitiveGovernancePolicy',
+    # Cognitive domain
+    'BeliefIntegrityGuard',
+    'CausalConsistencyGuard',
+    'CognitiveConstitution',
+    'CognitiveMaturityRegistry',
+    'CognitivePhysicsEngine',
+    # Financial domain
+    'CapitalThrottle',
+    'ExecutionHazardDetector',
+    'ExposureGuard',
+    'KillSwitch',
+    'LeverageMonitor',
+    'LiquidationSentinel',
+    'FinancialGovernanceEngine',
+    # Operator domain
+    'AuthorityEscalationGuard',
+    'ConsentRouter',
+    'GovernanceVisibilityMonitor',
+    'ManualLockoutGuard',
+    'OperatorConstitution',
+    'OverridePriorityManager',
+    # System domain
+    'ContractIntegrityGuard',
+    'TopologyGuard',
+    'RuntimeConsistencyMonitor',
+    'DependencyValidator',
+    'ReplayIntegrityGuard',
+    'ConvergenceMonitor'
+]

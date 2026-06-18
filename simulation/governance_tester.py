@@ -19,8 +19,8 @@ from dataclasses import dataclass, field
 from enum import StrEnum
 from typing import Any
 
-from governance.kernel import GovernanceDecision, GovernanceOutcome
-from governance.policy_engine import PolicyEngine, PolicyRule
+from governance_unified.engine import GovernanceDecision, GovernanceOutcome
+from governance_unified.policy_engine import PolicyEngine, PolicyRule
 
 
 class GovernanceTestCase(StrEnum):

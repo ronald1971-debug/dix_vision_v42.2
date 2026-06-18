@@ -85,3 +85,6 @@ class FeedbackLoop:
 
     def get_signals(self) -> list[FeedbackSignal]:
         return list(self._signals)
+
+# Export for import compatibility
+FeedbackEngine = FeedbackLoop

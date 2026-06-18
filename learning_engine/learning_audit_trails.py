@@ -148,9 +148,12 @@ class AuditSummary:
     critical_count: int
 
 
-@dataclass(frozen=True, slots=True)
+@dataclasses.dataclass(frozen=True, slots=True)
 class AuditMetrics:
     """Metrics about the audit trail system."""
+
+# Export the main class for import
+LearningAuditTrails = AuditTrailConfig
     total_events: int
     events_by_type: dict[str, int]
     events_by_severity: dict[str, int]

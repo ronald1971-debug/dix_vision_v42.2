@@ -155,6 +155,9 @@ class EvaluationResult:
 @dataclass(frozen=True, slots=True)
 class EvaluationMetrics:
     """Metrics about model evaluation performance."""
+
+# Export the main class for import
+ModelEvaluationSystem = ModelEvaluationConfig
     total_evaluations: int
     evaluations_by_type: dict[str, int]
     evaluations_passed: int
