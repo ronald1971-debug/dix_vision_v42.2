@@ -14,7 +14,7 @@ import uuid
 from dataclasses import dataclass, field
 from typing import Any
 
-from core.mcos_kernel import BeliefState
+from governance_unified.engine import BeliefState
 from core.types import ApprovalStatus, ExecutionIntent, PromotionStage, Severity
 
 
@@ -54,7 +54,7 @@ class PromotionRequest:
 
 
 class GovernanceKernel:
-    """Central governance authority for the entire MCOS.
+    """Central governance authority for the entire .
 
     All execution intents must pass through this kernel.
     All stage promotions must be approved here.

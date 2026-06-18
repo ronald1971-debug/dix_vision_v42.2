@@ -39,11 +39,15 @@ from execution_unified.core.offline import (
 from execution_unified.core.adapters.alpaca import AlpacaAdapter
 from execution_unified.core.adapters.binance import BinanceAdapter
 from execution_unified.core.adapters.hummingbot import HummingbotAdapter
-from execution_unified.core.adapters.ibkr import IBKRAdapter
+try:
+    from execution_unified.core.adapters.ibkr import IBKRAdapter
+except ImportError:
+    # IBKR adapter may not be available in all environments
+    IBKRAdapter = None  # type: ignore
 from execution_unified.core.adapters.pumpfun import PumpFunAdapter
 from execution_unified.core.paper_trading.adapter import PaperVenueAdapter
 from execution_unified.core.paper_trading.venue_config import VENUE_CONFIGS
-from system_unified_engine.credentials.storage import resolve_env
+from system_unified_engine.authority import resolve_env
 
 _log = logging.getLogger(__name__)
 
@@ -114,12 +118,13 @@ def default_registry() -> AdapterRegistry:
         ))
 
         # ---- Interactive Brokers (paper TWS port 7497) --------------------
-        reg.add(IBKRAdapter(
-            host=env.get("DIX_IBKR_HOST") or "127.0.0.1",
-            port=int(env.get("DIX_IBKR_PORT") or 7497),
-            client_id=int(env.get("DIX_IBKR_CLIENT_ID") or 1),
-            paper=True,
-        ))
+        if IBKRAdapter is not None:
+            reg.add(IBKRAdapter(
+                host=env.get("DIX_IBKR_HOST") or "127.0.0.1",
+                port=int(env.get("DIX_IBKR_PORT") or 7497),
+                client_id=int(env.get("DIX_IBKR_CLIENT_ID") or 1),
+                paper=True,
+            ))
 
         # ---- Stage 9: Paper trading ecosystem (credential-free, always READY) ---
         # Six venue-realistic deterministic paper adapters:

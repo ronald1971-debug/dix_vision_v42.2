@@ -29,4 +29,20 @@ class PaperTradingAdapter:
         """Get paper trading balance"""
         return self._paper_balance
 
-__all__ = ['PaperTradingAdapter']
+class PaperVenueAdapter(PaperTradingAdapter):
+    """Paper venue adapter with venue-specific functionality"""
+    
+    def __init__(self, venue: str = "default"):
+        super().__init__()
+        self._venue = venue
+        self._venue_config = {}
+        
+    def configure_venue(self, venue_config: Dict[str, Any]):
+        """Configure venue-specific settings"""
+        self._venue_config = venue_config
+        
+    def get_venue(self) -> str:
+        """Get current venue"""
+        return self._venue
+
+__all__ = ['PaperTradingAdapter', 'PaperVenueAdapter']

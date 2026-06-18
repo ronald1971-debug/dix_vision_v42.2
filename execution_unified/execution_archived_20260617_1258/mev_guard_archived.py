@@ -19,7 +19,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass
 
-from execution_unified.core.analysis.slippage import estimate as estimate_slip
+from execution_unified.core.analysis.slippage import SlippageAnalyzer as estimate_slip
 from state.ledger.writer import get_writer
 
 # canonical public private-relay URLs (defaults; overridable via env/config)
@@ -90,7 +90,7 @@ def prepare_swap(
     """Build a GuardedSwap with MEV protection and sane min_out bounds."""
     if amount_in <= 0 or mid_price <= 0:
         raise ValueError("amount_in/mid_price must be > 0")
-    slip = estimate_slip(qty=amount_in, adv_qty=adv_qty or amount_in * 100, spread_bps=spread_bps)
+    slip = SlippageAnalyzer().estimate(qty=amount_in, adv_qty=adv_qty or amount_in * 100, spread_bps=spread_bps)
     effective_bps = slip.exp_slippage_bps + max_slippage_bps
     out_expected = amount_in * mid_price
     min_out = out_expected * (1.0 - effective_bps / 10000.0)

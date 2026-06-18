@@ -34,4 +34,14 @@ class AdapterRouter:
         """Get adapter configuration"""
         return self._adapter_routes.get(adapter_id)
 
-__all__ = ['AdapterRouter']
+# Global instance
+_adapter_router = None
+
+def get_adapter_router() -> AdapterRouter:
+    """Get global adapter router instance"""
+    global _adapter_router
+    if _adapter_router is None:
+        _adapter_router = AdapterRouter()
+    return _adapter_router
+
+__all__ = ['AdapterRouter', 'get_adapter_router']

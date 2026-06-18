@@ -25,4 +25,14 @@ class LedgerIntegration:
         """Get ledger entries"""
         return self._ledger_entries.copy()
 
-__all__ = ['LedgerIntegration']
+# Global instance
+_ledger_integrator = None
+
+def get_paper_trade_ledger_integrator() -> LedgerIntegration:
+    """Get paper trade ledger integrator instance"""
+    global _ledger_integrator
+    if _ledger_integrator is None:
+        _ledger_integrator = LedgerIntegration()
+    return _ledger_integrator
+
+__all__ = ['LedgerIntegration', 'get_paper_trade_ledger_integrator']

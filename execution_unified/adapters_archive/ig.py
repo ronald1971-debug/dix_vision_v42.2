@@ -32,6 +32,7 @@ import json
 import logging
 import urllib.error
 import urllib.parse
+from dataclasses import dataclass
 import urllib.request
 from typing import Any
 

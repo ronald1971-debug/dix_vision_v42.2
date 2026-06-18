@@ -31,10 +31,7 @@ from operator_governance.authority_escalation import (
     AuthorityEscalationGuard,
     get_authority_escalation_guard,
 )
-from operator_governance.consent_router import (
-    ConsentRouter,
-    get_consent_router,
-)
+from operator_governance import get_consent_router
 from operator_governance.governance_visibility import (
     GovernanceVisibilityMonitor,
     get_governance_visibility_monitor,

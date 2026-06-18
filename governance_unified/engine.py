@@ -551,3 +551,11 @@ class GovernanceEngine(RuntimeEngine):
 
 
 _ = HazardSeverity  # silence unused-import noise; severity referenced in tests
+
+
+# Alias for legacy support
+GovernanceKernel = RuntimeEngine
+
+
+# Import BeliefState for legacy support
+from governance_unified.belief_state import BeliefState

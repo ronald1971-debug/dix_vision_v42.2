@@ -149,3 +149,7 @@ def get_writer() -> AsyncWriter:
                 _writer = AsyncWriter()
                 _writer.start()
     return _writer
+
+
+# LedgerWriter alias for backward compatibility
+LedgerWriter = AsyncWriter

@@ -44,7 +44,7 @@
 - `legacy_archive/` (162 components)
   - `cognitive_governance/` (2 components: engine)
   - `financial_governance/` (8 components: capital_throttle, charter, engine, execution_hazard, exposure_guard, kill_switch, leverage_monitor, liquidation_sentinel)
-  - `governance/` (25+ components: authority_graph, charter, constraint_compiler, coordination_adapter, emergency_policy, escalation_matrix, hazard_classifier, hazard_router, kernel, market_context_projector, mcos_constraint_compiler, mcos_kernel, mode_manager, patch_pipeline, policy_engine, risk_engine, unified_graph, plus subdomains and oracle)
+  - `governance/` (25+ components: authority_graph, charter, constraint_compiler, coordination_adapter, emergency_policy, escalation_matrix, hazard_classifier, hazard_router, kernel, market_context_projector, mcos_constraint_compiler, governance_unified.engine, mode_manager, patch_pipeline, policy_engine, risk_engine, unified_graph, plus subdomains and oracle)
   - `governance_engine/` (50+ components: dyon_constraints, engine, harness_approver, kill_switch, policy_compiler, strategy_registry, control_plane with 20+ subcomponents, domains/cognitive with 15+ subcomponents, domains/financial with 6+ subcomponents, domains/operator with 5+ subcomponents, domains/system with 5+ subcomponents, plus additional infrastructure)
 
 ### **Current Operational Status:**

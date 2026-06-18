@@ -10,7 +10,7 @@ import time
 from typing import Any
 
 from core.types import ExecutionIntent, HazardEvent, TradeResult
-from state.ledger.mcos_event_store import EventStore, LedgerEvent
+from state.ledger.event_store import EventStore, LedgerEvent
 
 
 class LedgerWriter:

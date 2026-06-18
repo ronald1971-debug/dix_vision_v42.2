@@ -27,7 +27,7 @@ from datetime import UTC, datetime
 from enum import StrEnum
 from typing import Any
 
-from execution_unified.core.live_trading.deterministic_executor import (
+from execution_unified.core.live_trading import (
     DeterminismCheckResult,
 )
 from execution_unified.core.live_trading.governance_layer import (

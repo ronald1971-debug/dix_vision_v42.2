@@ -38,4 +38,23 @@ class SystemUnifiedEngine:
         """Check if engine is running"""
         return self._running
 
-__all__ = ['SystemUnifiedEngine']
+from .authority import SystemAuthority, get_system_authority
+from .authority_matrix import AuthorityMatrix
+from .coupling import CouplingManager, get_coupling_manager, HazardThrottleAdapter
+
+# Global instance
+_system_authority = None
+
+def get_system_authority() -> SystemAuthority:
+    """Get system authority instance"""
+    global _system_authority
+    if _system_authority is None:
+        _system_authority = SystemAuthority()
+    return _system_authority
+
+__all__ = [
+    'SystemUnifiedEngine',
+    'SystemAuthority',
+    'AuthorityMatrix',
+    'get_system_authority'
+]

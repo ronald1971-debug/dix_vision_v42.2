@@ -11,7 +11,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from core.types import ExecutionIntent, TradeResult
-from execution_unified.mcos_adapter_router import AdapterRouter
+from execution_unified.adapter_router import AdapterRouter
 
 
 @dataclass

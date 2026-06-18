@@ -52,7 +52,7 @@ from core.contracts.execution_intent import (
     TEST_INTENT_ORIGINS,
     ExecutionIntent,
 )
-from system_unified_engine.authority.matrix import (
+from system_unified_engine.authority import (
     AuthorityMatrix,
     load_authority_matrix,
 )

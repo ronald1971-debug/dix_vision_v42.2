@@ -11,7 +11,7 @@ from __future__ import annotations
 import threading
 from typing import Any
 
-from governance_unified.emergency_policy import get_snapshot
+from governance_unified.emergency_policy_module import get_snapshot
 from state.ledger.risk_resolution_log import ResolutionRecord, get_risk_resolution_log
 
 

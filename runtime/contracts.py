@@ -5,9 +5,18 @@ NO LAZY LOADING - All components load directly
 """
 
 from typing import Dict, List, Optional, Any
+from enum import Enum
 import logging
 
 logger = logging.getLogger(__name__)
+
+class PluginLifecycleState(Enum):
+    """Plugin lifecycle states"""
+    INITIALIZING = "initializing"
+    ACTIVE = "active"
+    SUSPENDED = "suspended"
+    TERMINATED = "terminated"
+    FAILED = "failed"
 
 class RuntimeContract:
     """Runtime contract handler"""
@@ -31,4 +40,4 @@ class RuntimeContract:
         """Get contract by ID"""
         return self._contracts.get(contract_id)
 
-__all__ = ['RuntimeContract']
+__all__ = ['PluginLifecycleState', 'RuntimeContract']

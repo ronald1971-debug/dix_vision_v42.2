@@ -21,8 +21,13 @@ from dataclasses import dataclass, field
 from enum import StrEnum
 from typing import Any
 
-from execution_unified.hazard import HazardEvent, get_hazard_bus
-from execution_unified.hazard import (
+from execution_unified.core.hazard.async_bus import (
+    HazardEvent,
+    HazardSeverity,
+    HazardType,
+    get_hazard_bus,
+)
+from execution_unified.hazard_archive.severity_classifier import (
     classify_response,
     should_enter_safe_mode,
     should_halt_trading,
@@ -30,8 +35,7 @@ from execution_unified.hazard import (
 from governance_unified.mode import get_mode_manager
 from state.ledger.event_store import append_event
 from system_unified.fast_risk_cache import get_risk_cache
-from system_unified.logger import get_logger
-from system_unified.state import get_state_manager
+from system_unified.get_logger import get_logger
 
 
 class GovernanceOutcome(StrEnum):

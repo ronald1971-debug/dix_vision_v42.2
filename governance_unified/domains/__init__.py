@@ -12,10 +12,41 @@ governance systems:
 
 from __future__ import annotations
 
-# Domain imports will be available after migration
-# from .cognitive import ...
-# from .financial import ...
-# from .operator import ...
-# from .system import ...
+from typing import Dict, List, Optional, Any
+from dataclasses import dataclass, field
+from datetime import datetime
+from enum import Enum
+
+class GovernanceDomain(Enum):
+    """Governance domain types"""
+    COGNITIVE = "cognitive"
+    FINANCIAL = "financial"
+    OPERATOR = "operator"
+    SYSTEM = "system"
+    OPERATIONAL = "operational"
+
+class PolicyStatus(Enum):
+    """Policy status"""
+    ACTIVE = "active"
+    INACTIVE = "inactive"
+    PENDING = "pending"
+    REVOKED = "revoked"
+
+@dataclass
+class CognitiveGovernancePolicy:
+    """Cognitive governance policy data structure"""
+    policy_id: str = "cognitive_default"
+    domain: GovernanceDomain = GovernanceDomain.COGNITIVE
+    title: str = "Cognitive Governance"
+    description: str = "Default cognitive governance policy"
+    constitution_principles: List[str] = field(default_factory=list)
+    invariants: List[str] = field(default_factory=list)
+    constraints: Dict[str, Any] = field(default_factory=dict)
+    status: PolicyStatus = PolicyStatus.ACTIVE
+    updated_at: int = 0
+    
+    def __post_init__(self):
+        if self.updated_at == 0:
+            self.updated_at = int(datetime.now().timestamp() * 1_000_000_000)
 
 __all__ = []

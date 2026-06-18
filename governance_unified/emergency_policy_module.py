@@ -26,5 +26,23 @@ class EmergencyPolicy:
             self._emergency_policies[policy_id]["active"] = False
             return True
         return False
+    
+    def get_snapshot(self, policy_id: str) -> Optional[Dict[str, Any]]:
+        """Get emergency policy snapshot"""
+        return self._emergency_policies.get(policy_id)
 
-__all__ = ['EmergencyPolicy']
+# Global instance
+_emergency_policy = None
+
+def get_emergency_policy() -> EmergencyPolicy:
+    """Get emergency policy instance"""
+    global _emergency_policy
+    if _emergency_policy is None:
+        _emergency_policy = EmergencyPolicy()
+    return _emergency_policy
+
+def get_snapshot(policy_id: str) -> Optional[Dict[str, Any]]:
+    """Get emergency policy snapshot"""
+    return get_emergency_policy().get_snapshot(policy_id)
+
+__all__ = ['EmergencyPolicy', 'get_emergency_policy', 'get_snapshot']

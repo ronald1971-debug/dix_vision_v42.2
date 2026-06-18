@@ -9,8 +9,8 @@ import time
 from dataclasses import dataclass, field
 from typing import Any
 
-from governance.mcos_constraint_compiler import ConstraintCompiler
-from governance.mcos_kernel import GovernanceKernel
+from governance.dixvision_constraint_compiler import ConstraintCompiler
+from governance_unified.engine import GovernanceKernel
 from mind.beliefs import BeliefSystem
 from mind.hypotheses import HypothesisEngine
 from mind.intent import IntentGenerator

@@ -28,4 +28,14 @@ class PreservationLayer:
         """Get all preserved data"""
         return self._preserved_data.copy()
 
-__all__ = ['PreservationLayer']
+# Global instance
+_preservation_layer = None
+
+def get_preservation_layer() -> PreservationLayer:
+    """Get preservation layer instance"""
+    global _preservation_layer
+    if _preservation_layer is None:
+        _preservation_layer = PreservationLayer()
+    return _preservation_layer
+
+__all__ = ['PreservationLayer', 'get_preservation_layer']

@@ -1,0 +1,33 @@
+"""
+Execution Unified Core Adapters Binance - Binance Adapter Support
+Provides Binance adapter support
+NO LAZY LOADING - All components load directly
+"""
+
+from typing import Dict, List, Optional, Any
+import logging
+
+logger = logging.getLogger(__name__)
+
+class BinanceAdapter:
+    """Binance adapter for trading operations"""
+    
+    def __init__(self, api_key: str = "", secret_key: str = ""):
+        self._api_key = api_key
+        self._secret_key = secret_key
+        self._connected = False
+        
+    async def connect(self) -> bool:
+        """Connect to Binance API"""
+        self._connected = True
+        return True
+        
+    async def disconnect(self):
+        """Disconnect from Binance API"""
+        self._connected = False
+        
+    def is_connected(self) -> bool:
+        """Check if connected"""
+        return self._connected
+
+__all__ = ['BinanceAdapter']

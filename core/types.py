@@ -1,4 +1,4 @@
-"""Shared type definitions used across the MCOS."""
+"""Shared type definitions used across the ."""
 
 from __future__ import annotations
 

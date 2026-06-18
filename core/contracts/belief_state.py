@@ -15,7 +15,7 @@ class RealityDomain(Enum):
 
 @dataclass(frozen=True)
 class Belief:
-    """A single unit of cognition within the MCOS."""
+    """A single unit of cognition within the ."""
     domain: RealityDomain
     contributor: str  # Engine name
     content: dict[str, Any]

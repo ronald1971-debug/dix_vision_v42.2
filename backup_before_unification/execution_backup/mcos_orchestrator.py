@@ -14,8 +14,8 @@ from typing import Any
 
 from core.mcos_kernel import BeliefState
 from core.types import ExecutionIntent, TradeResult
-from execution.mcos_adapter_router import AdapterRouter
-from execution.mcos_emergency_executor import EmergencyExecutor
+from execution.dixvision_adapter_router import AdapterRouter
+from execution.dixvision_emergency_executor import EmergencyExecutor
 from governance.mcos_kernel import ApprovalDecision, GovernanceKernel
 from state.ledger.mcos_writer import LedgerWriter
 

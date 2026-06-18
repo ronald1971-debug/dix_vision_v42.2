@@ -187,6 +187,11 @@ def get_venue_config() -> VenueConfig:
     return _venue_config
 
 
+def get_paper_trading_promotion_gate_integration():
+    """Get paper trading promotion gate integration (alias for get_promotion_gate_integration)"""
+    return get_promotion_gate_integration()
+
+
 __all__ = [
     'Adapter',
     'Hub',
@@ -199,5 +204,6 @@ __all__ = [
     'get_ledger_integration',
     'get_paper_only_enforcer',
     'get_promotion_gate_integration',
-    'get_venue_config'
+    'get_venue_config',
+    'get_paper_trading_promotion_gate_integration'
 ]

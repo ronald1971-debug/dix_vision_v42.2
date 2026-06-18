@@ -87,7 +87,7 @@ class Engine:
         return self.name
 
 
-class MCOSEngine(ABC):
+class DixVisionEngine(ABC):
     """
     Base contract for all six engines in DIX VISION v42.2.
     Enforces ownership boundaries.
@@ -113,12 +113,12 @@ class MCOSEngine(ABC):
         return []
 
 
-class RuntimeEngine(MCOSEngine):
+class RuntimeEngine(DixVisionEngine):
     """Tier marker for runtime engines."""
     pass
 
 
-class OfflineEngine(MCOSEngine):
+class OfflineEngine(DixVisionEngine):
     """Tier marker for offline engines."""
     pass
 

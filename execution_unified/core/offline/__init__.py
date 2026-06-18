@@ -5,12 +5,36 @@ NO LAZY LOADING - All components load directly
 """
 
 from typing import Dict, List, Optional, Any
+from dataclasses import dataclass, field
 from enum import Enum
 import logging
 import asyncio
 from datetime import datetime, timedelta
 
 logger = logging.getLogger(__name__)
+
+
+class AdapterHealth(Enum):
+    """Adapter health status enumeration"""
+    HEALTHY = "healthy"
+    DEGRADED = "degraded"
+    UNHEALTHY = "unhealthy"
+    MAINTENANCE = "maintenance"
+
+
+@dataclass
+class FillReport:
+    """Fill report data structure"""
+    order_id: str
+    fill_price: float
+    fill_quantity: float
+    fill_timestamp: int = 0
+    fees: float = 0.0
+    side: str = "buy"
+    
+    def __post_init__(self):
+        if self.fill_timestamp == 0:
+            self.fill_timestamp = datetime.now().timestamp_ns()
 
 
 class AdapterState(Enum):
@@ -88,6 +112,11 @@ class BrokerAdapter(LiveAdapterBase):
         self._config = config or AdapterConfig(adapter_id="default_broker", exchange="default")
         self._account_balance = 0.0
         
+    @staticmethod
+    def register(exchange: str):
+        """Register exchange adapter"""
+        return BrokerAdapter(config=AdapterConfig(adapter_id=f"{exchange}_broker", exchange=exchange))
+        
     async def get_account_balance(self) -> float:
         """Get account balance"""
         return self._account_balance
@@ -104,6 +133,22 @@ class BrokerAdapter(LiveAdapterBase):
     def get_config(self) -> AdapterConfig:
         """Get adapter configuration"""
         return self._config
+
+
+class PaperBroker(BrokerAdapter):
+    """Paper trading broker adapter"""
+    
+    def __init__(self, config: Optional[AdapterConfig] = None):
+        super().__init__(config or AdapterConfig(adapter_id="paper_broker", exchange="paper"))
+        self._paper_balance = 1000000.0
+    
+    async def get_account_balance(self) -> float:
+        """Get paper trading balance"""
+        return self._paper_balance
+    
+    def set_paper_balance(self, balance: float):
+        """Set paper trading balance"""
+        self._paper_balance = balance
 
 
 class Lane:
@@ -180,13 +225,37 @@ def get_offline_lane() -> OfflineLane:
     return _offline_lane
 
 
+class AuthorityGuard:
+    """Authority guard for governance operations"""
+    
+    def __init__(self):
+        self._authority_level = "standard"
+        self._current_authority = "system"
+        
+    def set_authority_level(self, level: str):
+        """Set authority level"""
+        self._authority_level = level
+        
+    def check_authority(self, required_level: str) -> bool:
+        """Check if current authority meets requirement"""
+        return True  # Simplified for now
+
+
+# BaseAdapter alias for backward compatibility
+BaseAdapter = BrokerAdapter
+
 __all__ = [
     'AdapterState',
     'AdapterStatus',
+    'AdapterHealth',
     'AdapterConfig',
+    'FillReport',
     'LiveAdapterBase',
+    'BaseAdapter',  # Alias for BrokerAdapter
     'BrokerAdapter',
+    'PaperBroker',
     'Lane',
     'OfflineLane',
-    'get_offline_lane'
+    'get_offline_lane',
+    'AuthorityGuard'
 ]

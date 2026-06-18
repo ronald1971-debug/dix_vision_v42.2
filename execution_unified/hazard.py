@@ -1,14 +1,15 @@
 """
-Execution Unified Hazard - Hazard Detection and Management
-Provides hazard detection, classification, and management capabilities
+Hazard Detection - Core Hazard Detection Infrastructure
+Provides hazard detection capabilities
 NO LAZY LOADING - All components load directly
 """
 
-import time
 from typing import Dict, List, Optional, Any
-from dataclasses import dataclass, field
-from datetime import datetime
 from enum import Enum
+from dataclasses import dataclass, field
+import logging
+
+logger = logging.getLogger(__name__)
 
 class HazardSeverity(Enum):
     """Hazard severity levels"""
@@ -18,96 +19,68 @@ class HazardSeverity(Enum):
     CRITICAL = "critical"
 
 class HazardType(Enum):
-    """Hazard type classification"""
+    """Hazard types"""
     MARKET = "market"
     SYSTEM = "system"
-    OPERATIONAL = "operational"
-    COMPLIANCE = "compliance"
-    SECURITY = "security"
+    OPERATOR = "operator"
+    NETWORK = "network"
+    DATA = "data"
 
 @dataclass
 class HazardEvent:
     """Hazard event data structure"""
-    hazard_id: str
+    event_id: str
     hazard_type: HazardType
     severity: HazardSeverity
     description: str
     source: str
-    timestamp_ns: int = 0
     metadata: Dict[str, Any] = field(default_factory=dict)
-    resolved: bool = False
+    timestamp_ns: int = 0
     
     def __post_init__(self):
         if self.timestamp_ns == 0:
-            self.timestamp_ns = datetime.now().timestamp_ns()
-    
-    def resolve(self):
-        """Mark hazard as resolved"""
-        self.resolved = True
-    
-    def is_resolved(self) -> bool:
-        """Check if hazard is resolved"""
-        return self.resolved
+            self.timestamp_ns = __import__('datetime').datetime.now().timestamp_ns()
 
 class HazardDetector:
-    """Hazard detector for identifying potential hazards"""
+    """Hazard detection system"""
     
     def __init__(self):
-        self._detected_hazards: Dict[str, HazardEvent] = {}
-        self._active = True
+        self._active_hazards = []
+        self._detection_rules = {}
         
-    def detect_hazard(self, hazard_type: HazardType, severity: HazardSeverity, 
-                     description: str, source: str, metadata: Optional[Dict[str, Any]] = None) -> HazardEvent:
-        """Detect and register a hazard"""
-        hazard_id = f"hazard_{datetime.now().timestamp_ns()}"
-        
-        hazard = HazardEvent(
-            hazard_id=hazard_id,
-            hazard_type=hazard_type,
-            severity=severity,
-            description=description,
-            source=source,
-            metadata=metadata or {}
-        )
-        
-        self._detected_hazards[hazard_id] = hazard
-        return hazard
+    def detect_hazard(self, event_data: Dict[str, Any]) -> Optional[HazardEvent]:
+        """Detect hazard from event data"""
+        if event_data.get("severity") in ["high", "critical"]:
+            return HazardEvent(
+                event_id=f"hazard_{len(self._active_hazards)}",
+                hazard_type=HazardType[event_data.get("type", "SYSTEM").upper()],
+                severity=HazardSeverity[event_data.get("severity", "MEDIUM").upper()],
+                description=event_data.get("description", "Unknown hazard"),
+                source=event_data.get("source", "unknown")
+            )
+        return None
     
-    def get_hazard(self, hazard_id: str) -> Optional[HazardEvent]:
-        """Get hazard by ID"""
-        return self._detected_hazards.get(hazard_id)
-    
-    def get_active_hazards(self) -> List[HazardEvent]:
-        """Get all active (unresolved) hazards"""
-        return [h for h in self._detected_hazards.values() if not h.resolved]
-    
-    def resolve_hazard(self, hazard_id: str) -> bool:
-        """Resolve a hazard"""
-        hazard = self._detected_hazards.get(hazard_id)
-        if hazard:
-            hazard.resolve()
-            return True
-        return False
+    def register_detection_rule(self, rule_id: str, rule_config: Dict[str, Any]):
+        """Register hazard detection rule"""
+        self._detection_rules[rule_id] = rule_config
 
 # Global instance
 _hazard_detector = None
 
 def get_hazard_detector() -> HazardDetector:
-    """Get global hazard detector instance"""
+    """Get hazard detector instance"""
     global _hazard_detector
     if _hazard_detector is None:
         _hazard_detector = HazardDetector()
     return _hazard_detector
 
-def detect_hazard(hazard_type: HazardType, severity: HazardSeverity, 
-                 description: str, source: str, metadata: Optional[Dict[str, Any]] = None) -> HazardEvent:
-    """Detect hazard (convenience function)"""
-    detector = get_hazard_detector()
-    return detector.detect_hazard(hazard_type, severity, description, source, metadata)
+def detect_hazard(event_data: Dict[str, Any]) -> Optional[HazardEvent]:
+    """Detect hazard using global detector"""
+    return get_hazard_detector().detect_hazard(event_data)
 
 __all__ = [
     'HazardSeverity',
-    'HazardType',
+    'HazardType', 
     'HazardEvent',
     'HazardDetector',
     'get_hazard_detector',

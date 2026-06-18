@@ -12,12 +12,12 @@ import time
 from dataclasses import dataclass, field
 from typing import Any
 
-from core.mcos_kernel import BeliefState
+from core._kernel import BeliefState
 from core.types import ExecutionIntent, TradeResult
-from execution_unified.mcos_adapter_router import AdapterRouter
-from execution_unified.mcos_emergency_executor import EmergencyExecutor
-from governance_unified.mcos_kernel import ApprovalDecision, GovernanceKernel
-from state.ledger.mcos_writer import LedgerWriter
+from execution_unified._adapter_router import AdapterRouter
+from execution_unified._emergency_executor import EmergencyExecutor
+from governance_unified._kernel import ApprovalDecision, GovernanceKernel
+from state.ledger._writer import LedgerWriter
 
 
 @dataclass

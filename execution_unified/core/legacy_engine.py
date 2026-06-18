@@ -12,10 +12,8 @@ from __future__ import annotations
 import threading
 import time
 
-from execution.hazard.detector import get_hazard_detector
-from execution.hazard.event_emitter import get_hazard_emitter
-from system.audit_logger import get_audit_logger
-from system.health_monitor import get_health_monitor
+from execution_unified.core.hazard.async_bus import get_hazard_bus
+from system_unified.time_source import get_time_source
 from system.logger import get_logger
 from system.state import get_state_manager
 

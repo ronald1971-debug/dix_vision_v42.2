@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from governance_unified.mcos_kernel import PolicyRule
+from governance_unified.policy_rule import PolicyRule
 
 
 @dataclass

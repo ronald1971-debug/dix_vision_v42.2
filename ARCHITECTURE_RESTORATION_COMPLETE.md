@@ -81,7 +81,7 @@ governance_unified/          # 14 core infrastructure files
   - execution_unified.core.market_data subdirectories
   - execution_unified.core.paper_trading subdirectories
   - governance_unified.domains
-  - governance_unified.mcos_kernel
+  - governance_unified.governance_unified.engine
   - operator_governance.authority_escalation
   - interrupt, preservation_layer, runtime.contracts
   - execution_unified.adapter_router, mcos_adapter_router

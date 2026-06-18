@@ -15,6 +15,7 @@ from .engine import GovernanceEngine
 from .policy_compiler import compile_invariant, check_policy_violation
 from .kill_switch import get_governance_kill_switch
 from .strategy_registry import StrategyRegistry
+from .approval_decision import ApprovalDecision
 
 # Oracle system (from governance/)
 from .oracle import (

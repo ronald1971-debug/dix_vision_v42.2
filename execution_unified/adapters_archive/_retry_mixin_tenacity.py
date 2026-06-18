@@ -68,11 +68,10 @@ from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from typing import Any, Final, TypeVar
 
-from execution_unified.core.adapters._retry_mixin import (
+from execution_unified.core.adapters.errors import (
     NonRecoverableError,
     RecoverableExceptionPredicate,
     RetryAttempt,
-    RetryExhausted,
     RetryOutcome,
     RetryRecord,
     default_is_recoverable,

@@ -28,6 +28,7 @@ the wrong wallet (INV-65: per-decision audit truthfulness).
 from __future__ import annotations
 
 from collections.abc import Mapping
+from dataclasses import dataclass
 
 from core.contracts.events import (
     ExecutionEvent,

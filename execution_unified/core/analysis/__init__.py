@@ -29,4 +29,6 @@ class ExecutionAnalyzer:
         """Analyze execution data"""
         return {"slippage": 0.01, "timing": "good"}
 
-__all__ = ['MarketAnalyzer', 'ExecutionAnalyzer']
+from .slippage import SlippageAnalyzer
+
+__all__ = ['MarketAnalyzer', 'ExecutionAnalyzer', 'SlippageAnalyzer']
