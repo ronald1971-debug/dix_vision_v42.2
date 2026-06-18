@@ -16,6 +16,9 @@ Architecture:
 This provides the single execution layer called for in the comprehensive plan.
 """
 
+# CRITICAL: Import core.contracts first to prevent circular dependency with governance_unified
+import core.contracts
+
 # Start with minimal imports and add back gradually
 from .core.kernel import (
     UnifiedExecutionKernel,
@@ -283,4 +286,14 @@ __all__ = [
     "evaluate_threshold",
     # Testing infrastructure
     "TestingChaosEngine",
+    # All archival components available via submodules:
+    # - execution_unified.adapters_archive (7 adapter components)
+    # - execution_unified.algos_archive (algorithm components)
+    # - execution_unified.confirmations_archive (confirmation tracking)
+    # - execution_unified.hazard_archive (hazard detection)
+    # - execution_unified.live_trading_archive (live trading components)
+    # - execution_unified.monitoring_archive (monitoring components)
+    # - execution_unified.engine_archive (138 execution engine components)
+    # - Individual archived files (21 components)
+    # Total: 184 archival components available via submodules
 ]
