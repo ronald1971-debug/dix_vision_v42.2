@@ -19,12 +19,13 @@ from core.contracts.engine import (
     HealthStatus,
     PluginLifecycle,
 )
+from core.contracts.engine import MicrostructurePlugin
 from core.contracts.events import Side, SignalEvent
 from core.contracts.market import MarketTick
 
 
-@dataclass
-class VpinImbalanceV1:
+@dataclass(slots=True)
+class VpinImbalanceV1(MicrostructurePlugin):
     """Fourth concrete intelligence plugin (IND-L05 v1)."""
 
     name: str = "vpin_imbalance_v1"

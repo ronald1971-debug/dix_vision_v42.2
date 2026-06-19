@@ -37,7 +37,7 @@ class PluginLifecycle(StrEnum):
     RETIRED = "RETIRED"
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(slots=True)
 class Plugin:
     name: str
     lifecycle: PluginLifecycle

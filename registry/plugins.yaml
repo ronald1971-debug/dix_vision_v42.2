@@ -40,6 +40,19 @@ plugins:
     dependencies: []
     health_check_enabled: true
 
+  # ENHANCED V2 PLUGINS
+  - id: "orderflow_imbalance_v2"
+    slot: "orderflow"
+    version: "2.0.0"
+    enabled: true
+    category: "intelligence"
+    description: "Enhanced orderflow imbalance with multi-timeframe analysis and pattern recognition"
+    allowed_modes: ["AUTO", "MANUAL", "SIMULATION"]
+    lifecycle: "ACTIVE"
+    ledger_kind: "PLUGIN_LIFECYCLE"
+    dependencies: ["orderflow_imbalance_v1"]
+    health_check_enabled: true
+
   # VOLATILITY & REGIME PLUGINS
   - id: "vpin_imbalance_v1"
     slot: "vpin"
@@ -141,18 +154,18 @@ plugins:
     dependencies: []
     health_check_enabled: true
 
-  # DASHBOARD FRONTEND PLUGINS
+  # DASHBOARD FRONTEND PLUGINS (DISABLED - Frontend plugins handled separately)
   - id: "cognitive_chat"
     slot: "frontend"
     version: "1.0.0"
-    enabled: true
+    enabled: false
     category: "dashboard"
-    description: "Cognitive chat interface for INDIRA and DYON interaction"
+    description: "Cognitive chat interface for INDIRA and DYON interaction - DISABLED: Frontend plugin handled by dashboard system"
     allowed_modes: ["AUTO", "MANUAL", "SIMULATION"]
-    lifecycle: "ACTIVE"
+    lifecycle: "DISABLED"
     ledger_kind: "PLUGIN_LIFECYCLE"
     dependencies: []
-    health_check_enabled: true
+    health_check_enabled: false
 
   # MICROSTRUCTURE ADVANCED
   - id: "microstructure_advanced"
@@ -160,9 +173,34 @@ plugins:
     version: "1.0.0"
     enabled: true
     category: "intelligence"
-    description: "Advanced microstructure pattern recognition and analysis"
+    description: "Advanced microstructure pattern recognition and analysis with order book dynamics"
     allowed_modes: ["AUTO", "MANUAL", "SIMULATION"]
     lifecycle: "ACTIVE"
     ledger_kind: "PLUGIN_LIFECYCLE"
     dependencies: ["microstructure_v1"]
+    health_check_enabled: true
+
+  # ADDITIONAL ENHANCED V2 PLUGINS
+  - id: "regime_classifier_v2"
+    slot: "regime"
+    version: "2.0.0"
+    enabled: true
+    category: "intelligence"
+    description: "Enhanced regime classifier with adaptive thresholds and multi-regime detection"
+    allowed_modes: ["AUTO", "MANUAL", "SIMULATION"]
+    lifecycle: "ACTIVE"
+    ledger_kind: "PLUGIN_LIFECYCLE"
+    dependencies: ["regime_classifier_v1"]
+    health_check_enabled: true
+
+  - id: "sentiment_aggregator_v2"
+    slot: "sentiment"
+    version: "2.0.0"
+    enabled: true
+    category: "intelligence"
+    description: "Enhanced sentiment aggregator with multi-source fusion and confidence weighting"
+    allowed_modes: ["AUTO", "MANUAL", "SIMULATION"]
+    lifecycle: "ACTIVE"
+    ledger_kind: "PLUGIN_LIFECYCLE"
+    dependencies: ["sentiment_aggregator_v1"]
     health_check_enabled: true

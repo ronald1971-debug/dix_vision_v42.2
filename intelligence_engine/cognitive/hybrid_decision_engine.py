@@ -24,6 +24,19 @@ from collections import deque
 import hashlib
 import numpy as np
 
+# Import confidence fusion engine for advanced statistical methods
+try:
+    from intelligence_engine.cognitive.confidence_fusion import (
+        ConfidenceFusionEngine,
+        FusionMethod,
+        FusionResult
+    )
+    FUSION_ENGINE_AVAILABLE = True
+except ImportError:
+    FUSION_ENGINE_AVAILABLE = False
+    logger = logging.getLogger(__name__)
+    logger.warning("[HYBRID_DECISION] Confidence fusion engine not available, using basic methods")
+
 logger = logging.getLogger(__name__)
 
 
@@ -216,6 +229,17 @@ class DecisionFusionEngine:
             DecisionSource.GOVERNANCE_CONSTRAINT: 1.0,  # Constraints always have weight 1.0
             DecisionSource.EMERGENCY_SYSTEM: 1.0   # Emergency always has weight 1.0
         }
+        
+        # Initialize confidence fusion engine if available
+        self._confidence_fusion_engine = None
+        if FUSION_ENGINE_AVAILABLE:
+            try:
+                self._confidence_fusion_engine = ConfidenceFusionEngine(
+                    default_method=FusionMethod.ADAPTIVE
+                )
+                logger.info("[HYBRID_DECISION] Confidence fusion engine initialized")
+            except Exception as e:
+                logger.warning(f"[HYBRID_DECISION] Failed to initialize confidence fusion engine: {e}")
         
         logger.info(f"[HYBRID_DECISION] Decision Fusion Engine initialized (strategy: {default_strategy.value})")
     
@@ -481,8 +505,63 @@ class DecisionFusionEngine:
     
     def _confidence_weighted_fusion(self, decision_inputs: List[DecisionInput], conflicts: List[DecisionConflict],
                                    context: Dict[str, Any]) -> HybridDecision:
-        """Fuse decisions using confidence-weighted combination."""
-        # Sort by confidence
+        """Fuse decisions using confidence-weighted combination with advanced statistical methods."""
+        # Extract confidences
+        confidences = [inp.confidence for inp in decision_inputs]
+        
+        # Use advanced confidence fusion if available
+        if self._confidence_fusion_engine and len(confidences) > 1:
+            try:
+                # Determine fusion method based on context
+                context = context or {}
+                fusion_method = context.get("fusion_method")
+                
+                # Perform fusion
+                fusion_result = self._confidence_fusion_engine.fuse(
+                    confidences=confidences,
+                    method=fusion_method,
+                    context=context
+                )
+                
+                # Use fusion result to weight decisions
+                sorted_inputs = sorted(
+                    decision_inputs,
+                    key=lambda x: self._get_fusion_weight(x.confidence, fusion_result),
+                    reverse=True
+                )
+                
+                primary_input = sorted_inputs[0]
+                secondary_inputs = sorted_inputs[1:] if len(sorted_inputs) > 1 else []
+                
+                # Add fusion metadata
+                fusion_metadata = {
+                    "fusion_method": fusion_result.fusion_method.value,
+                    "fusion_confidence": fusion_result.fused_confidence,
+                    "fusion_uncertainty": fusion_result.uncertainty,
+                    "fusion_conflict": fusion_result.conflict_score,
+                    "fusion_reasoning": fusion_result.reasoning
+                }
+                
+                result = self._create_hybrid_decision(
+                    primary_input=primary_input,
+                    secondary_inputs=secondary_inputs,
+                    conflicts_resolved=len(conflicts),
+                    resolution_strategy=ConflictResolutionStrategy.CONFIDENCE_WEIGHTED,
+                    context=context,
+                    metadata_override=fusion_metadata
+                )
+                
+                # Update confidence based on fusion result
+                result.confidence = fusion_result.fused_confidence
+                result.reasoning += f" | {fusion_result.reasoning}"
+                
+                return result
+                
+            except Exception as e:
+                logger.warning(f"[HYBRID_DECISION] Advanced fusion failed, using basic: {e}")
+                # Fall back to basic method
+        
+        # Basic confidence-weighted fusion
         sorted_inputs = sorted(decision_inputs, key=lambda x: x.confidence, reverse=True)
         
         if sorted_inputs:
@@ -498,6 +577,15 @@ class DecisionFusionEngine:
             )
         else:
             return self._create_no_action_decision("No valid inputs for confidence-weighted fusion")
+    
+    def _get_fusion_weight(self, confidence: float, fusion_result: FusionResult) -> float:
+        """Calculate fusion weight based on confidence and fusion result."""
+        # Combine original confidence with fusion weights
+        if fusion_result and fusion_result.weights_used:
+            # Find corresponding weight
+            idx = fusion_result.individual_confidences.index(confidence)
+            return fusion_result.weights_used[idx] * confidence
+        return confidence
     
     def _risk_aware_fusion(self, decision_inputs: List[DecisionInput], conflicts: List[DecisionConflict],
                           context: Dict[str, Any]) -> HybridDecision:
@@ -563,7 +651,7 @@ class DecisionFusionEngine:
     
     def _create_hybrid_decision(self, primary_input: DecisionInput, secondary_inputs: List[DecisionInput],
                                conflicts_resolved: int, resolution_strategy: ConflictResolutionStrategy,
-                               context: Dict[str, Any]) -> HybridDecision:
+                               context: Dict[str, Any], metadata_override: Dict[str, Any] = None) -> HybridDecision:
         """Create a hybrid decision from primary and secondary inputs."""
         # Calculate source weights
         source_weights = {primary_input.source.value: self._source_weights[primary_input.source]}
@@ -599,6 +687,13 @@ class DecisionFusionEngine:
         governance_required = context.get("governance_required", False) if context else False
         operator_approval_required = context.get("operator_approval_required", False) if context else False
         
+        # Start with base metadata
+        metadata = {"secondary_inputs_count": len(secondary_inputs)}
+        
+        # Apply metadata override if provided
+        if metadata_override:
+            metadata.update(metadata_override)
+        
         return HybridDecision(
             decision_id=f"hybrid_{int(datetime.now().timestamp())}_{hashlib.md5(str(source_weights).encode()).hexdigest()[:8]}",
             decision_type=primary_input.decision_type,
@@ -613,7 +708,7 @@ class DecisionFusionEngine:
             risk_assessment=weighted_risk,
             governance_required=governance_required,
             operator_approval_required=operator_approval_required,
-            metadata={"secondary_inputs_count": len(secondary_inputs)}
+            metadata=metadata
         )
     
     def _update_metrics(self, decision_time_ms: float, decision: HybridDecision, 

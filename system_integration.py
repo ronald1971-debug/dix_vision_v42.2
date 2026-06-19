@@ -86,6 +86,10 @@ class SystemIntegrationManager:
         self._knowledge_layer = None
         self._world_indicator_coordinator = None
         
+        # Plugin system references
+        self._plugin_loader = None
+        self._intelligence_engine = None
+        
         logger.info("[SYSTEM_INTEGRATION] Integration manager initialized")
     
     def register_integration(
@@ -179,6 +183,76 @@ class SystemIntegrationManager:
         except Exception as e:
             logger.error(f"Error disconnecting integration {integration_id}: {e}")
             return False
+    
+    def initialize_plugin_system(self) -> bool:
+        """Initialize plugin system integration with contract compliance."""
+        try:
+            logger.info("[SYSTEM_INTEGRATION] Initializing plugin system integration")
+            
+            # Load plugin loader
+            try:
+                from plugin_system import get_plugin_loader
+                self._plugin_loader = get_plugin_loader()
+                self._plugin_loader.initialize()
+                logger.info("[SYSTEM_INTEGRATION] Plugin loader initialized")
+            except ImportError as e:
+                logger.warning(f"[SYSTEM_INTEGRATION] Plugin loader not available: {e}")
+                return False
+            
+            # Initialize intelligence engine with plugins
+            try:
+                from intelligence_engine.engine import IntelligenceEngine
+                self._intelligence_engine = IntelligenceEngine(use_plugin_loader=True)
+                logger.info("[SYSTEM_INTEGRATION] Intelligence engine initialized with plugins")
+            except ImportError as e:
+                logger.warning(f"[SYSTEM_INTEGRATION] Intelligence engine not available: {e}")
+                return False
+            
+            # Wire plugin loader into intelligence engine
+            if self._plugin_loader and self._intelligence_engine:
+                self._plugin_loader.wire_intelligence_engine(self._intelligence_engine)
+                loaded_plugins = self._plugin_loader.get_loaded_plugins()
+                logger.info(f"[SYSTEM_INTEGRATION] Wired {len(loaded_plugins)} plugins into intelligence engine")
+            
+            # Register plugin system as integration point
+            self.register_integration(
+                source="plugin_system",
+                target="intelligence_engine",
+                data_handler=self._handle_plugin_signal_flow
+            )
+            
+            # Set health check callback for plugin monitoring
+            if self._plugin_loader:
+                self._plugin_loader.set_health_check_callback(self._handle_plugin_health_status)
+            
+            # Connect the integration
+            self.connect_integration("plugin_system→intelligence_engine")
+            
+            logger.info("[SYSTEM_INTEGRATION] Plugin system integration complete")
+            return True
+            
+        except Exception as e:
+            logger.error(f"[SYSTEM_INTEGRATION] Error initializing plugin system: {e}")
+            return False
+    
+    def _handle_plugin_signal_flow(self, data: Any) -> Any:
+        """Handle data flow from plugin system."""
+        try:
+            # This would handle routing of signals from plugins to execution system
+            # For now, just log the data flow
+            logger.debug(f"[SYSTEM_INTEGRATION] Plugin signal flow: {data}")
+            return data
+        except Exception as e:
+            logger.error(f"[SYSTEM_INTEGRATION] Error handling plugin signal flow: {e}")
+            return None
+    
+    def _handle_plugin_health_status(self, plugin_id: str, health_status: Any) -> None:
+        """Handle health status updates from plugins."""
+        try:
+            logger.info(f"[SYSTEM_INTEGRATION] Plugin {plugin_id} health status: {health_status}")
+            # This would update system health monitoring and trigger alerts if needed
+        except Exception as e:
+            logger.error(f"[SYSTEM_INTEGRATION] Error handling plugin health status: {e}")
     
     def send_data(
         self,

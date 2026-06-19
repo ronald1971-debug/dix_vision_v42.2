@@ -13,13 +13,14 @@ from core.contracts.engine import (
     HealthState,
     HealthStatus,
     PluginLifecycle,
+    MicrostructurePlugin,
 )
 from core.contracts.events import Side, SignalEvent
 from core.contracts.market import MarketTick
 
 
-@dataclass
-class OrderBookPressureV1:
+@dataclass(slots=True)
+class OrderBookPressureV1(MicrostructurePlugin):
     """Third concrete intelligence plugin (IND-L04 v1)."""
 
     name: str = "order_book_pressure_v1"

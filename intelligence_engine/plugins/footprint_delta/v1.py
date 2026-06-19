@@ -46,13 +46,14 @@ from core.contracts.engine import (
     HealthState,
     HealthStatus,
     PluginLifecycle,
+    MicrostructurePlugin,
 )
 from core.contracts.events import Side, SignalEvent
 from core.contracts.market import MarketTick
 
 
-@dataclass
-class FootprintDeltaV1:
+@dataclass(slots=True)
+class FootprintDeltaV1(MicrostructurePlugin):
     """Seventh concrete intelligence plugin (IND-L08 v1).
 
     Attributes:

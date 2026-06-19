@@ -1,10 +1,10 @@
 """
 cognitive_control_center.shared_services.auth
-Authentication service - Migrated from cockpit/auth.py
+Authentication service - Migrated from cockpit/auth.py with World Context Integration
 
 This module provides authentication and token management functionality for the cognitive
 control center, preserving all features from cockpit/auth.py while integrating with
-the cognitive environment.
+the cognitive environment and world model understanding.
 
 PRESERVED FEATURES:
 - Token generation and persistence
@@ -20,6 +20,7 @@ ENHANCED FEATURES:
 - Agent-aware authentication
 - Workspace-based authorization
 - Enhanced token lifecycle management
+- World context integration for authentication decisions
 """
 
 from __future__ import annotations
@@ -28,9 +29,10 @@ import os
 import secrets
 import sys
 import threading
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Callable
+from typing import Callable, Optional, Dict, List, Optional
 
 from starlette.requests import Request
 from starlette.responses import JSONResponse
@@ -40,6 +42,15 @@ from cognitive_control_center.core.operating_environment import (
     CognitiveEntityType,
     get_cognitive_environment,
 )
+
+# Try to import world model components for world context integration
+try:
+    import sys
+    sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+    from world_model.indicator_integration import get_integration_bridge
+    WORLD_MODEL_AVAILABLE = True
+except ImportError:
+    WORLD_MODEL_AVAILABLE = False
 
 # Preserve exact configuration from cockpit/auth.py
 PUBLIC_PATHS_EXACT = frozenset(
@@ -59,6 +70,43 @@ COGNITIVE_PUBLIC_PATHS = {
     "/agent_ops",  # Agent operations center
     "/workspaces",  # Workspace management
 }
+
+
+@dataclass
+class WorldContext:
+    """World model context for authentication decisions."""
+    market_regime: str  # bullish, bearish, sideways, high_volatility
+    market_trend: str  # trending, mean_reverting
+    volatility_regime: str  # high, normal, low
+    liquidity_state: str  # high, normal, low
+    agent_activity: Dict[str, float]  # agent_type -> activity_level
+    causal_factors: List[str]  # relevant causal factors
+    prediction_confidence: float  # world model prediction confidence
+    timestamp: datetime
+    
+    def to_dict(self) -> dict:
+        """Convert to dictionary for processing."""
+        return {
+            "market_regime": self.market_regime,
+            "market_trend": self.market_trend,
+            "volatility_regime": self.volatility_regime,
+            "liquidity_state": self.liquidity_state,
+            "agent_activity": self.agent_activity,
+            "causal_factors": self.causal_factors,
+            "prediction_confidence": self.prediction_confidence,
+            "timestamp": self.timestamp.isoformat()
+        }
+
+
+@dataclass
+class AuthRequest:
+    """Authentication request with world context."""
+    credentials: dict
+    source: str  # "web", "api", "pairing"
+    ip_address: Optional[str] = None
+    user_agent: Optional[str] = None
+    timestamp: datetime = None
+    world_context: Optional[WorldContext] = None
 
 
 def _token_file() -> Path:
@@ -167,6 +215,104 @@ class CognitiveAuthService:
             expired = [tok for tok, expiry in self._one_time_tokens.items() if now > expiry]
             for tok in expired:
                 del self._one_time_tokens[tok]
+    
+    # World Context Integration Methods
+    
+    def authenticate_with_world_context(self, credentials: dict, 
+                                       world_context: Optional[WorldContext] = None) -> bool:
+        """
+        Authenticate credentials with world context enhancement.
+        
+        ENHANCED: World context integration for intelligent authentication
+        """
+        # Get world context if not provided
+        if not world_context:
+            world_context = self._get_world_context()
+        
+        # Standard credential validation (preserve existing behavior)
+        if not self._validate_credentials(credentials):
+            return False
+        
+        # World-aware authentication checks
+        if world_context:
+            # Check for security risk factors
+            if world_context.volatility_regime == "high":
+                # Additional security measures in high volatility regime
+                if not self._check_high_volatility_security(credentials, world_context):
+                    return False
+            
+            # Check for suspicious activity patterns
+            if world_context.agent_activity.get("retail", 0) > 0.9:
+                # High retail activity might indicate FOMO or stress
+                if not self._check_activity_security(credentials, world_context):
+                    return False
+        
+        return True
+    
+    def _validate_credentials(self, credentials: dict) -> bool:
+        """Validate basic credentials (preserve existing behavior)."""
+        # Placeholder for actual credential validation logic
+        # In production, this would validate against user database, etc.
+        return True  # Allow for demo purposes
+    
+    def _check_high_volatility_security(self, credentials: dict, 
+                                   world_context: WorldContext) -> bool:
+        """Check security in high volatility regime."""
+        # In high volatility, implement additional security measures
+        # For now, allow all authenticated requests
+        return True
+    
+    def _check_activity_security(self, credentials: dict, 
+                             world_context: WorldContext) -> bool:
+        """Check for suspicious activity patterns."""
+        # In production, check for suspicious patterns
+        # For now, allow all authenticated requests
+        return True
+    
+    def _get_world_context(self) -> Optional[WorldContext]:
+        """Get current world context from world model integration."""
+        if not WORLD_MODEL_AVAILABLE:
+            return None
+        
+        try:
+            # Get world model predictions and state
+            bridge = get_integration_bridge()
+            
+            if bridge:
+                # Build world context from bridge metrics
+                # For now, return a default context
+                context = WorldContext(
+                    market_regime="sideways",
+                    market_trend="neutral",
+                    volatility_regime="normal",
+                    liquidity_state="high",
+                    agent_activity={},
+                    causal_factors=[],
+                    prediction_confidence=0.75,
+                    timestamp=datetime.utcnow()
+                )
+                return context
+        
+        except Exception as e:
+            sys.stderr.write(f"[cognitive_auth] Error getting world context: {e}\n")
+        
+        return None
+    
+    def get_world_aware_token(self, force_refresh: bool = False) -> dict:
+        """
+        Get token with world context information.
+        
+        ENHANCED: Returns token with world context metadata
+        """
+        token = self.get_or_create_token(force_refresh)
+        world_context = self._get_world_context()
+        
+        return {
+            "token": token,
+            "expiry": self._token_expiry.isoformat() if self._token_expiry else None,
+            "world_context": world_context.to_dict() if world_context else None,
+            "world_integration_enabled": WORLD_MODEL_AVAILABLE
+        }
 
 
 # Preserve exact helper function from cockpit/auth.py

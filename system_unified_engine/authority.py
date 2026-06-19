@@ -6,6 +6,9 @@ NO LAZY LOADING - All components load directly
 
 from typing import Dict, List, Optional, Any
 import logging
+import os
+import json
+import yaml
 
 logger = logging.getLogger(__name__)
 
@@ -70,11 +73,72 @@ def get_system_authority() -> SystemAuthority:
     return _system_authority
 
 def load_authority_matrix(config_path: str = None) -> AuthorityMatrix:
-    """Load authority matrix from config"""
+    """Load authority matrix from config file.
+
+    Args:
+        config_path: Path to config file (JSON or YAML format).
+                    If None, uses default authority levels.
+
+    Returns:
+        AuthorityMatrix instance with loaded configuration.
+
+    Raises:
+        FileNotFoundError: If config file doesn't exist
+        ValueError: If config file is invalid
+    """
     matrix = AuthorityMatrix()
+    
     if config_path:
-        # Load from config file if provided
-        pass
+        if not os.path.exists(config_path):
+            raise FileNotFoundError(f"Authority config file not found: {config_path}")
+        
+        try:
+            # Determine file type and load accordingly
+            if config_path.endswith('.json'):
+                with open(config_path, 'r') as f:
+                    config_data = json.load(f)
+            elif config_path.endswith('.yaml') or config_path.endswith('.yml'):
+                with open(config_path, 'r') as f:
+                    config_data = yaml.safe_load(f)
+            else:
+                raise ValueError(f"Unsupported config file format: {config_path}")
+            
+            # Extract authority levels from config
+            if 'authority_levels' in config_data:
+                authority_levels = config_data['authority_levels']
+                if isinstance(authority_levels, dict):
+                    # Update authority matrix with loaded values
+                    for level, score in authority_levels.items():
+                        if isinstance(score, int) and 0 <= score <= 100:
+                            matrix._authority_levels[level] = score
+                        else:
+                            logger.warning(
+                                f"[AUTHORITY] Invalid authority score for {level}: {score}. "
+                                f"Must be integer between 0-100. Using default."
+                            )
+            
+            # Set initial authority level if specified
+            if 'initial_authority' in config_data:
+                initial_level = config_data['initial_authority']
+                if initial_level in matrix._authority_levels:
+                    matrix._current_authority = initial_level
+                    logger.info(f"[AUTHORITY] Set initial authority level to: {initial_level}")
+                else:
+                    logger.warning(
+                        f"[AUTHORITY] Invalid initial authority level: {initial_level}. "
+                        f"Using default: {matrix._current_authority}"
+                    )
+            
+            logger.info(f"[AUTHORITY] Loaded authority matrix from: {config_path}")
+            
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Invalid JSON config file: {e}")
+        except yaml.YAMLError as e:
+            raise ValueError(f"Invalid YAML config file: {e}")
+        except Exception as e:
+            logger.error(f"[AUTHORITY] Error loading config file: {e}")
+            raise ValueError(f"Failed to load authority config: {e}")
+    
     return matrix
 
 def resolve_env(var_name: str, default: str = None) -> str:

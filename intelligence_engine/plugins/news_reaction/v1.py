@@ -13,13 +13,14 @@ from core.contracts.engine import (
     HealthState,
     HealthStatus,
     PluginLifecycle,
+    MicrostructurePlugin,
 )
 from core.contracts.events import Side, SignalEvent
 from core.contracts.market import MarketTick
 
 
-@dataclass
-class NewsReactionV1:
+@dataclass(slots=True)
+class NewsReactionV1(MicrostructurePlugin):
     """Ninth concrete intelligence plugin (IND-L10 v1)."""
 
     name: str = "news_reaction_v1"

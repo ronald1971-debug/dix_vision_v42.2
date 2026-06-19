@@ -38,13 +38,14 @@ from core.contracts.engine import (
     HealthState,
     HealthStatus,
     PluginLifecycle,
+    MicrostructurePlugin,
 )
 from core.contracts.events import Side, SignalEvent
 from core.contracts.market import MarketTick
 
 
-@dataclass
-class OrderflowImbalanceV1:
+@dataclass(slots=True)
+class OrderflowImbalanceV1(MicrostructurePlugin):
     """Second concrete intelligence plugin (IND-L03 v1).
 
     Attributes:

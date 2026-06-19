@@ -15,12 +15,13 @@ from core.contracts.engine import (
     HealthStatus,
     PluginLifecycle,
 )
+from core.contracts.engine import MicrostructurePlugin
 from core.contracts.events import Side, SignalEvent
 from core.contracts.market import MarketTick
 
 
-@dataclass
-class TraderImitationV1:
+@dataclass(slots=True)
+class TraderImitationV1(MicrostructurePlugin):
     """Eleventh concrete intelligence plugin (IND-L12 v1)."""
 
     name: str = "trader_imitation_v1"

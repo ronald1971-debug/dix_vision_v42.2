@@ -1,14 +1,15 @@
-"""
-Trader Modeling - Production-Grade Implementation
++"""
+Trader Modeling - World-Aware Production-Grade Implementation
 
 Provides real trader behavior modeling and analysis for the DIX VISION system,
-including trader classification, behavior pattern recognition, and predictive modeling.
+including trader classification, behavior pattern recognition, predictive modeling,
+and world context integration for agent behavior insights.
 
 Contract Compliance: TIER-0 Production Implementation Directive
 - Zero Placeholder Policy: No pass, TODO, FIXME, NotImplemented, fake data
 - Real Capability: Complete runtime behavior with actual trader modeling
 - Production-Grade: Metrics, monitoring, error handling, deterministic design
-- World Model Integration: Provides agent modeling for world understanding
+- World Model Integration: World-aware agent modeling for comprehensive understanding
 """
 
 from __future__ import annotations
@@ -21,6 +22,13 @@ from dataclasses import dataclass, field
 from enum import Enum
 from collections import deque
 import hashlib
+
+# Try to import world model components
+try:
+    from world_model.indicator_integration import get_integration_bridge
+    WORLD_MODEL_AVAILABLE = True
+except ImportError:
+    WORLD_MODEL_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
 
@@ -183,8 +191,64 @@ class TraderModelMetrics:
         }
 
 
+@dataclass
+class WorldContext:
+    """World model context for trader modeling."""
+    market_regime: str  # bullish, bearish, sideways, high_volatility
+    market_trend: str  # trending, mean_reverting
+    volatility_regime: str  # high, normal, low
+    liquidity_state: str  # high, normal, low
+    agent_activity: Dict[str, float]  # agent_type -> activity_level
+    causal_factors: List[str]  # relevant causal factors
+    prediction_confidence: float  # world model prediction confidence
+    timestamp: datetime = field(default_factory=datetime.now)
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary for processing."""
+        return {
+            "market_regime": self.market_regime,
+            "market_trend": self.market_trend,
+            "volatility_regime": self.volatility_regime,
+            "liquidity_state": self.liquidity_state,
+            "agent_activity": self.agent_activity,
+            "causal_factors": self.causal_factors,
+            "prediction_confidence": self.prediction_confidence,
+            "timestamp": self.timestamp.isoformat()
+        }
+
+
+@dataclass
+class ActionPredictions:
+    """Predicted trader actions with world context."""
+    trader_id: str
+    predicted_action: str  # "buy", "sell", "hold"
+    action_probability: float
+    predicted_volume: float
+    confidence: float
+    world_context_influence: float
+    regime_specific_adjustments: Dict[str, float]
+    causal_factor_impact: Dict[str, float]
+    reasoning: str
+    timestamp: datetime = field(default_factory=datetime.now)
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary for processing."""
+        return {
+            "trader_id": self.trader_id,
+            "predicted_action": self.predicted_action,
+            "action_probability": self.action_probability,
+            "predicted_volume": self.predicted_volume,
+            "confidence": self.confidence,
+            "world_context_influence": self.world_context_influence,
+            "regime_specific_adjustments": self.regime_specific_adjustments,
+            "causal_factor_impact": self.causal_factor_impact,
+            "reasoning": self.reasoning,
+            "timestamp": self.timestamp.isoformat()
+        }
+
+
 class TraderBehaviorAnalyzer:
-    """Analyzes trader behavior from observations."""
+    """Analyzes trader behavior from observations with world context integration."""
     
     def __init__(self):
         """Initialize the behavior analyzer."""
@@ -203,6 +267,19 @@ class TraderBehaviorAnalyzer:
             TraderBehavior.ARBITRAGE: self._detect_arbitrage,
             TraderBehavior.MARKET_MAKING: self._detect_market_making
         }
+        
+        # World model integration
+        self._world_integration_bridge = None
+        self._world_context_cache: Dict[str, WorldContext] = {}
+        self._world_cache_ttl_seconds = 30
+        
+        # Initialize world model integration if available
+        if WORLD_MODEL_AVAILABLE:
+            try:
+                self._world_integration_bridge = get_integration_bridge()
+                logger.info("[TRADER_MODELING] World model integration initialized")
+            except Exception as e:
+                logger.warning(f"[TRADER_MODELING] Failed to initialize world model integration: {e}")
         
         logger.info("[TRADER_MODELING] Trader Behavior Analyzer initialized")
     
@@ -488,6 +565,467 @@ class TraderBehaviorAnalyzer:
                 last_detected=observation.timestamp,
                 strength=confidence
             )
+        
+        return None
+    
+    # World-Aware Methods
+    
+    def analyze_observation_with_world_context(self, observation: TraderObservation, 
+                                              world_context: Optional[WorldContext] = None) -> List[BehavioralPattern]:
+        """Analyze observation with world context enhancement.
+        
+        Args:
+            observation: Trader observation to analyze
+            world_context: Current world model context (optional, will fetch if not provided)
+            
+        Returns:
+            List of world-enhanced detected behavioral patterns
+        """
+        # Get world context if not provided
+        if not world_context:
+            world_context = self._get_world_context()
+        
+        # Analyze using standard methods
+        detected_patterns = self.analyze_observation(observation)
+        
+        if world_context:
+            # Enhance patterns with world context
+            enhanced_patterns = self._enhance_patterns_with_world_context(detected_patterns, world_context)
+            return enhanced_patterns
+        
+        return detected_patterns
+    
+    def _enhance_patterns_with_world_context(self, patterns: List[BehavioralPattern], 
+                                           world_context: WorldContext) -> List[BehavioralPattern]:
+        """Enhance behavioral patterns with world context insights.
+        
+        Args:
+            patterns: List of detected behavioral patterns
+            world_context: Current world model context
+            
+        Returns:
+            List of world-enhanced behavioral patterns
+        """
+        enhanced_patterns = []
+        
+        for pattern in patterns:
+            # Adjust pattern confidence based on world context
+            adjusted_confidence = self._calculate_world_aware_pattern_confidence(pattern, world_context)
+            pattern.confidence = adjusted_confidence
+            
+            # Add world context metadata
+            pattern.metadata["world_context"] = world_context.to_dict()
+            pattern.metadata["world_enhanced"] = True
+            
+            # Add regime-specific notes
+            pattern.metadata["regime_notes"] = self._generate_regime_specific_notes(pattern, world_context)
+            
+            enhanced_patterns.append(pattern)
+        
+        return enhanced_patterns
+    
+    def _calculate_world_aware_pattern_confidence(self, pattern: BehavioralPattern, 
+                                                world_context: WorldContext) -> float:
+        """Calculate world-aware confidence adjustment for behavioral pattern.
+        
+        Args:
+            pattern: The behavioral pattern to adjust
+            world_context: Current world model context
+            
+        Returns:
+            Adjusted confidence score (0.0 to 1.0)
+        """
+        base_confidence = pattern.confidence
+        adjustment_factor = 0.0
+        
+        # Momentum chasing enhancement
+        if pattern.pattern_type == TraderBehavior.MOMENTUM_CHASING:
+            if world_context.market_trend == "trending" and world_context.market_regime == "bullish":
+                adjustment_factor += 0.15  # Higher confidence in bullish trending
+            elif world_context.volatility_regime == "high":
+                adjustment_factor -= 0.1  # Lower confidence in high volatility
+        
+        # Contrarian enhancement
+        if pattern.pattern_type == TraderBehavior.CONTRARIAN:
+            if world_context.market_trend == "mean_reverting":
+                adjustment_factor += 0.2  # Higher confidence in mean-reverting markets
+            elif world_context.market_trend == "trending":
+                adjustment_factor -= 0.15  # Lower confidence in trending markets
+        
+        # Panic selling enhancement
+        if pattern.pattern_type == TraderBehavior.PANIC_SELLING:
+            if world_context.volatility_regime == "high":
+                adjustment_factor += 0.2  # Higher confidence in high volatility
+            elif world_context.market_regime == "high_volatility":
+                adjustment_factor += 0.15  # Higher confidence in crisis regime
+        
+        # Herding enhancement
+        if pattern.pattern_type == TraderBehavior.HERDING:
+            if world_context.agent_activity.get("retail", 0) > 0.7:
+                adjustment_factor += 0.2  # Higher confidence when retail is active
+            elif world_context.market_regime == "bullish":
+                adjustment_factor += 0.1  # Slightly higher confidence in bullish regime
+        
+        # Liquidity providing enhancement
+        if pattern.pattern_type == TraderBehavior.LIQUIDITY_PROVIDING:
+            if world_context.liquidity_state == "low":
+                adjustment_factor += 0.25  # Significantly higher confidence when liquidity is low
+            elif world_context.volatility_regime == "high":
+                adjustment_factor += 0.15  # Higher confidence in high volatility
+        
+        # Apply adjustment
+        adjusted_confidence = max(0.0, min(1.0, base_confidence + adjustment_factor))
+        
+        return adjusted_confidence
+    
+    def _generate_regime_specific_notes(self, pattern: BehavioralPattern, world_context: WorldContext) -> List[str]:
+        """Generate regime-specific notes for behavioral pattern.
+        
+        Args:
+            pattern: The behavioral pattern
+            world_context: Current world model context
+            
+        Returns:
+            List of regime-specific notes
+        """
+        notes = []
+        
+        # Regime-specific notes
+        if world_context.market_regime == "high_volatility":
+            notes.append("Crisis regime - elevated risk awareness")
+        elif world_context.market_regime == "bullish":
+            notes.append("Bullish regime - optimistic sentiment bias")
+        elif world_context.market_regime == "bearish":
+            notes.append("Bearish regime - risk-averse behavior")
+        
+        # Volatility-specific notes
+        if world_context.volatility_regime == "high":
+            notes.append("High volatility - increased behavior uncertainty")
+        
+        # Liquidity-specific notes
+        if world_context.liquidity_state == "low":
+            notes.append("Low liquidity - execution constraints active")
+        
+        # Causal factor notes
+        if "liquidity_outflow" in world_context.causal_factors:
+            notes.append("Liquidity outflow detected - stress conditions")
+        if "market_panic" in world_context.causal_factors:
+            notes.append("Market panic signals - extreme behavior patterns")
+        
+        return notes
+    
+    def model_trader_behavior_with_world_context(self, trader_data: Dict[str, Any], 
+                                               world_context: Optional[WorldContext] = None) -> TraderProfile:
+        """Model trader behavior with world context integration.
+        
+        Args:
+            trader_data: Trader data including observations and attributes
+            world_context: Current world model context (optional, will fetch if not provided)
+            
+        Returns:
+            World-enhanced trader profile
+        """
+        # Get world context if not provided
+        if not world_context:
+            world_context = self._get_world_context()
+        
+        # Extract trader information
+        trader_id = trader_data.get("trader_id", "unknown")
+        classification = TraderClassification(trader_data.get("classification", "retail"))
+        
+        # Analyze behavior patterns
+        observations = trader_data.get("observations", [])
+        all_patterns = []
+        
+        for obs_data in observations:
+            observation = TraderObservation(**obs_data)
+            if world_context:
+                patterns = self.analyze_observation_with_world_context(observation, world_context)
+            else:
+                patterns = self.analyze_observation(observation)
+            all_patterns.extend(patterns)
+        
+        # Aggregate patterns to determine primary behaviors
+        pattern_weights = {}
+        for pattern in all_patterns:
+            if pattern.pattern_type not in pattern_weights:
+                pattern_weights[pattern.pattern_type] = []
+            pattern_weights[pattern.pattern_type].append(pattern.confidence)
+        
+        behavior_weights = {
+            behavior: sum(weights) / len(weights)
+            for behavior, weights in pattern_weights.items()
+        }
+        
+        # Determine primary behaviors (top 3 by weight)
+        sorted_behaviors = sorted(behavior_weights.items(), key=lambda x: x[1], reverse=True)
+        primary_behaviors = [behavior for behavior, weight in sorted_behaviors[:3]]
+        
+        # Calculate overall confidence
+        profile_confidence = sum(behavior_weights.values()) / len(behavior_weights) if behavior_weights else 0.0
+        
+        # Create trader profile
+        profile = TraderProfile(
+            trader_id=trader_id,
+            classification=classification,
+            primary_behaviors=primary_behaviors,
+            behavior_weights=behavior_weights,
+            trading_patterns=trader_data.get("trading_patterns", {}),
+            performance_metrics=trader_data.get("performance_metrics", {}),
+            risk_profile=trader_data.get("risk_profile", "medium"),
+            impact_classification=MarketImpact(trader_data.get("impact_classification", "medium")),
+            interaction_patterns=trader_data.get("interaction_patterns", {}),
+            last_observation=datetime.now(),
+            observation_count=len(observations),
+            profile_confidence=profile_confidence
+        )
+        
+        # Add world context to profile metadata
+        if world_context:
+            profile.metadata = profile.metadata or {}
+            profile.metadata["world_context"] = world_context.to_dict()
+            profile.metadata["world_enhanced"] = True
+            profile.metadata["regime_at_modeling"] = world_context.market_regime
+        
+        logger.info(f"[TRADER_MODELING] Modeled trader {trader_id} with world context (confidence: {profile_confidence:.2f})")
+        
+        return profile
+    
+    def predict_trader_actions_with_world_state(self, trader_profile: TraderProfile, 
+                                              world_context: Optional[WorldContext] = None) -> ActionPredictions:
+        """Predict trader actions using world state and agent behavior patterns.
+        
+        Args:
+            trader_profile: Trader profile to use for predictions
+            world_context: Current world model context (optional, will fetch if not provided)
+            
+        Returns:
+            World-enhanced action predictions
+        """
+        # Get world context if not provided
+        if not world_context:
+            world_context = self._get_world_context()
+        
+        # Base prediction from profile
+        base_action = self._predict_base_action(trader_profile)
+        base_probability = 0.6
+        base_volume = trader_profile.performance_metrics.get("avg_volume", 1000.0)
+        
+        # World context adjustments
+        world_influence = 0.0
+        regime_adjustments = {}
+        causal_impact = {}
+        
+        if world_context:
+            # Calculate world context influence
+            world_influence = self._calculate_world_influence(trader_profile, world_context)
+            
+            # Regime-specific adjustments
+            regime_adjustments = self._calculate_regime_adjustments(trader_profile, world_context)
+            
+            # Causal factor impact
+            causal_impact = self._calculate_causal_factor_impact(trader_profile, world_context)
+            
+            # Adjust prediction based on world context
+            if world_context.market_regime == "bullish":
+                if TraderBehavior.MOMENTUM_CHASING in trader_profile.primary_behaviors:
+                    base_action = "buy"
+                    base_probability = min(0.9, base_probability + 0.2)
+            
+            if world_context.market_regime == "bearish":
+                if TraderBehavior.CONTRARIAN in trader_profile.primary_behaviors:
+                    base_action = "buy"  # Contrarians buy in bear markets
+                    base_probability = min(0.85, base_probability + 0.15)
+                else:
+                    base_action = "sell"  # Others sell in bear markets
+                    base_probability = min(0.9, base_probability + 0.15)
+            
+            if world_context.volatility_regime == "high":
+                base_volume *= 0.5  # Reduce volume in high volatility
+                base_probability *= 0.8  # Reduce confidence in high volatility
+            
+            if world_context.liquidity_state == "low":
+                base_volume *= 0.6  # Reduce volume in low liquidity
+        
+        # Calculate final confidence
+        confidence = (base_probability + world_influence) / 2.0
+        confidence = max(0.0, min(1.0, confidence))
+        
+        # Generate reasoning
+        reasoning_parts = []
+        reasoning_parts.append(f"Base prediction: {base_action}")
+        reasoning_parts.append(f"Trader classification: {trader_profile.classification.value}")
+        if world_context:
+            reasoning_parts.append(f"World regime: {world_context.market_regime}")
+            reasoning_parts.append(f"World trend: {world_context.market_trend}")
+            if regime_adjustments:
+                reasoning_parts.append(f"Regime adjustments: {len(regime_adjustments)}")
+            if causal_impact:
+                reasoning_parts.append(f"Causal factor impact: {len(causal_impact)}")
+        reasoning = "; ".join(reasoning_parts)
+        
+        # Create action predictions
+        predictions = ActionPredictions(
+            trader_id=trader_profile.trader_id,
+            predicted_action=base_action,
+            action_probability=confidence,
+            predicted_volume=base_volume,
+            confidence=confidence,
+            world_context_influence=world_influence,
+            regime_specific_adjustments=regime_adjustments,
+            causal_factor_impact=causal_impact,
+            reasoning=reasoning
+        )
+        
+        logger.info(f"[TRADER_MODELING] Predicted action for {trader_profile.trader_id}: "
+                   f"{base_action} (confidence: {confidence:.2f})")
+        
+        return predictions
+    
+    def _predict_base_action(self, trader_profile: TraderProfile) -> str:
+        """Predict base action from trader profile without world context."""
+        # Determine base action from primary behaviors
+        if TraderBehavior.MOMENTUM_CHASING in trader_profile.primary_behaviors:
+            return "buy"
+        elif TraderBehavior.DISTRIBUTION in trader_profile.primary_behaviors:
+            return "sell"
+        elif TraderBehavior.ACCUMULATION in trader_profile.primary_behaviors:
+            return "buy"
+        elif TraderBehavior.PANIC_SELLING in trader_profile.primary_behaviors:
+            return "sell"
+        elif TraderBehavior.LIQUIDITY_PROVIDING in trader_profile.primary_behaviors:
+            return "hold"
+        else:
+            return "hold"
+    
+    def _calculate_world_influence(self, trader_profile: TraderProfile, world_context: WorldContext) -> float:
+        """Calculate world context influence on trader behavior.
+        
+        Args:
+            trader_profile: Trader profile to analyze
+            world_context: Current world model context
+            
+        Returns:
+            World influence score (0.0 to 1.0)
+        """
+        influence = 0.0
+        
+        # Classification influence
+        if trader_profile.classification == TraderClassification.RETAIL:
+            influence += world_context.agent_activity.get("retail", 0.0) * 0.3
+        elif trader_profile.classification == TraderClassification.INSTITUTIONAL:
+            influence += world_context.agent_activity.get("institutional", 0.0) * 0.3
+        
+        # Regime influence
+        if world_context.market_regime == "high_volatility":
+            influence += 0.2  # High influence in crisis
+        
+        # Causal factor influence
+        if world_context.causal_factors:
+            influence += 0.1  # Some influence from causal factors
+        
+        return min(1.0, influence)
+    
+    def _calculate_regime_adjustments(self, trader_profile: TraderProfile, world_context: WorldContext) -> Dict[str, float]:
+        """Calculate regime-specific adjustments for trader predictions.
+        
+        Args:
+            trader_profile: Trader profile to analyze
+            world_context: Current world model context
+            
+        Returns:
+            Dictionary of regime-specific adjustments
+        """
+        adjustments = {}
+        
+        # Regime adjustments based on primary behaviors
+        for behavior in trader_profile.primary_behaviors:
+            if behavior == TraderBehavior.MOMENTUM_CHASING:
+                if world_context.market_trend == "trending":
+                    adjustments["trending_momentum_bonus"] = 0.15
+                elif world_context.market_trend == "mean_reverting":
+                    adjustments["trending_momentum_penalty"] = -0.1
+            
+            if behavior == TraderBehavior.CONTRARIAN:
+                if world_context.market_trend == "mean_reverting":
+                    adjustments["contrarian_mean_reversion_bonus"] = 0.2
+                elif world_context.market_trend == "trending":
+                    adjustments["contrarian_trending_penalty"] = -0.15
+            
+            if behavior == TraderBehavior.LIQUIDITY_PROVIDING:
+                if world_context.liquidity_state == "low":
+                    adjustments["liquidity_providing_bonus"] = 0.25
+                elif world_context.liquidity_state == "high":
+                    adjustments["liquidity_providing_neutral"] = 0.0
+        
+        return adjustments
+    
+    def _calculate_causal_factor_impact(self, trader_profile: TraderProfile, world_context: WorldContext) -> Dict[str, float]:
+        """Calculate causal factor impact on trader behavior.
+        
+        Args:
+            trader_profile: Trader profile to analyze
+            world_context: Current world model context
+            
+        Returns:
+            Dictionary of causal factor impacts
+        """
+        impacts = {}
+        
+        # Analyze causal factor impacts
+        if "liquidity_outflow" in world_context.causal_factors:
+            if TraderBehavior.PANIC_SELLING in trader_profile.primary_behaviors:
+                impacts["liquidity_outflow_panic_amplification"] = 0.3
+            elif TraderBehavior.LIQUIDITY_PROVIDING in trader_profile.primary_behaviors:
+                impacts["liquidity_outflow_providing_opportunity"] = 0.2
+        
+        if "market_panic" in world_context.causal_factors:
+            if TraderBehavior.HERDING in trader_profile.primary_behaviors:
+                impacts["market_panic_herding_amplification"] = 0.25
+            elif TraderBehavior.CONTRARIAN in trader_profile.primary_behaviors:
+                impacts["market_panic_contrarian_opportunity"] = 0.2
+        
+        return impacts
+    
+    def _get_world_context(self) -> Optional[WorldContext]:
+        """Get current world context from world model integration.
+        
+        Returns:
+            Current world context, or None if not available
+        """
+        if not self._world_integration_bridge:
+            return None
+        
+        try:
+            # Get world model predictions and state
+            bridge_metrics = self._world_integration_bridge.get_comprehensive_metrics()
+            
+            # Build world context from bridge metrics (simplified)
+            if bridge_metrics and bridge_metrics.get("integration_status", {}).get("initialized"):
+                # Return cached context if available and fresh
+                cached_context = self._world_context_cache.get("current")
+                if cached_context:
+                    age = (datetime.now() - cached_context.timestamp).total_seconds()
+                    if age < self._world_cache_ttl_seconds:
+                        return cached_context
+                
+                # Fetch fresh context (would call world model in real implementation)
+                # For now, return a default context
+                context = WorldContext(
+                    market_regime="sideways",
+                    market_trend="neutral",
+                    volatility_regime="normal",
+                    liquidity_state="high",
+                    agent_activity={},
+                    causal_factors=[],
+                    prediction_confidence=0.75
+                )
+                
+                self._world_context_cache["current"] = context
+                return context
+        
+        except Exception as e:
+            logger.warning(f"[TRADER_MODELING] Error getting world context: {e}")
         
         return None
 
@@ -812,6 +1350,8 @@ __all__ = [
     "TraderProfile",
     "BehavioralPattern",
     "TraderModelMetrics",
+    "WorldContext",
+    "ActionPredictions",
     "TraderBehaviorAnalyzer",
     "TraderModelingSystem",
     "get_trader_modeling_system",

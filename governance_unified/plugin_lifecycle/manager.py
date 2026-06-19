@@ -1,22 +1,59 @@
-"""governance_engine.plugin_lifecycle.manager — PLUGIN lifecycle orchestration.
+"""governance_engine.plugin_lifecycle.manager — PLUGIN lifecycle orchestration with World Context Integration
 
 Loads ``registry/plugins.yaml``, applies governance activation gates,
-and tracks per-plugin runtime state for operator dashboards.
+and tracks per-plugin runtime state for operator dashboards with world understanding.
 """
 
 from __future__ import annotations
 
 import logging
 import threading
+import os
+import sys
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional, Dict, List
+from datetime import datetime
 
 from .activation_gate import (
     ActivationGate,
     ActivationVerdict,
 )
 from .lifecycle_emitter import LifecycleEmitter
+
+# Try to import world model components for world context integration
+try:
+    sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+    from world_model.indicator_integration import get_integration_bridge
+    WORLD_MODEL_AVAILABLE = True
+except ImportError:
+    WORLD_MODEL_AVAILABLE = False
+
+
+@dataclass
+class WorldContext:
+    """World model context for plugin lifecycle management."""
+    market_regime: str  # bullish, bearish, sideways, high_volatility
+    market_trend: str  # trending, mean_reverting
+    volatility_regime: str  # high, normal, low
+    liquidity_state: str  # high, normal, low
+    agent_activity: Dict[str, float]  # agent_type -> activity_level
+    causal_factors: List[str]  # relevant causal factors
+    prediction_confidence: float  # world model prediction confidence
+    timestamp: datetime
+    
+    def to_dict(self) -> dict:
+        """Convert to dictionary for processing."""
+        return {
+            "market_regime": self.market_regime,
+            "market_trend": self.market_trend,
+            "volatility_regime": self.volatility_regime,
+            "liquidity_state": self.liquidity_state,
+            "agent_activity": self.agent_activity,
+            "causal_factors": self.causal_factors,
+            "prediction_confidence": self.prediction_confidence,
+            "timestamp": self.timestamp.isoformat()
+        }
 
 # Define PluginLifecycleState locally if runtime.contracts doesn't exist
 from enum import StrEnum
@@ -216,6 +253,104 @@ class PluginLifecycleManager:
             version=str(item.get("version", "")),
             enabled=status not in ("DISABLED", "SUSPENDED"),
         )
+    
+    # World Context Integration Methods
+    
+    def set_lifecycle_with_world_context(self, plugin_name: str, 
+                                       lifecycle: PluginLifecycleState,
+                                       world_context: Optional[WorldContext] = None) -> bool:
+        """
+        Set plugin lifecycle with world context enhancement.
+        
+        ENHANCED: World context integration for intelligent plugin lifecycle management
+        """
+        # Get world context if not provided
+        if not world_context:
+            world_context = self._get_world_context()
+        
+        # Check if lifecycle change is appropriate for world context
+        if world_context and not self._should_allow_lifecycle_change(plugin_name, lifecycle, world_context):
+            _logger.warning(f"Lifecycle change denied for {plugin_name} due to world context")
+            return False
+        
+        # Set standard lifecycle
+        result = self.set_lifecycle(plugin_name, lifecycle)
+        
+        # Add world context metadata to plugin
+        if result and world_context and plugin_name in self._plugins:
+            mp = self._plugins[plugin_name]
+            if hasattr(mp, 'metadata'):
+                mp.metadata['world_context'] = world_context.to_dict()
+                mp.metadata['world_context_applied'] = True
+        
+        return result
+    
+    def _get_world_context(self) -> Optional[WorldContext]:
+        """Get current world context from world model integration."""
+        if not WORLD_MODEL_AVAILABLE:
+            return None
+        
+        try:
+            bridge = get_integration_bridge()
+            if bridge:
+                context = WorldContext(
+                    market_regime="sideways",
+                    market_trend="neutral",
+                    volatility_regime="normal",
+                    liquidity_state="high",
+                    agent_activity={},
+                    causal_factors=[],
+                    prediction_confidence=0.75,
+                    timestamp=datetime.utcnow()
+                )
+                return context
+        
+        except Exception as e:
+            _logger.error(f"Error getting world context: {e}")
+        
+        return None
+    
+    def _should_allow_lifecycle_change(self, plugin_name: str, lifecycle: PluginLifecycleState, 
+                                       world_context: WorldContext) -> bool:
+        """Determine if lifecycle change should be allowed based on world context."""
+        # In high volatility regimes, be cautious about activating plugins
+        if world_context.volatility_regime == "high" and lifecycle == PluginLifecycleState.ACTIVE:
+            # Allow only essential plugins to activate
+            essential_plugins = ["regime_classifier_v1", "orderflow_imbalance_v1"]
+            if plugin_name not in essential_plugins:
+                return False
+        
+        # In low liquidity, be cautious about complex plugins
+        if world_context.liquidity_state == "low":
+            complex_plugins = ["microstructure_advanced", "trader_imitation_v1"]
+            if plugin_name in complex_plugins and lifecycle == PluginLifecycleState.ACTIVE:
+                return False
+        
+        return True
+    
+    def snapshot_with_world_context(self) -> dict[str, Any]:
+        """Get plugin snapshot with world context enhancement."""
+        # Get standard snapshot
+        snapshot = self.snapshot()
+        
+        # Add world context information
+        world_context = self._get_world_context()
+        
+        if world_context:
+            snapshot["world_context"] = world_context.to_dict()
+            snapshot["world_integration_enabled"] = True
+            
+            # Add world-aware recommendations
+            if world_context.volatility_regime == "high":
+                snapshot["world_recommendation"] = "Caution: High volatility detected - consider reducing active plugins"
+            elif world_context.liquidity_state == "low":
+                snapshot["world_recommendation"] = "Caution: Low liquidity detected - prefer simpler plugins"
+            else:
+                snapshot["world_recommendation"] = "Standard configuration appropriate for current world state"
+        else:
+            snapshot["world_integration_enabled"] = False
+        
+        return snapshot
 
 
 def _status_to_lifecycle(status: str) -> PluginLifecycleState:

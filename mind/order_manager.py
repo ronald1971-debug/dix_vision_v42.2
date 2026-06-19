@@ -1,5 +1,5 @@
 """
-Mind Module - Cognitive Infrastructure for Trading System
+Mind Module - Cognitive Infrastructure for Trading System with World Context Integration
 Provides cognitive capabilities for order management and portfolio operations
 This module is required by archival components for cognitive trading operations
 NO LAZY LOADING - All components load directly
@@ -10,9 +10,45 @@ from dataclasses import dataclass, field
 from enum import Enum
 import logging
 import asyncio
+import os
+import sys
 from datetime import datetime, timedelta
 
 logger = logging.getLogger(__name__)
+
+# Try to import world model components for world context integration
+try:
+    sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
+    from world_model.indicator_integration import get_integration_bridge
+    WORLD_MODEL_AVAILABLE = True
+except ImportError:
+    WORLD_MODEL_AVAILABLE = False
+
+
+@dataclass
+class WorldContext:
+    """World model context for order management."""
+    market_regime: str  # bullish, bearish, sideways, high_volatility
+    market_trend: str  # trending, mean_reverting
+    volatility_regime: str  # high, normal, low
+    liquidity_state: str  # high, normal, low
+    agent_activity: Dict[str, float]  # agent_type -> activity_level
+    causal_factors: List[str]  # relevant causal factors
+    prediction_confidence: float  # world model prediction confidence
+    timestamp: datetime
+    
+    def to_dict(self) -> dict:
+        """Convert to dictionary for processing."""
+        return {
+            "market_regime": self.market_regime,
+            "market_trend": self.market_trend,
+            "volatility_regime": self.volatility_regime,
+            "liquidity_state": self.liquidity_state,
+            "agent_activity": self.agent_activity,
+            "causal_factors": self.causal_factors,
+            "prediction_confidence": self.prediction_confidence,
+            "timestamp": self.timestamp.isoformat()
+        }
 
 
 class OrderStatus(Enum):
@@ -249,6 +285,105 @@ class OrderManager:
         # Base implementation - should be overridden by specific implementations
         logger.debug(f"Processing order {order_id}")
         # Integration with execution engine would happen here
+    
+    # World Context Integration Methods
+    
+    async def create_order_with_world_context(self, symbol: str, order_type: OrderType, side: OrderSide,
+                                            quantity: float, price: Optional[float] = None,
+                                            world_context: Optional[WorldContext] = None) -> Order:
+        """
+        Create an order with world context enhancement.
+        
+        ENHANCED: World context integration for intelligent order creation
+        """
+        # Get world context if not provided
+        if not world_context:
+            world_context = self._get_world_context()
+        
+        # Adjust order parameters based on world context
+        adjusted_params = self._adjust_order_params_with_world_context(
+            symbol, order_type, side, quantity, price, world_context
+        )
+        
+        # Create order with adjusted parameters
+        order = await self.create_order(
+            adjusted_params["symbol"],
+            adjusted_params["order_type"],
+            adjusted_params["side"],
+            adjusted_params["quantity"],
+            adjusted_params["price"]
+        )
+        
+        # Add world context metadata to order
+        if world_context:
+            order.metadata["world_context"] = world_context.to_dict()
+            order.metadata["world_context_applied"] = True
+            if "adjustments" in adjusted_params:
+                order.metadata["world_context_adjustments"] = adjusted_params["adjustments"]
+        
+        return order
+    
+    def _get_world_context(self) -> Optional[WorldContext]:
+        """Get current world context from world model integration."""
+        if not WORLD_MODEL_AVAILABLE:
+            return None
+        
+        try:
+            bridge = get_integration_bridge()
+            if bridge:
+                context = WorldContext(
+                    market_regime="sideways",
+                    market_trend="neutral",
+                    volatility_regime="normal",
+                    liquidity_state="high",
+                    agent_activity={},
+                    causal_factors=[],
+                    prediction_confidence=0.75,
+                    timestamp=datetime.utcnow()
+                )
+                return context
+        
+        except Exception as e:
+            logger.error(f"[ORDER_MANAGER] Error getting world context: {e}")
+        
+        return None
+    
+    def _adjust_order_params_with_world_context(self, symbol: str, order_type: OrderType, side: OrderSide,
+                                               quantity: float, price: Optional[float],
+                                               world_context: Optional[WorldContext]) -> Dict[str, Any]:
+        """Adjust order parameters based on world context."""
+        adjustments = []
+        adjusted_params = {
+            "symbol": symbol,
+            "order_type": order_type,
+            "side": side,
+            "quantity": quantity,
+            "price": price,
+            "adjustments": []
+        }
+        
+        if not world_context:
+            return adjusted_params
+        
+        # Adjust quantity based on volatility
+        if world_context.volatility_regime == "high":
+            # Reduce position size in high volatility
+            adjusted_params["quantity"] = quantity * 0.8
+            adjustments.append("reduced_quantity_high_volatility")
+        
+        # Adjust order type based on liquidity
+        if world_context.liquidity_state == "low" and order_type == OrderType.MARKET:
+            # Use limit orders in low liquidity to avoid slippage
+            adjusted_params["order_type"] = OrderType.LIMIT
+            adjustments.append("converted_to_limit_low_liquidity")
+        
+        # Adjust timing based on market regime
+        if world_context.market_regime == "high_volatility":
+            adjustments.append("cautionary_execution_regime")
+        
+        adjusted_params["adjustments"] = adjustments
+        
+        return adjusted_params
 
 
 # Global order manager instance

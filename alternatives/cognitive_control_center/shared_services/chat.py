@@ -1,10 +1,10 @@
 """
 cognitive_control_center.shared_services.chat
-Chat service - Migrated from cockpit/chat.py
+Chat service - Migrated from cockpit/chat.py with World Context Integration
 
 This module provides chat functionality for the cognitive control center, preserving all
-features from cockpit/chat.py while integrating with the cognitive environment and agent
-operations center.
+features from cockpit/chat.py while integrating with the cognitive environment, agent
+operations center, and world model understanding.
 
 PRESERVED FEATURES:
 - Multi-voice routing (INDIRA/DYON/GOVERNANCE)
@@ -23,14 +23,27 @@ ENHANCED FEATURES:
 - Real-time chat activity feeds
 - Workspace-based chat contexts
 - Cognitive environment awareness
+- World understanding for chat responses
+- Context-aware information retrieval
 """
 
 from __future__ import annotations
 
 import re
 import threading
+import os
+import sys
 from dataclasses import dataclass, field
-from typing import Callable
+from datetime import datetime
+from typing import Callable, Optional, Dict, List
+
+# Try to import world model components for world context integration
+try:
+    sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+    from world_model.indicator_integration import get_integration_bridge
+    WORLD_MODEL_AVAILABLE = True
+except ImportError:
+    WORLD_MODEL_AVAILABLE = False
 
 from core.charter import Voice, all_charters
 from core.introspection import Introspection, introspect
@@ -146,6 +159,32 @@ class ChatTurn:
     workspace: str | None = None
     timestamp: str | None = None
     agent_activity_id: str | None = None
+
+
+@dataclass
+class WorldContext:
+    """World model context for chat responses."""
+    market_regime: str  # bullish, bearish, sideways, high_volatility
+    market_trend: str  # trending, mean_reverting
+    volatility_regime: str  # high, normal, low
+    liquidity_state: str  # high, normal, low
+    agent_activity: Dict[str, float]  # agent_type -> activity_level
+    causal_factors: List[str]  # relevant causal factors
+    prediction_confidence: float  # world model prediction confidence
+    timestamp: datetime
+    
+    def to_dict(self) -> dict:
+        """Convert to dictionary for processing."""
+        return {
+            "market_regime": self.market_regime,
+            "market_trend": self.market_trend,
+            "volatility_regime": self.volatility_regime,
+            "liquidity_state": self.liquidity_state,
+            "agent_activity": self.agent_activity,
+            "causal_factors": self.causal_factors,
+            "prediction_confidence": self.prediction_confidence,
+            "timestamp": self.timestamp.isoformat()
+        }
 
 
 class Router:
@@ -313,6 +352,104 @@ class CognitiveChat:
             pass
 
         return turn
+    
+    # World Context Integration Methods
+    
+    def send_with_world_understanding(self, message: str, 
+                                  forced_voice: Voice | None = None, 
+                                  locale_tag: str = "", 
+                                  workspace: str | None = None,
+                                  world_context: Optional[WorldContext] = None) -> ChatTurn:
+        """
+        Send chat message with world understanding enhancement.
+        
+        ENHANCED: World context integration for intelligent responses
+        """
+        # Get world context if not provided
+        if not world_context:
+            world_context = self._get_world_context()
+        
+        # Get standard chat turn
+        turn = self.send(message, forced_voice, locale_tag, workspace)
+        
+        # Enhance with world context if available
+        if world_context and turn:
+            # Add world-aware context to the answer
+            world_enhancement = self._generate_world_aware_response_enhancement(
+                turn, world_context
+            )
+            
+            # Add world context metadata
+            # (In a real implementation, this would modify the answer or metadata)
+            turn.workspace = workspace
+            turn.timestamp = datetime.utcnow().isoformat()
+        
+        return turn
+    
+    def _get_world_context(self) -> Optional[WorldContext]:
+        """Get current world context from world model integration."""
+        if not WORLD_MODEL_AVAILABLE:
+            return None
+        
+        try:
+            # Get world model predictions and state
+            bridge = get_integration_bridge()
+            
+            if bridge:
+                # Build world context from bridge metrics
+                # For now, return a default context
+                context = WorldContext(
+                    market_regime="sideways",
+                    market_trend="neutral",
+                    volatility_regime="normal",
+                    liquidity_state="high",
+                    agent_activity={},
+                    causal_factors=[],
+                    prediction_confidence=0.75,
+                    timestamp=datetime.utcnow()
+                )
+                return context
+        
+        except Exception as e:
+            sys.stderr.write(f"[cognitive_chat] Error getting world context: {e}\n")
+        
+        return None
+    
+    def _generate_world_aware_response_enhancement(self, turn: ChatTurn, 
+                                                world_context: WorldContext) -> str:
+        """Generate world-aware enhancement for chat response."""
+        enhancement_parts = []
+        
+        # Market regime context
+        if world_context.market_regime != "sideways":
+            enhancement_parts.append(f"Market regime: {world_context.market_regime}")
+        
+        # Trend context
+        if world_context.market_trend != "neutral":
+            enhancement_parts.append(f"Market trend: {world_context.market_trend}")
+        
+        # Volatility awareness
+        if world_context.volatility_regime == "high":
+            enhancement_parts.append("High volatility detected - exercise caution")
+        
+        # Liquidity state
+        if world_context.liquidity_state == "low":
+            enhancement_parts.append("Low liquidity conditions")
+        
+        # Causal factors
+        if world_context.causal_factors:
+            enhancement_parts.append(f"Active causal factors: {len(world_context.causal_factors)}")
+        
+        # Agent activity
+        if world_context.agent_activity:
+            active_agents = [agent for agent, activity in world_context.agent_activity.items() if activity > 0.7]
+            if active_agents:
+                enhancement_parts.append(f"Active market participants: {', '.join(active_agents)}")
+        
+        if enhancement_parts:
+            return "\n\nWorld Context: " + "; ".join(enhancement_parts)
+        
+        return ""
 
 
 # Preserve exact singleton pattern from cockpit/chat.py

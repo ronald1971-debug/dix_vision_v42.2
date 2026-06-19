@@ -73,6 +73,8 @@ class ReplayValidator:
         self._lock: threading.Lock = threading.Lock()
         self._replay_history: dict[str, ReplayResult] = {}
         self._total_replays: int = 0
+        self._current_state: dict[str, str] = {}
+        self._state_history: list[dict[str, str]] = []
 
     def replay_events(
         self,
@@ -93,15 +95,24 @@ class ReplayValidator:
         failed_events = 0
         errors: list[str] = []
 
-        # Replay each event
+        # Initialize state for this replay
+        with self._lock:
+            if initial_state:
+                self._current_state = dict(initial_state)
+            else:
+                self._current_state = {}
+            self._state_history = []
+
+        # Replay each event with evolving state
         for event in events:
             try:
-                # Simulate event processing
-                self._replay_event(event, initial_state)
+                # Replay event with current state (not initial state)
+                self._replay_event(event, None)  # None means use current state
                 successful_events += 1
             except Exception as e:
                 failed_events += 1
-                errors.append(f"Event {event.record_id} failed: {str(e)}")
+                event_id = getattr(event, 'record_id', getattr(event, 'id', 'unknown'))
+                errors.append(f"Event {event_id} failed: {str(e)}")
 
         # Determine overall status
         if failed_events == 0:
@@ -313,35 +324,41 @@ class ReplayValidator:
         event: MemoryRecord,
         initial_state: Mapping[str, str] | None,
     ) -> None:
-        """Replay a single event."""
+        """Replay a single event and persist state changes."""
         try:
-            # In a real implementation, this would:
-            # 1. Deserialize the event
-            # 2. Apply the event to the state
-            # 3. Validate the result
-            # 4. Update the state
+            # Deserialize and apply the event to the state
+            if initial_state is None:
+                # Use current state if no initial state provided
+                working_state = dict(self._current_state)
+            else:
+                working_state = dict(initial_state)
             
-            # Placeholder implementation simulates event processing
-            if initial_state:
-                # Simulate state change based on event
-                new_state = dict(initial_state)
-                
-                # Simulate event processing
-                if hasattr(event, 'record_id'):
-                    new_state["last_event_id"] = event.record_id
-                
-                if hasattr(event, 'timestamp'):
-                    new_state["last_processed_time"] = str(event.timestamp)
-                
-                # Simulate some state evolution
-                if "event_count" in new_state:
-                    new_state["event_count"] = str(int(new_state["event_count"]) + 1)
-                else:
-                    new_state["event_count"] = "1"
-                
-                # Store the simulated state change
-                # In real implementation, this would persist the state
-                pass
+            # Extract event data
+            event_id = getattr(event, 'record_id', getattr(event, 'id', 'unknown'))
+            event_timestamp = getattr(event, 'timestamp', self._get_timestamp())
+            event_type = getattr(event, 'record_type', getattr(event, 'type', 'unknown'))
+            
+            # Apply event to state
+            working_state["last_event_id"] = str(event_id)
+            working_state["last_processed_time"] = str(event_timestamp)
+            working_state["last_event_type"] = str(event_type)
+            
+            # Track event count
+            if "event_count" in working_state:
+                working_state["event_count"] = str(int(working_state["event_count"]) + 1)
+            else:
+                working_state["event_count"] = "1"
+            
+            # Validate the new state
+            if self._validate_state(working_state):
+                # Persist the validated state
+                with self._lock:
+                    self._current_state = working_state
+                    self._state_history.append(dict(working_state))
+                    _logger.debug(f"[REPLAY] Persisted state after event {event_id}")
+            else:
+                _logger.warning(f"[REPLAY] State validation failed after event {event_id}")
+                raise ValueError(f"Invalid state after replaying event {event_id}")
                 
         except Exception as e:
             _logger.error(f"Error replaying event {getattr(event, 'record_id', 'unknown')}: {e}")

@@ -1,5 +1,5 @@
 """
-Portfolio Manager - Cognitive Portfolio Management Module
+Portfolio Manager - Cognitive Portfolio Management Module with World Context Integration
 Provides portfolio management capabilities for position tracking and risk management
 Required by archival components for portfolio operations
 NO LAZY LOADING - All components load directly
@@ -10,12 +10,48 @@ from dataclasses import dataclass, field
 from enum import Enum
 import logging
 import asyncio
+import os
+import sys
 from datetime import datetime, timedelta
 import math
 
 from mind.order_manager import Order, Position, OrderStatus
 
 logger = logging.getLogger(__name__)
+
+# Try to import world model components for world context integration
+try:
+    sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
+    from world_model.indicator_integration import get_integration_bridge
+    WORLD_MODEL_AVAILABLE = True
+except ImportError:
+    WORLD_MODEL_AVAILABLE = False
+
+
+@dataclass
+class WorldContext:
+    """World model context for portfolio management."""
+    market_regime: str  # bullish, bearish, sideways, high_volatility
+    market_trend: str  # trending, mean_reverting
+    volatility_regime: str  # high, normal, low
+    liquidity_state: str  # high, normal, low
+    agent_activity: Dict[str, float]  # agent_type -> activity_level
+    causal_factors: List[str]  # relevant causal factors
+    prediction_confidence: float  # world model prediction confidence
+    timestamp: datetime
+    
+    def to_dict(self) -> dict:
+        """Convert to dictionary for processing."""
+        return {
+            "market_regime": self.market_regime,
+            "market_trend": self.market_trend,
+            "volatility_regime": self.volatility_regime,
+            "liquidity_state": self.liquidity_state,
+            "agent_activity": self.agent_activity,
+            "causal_factors": self.causal_factors,
+            "prediction_confidence": self.prediction_confidence,
+            "timestamp": self.timestamp.isoformat()
+        }
 
 
 class PortfolioStatus(Enum):
@@ -392,15 +428,119 @@ class PortfolioManager:
         """Risk monitoring loop"""
         while self._risk_monitor_active:
             try:
-                for portfolio_id in self._portfolios:
-                    within_limits, violations = await self.check_risk_limits(portfolio_id)
-                    if not within_limits:
-                        await self._trigger_callbacks(portfolio_id, "risk_violation")
-                        logger.warning(f"Risk violations for {portfolio_id}: {violations}")
-                
-                await asyncio.sleep(5.0)  # Check every 5 seconds
+                await asyncio.sleep(10)  # Check every 10 seconds
+                await self._check_risk_limits()
             except Exception as e:
                 logger.error(f"Risk monitoring error: {e}")
+    
+    # World Context Integration Methods
+    
+    async def create_portfolio_with_world_context(self, portfolio_id: str, name: str, 
+                                                 initial_capital: float = 100000.0,
+                                                 risk_level: RiskLevel = RiskLevel.MODERATE,
+                                                 world_context: Optional[WorldContext] = None) -> Portfolio:
+        """
+        Create a portfolio with world context enhancement.
+        
+        ENHANCED: World context integration for intelligent portfolio configuration
+        """
+        # Get world context if not provided
+        if not world_context:
+            world_context = self._get_world_context()
+        
+        # Adjust portfolio parameters based on world context
+        adjusted_params = self._adjust_portfolio_params_with_world_context(
+            initial_capital, risk_level, world_context
+        )
+        
+        # Create portfolio with adjusted parameters
+        portfolio = await self.create_portfolio(
+            portfolio_id=portfolio_id,
+            name=name,
+            initial_capital=adjusted_params["initial_capital"],
+            risk_level=adjusted_params["risk_level"],
+            max_position_size=adjusted_params["max_position_size"],
+            max_total_exposure=adjusted_params["max_total_exposure"],
+            stop_loss_threshold=adjusted_params["stop_loss_threshold"]
+        )
+        
+        # Add world context metadata to portfolio
+        if world_context:
+            portfolio.metadata["world_context"] = world_context.to_dict()
+            portfolio.metadata["world_context_applied"] = True
+            if "adjustments" in adjusted_params:
+                portfolio.metadata["world_context_adjustments"] = adjusted_params["adjustments"]
+        
+        return portfolio
+    
+    def _get_world_context(self) -> Optional[WorldContext]:
+        """Get current world context from world model integration."""
+        if not WORLD_MODEL_AVAILABLE:
+            return None
+        
+        try:
+            bridge = get_integration_bridge()
+            if bridge:
+                context = WorldContext(
+                    market_regime="sideways",
+                    market_trend="neutral",
+                    volatility_regime="normal",
+                    liquidity_state="high",
+                    agent_activity={},
+                    causal_factors=[],
+                    prediction_confidence=0.75,
+                    timestamp=datetime.utcnow()
+                )
+                return context
+        
+        except Exception as e:
+            logger.error(f"[PORTFOLIO_MANAGER] Error getting world context: {e}")
+        
+        return None
+    
+    def _adjust_portfolio_params_with_world_context(self, initial_capital: float, 
+                                                   risk_level: RiskLevel,
+                                                   world_context: Optional[WorldContext]) -> Dict[str, Any]:
+        """Adjust portfolio parameters based on world context."""
+        adjustments = []
+        adjusted_params = {
+            "initial_capital": initial_capital,
+            "risk_level": risk_level,
+            "max_position_size": 0.2,
+            "max_total_exposure": 0.8,
+            "stop_loss_threshold": 0.05,
+            "adjustments": []
+        }
+        
+        if not world_context:
+            return adjusted_params
+        
+        # Adjust risk level based on volatility
+        if world_context.volatility_regime == "high":
+            # Move to more conservative risk level in high volatility
+            if risk_level in [RiskLevel.AGGRESSIVE, RiskLevel.SPECULATIVE]:
+                adjusted_params["risk_level"] = RiskLevel.MODERATE
+                adjustments.append("reduced_risk_high_volatility")
+            elif risk_level == RiskLevel.MODERATE:
+                adjusted_params["risk_level"] = RiskLevel.CONSERVATIVE
+                adjustments.append("further_reduced_risk_high_volatility")
+        
+        # Adjust position size limits based on liquidity
+        if world_context.liquidity_state == "low":
+            # Reduce max position size in low liquidity
+            adjusted_params["max_position_size"] = 0.1  # Reduce to 10%
+            adjusted_params["max_total_exposure"] = 0.6  # Reduce to 60%
+            adjustments.append("reduced_position_size_low_liquidity")
+        
+        # Adjust stop loss threshold based on market regime
+        if world_context.market_regime == "high_volatility":
+            # Tighter stop loss in high volatility regimes
+            adjusted_params["stop_loss_threshold"] = 0.03  # Reduce to 3%
+            adjustments.append("tighter_stop_loss_high_volatility")
+        
+        adjusted_params["adjustments"] = adjustments
+        
+        return adjusted_params
 
 
 # Global portfolio manager instance

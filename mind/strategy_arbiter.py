@@ -1,18 +1,55 @@
 """
-Strategy Arbiter - Real Implementation
+Strategy Arbiter - Real Implementation with World Context Integration
 
 Provides real strategy selection and arbitration logic for the DIX VISION system,
-including conflict resolution, signal combination, and multi-strategy portfolio management.
+including conflict resolution, signal combination, multi-strategy portfolio management,
+and world understanding integration for intelligent strategy selection.
 """
 
 from typing import Any, Dict, List, Optional, Tuple
 from dataclasses import dataclass, field
 from enum import Enum
 import logging
+import os
+import sys
 import numpy as np
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
+
+# Try to import world model components for world context integration
+try:
+    sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
+    from world_model.indicator_integration import get_integration_bridge
+    WORLD_MODEL_AVAILABLE = True
+except ImportError:
+    WORLD_MODEL_AVAILABLE = False
+
+
+@dataclass
+class WorldContext:
+    """World model context for strategy selection."""
+    market_regime: str  # bullish, bearish, sideways, high_volatility
+    market_trend: str  # trending, mean_reverting
+    volatility_regime: str  # high, normal, low
+    liquidity_state: str  # high, normal, low
+    agent_activity: Dict[str, float]  # agent_type -> activity_level
+    causal_factors: List[str]  # relevant causal factors
+    prediction_confidence: float  # world model prediction confidence
+    timestamp: datetime
+    
+    def to_dict(self) -> dict:
+        """Convert to dictionary for processing."""
+        return {
+            "market_regime": self.market_regime,
+            "market_trend": self.market_trend,
+            "volatility_regime": self.volatility_regime,
+            "liquidity_state": self.liquidity_state,
+            "agent_activity": self.agent_activity,
+            "causal_factors": self.causal_factors,
+            "prediction_confidence": self.prediction_confidence,
+            "timestamp": self.timestamp.isoformat()
+        }
 
 
 class ArbitrationMode(Enum):
@@ -391,6 +428,112 @@ class StrategyArbiter:
     def get_strategy_weights(self) -> Dict[str, StrategyWeight]:
         """Get all strategy weights."""
         return self._strategy_weights.copy()
+    
+    # World Context Integration Methods
+    
+    def arbitrate_signals_with_world_context(self, signals: List[Dict[str, Any]], 
+                                            world_context: Optional[WorldContext] = None) -> ArbitrationResult:
+        """
+        Arbitrate between multiple strategy signals with world context enhancement.
+        
+        ENHANCED: World context integration for intelligent strategy selection
+        """
+        # Get world context if not provided
+        if not world_context:
+            world_context = self._get_world_context()
+        
+        # Get standard arbitration result
+        result = self.arbitrate_signals(signals)
+        
+        # Enhance with world context if available
+        if world_context:
+            result = self._enhance_arbitration_with_world_context(result, signals, world_context)
+        
+        return result
+    
+    def _get_world_context(self) -> Optional[WorldContext]:
+        """Get current world context from world model integration."""
+        if not WORLD_MODEL_AVAILABLE:
+            return None
+        
+        try:
+            # Get world model predictions and state
+            bridge = get_integration_bridge()
+            
+            if bridge:
+                # Build world context from bridge metrics
+                # For now, return a default context
+                context = WorldContext(
+                    market_regime="sideways",
+                    market_trend="neutral",
+                    volatility_regime="normal",
+                    liquidity_state="high",
+                    agent_activity={},
+                    causal_factors=[],
+                    prediction_confidence=0.75,
+                    timestamp=datetime.utcnow()
+                )
+                return context
+        
+        except Exception as e:
+            logger.error(f"[STRATEGY_ARBITER] Error getting world context: {e}")
+        
+        return None
+    
+    def _enhance_arbitration_with_world_context(self, result: ArbitrationResult, 
+                                               signals: List[Dict[str, Any]], 
+                                               world_context: WorldContext) -> ArbitrationResult:
+        """Enhance arbitration result with world context."""
+        # Add world context metadata to result
+        result.world_context_applied = True  # This will be stored in additional metadata
+        
+        # Adjust strategy weights based on world context
+        if world_context.market_regime == "bullish":
+            # In bullish regimes, prefer BUY signals
+            if result.final_signal == "HOLD":
+                buy_signals = [s for s in signals if s.get("signal_type") == "BUY"]
+                if buy_signals and self._should_override_for_regime(buy_signals, world_context):
+                    result.final_signal = "BUY"
+                    result.world_context_override = "bullish_regime_preference"
+        
+        elif world_context.market_regime == "bearish":
+            # In bearish regimes, prefer SELL signals
+            if result.final_signal == "HOLD":
+                sell_signals = [s for s in signals if s.get("signal_type") == "SELL"]
+                if sell_signals and self._should_override_for_regime(sell_signals, world_context):
+                    result.final_signal = "SELL"
+                    result.world_context_override = "bearish_regime_preference"
+        
+        # Adjust confidence based on volatility
+        if world_context.volatility_regime == "high":
+            # Reduce confidence in high volatility regimes
+            result.confidence = result.confidence * 0.8
+            result.volatility_adjustment = "high_volatility_reduction"
+        
+        # Adjust confidence based on liquidity
+        if world_context.liquidity_state == "low":
+            # Further reduce confidence in low liquidity
+            result.confidence = result.confidence * 0.9
+            result.liquidity_adjustment = "low_liquidity_reduction"
+        
+        return result
+    
+    def _should_override_for_regime(self, signals: List[Dict[str, Any]], world_context: WorldContext) -> bool:
+        """Determine if world context should override standard arbitration."""
+        if not signals:
+            return False
+        
+        # Override if there are strong signals in the regime direction
+        strong_signals = [s for s in signals if s.get("confidence", 0) > 0.7]
+        
+        if strong_signals:
+            return True
+        
+        # Override if world model prediction confidence is high
+        if world_context.prediction_confidence > 0.8:
+            return True
+        
+        return False
 
 
 # Global strategy arbiter instance

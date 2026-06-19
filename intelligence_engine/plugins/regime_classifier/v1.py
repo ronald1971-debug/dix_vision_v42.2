@@ -47,13 +47,14 @@ from core.contracts.engine import (
     HealthState,
     HealthStatus,
     PluginLifecycle,
+    MicrostructurePlugin,
 )
 from core.contracts.events import Side, SignalEvent
 from core.contracts.market import MarketTick
 
 
 @dataclass
-class RegimeClassifierV1:
+class RegimeClassifierV1(MicrostructurePlugin):
     """Fifth concrete intelligence plugin (IND-L06 v1).
 
     Attributes:

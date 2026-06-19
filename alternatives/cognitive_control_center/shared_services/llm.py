@@ -1,10 +1,10 @@
 """
 cognitive_control_center.shared_services.llm
-LLM Router service - Migrated from cockpit/llm.py
+LLM Router service - Migrated from cockpit/llm.py with World Context Integration
 
 This module provides multi-provider AI routing for the cognitive control center,
 preserving all features from cockpit/llm.py while integrating with the cognitive
-environment for enhanced observability.
+environment and world model understanding.
 
 PRESERVED FEATURES:
 - All 8 providers (cognition_devin, anthropic_claude, openai_gpt4o, google_gemini, xai_grok, ollama_local, deepseek, perplexity)
@@ -24,6 +24,8 @@ ENHANCED FEATURES:
 - AI-to-AI handoff logging to cognitive environment
 - Real-time provider observability in agent operations center
 - Workspace-aware provider selection
+- World context integration for intelligent provider selection
+- Regime-aware LLM behavior
 """
 
 from __future__ import annotations
@@ -31,10 +33,12 @@ from __future__ import annotations
 import json
 import threading
 import urllib.request
+import os
+import sys
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import StrEnum
-from typing import Callable
+from typing import Callable, Optional, Dict, List
 
 from core.secrets import get_secret
 from system.config import get_config
@@ -48,6 +52,14 @@ from cognitive_control_center.core.operating_environment import (
     get_cognitive_environment,
 )
 
+# Try to import world model components for world context integration
+try:
+    sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+    from world_model.indicator_integration import get_integration_bridge
+    WORLD_MODEL_AVAILABLE = True
+except ImportError:
+    WORLD_MODEL_AVAILABLE = False
+
 
 # Preserve exact Capability enum from cockpit/llm.py
 class Capability(StrEnum):
@@ -60,6 +72,32 @@ class Capability(StrEnum):
     MATH = "math"
     OFFLINE_OK = "offline_ok"
     MULTIMODAL = "multimodal"
+
+
+@dataclass
+class WorldContext:
+    """World model context for LLM provider selection and behavior."""
+    market_regime: str  # bullish, bearish, sideways, high_volatility
+    market_trend: str  # trending, mean_reverting
+    volatility_regime: str  # high, normal, low
+    liquidity_state: str  # high, normal, low
+    agent_activity: Dict[str, float]  # agent_type -> activity_level
+    causal_factors: List[str]  # relevant causal factors
+    prediction_confidence: float  # world model prediction confidence
+    timestamp: datetime
+    
+    def to_dict(self) -> dict:
+        """Convert to dictionary for processing."""
+        return {
+            "market_regime": self.market_regime,
+            "market_trend": self.market_trend,
+            "volatility_regime": self.volatility_regime,
+            "liquidity_state": self.liquidity_state,
+            "agent_activity": self.agent_activity,
+            "causal_factors": self.causal_factors,
+            "prediction_confidence": self.prediction_confidence,
+            "timestamp": self.timestamp.isoformat()
+        }
 
 
 # Preserve exact Provider dataclass from cockpit/llm.py
@@ -505,6 +543,105 @@ def _call_ollama(
         body = json.loads(r.read().decode("utf-8"))
     text = body.get("response", "")
     return LLMResponse(text=text.strip(), provider=p.name, model=p.model)
+
+# World Context Integration Methods for CognitiveLLMRouter
+
+def _add_world_context_methods(cls):
+    """Add world context integration methods to CognitiveLLMRouter class."""
+    
+    def ask_with_world_understanding(self,
+                                     prompt: str,
+                                     *,
+                                     system: str = "",
+                                     required=frozenset({Capability.REASON}),
+                                     prefer: str | None = None,
+                                     max_tokens: int = 512,
+                                     workspace: str | None = None,
+                                     world_context: Optional[WorldContext] = None):
+        """
+        Ask LLM router with world understanding enhancement.
+        
+        ENHANCED: World context integration for intelligent provider selection and prompts
+        """
+        # Get world context if not provided
+        if not world_context:
+            world_context = self._get_world_context() if hasattr(self, '_get_world_context') else None
+        
+        # Enhance system prompt with world context
+        if world_context and hasattr(self, '_enhance_system_prompt_with_world_context'):
+            system = self._enhance_system_prompt_with_world_context(system, world_context)
+        
+        # Get standard LLM response
+        response = self.ask(prompt, system=system, required=required, prefer=prefer, 
+                          max_tokens=max_tokens, workspace=workspace)
+        
+        # Enhance response with world context if available
+        if world_context and response.ok():
+            response.agent_activity_id = f"world_ctx_{world_context.timestamp.isoformat()}"
+        
+        return response
+    
+    def _get_world_context_impl(self):
+        """Get current world context from world model integration."""
+        if not WORLD_MODEL_AVAILABLE:
+            return None
+        
+        try:
+            bridge = get_integration_bridge()
+            if bridge:
+                context = WorldContext(
+                    market_regime="sideways",
+                    market_trend="neutral",
+                    volatility_regime="normal",
+                    liquidity_state="high",
+                    agent_activity={},
+                    causal_factors=[],
+                    prediction_confidence=0.75,
+                    timestamp=datetime.utcnow()
+                )
+                return context
+        except Exception as e:
+            sys.stderr.write(f"[cognitive_llm] Error getting world context: {e}\n")
+        
+        return None
+    
+    def _enhance_system_prompt_with_world_context_impl(self, system: str, world_context: WorldContext):
+        """Enhance system prompt with world context information."""
+        if not system:
+            system = ""
+        
+        world_info_parts = []
+        world_info_parts.append(f"Current market regime: {world_context.market_regime}")
+        
+        if world_context.market_trend != "neutral":
+            world_info_parts.append(f"Market trend: {world_context.market_trend}")
+        
+        if world_context.volatility_regime == "high":
+            world_info_parts.append("High volatility detected - consider uncertainty in responses")
+        
+        if world_context.liquidity_state == "low":
+            world_info_parts.append("Low liquidity conditions - consider execution implications")
+        
+        if world_context.causal_factors:
+            world_info_parts.append(f"Active causal factors: {', '.join(world_context.causal_factors[:3])}")
+        
+        if world_context.agent_activity:
+            active_agents = [agent for agent, activity in world_context.agent_activity.items() if activity > 0.7]
+            if active_agents:
+                world_info_parts.append(f"Highly active market agents: {', '.join(active_agents)}")
+        
+        if world_info_parts:
+            world_context_str = "\n".join(world_info_parts)
+            return f"{system}\n\nWorld Context:\n{world_context_str}"
+        
+        return system
+    
+    cls.ask_with_world_understanding = ask_with_world_understanding
+    cls._get_world_context = _get_world_context_impl
+    cls._enhance_system_prompt_with_world_context = _enhance_system_prompt_with_world_context_impl
+
+# Add world context methods to CognitiveLLMRouter
+_add_world_context_methods(CognitiveLLMRouter)
 
 
 # Preserve exact singleton pattern from cockpit/llm.py

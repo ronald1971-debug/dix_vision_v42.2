@@ -200,160 +200,260 @@ class DataProvider(ABC):
                 self._metrics.success_rate = 0.95 * self._metrics.success_rate + 0.05 * 0.0
 
 
-class MockExchangeProvider(DataProvider):
-    """Mock exchange provider for testing and fallback."""
+class CCXTExchangeProvider(DataProvider):
+    """Real CCXT-backed exchange provider for market data.
+    
+    This provider connects to real exchanges via CCXT library to fetch
+    actual market data (OHLCV, tick data, order book). No mock data -
+    all data is from live exchange connections.
+    """
     
     def __init__(self, config: ProviderConfig):
         super().__init__(config)
         self._data_cache: Dict[str, List[Dict]] = {}
+        self._ccxt_exchange = None
+        self._connected = False
+        
+        # Extract exchange name from config (default to binance)
+        self._exchange_name = config.extra_config.get('exchange', 'binance').lower()
+        
+        # CCXT credentials
+        self._api_key = config.extra_config.get('api_key', '')
+        self._api_secret = config.extra_config.get('api_secret', '')
+        
+        try:
+            import ccxt
+            self._ccxt_module = ccxt
+        except ImportError:
+            raise ImportError(
+                "CCXT library is required for CCXTExchangeProvider. "
+                "Install with: pip install ccxt"
+            )
+        
+        logger.info(f"[PROVIDER] Initializing CCXTExchangeProvider for {self._exchange_name}")
+    
+    def _timeframe_to_ccxt(self, timeframe: str) -> str:
+        """Convert timeframe string to CCXT format."""
+        timeframe_map = {
+            '1m': '1m',
+            '5m': '5m',
+            '15m': '15m',
+            '30m': '30m',
+            '1h': '1h',
+            '4h': '4h',
+            '1d': '1d',
+            '1w': '1w',
+            '1M': '1M',
+        }
+        return timeframe_map.get(timeframe, timeframe)
         
     async def connect(self) -> bool:
-        """Simulate connection."""
-        await asyncio.sleep(0.1)  # Simulate network delay
-        self._status = ProviderStatus.ACTIVE
-        logger.info(f"[PROVIDER] Connected to mock exchange {self._config.provider_id}")
-        return True
+        """Connect to real exchange via CCXT."""
+        try:
+            # Initialize CCXT exchange
+            exchange_class = getattr(self._ccxt_module, self._exchange_name, None)
+            if exchange_class is None:
+                raise ValueError(f"Exchange {self._exchange_name} not supported by CCXT")
+            
+            # Create exchange instance with credentials
+            self._ccxt_exchange = exchange_class({
+                'apiKey': self._api_key,
+                'secret': self._api_secret,
+                'enableRateLimit': True,
+                'options': {
+                    'defaultType': 'spot',
+                }
+            })
+            
+            # Load markets
+            await self._ccxt_exchange.load_markets()
+            
+            # Test connection with ping
+            await self._ccxt_exchange.fetch_ticker('BTC/USDT')
+            
+            self._connected = True
+            self._status = ProviderStatus.ACTIVE
+            logger.info(f"[PROVIDER] Connected to real exchange {self._exchange_name}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"[PROVIDER] Failed to connect to {self._exchange_name}: {e}")
+            self._status = ProviderStatus.ERROR
+            return False
     
     async def disconnect(self) -> bool:
-        """Simulate disconnection."""
-        await asyncio.sleep(0.05)
-        self._status = ProviderStatus.INACTIVE
-        logger.info(f"[PROVIDER] Disconnected from mock exchange {self._config.provider_id}")
-        return True
+        """Disconnect from exchange."""
+        try:
+            if self._ccxt_exchange:
+                await self._ccxt_exchange.close()
+            self._connected = False
+            self._status = ProviderStatus.INACTIVE
+            logger.info(f"[PROVIDER] Disconnected from {self._exchange_name}")
+            return True
+        except Exception as e:
+            logger.error(f"[PROVIDER] Error disconnecting from {self._exchange_name}: {e}")
+            return False
     
     async def fetch_ohlcv(self, symbol: str, timeframe: str, 
                           start: datetime, end: datetime) -> Optional[pd.DataFrame]:
-        """Generate mock OHLCV data."""
+        """Fetch real OHLCV data from exchange via CCXT."""
         if not self._check_rate_limit():
+            return None
+        
+        if not self._connected:
+            logger.error("[PROVIDER] Not connected to exchange")
             return None
         
         start_time = time.time()
         
         try:
-            # Generate realistic OHLCV data
-            num_periods = int((end - start).total_seconds() / self._timeframe_to_seconds(timeframe))
-            if num_periods <= 0:
+            # Convert datetime to CCXT timestamp format (milliseconds)
+            since = int(start.timestamp() * 1000)
+            
+            # Map timeframe string to CCXT format
+            ccxt_timeframe = self._timeframe_to_ccxt(timeframe)
+            
+            # Fetch OHLCV data from exchange
+            ohlcv = await self._ccxt_exchange.fetch_ohlcv(
+                symbol, 
+                timeframe=ccxt_timeframe, 
+                since=since,
+                limit=1000  # CCXT default limit
+            )
+            
+            # Convert to pandas DataFrame
+            df = pd.DataFrame(ohlcv, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
+            df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
+            
+            # Filter by end time
+            df = df[df['timestamp'] <= end]
+            
+            if df.empty:
+                logger.warning(f"[PROVIDER] No OHLCV data returned for {symbol}")
                 return None
-            
-            base_price = 100.0
-            volatility = 0.02
-            
-            # Generate random walk
-            returns = np.random.normal(0, volatility, num_periods)
-            prices = base_price * np.cumprod(1 + returns)
-            
-            # Generate OHLC from close prices
-            dates = pd.date_range(start=start, end=end, periods=num_periods)
-            
-            # Generate realistic OHLC
-            high = prices * (1 + np.random.uniform(0, 0.01, num_periods))
-            low = prices * (1 - np.random.uniform(0, 0.01, num_periods))
-            open_price = np.roll(prices, 1)
-            open_price[0] = base_price
-            close = prices
-            volume = np.random.uniform(1000, 10000, num_periods)
-            
-            df = pd.DataFrame({
-                'timestamp': dates,
-                'open': open_price,
-                'high': high,
-                'low': low,
-                'close': close,
-                'volume': volume
-            })
             
             latency_ms = (time.time() - start_time) * 1000
             self._increment_request_count(True, latency_ms)
             
+            logger.debug(f"[PROVIDER] Fetched {len(df)} OHLCV candles for {symbol}")
             return df
             
         except Exception as e:
-            logger.error(f"[PROVIDER] Error fetching OHLCV: {e}")
+            logger.error(f"[PROVIDER] Error fetching OHLCV from {self._exchange_name}: {e}")
             self._increment_request_count(False, 0)
             return None
     
     async def fetch_tick_data(self, symbol: str, 
                              start: datetime, end: datetime) -> Optional[pd.DataFrame]:
-        """Generate mock tick data."""
+        """Fetch real tick data from exchange via CCXT.
+        
+        Note: Not all exchanges support tick data. Falls back to trade data if available.
+        """
         if not self._check_rate_limit():
+            return None
+        
+        if not self._connected:
+            logger.error("[PROVIDER] Not connected to exchange")
             return None
         
         start_time = time.time()
         
         try:
-            # Generate realistic tick data
-            num_ticks = np.random.randint(100, 1000)
-            base_price = 100.0
+            # Convert datetime to CCXT timestamp format
+            since = int(start.timestamp() * 1000)
             
-            timestamps = pd.date_range(start=start, end=end, periods=num_ticks)
-            prices = base_price + np.cumsum(np.random.normal(0, 0.01, num_ticks))
-            volumes = np.random.uniform(1, 100, num_ticks)
+            # Fetch trades (closest to tick data available)
+            trades = await self._ccxt_exchange.fetch_trades(
+                symbol, 
+                since=since, 
+                limit=1000
+            )
             
-            df = pd.DataFrame({
-                'timestamp': timestamps,
-                'price': prices,
-                'volume': volumes,
-                'side': np.random.choice(['buy', 'sell'], num_ticks)
-            })
+            if not trades:
+                logger.warning(f"[PROVIDER] No trade data returned for {symbol}")
+                return None
+            
+            # Convert to pandas DataFrame
+            df = pd.DataFrame(trades)
+            df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
+            
+            # Filter by end time
+            df = df[df['timestamp'] <= end]
+            
+            if df.empty:
+                logger.warning(f"[PROVIDER] No tick data in time range for {symbol}")
+                return None
+            
+            # Rename columns to match expected format
+            df = df.rename(columns={'amount': 'volume'})
             
             latency_ms = (time.time() - start_time) * 1000
             self._increment_request_count(True, latency_ms)
             
-            return df
+            logger.debug(f"[PROVIDER] Fetched {len(df)} tick/trade records for {symbol}")
+            return df[['timestamp', 'price', 'volume', 'side']]
             
         except Exception as e:
-            logger.error(f"[PROVIDER] Error fetching tick data: {e}")
+            logger.error(f"[PROVIDER] Error fetching tick data from {self._exchange_name}: {e}")
             self._increment_request_count(False, 0)
             return None
     
     async def fetch_order_book(self, symbol: str, depth: int = 10) -> Optional[Dict[str, Any]]:
-        """Generate mock order book."""
+        """Fetch real order book from exchange via CCXT."""
         if not self._check_rate_limit():
+            return None
+        
+        if not self._connected:
+            logger.error("[PROVIDER] Not connected to exchange")
             return None
         
         start_time = time.time()
         
         try:
-            base_price = 100.0
+            # Fetch order book from exchange
+            order_book = await self._ccxt_exchange.fetch_order_book(symbol, limit=depth)
             
-            # Generate bids
-            bids = []
-            for i in range(depth):
-                price = base_price - (i + 1) * 0.1
-                volume = np.random.uniform(100, 1000)
-                bids.append([price, volume])
-            
-            # Generate asks
-            asks = []
-            for i in range(depth):
-                price = base_price + (i + 1) * 0.1
-                volume = np.random.uniform(100, 1000)
-                asks.append([price, volume])
-            
-            order_book = {
+            # Format response
+            result = {
                 'symbol': symbol,
                 'timestamp': datetime.now(),
-                'bids': bids,
-                'asks': asks,
-                'spread': asks[0][0] - bids[0][0]
+                'bids': order_book.get('bids', [])[:depth],
+                'asks': order_book.get('asks', [])[:depth],
+                'spread': 0.0
             }
+            
+            # Calculate spread
+            if result['bids'] and result['asks']:
+                result['spread'] = result['asks'][0][0] - result['bids'][0][0]
             
             latency_ms = (time.time() - start_time) * 1000
             self._increment_request_count(True, latency_ms)
             
-            return order_book
+            logger.debug(f"[PROVIDER] Fetched order book for {symbol} with depth {depth}")
+            return result
             
         except Exception as e:
-            logger.error(f"[PROVIDER] Error fetching order book: {e}")
+            logger.error(f"[PROVIDER] Error fetching order book from {self._exchange_name}: {e}")
             self._increment_request_count(False, 0)
             return None
     
     async def health_check(self) -> bool:
-        """Perform health check."""
+        """Perform real health check on exchange connection."""
         try:
-            # Simulate health check
-            await asyncio.sleep(0.01)
+            if not self._connected or not self._ccxt_exchange:
+                return False
+            
+            # Fetch a ticker to test connection
+            await self._ccxt_exchange.fetch_ticker('BTC/USDT')
+            
             self._config.last_health_check = datetime.now()
+            self._status = ProviderStatus.ACTIVE
+            return True
+            
+        except Exception as e:
+            logger.error(f"[PROVIDER] Health check failed: {e}")
+            self._status = ProviderStatus.ERROR
+            return False
             
             # Update uptime percentage
             total_minutes = (datetime.now() - self._config.last_health_check).total_seconds() / 60
@@ -659,7 +759,7 @@ def bootstrap_all_providers(**kwargs: Any) -> Dict[str, bool]:
             rate_limit_per_minute=120
         )
         
-        mock_provider = MockExchangeProvider(mock_config)
+        mock_provider = CCXTExchangeProvider(mock_config)
         _provider_manager.register_provider(mock_provider, mock_config)
     
     # Run async bootstrap
@@ -703,7 +803,7 @@ __all__ = [
     "DataQualityMetrics",
     "ProviderMetrics",
     "DataProvider",
-    "MockExchangeProvider",
+    "CCXTExchangeProvider",
     "ProviderManager",
     "bootstrap_all_providers",
     "provider_summary",

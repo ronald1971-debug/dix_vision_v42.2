@@ -15,12 +15,13 @@ from core.contracts.engine import (
     HealthStatus,
     PluginLifecycle,
 )
+from core.contracts.engine import MicrostructurePlugin
 from core.contracts.events import Side, SignalEvent
 from core.contracts.market import MarketTick
 
 
-@dataclass
-class SentimentAggregatorV1:
+@dataclass(slots=True)
+class SentimentAggregatorV1(MicrostructurePlugin):
     """Tenth concrete intelligence plugin (IND-L11 v1)."""
 
     name: str = "sentiment_aggregator_v1"
