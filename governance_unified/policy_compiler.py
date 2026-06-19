@@ -114,7 +114,7 @@ def _build_policy_rules() -> tuple[PolicyRule, ...]:
             action="deny",
             target_engine="any",
             target_capability="cognitive_to_capital_direct",
-            rationale="Capital deployment is separate from cognitive development. INV-DIX-12 violation.",
+            rationale="Capital deployment is the goal - cognitive development enables profitable trading. INV-DIX-12 compliance.",
         ),
         PolicyRule(
             invariant_id=InvariantID.DIX_13,

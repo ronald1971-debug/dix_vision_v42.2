@@ -1,3 +1,168 @@
-# Plugins Configuration - Stub
+# Plugins Configuration - DIX VISION v42.2
+# Complete plugin registry with governance activation rules
 version: "1.0"
-plugins: []
+
+plugins:
+  # MARKET MICROSTRUCTURE PLUGINS
+  - id: "microstructure_v1"
+    slot: "microstructure"
+    version: "0.1.0"
+    enabled: true
+    category: "intelligence"
+    description: "Deterministic mapping from MarketTick to SignalEvent based on trade print distance from bid/ask midpoint"
+    allowed_modes: ["AUTO", "MANUAL", "SIMULATION"]
+    lifecycle: "ACTIVE"
+    ledger_kind: "PLUGIN_LIFECYCLE"
+    dependencies: []
+    health_check_enabled: true
+
+  - id: "orderflow_imbalance_v1"
+    slot: "orderflow"
+    version: "0.1.0"
+    enabled: true
+    category: "intelligence"
+    description: "Derives directional pressure from rolling window of signed trade-flow"
+    allowed_modes: ["AUTO", "MANUAL", "SIMULATION"]
+    lifecycle: "ACTIVE"
+    ledger_kind: "PLUGIN_LIFECYCLE"
+    dependencies: []
+    health_check_enabled: true
+
+  - id: "order_book_pressure_v1"
+    slot: "orderbook"
+    version: "0.1.0"
+    enabled: true
+    category: "intelligence"
+    description: "Analyzes order book pressure and depth imbalances"
+    allowed_modes: ["AUTO", "MANUAL", "SIMULATION"]
+    lifecycle: "ACTIVE"
+    ledger_kind: "PLUGIN_LIFECYCLE"
+    dependencies: []
+    health_check_enabled: true
+
+  # VOLATILITY & REGIME PLUGINS
+  - id: "vpin_imbalance_v1"
+    slot: "vpin"
+    version: "0.1.0"
+    enabled: true
+    category: "intelligence"
+    description: "Volume-synchronized probability of informed trading (VPIN) analysis"
+    allowed_modes: ["AUTO", "MANUAL", "SIMULATION"]
+    lifecycle: "ACTIVE"
+    ledger_kind: "PLUGIN_LIFECYCLE"
+    dependencies: []
+    health_check_enabled: true
+
+  - id: "regime_classifier_v1"
+    slot: "regime"
+    version: "0.1.0"
+    enabled: true
+    category: "intelligence"
+    description: "Tick-level volatility-and-drift regime classifier"
+    allowed_modes: ["AUTO", "MANUAL", "SIMULATION"]
+    lifecycle: "ACTIVE"
+    ledger_kind: "PLUGIN_LIFECYCLE"
+    dependencies: []
+    health_check_enabled: true
+
+  # LIQUIDITY ANALYSIS PLUGINS
+  - id: "footprint_delta_v1"
+    slot: "footprint"
+    version: "0.1.0"
+    enabled: true
+    category: "intelligence"
+    description: "Per-tick footprint delta as deterministic CVD-style signal"
+    allowed_modes: ["AUTO", "MANUAL", "SIMULATION"]
+    lifecycle: "ACTIVE"
+    ledger_kind: "PLUGIN_LIFECYCLE"
+    dependencies: []
+    health_check_enabled: true
+
+  - id: "liquidity_physics_v1"
+    slot: "liquidity"
+    version: "0.1.0"
+    enabled: true
+    category: "intelligence"
+    description: "Analyzes liquidity physics and market depth dynamics"
+    allowed_modes: ["AUTO", "MANUAL", "SIMULATION"]
+    lifecycle: "ACTIVE"
+    ledger_kind: "PLUGIN_LIFECYCLE"
+    dependencies: []
+    health_check_enabled: true
+
+  # ON-CHAIN ANALYSIS PLUGINS
+  - id: "on_chain_pulse_v1"
+    slot: "onchain"
+    version: "0.1.0"
+    enabled: true
+    category: "intelligence"
+    description: "On-chain data analysis for crypto markets"
+    allowed_modes: ["AUTO", "MANUAL", "SIMULATION"]
+    lifecycle: "ACTIVE"
+    ledger_kind: "PLUGIN_LIFECYCLE"
+    dependencies: []
+    health_check_enabled: true
+
+  # SENTIMENT & NEWS PLUGINS
+  - id: "news_reaction_v1"
+    slot: "news"
+    version: "0.1.0"
+    enabled: true
+    category: "intelligence"
+    description: "Market reaction analysis to news events"
+    allowed_modes: ["AUTO", "MANUAL", "SIMULATION"]
+    lifecycle: "ACTIVE"
+    ledger_kind: "PLUGIN_LIFECYCLE"
+    dependencies: []
+    health_check_enabled: true
+
+  - id: "sentiment_aggregator_v1"
+    slot: "sentiment"
+    version: "0.1.0"
+    enabled: true
+    category: "intelligence"
+    description: "Aggregates multiple sentiment sources"
+    allowed_modes: ["AUTO", "MANUAL", "SIMULATION"]
+    lifecycle: "ACTIVE"
+    ledger_kind: "PLUGIN_LIFECYCLE"
+    dependencies: []
+    health_check_enabled: true
+
+  # BEHAVIORAL ANALYSIS PLUGINS
+  - id: "trader_imitation_v1"
+    slot: "trader"
+    version: "0.1.0"
+    enabled: true
+    category: "intelligence"
+    description: "Trader behavior analysis and pattern recognition"
+    allowed_modes: ["AUTO", "MANUAL", "SIMULATION"]
+    lifecycle: "ACTIVE"
+    ledger_kind: "PLUGIN_LIFECYCLE"
+    dependencies: []
+    health_check_enabled: true
+
+  # DASHBOARD FRONTEND PLUGINS
+  - id: "cognitive_chat"
+    slot: "frontend"
+    version: "1.0.0"
+    enabled: true
+    category: "dashboard"
+    description: "Cognitive chat interface for INDIRA and DYON interaction"
+    allowed_modes: ["AUTO", "MANUAL", "SIMULATION"]
+    lifecycle: "ACTIVE"
+    ledger_kind: "PLUGIN_LIFECYCLE"
+    dependencies: []
+    health_check_enabled: true
+
+  # MICROSTRUCTURE ADVANCED
+  - id: "microstructure_advanced"
+    slot: "microstructure"
+    version: "1.0.0"
+    enabled: true
+    category: "intelligence"
+    description: "Advanced microstructure pattern recognition and analysis"
+    allowed_modes: ["AUTO", "MANUAL", "SIMULATION"]
+    lifecycle: "ACTIVE"
+    ledger_kind: "PLUGIN_LIFECYCLE"
+    dependencies: ["microstructure_v1"]
+    health_check_enabled: true

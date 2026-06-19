@@ -16,10 +16,11 @@ This document provides the complete comprehensive understanding of DIX VISION v4
 **DIX VISION Approach:** Cognitive system that operates from World Understanding
 
 **Core Identity:**
-- **NOT** a trading bot with cognitive features
-- **IS** a cognitive intelligence system with trading capabilities
-- Primary objective: cognitive development and continuous improvement
-- Trading serves as the domain for cognitive maturation
+- **IS** a cognitive trading system
+- Trading is the core purpose and design goal
+- World understanding and indicator processing are equally important
+- Profit is the goal, achieved through intelligence
+- Cognitive development enables superior trading performance
 
 ### 1.2 Core System Philosophy
 
@@ -30,12 +31,13 @@ This document provides the complete comprehensive understanding of DIX VISION v4
 > "Continuously improving cognitive system" (INV-DIX-15)
 
 **Development Priority:**
-> "Cognitive maturation over capital deployment" (INV-DIX-16)
+> "Cognitive intelligence for profitable trading" (INV-DIX-16)
 
 **Architectural Foundation:**
-- Cognitive primacy over profit maximization
-- World understanding over indicator processing  
-- System self-evolution over static optimization
+- Trading is the core purpose - cognitive trading system
+- World understanding and indicator processing are equally important
+- Intelligence enables profitable trading - profit through smarts
+- System self-evolution for improved trading performance
 - Operator sovereignty over autonomous action
 
 ---
@@ -107,11 +109,11 @@ This document provides the complete comprehensive understanding of DIX VISION v4
 
 **Cognitive Development (INV-DIX-11 through INV-DIX-16):**
 - INV-DIX-11: Cognitive development is a primary objective
-- INV-DIX-12: Capital deployment is separate from cognitive development
+- INV-DIX-12: Capital deployment is the goal - cognitive development enables profitable trading
 - INV-DIX-13: Architectural domain separation is mandatory
 - INV-DIX-14: DIXVISION continuously evolves through observation, reasoning, learning
 - INV-DIX-15: Mission: continuously improving cognitive system
-- INV-DIX-16: Development priority: cognitive maturation over capital deployment
+- INV-DIX-16: Development priority: cognitive intelligence for profitable trading
 
 ### 3.2 Neuromorphic Axioms (Sensory System Constraints)
 

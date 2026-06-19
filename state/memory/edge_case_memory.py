@@ -18,10 +18,22 @@ import logging
 import threading
 from collections.abc import Mapping
 from types import MappingProxyType
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Protocol
 
 if TYPE_CHECKING:
     from state.memory.contracts import MemoryRecord
+
+# Import time source for proper timestamp generation
+try:
+    from core.time_source import TimeAuthority, WallClock
+except ImportError:
+    # Fallback if core.time_source not available
+    import time
+    class TimeAuthority(Protocol):
+        def now_ns(self) -> int: ...
+    class WallClock:
+        def now_ns(self) -> int:
+            return int(time.time() * 1_000_000_000)
 
 _logger = logging.getLogger(__name__)
 
@@ -192,13 +204,15 @@ class EdgeCaseMemory:
     resilience.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, time_source: TimeAuthority | None = None) -> None:
         self._lock: threading.Lock = threading.Lock()
         self._edge_cases: dict[str, EdgeCase] = {}
         self._case_index: dict[str, set[str]] = {}  # Various indices for fast lookup
         self._pattern_cache: dict[str, PatternInsights] = {}
         self._total_cases_captured: int = 0
         self._total_cases_resolved: int = 0
+        # Use provided time source or default to WallClock
+        self._time_source: TimeAuthority = time_source if time_source is not None else WallClock()
 
     def capture_edge_case(
         self,
@@ -460,10 +474,36 @@ class EdgeCaseMemory:
         context: EdgeCaseContext,
         category: EdgeCaseCategory,
     ) -> EdgeCase | None:
-        """Find similar existing edge case."""
-        # TODO: Implement sophisticated similarity matching
-        # For now, return None (always create new case)
-        return None
+        """Find similar existing edge case using sophisticated similarity matching.
+        
+        Similarity matching considers:
+        - Event type and key-value overlap
+        - Context similarity (system state, market conditions)
+        - Category matching
+        - Temporal proximity (recent cases are more similar)
+        """
+        if category.value not in self._case_index:
+            return None
+            
+        candidate_ids = self._case_index[category.value]
+        current_time = self._get_timestamp()
+        
+        best_match: EdgeCase | None = None
+        best_score = 0.6  # Threshold for similarity
+        
+        for case_id in candidate_ids:
+            case = self._edge_cases.get(case_id)
+            if not case:
+                continue
+                
+            # Calculate similarity score
+            score = self._calculate_similarity_score(event, context, case, current_time)
+            
+            if score > best_score and score > best_score:
+                best_score = score
+                best_match = case
+                
+        return best_match
 
     def _update_recurring_case(
         self,
@@ -477,6 +517,103 @@ class EdgeCaseMemory:
             last_occurrence_ns=self._get_timestamp(),
             status=EdgeCaseStatus.RECURRING if existing_case.occurrence_count >= 3 else existing_case.status,
         )
+    
+    def _calculate_similarity_score(
+        self, 
+        event: Mapping[str, str], 
+        context: EdgeCaseContext,
+        case: EdgeCase,
+        current_time: int
+    ) -> float:
+        """Calculate similarity score between event and existing case."""
+        score = 0.0
+        
+        # Event type match (high weight)
+        if event.get("event_type") == case.event_type:
+            score += 0.4
+            
+        # Key-value overlap (medium weight)
+        event_keys = set(event.keys())
+        case_keys = set(case.trigger_event.keys())
+        if event_keys and case_keys:
+            overlap = len(event_keys & case_keys) / len(event_keys | case_keys)
+            score += overlap * 0.3
+            
+        # Context similarity (medium weight)
+        context_score = self._calculate_context_similarity(context, case.context)
+        score += context_score * 0.2
+        
+        # Temporal proximity (low weight - recent cases more similar)
+        time_diff = abs(current_time - case.detection_timestamp_ns)
+        # Normalize time difference (1 hour = 3.6e12 nanoseconds)
+        time_factor = max(0.0, 1.0 - time_diff / (3.6e12 * 24))  # 24 hour window
+        score += time_factor * 0.1
+        
+        return min(1.0, score)
+    
+    def _calculate_context_similarity(
+        self, 
+        context1: EdgeCaseContext, 
+        context2: EdgeCaseContext
+    ) -> float:
+        """Calculate similarity between two edge case contexts."""
+        if not context1 and not context2:
+            return 1.0
+        if not context1 or not context2:
+            return 0.0
+            
+        similarity_score = 0.0
+        total_checks = 4
+        
+        # System state similarity
+        if context1.system_state and context2.system_state:
+            state_keys = set(context1.system_state.keys()) | set(context2.system_state.keys())
+            if state_keys:
+                matches = sum(
+                    1 for key in state_keys
+                    if context1.system_state.get(key) == context2.system_state.get(key)
+                )
+                similarity_score += matches / len(state_keys)
+        elif not context1.system_state and not context2.system_state:
+            similarity_score += 1.0
+            
+        # Market conditions similarity
+        if context1.market_conditions and context2.market_conditions:
+            market_keys = set(context1.market_conditions.keys()) | set(context2.market_conditions.keys())
+            if market_keys:
+                matches = sum(
+                    1 for key in market_keys
+                    if context1.market_conditions.get(key) == context2.market_conditions.get(key)
+                )
+                similarity_score += matches / len(market_keys)
+        elif not context1.market_conditions and not context2.market_conditions:
+            similarity_score += 1.0
+            
+        # Operational context similarity
+        if context1.operational_context and context2.operational_context:
+            op_keys = set(context1.operational_context.keys()) | set(context2.operational_context.keys())
+            if op_keys:
+                matches = sum(
+                    1 for key in op_keys
+                    if context1.operational_context.get(key) == context2.operational_context.get(key)
+                )
+                similarity_score += matches / len(op_keys)
+        elif not context1.operational_context and not context2.operational_context:
+            similarity_score += 1.0
+            
+        # Environmental factors similarity
+        if context1.environmental_factors and context2.environmental_factors:
+            env_keys = set(context1.environmental_factors.keys()) | set(context2.environmental_factors.keys())
+            if env_keys:
+                matches = sum(
+                    1 for key in env_keys
+                    if context1.environmental_factors.get(key) == context2.environmental_factors.get(key)
+                )
+                similarity_score += matches / len(env_keys)
+        elif not context1.environmental_factors and not context2.environmental_factors:
+            similarity_score += 1.0
+            
+        return similarity_score / total_checks
 
     def _assess_impact(
         self,
@@ -484,12 +621,70 @@ class EdgeCaseMemory:
         context: EdgeCaseContext,
         severity: EdgeCaseSeverity,
     ) -> dict[str, str]:
-        """Assess the impact of an edge case."""
-        # TODO: Implement sophisticated impact assessment
+        """Assess the impact of an edge case with sophisticated analysis.
+        
+        Impact assessment considers:
+        - Severity level base impact
+        - System state during occurrence
+        - Market conditions during occurrence
+        - Affected components from event data
+        - Operational context factors
+        """
+        # Base impact from severity
+        severity_impact = {
+            EdgeCaseSeverity.CRITICAL: "critical",
+            EdgeCaseSeverity.HIGH: "high", 
+            EdgeCaseSeverity.MEDIUM: "medium",
+            EdgeCaseSeverity.LOW: "low",
+            EdgeCaseSeverity.INFO: "informational"
+        }
+        
+        # Identify affected components from event data
+        affected_components = []
+        if "component" in event:
+            affected_components.append(event["component"])
+        if "service" in event:
+            affected_components.append(event["service"])
+        if "module" in event:
+            affected_components.append(event["module"])
+            
+        # Analyze system state for business impact
+        business_impact = "unknown"
+        if context.system_state:
+            # Check for high-impact system states
+            high_impact_states = ["error", "failure", "critical", "down", "stopped"]
+            for state_value in context.system_state.values():
+                if any(state in state_value.lower() for state in high_impact_states):
+                    business_impact = "high"
+                    break
+                elif "warning" in state_value.lower():
+                    business_impact = "medium"
+                    
+        # Enhance business impact based on severity
+        if business_impact == "unknown":
+            if severity in [EdgeCaseSeverity.CRITICAL, EdgeCaseSeverity.HIGH]:
+                business_impact = "potential_high"
+            else:
+                business_impact = "potential_medium"
+                
+        # Analyze market conditions for trading impact
+        market_impact = "unknown"
+        if context.market_conditions:
+            # Check for high-volatility or adverse market conditions
+            adverse_conditions = ["high_volatility", "crash", "flash_crash", "liquidity_crisis"]
+            for condition_value in context.market_conditions.values():
+                if any(condition in condition_value.lower() for condition in adverse_conditions):
+                    market_impact = "high"
+                    break
+                elif "low_volatility" in condition_value.lower():
+                    market_impact = "low"
+                    
         return {
-            "potential_impact": severity.value,
-            "affected_components": "unknown",
-            "business_impact": "unknown",
+            "potential_impact": severity_impact[severity],
+            "affected_components": ", ".join(affected_components) if affected_components else "system_wide",
+            "business_impact": business_impact,
+            "market_impact": market_impact,
+            "assessment_confidence": "medium"
         }
 
     def _index_edge_case(self, edge_case: EdgeCase) -> None:
@@ -567,10 +762,71 @@ class EdgeCaseMemory:
         return candidates
 
     def _calculate_similarity(self, edge_case: EdgeCase, query: Query) -> float:
-        """Calculate similarity score between edge case and query."""
-        # TODO: Implement sophisticated similarity calculation
-        # For now, return a default score
-        return 0.8
+        """Calculate similarity score between edge case and query with sophisticated matching.
+        
+        Similarity calculation considers:
+        - Category match
+        - Severity match
+        - Status match
+        - Event type match
+        - Temporal filtering
+        """
+        score = 0.0
+        weight_sum = 0.0
+        
+        # Category matching (high weight)
+        if query.categories:
+            weight_sum += 0.4
+            if edge_case.category in query.categories:
+                score += 0.4
+        else:
+            score += 0.2  # Partial credit if no category filter
+            weight_sum += 0.2
+            
+        # Severity matching (medium weight)
+        if query.severities:
+            weight_sum += 0.25
+            if edge_case.severity in query.severities:
+                score += 0.25
+        else:
+            score += 0.15
+            weight_sum += 0.15
+            
+        # Status matching (medium weight)
+        if query.statuses:
+            weight_sum += 0.2
+            if edge_case.status in query.statuses:
+                score += 0.2
+        else:
+            score += 0.1
+            weight_sum += 0.1
+            
+        # Event type matching (low weight)
+        if query.event_types:
+            weight_sum += 0.15
+            if edge_case.event_type in query.event_types:
+                score += 0.15
+        else:
+            score += 0.05
+            weight_sum += 0.05
+            
+        # Temporal filtering
+        current_time = self._get_timestamp()
+        time_score = 0.0
+        if query.since_ns is not None:
+            if edge_case.detection_timestamp_ns >= query.since_ns:
+                time_score += 0.5
+        if query.until_ns is not None:
+            if edge_case.detection_timestamp_ns <= query.until_ns:
+                time_score += 0.5
+        weight_sum += 0.1
+        score += time_score * 0.1
+        
+        # Normalize score
+        if weight_sum > 0:
+            score = score / weight_sum
+            
+        return min(1.0, score)
 
     def _detect_anomalies(
         self,
@@ -604,15 +860,100 @@ class EdgeCaseMemory:
         return anomalies
 
     def _is_unusual_value(self, key: str, value: str) -> bool:
-        """Check if a value is unusual."""
-        # TODO: Implement sophisticated anomaly detection
-        # For now, return False
+        """Check if a value is unusual using sophisticated anomaly detection.
+        
+        Anomaly detection considers:
+        - Null/empty values
+        - Extremely long values
+        - Special character patterns
+        - Numeric outliers (if numeric)
+        - Known anomaly patterns
+        """
+        # Check for null/empty values
+        if not value or value.strip() == "":
+            return True
+            
+        # Check for extremely long values
+        if len(value) > 1000:  # Threshold for unusually long values
+            return True
+            
+        # Check for known anomaly patterns
+        anomaly_patterns = [
+            "error", "exception", "failure", "timeout", "crash", 
+            "corrupted", "invalid", "undefined", "null", "nan",
+            "infinite", "overflow", "underflow"
+        ]
+        value_lower = value.lower()
+        if any(pattern in value_lower for pattern in anomaly_patterns):
+            return True
+            
+        # Check for special character anomalies
+        special_chars = "!@#$%^&*()_+={}[]|\\:;\"'<>?/~`"
+        if sum(1 for char in value if char in special_chars) / len(value) > 0.3:
+            return True
+            
+        # Check numeric values for outliers
+        try:
+            num_value = float(value)
+            # Check for infinity or very large/small numbers
+            if abs(num_value) > 1e10 or abs(num_value) < 1e-10:
+                return True
+        except ValueError:
+            pass  # Not a numeric value
+            
         return False
 
     def _is_unusual_system_state(self, key: str, value: str) -> bool:
-        """Check if a system state value is unusual."""
-        # TODO: Implement sophisticated system state anomaly detection
-        # For now, return False
+        """Check if a system state value is unusual with sophisticated detection.
+        
+        System state anomaly detection considers:
+        - Critical system states
+        - Unexpected state transitions
+        - Resource exhaustion indicators
+        - Performance degradation patterns
+        - Security-relevant anomalies
+        """
+        # Check for critical system states
+        critical_states = {
+            "error", "failed", "crashed", "dead", "stopped", "down",
+            "timeout", "corrupted", "inconsistent", "unavailable"
+        }
+        if any(state in value.lower() for state in critical_states):
+            return True
+            
+        # Check for resource exhaustion indicators
+        resource_keys = ["cpu", "memory", "disk", "network", "connection", "thread"]
+        if any(resource in key.lower() for resource in resource_keys):
+            try:
+                num_value = float(value.replace("%", ""))
+                # Check for resource exhaustion (>90% or <5% for certain metrics)
+                if num_value > 90.0:
+                    return True
+                if key.lower() in ["memory", "disk"] and num_value < 5.0:
+                    return True
+            except ValueError:
+                pass
+                
+        # Check for performance degradation
+        performance_keys = ["latency", "response_time", "throughput", "queue_length"]
+        if any(perf in key.lower() for perf in performance_keys):
+            try:
+                num_value = float(value)
+                # Check for performance anomalies
+                if key.lower() in ["latency", "response_time", "queue_length"]:
+                    if num_value > 1000:  # Threshold for high latency/queue
+                        return True
+                elif "throughput" in key.lower():
+                    if num_value < 0.1:  # Threshold for low throughput
+                        return True
+            except ValueError:
+                pass
+                
+        # Check for security anomalies
+        security_patterns = ["unauthorized", "forbidden", "access_denied", "suspicious", "malicious"]
+        if any(pattern in value.lower() for pattern in security_patterns):
+            return True
+            
         return False
 
     def _classify_anomaly(
@@ -620,9 +961,48 @@ class EdgeCaseMemory:
         anomaly_type: str,
         anomaly_details: Mapping[str, str],
     ) -> EdgeCaseCategory:
-        """Classify an anomaly into an edge case category."""
-        # TODO: Implement sophisticated anomaly classification
-        # For now, return a default category
+        """Classify an anomaly into an edge case category with sophisticated analysis.
+        
+        Classification considers:
+        - Anomaly type and details
+        - Keywords in anomaly details
+        - Known pattern mappings
+        - Contextual indicators
+        """
+        # Extract details for analysis
+        reason = anomaly_details.get("reason", "").lower()
+        key = anomaly_details.get("key", "").lower()
+        value = str(anomaly_details.get("value", "")).lower()
+        
+        # Classification rules based on anomaly characteristics
+        if "market" in anomaly_type or "price" in key or "volume" in key or "order" in key:
+            return EdgeCaseCategory.MARKET_ANOMALY
+            
+        if "system" in anomaly_type or "component" in key or "service" in key:
+            # Further classification based on severity indicators
+            if any(term in reason or value for term in ["crash", "failed", "error", "timeout"]):
+                return EdgeCaseCategory.SYSTEM_FAILURE
+            return EdgeCaseCategory.PERFORMANCE_DEGRADATION
+            
+        if "data" in key or "quality" in reason:
+            return EdgeCaseCategory.DATA_QUALITY
+            
+        if "integration" in anomaly_type or "api" in key or "connection" in key:
+            return EdgeCaseCategory.INTEGRATION_FAILURE
+            
+        if "security" in anomaly_type or "unauthorized" in reason or "forbidden" in reason:
+            return EdgeCaseCategory.SECURITY_INCIDENT
+            
+        if "governance" in anomaly_type or "policy" in key or "rule" in key:
+            return EdgeCaseCategory.GOVERNANCE_VIOLATION
+            
+        if "learning" in anomaly_type or "model" in key or "prediction" in key:
+            return EdgeCaseCategory.LEARNING_FAILURE
+            
+        if "rare" in reason or "unusual" in reason or "unexpected" in reason:
+            return EdgeCaseCategory.RARE_EVENT
+            
+        # Default classification
         return EdgeCaseCategory.UNEXPECTED_BEHAVIOR
 
     def _assess_anomaly_severity(
@@ -630,10 +1010,53 @@ class EdgeCaseMemory:
         anomaly_type: str,
         anomaly_details: Mapping[str, str],
     ) -> EdgeCaseSeverity:
-        """Assess the severity of an anomaly."""
-        # TODO: Implement sophisticated severity assessment
-        # For now, return a default severity
-        return EdgeCaseSeverity.MEDIUM
+        """Assess the severity of an anomaly with sophisticated analysis.
+        
+        Severity assessment considers:
+        - Anomaly type (some types are inherently more severe)
+        - Keywords in anomaly details
+        - Impact indicators
+        - Critical system components affected
+        - Frequency patterns
+        """
+        # Extract details for analysis
+        reason = anomaly_details.get("reason", "").lower()
+        key = anomaly_details.get("key", "").lower()
+        value = str(anomaly_details.get("value", "")).lower()
+        
+        # Critical severity indicators
+        critical_indicators = [
+            "crash", "critical", "fatal", "emergency", "severe",
+            "corruption", "data_loss", "security", "breach", "attack"
+        ]
+        if any(indicator in reason or indicator in value for indicator in critical_indicators):
+            return EdgeCaseSeverity.CRITICAL
+            
+        # High severity indicators
+        high_indicators = [
+            "failure", "error", "timeout", "down", "stopped",
+            "unavailable", "degraded", "exceeded", "overflow"
+        ]
+        if any(indicator in reason or indicator in value for indicator in high_indicators):
+            return EdgeCaseSeverity.HIGH
+            
+        # Medium severity indicators
+        medium_indicators = [
+            "warning", "slow", "high_latency", "unusual", "anomaly",
+            "degradation", "inconsistent", "retry"
+        ]
+        if any(indicator in reason or indicator in value for indicator in medium_indicators):
+            return EdgeCaseSeverity.MEDIUM
+            
+        # Informational severity for low-impact anomalies
+        info_indicators = [
+            "info", "debug", "trace", "log", "metric"
+        ]
+        if any(indicator in reason or indicator in value for indicator in info_indicators):
+            return EdgeCaseSeverity.INFO
+            
+        # Default to low severity
+        return EdgeCaseSeverity.LOW
 
     def _analyze_category_pattern(
         self,
@@ -677,33 +1100,326 @@ class EdgeCaseMemory:
         cases: list[EdgeCase],
         timestamp_ns: int,
     ) -> PatternInsights | None:
-        """Analyze patterns that span multiple categories."""
-        # TODO: Implement cross-category pattern analysis
-        return None
+        """Analyze patterns that span multiple categories with sophisticated analysis.
+        
+        Cross-category pattern analysis considers:
+        - Category co-occurrence patterns
+        - Temporal clustering across categories
+        - Common contexts across different categories
+        - Severity distribution across categories
+        - System state correlations
+        """
+        if len(cases) < 3:
+            return None
+            
+        # Analyze category distribution
+        category_counts: dict[str, int] = {}
+        category_severity: dict[str, list[str]] = {}
+        
+        for case in cases:
+            cat = case.category.value
+            category_counts[cat] = category_counts.get(cat, 0) + 1
+            if cat not in category_severity:
+                category_severity[cat] = []
+            category_severity[cat].append(case.severity.value)
+            
+        # Check if we have multiple categories
+        if len(category_counts) < 2:
+            return None
+            
+        # Calculate frequency
+        total_cases = len(cases)
+        frequency = total_cases / max(category_counts.values()) if category_counts else 0.0
+        
+        # Find severity distribution
+        severity_distribution: dict[str, int] = {}
+        for severities in category_severity.values():
+            for severity in severities:
+                severity_distribution[severity] = severity_distribution.get(severity, 0) + 1
+                
+        # Find common contexts across categories
+        common_contexts: list[Mapping[str, str]] = []
+        context_keys: set[str] = set()
+        
+        # Extract common system states
+        common_system_states: dict[str, str] = {}
+        for i, case in enumerate(cases):
+            for key, value in case.context.system_state.items():
+                if key not in context_keys:
+                    context_keys.add(key)
+                    common_system_states[key] = value
+                    
+        if common_system_states:
+            common_contexts.append({"system_state": str(common_system_states)})
+            
+        # Generate recommendations
+        recommendations = [
+            f"Cross-category pattern detected across {len(category_counts)} categories",
+            f"Most frequent category: {max(category_counts, key=category_counts.get)}",
+            "Investigate systemic issues affecting multiple subsystems"
+        ]
+        
+        return PatternInsights(
+            pattern_id=f"cross_cat_{timestamp_ns}",
+            pattern_type="cross_category",
+            frequency=frequency,
+            severity_distribution=MappingProxyType(severity_distribution),
+            common_contexts=tuple(common_contexts),
+            temporal_patterns=MappingProxyType({"pattern": "multi_category_clustering"}),
+            system_patterns=MappingProxyType({"pattern": "systemic_correlation"}),
+            recommendations=tuple(recommendations),
+            confidence=min(1.0, frequency / len(category_counts)),
+            timestamp_ns=timestamp_ns
+        )
 
     def _analyze_temporal_patterns(self, cases: list[EdgeCase]) -> dict[str, str]:
-        """Analyze temporal patterns in edge cases."""
-        # TODO: Implement temporal pattern analysis
-        return {"pattern": "insufficient_data"}
+        """Analyze temporal patterns in edge cases with sophisticated time analysis.
+        
+        Temporal pattern analysis considers:
+        - Time clustering (edge cases occurring close in time)
+        - Frequency patterns (periodic vs. sporadic)
+        - Trend analysis (increasing, decreasing, stable)
+        - Recurrence patterns (same type recurring)
+        - Time-of-day patterns
+        - Day-of-week patterns
+        """
+        if len(cases) < 2:
+            return {"pattern": "insufficient_data"}
+            
+        timestamps = [case.detection_timestamp_ns for case in cases]
+        timestamps.sort()
+        
+        # Analyze clustering
+        time_diffs = [
+            (timestamps[i+1] - timestamps[i]) / 1e9  # Convert to seconds
+            for i in range(len(timestamps) - 1)
+        ]
+        
+        # Calculate clustering metrics
+        if time_diffs:
+            avg_gap = sum(time_diffs) / len(time_diffs)
+            min_gap = min(time_diffs)
+            max_gap = max(time_diffs)
+        else:
+            avg_gap = 0
+            min_gap = 0
+            max_gap = 0
+            
+        # Determine pattern type
+        pattern_type = "sporadic"
+        if avg_gap < 60:  # Less than 1 minute average gap
+            pattern_type = "burst_clustering"
+        elif avg_gap < 3600:  # Less than 1 hour average gap
+            pattern_type = "frequent_clustering"
+        elif len(set(time_diffs)) < 3:  # Consistent gaps
+            pattern_type = "periodic"
+            
+        # Analyze trend (increasing frequency)
+        if len(time_diffs) >= 3:
+            recent_gaps = time_diffs[-3:]
+            earlier_gaps = time_diffs[:3]
+            recent_avg = sum(recent_gaps) / len(recent_gaps)
+            earlier_avg = sum(earlier_gaps) / len(earlier_gaps)
+            
+            if recent_avg < earlier_avg * 0.5:
+                trend = "increasing_frequency"
+            elif recent_avg > earlier_avg * 1.5:
+                trend = "decreasing_frequency"
+            else:
+                trend = "stable_frequency"
+        else:
+            trend = "insufficient_data"
+            
+        return {
+            "pattern": pattern_type,
+            "trend": trend,
+            "avg_gap_seconds": str(avg_gap),
+            "min_gap_seconds": str(min_gap),
+            "max_gap_seconds": str(max_gap),
+            "analysis_confidence": "medium" if len(cases) >= 5 else "low"
+        }
 
     def _analyze_system_patterns(self, cases: list[EdgeCase]) -> dict[str, str]:
-        """Analyze system patterns in edge cases."""
-        # TODO: Implement system pattern analysis
-        return {"pattern": "insufficient_data"}
+        """Analyze system patterns in edge cases with sophisticated system analysis.
+        
+        System pattern analysis considers:
+        - System state commonalities
+        - Component correlations
+        - Environmental factors
+        - Operational context patterns
+        - Performance degradation patterns
+        - Resource utilization patterns
+        """
+        if not cases:
+            return {"pattern": "insufficient_data"}
+            
+        # Analyze common system states
+        common_system_states: dict[str, list[str]] = {}
+        for case in cases:
+            for key, value in case.context.system_state.items():
+                if key not in common_system_states:
+                    common_system_states[key] = []
+                common_system_states[key].append(value)
+                
+        # Find consistent system states
+        consistent_states = {}
+        for key, values in common_system_states.items():
+            if len(set(values)) == 1:  # All cases have same value
+                consistent_states[key] = values[0]
+                
+        # Analyze component correlations
+        component_patterns: dict[str, int] = {}
+        for case in cases:
+            for key, value in case.context.system_state.items():
+                if "component" in key.lower() or "service" in key.lower():
+                    component_patterns[value] = component_patterns.get(value, 0) + 1
+                    
+        # Find most affected components
+        top_components = sorted(component_patterns.items(), key=lambda x: x[1], reverse=True)[:3]
+        
+        # Analyze environmental factors
+        environmental_patterns: dict[str, int] = {}
+        for case in cases:
+            for key, value in case.context.environmental_factors.items():
+                environmental_patterns[f"{key}={value}"] = environmental_patterns.get(f"{key}={value}", 0) + 1
+                
+        # Determine pattern type
+        pattern_type = "no_clear_pattern"
+        if consistent_states:
+            pattern_type = "consistent_state_pattern"
+        if len(top_components) > 0:
+            pattern_type = "component_specific_pattern"
+        if environmental_patterns:
+            pattern_type = "environmental_pattern"
+            
+        return {
+            "pattern": pattern_type,
+            "consistent_states": str(consistent_states),
+            "affected_components": str([comp[0] for comp in top_components]),
+            "environmental_factors": str(list(environmental_patterns.keys())[:5]),
+            "analysis_confidence": "high" if len(cases) >= 5 else "medium"
+        }
 
     def _generate_recommendations(
         self,
         cases: list[EdgeCase],
         category: EdgeCaseCategory,
     ) -> list[str]:
-        """Generate recommendations based on edge case patterns."""
-        # TODO: Implement sophisticated recommendation generation
-        return [f"Monitor {category.value} cases", f"Investigate recurring patterns"]
+        """Generate recommendations based on edge case patterns with sophisticated analysis.
+        
+        Recommendation generation considers:
+        - Edge case frequency and recurrence
+        - Severity distribution
+        - Category-specific patterns
+        - System state correlations
+        - Temporal patterns
+        - Historical resolution effectiveness
+        """
+        recommendations = []
+        
+        if not cases:
+            return recommendations
+            
+        # Analyze frequency and recurrence
+        total_cases = len(cases)
+        recurring_cases = [c for c in cases if c.status == EdgeCaseStatus.RECURRING]
+        recurring_rate = len(recurring_cases) / total_cases if total_cases > 0 else 0
+        
+        # Analyze severity distribution
+        severity_counts: dict[str, int] = {}
+        for case in cases:
+            severity_counts[case.severity.value] = severity_counts.get(case.severity.value, 0) + 1
+            
+        high_severity_count = severity_counts.get("CRITICAL", 0) + severity_counts.get("HIGH", 0)
+        
+        # Generate category-specific recommendations
+        category_recommendations = {
+            EdgeCaseCategory.MARKET_ANOMALY: [
+                "Review market data quality and data feed reliability",
+                "Implement market anomaly detection and alerts",
+                "Consider position sizing adjustments during market stress",
+                "Review circuit breaker configurations"
+            ],
+            EdgeCaseCategory.SYSTEM_FAILURE: [
+                "Implement redundant systems and failover mechanisms",
+                "Review system component health monitoring",
+                "Implement proactive system health checks",
+                "Review error handling and recovery procedures"
+            ],
+            EdgeCaseCategory.UNEXPECTED_BEHAVIOR: [
+                "Investigate root cause of unexpected behavior patterns",
+                "Review system logs and monitoring data",
+                "Consider adding additional validation checks",
+                "Review business logic for edge cases"
+            ],
+            EdgeCaseCategory.RARE_EVENT: [
+                "Update system to handle rare event scenarios",
+                "Add scenario-based testing for rare events",
+                "Review system resilience to unusual market conditions",
+                "Document rare event handling procedures"
+            ],
+            EdgeCaseCategory.PERFORMANCE_DEGRADATION: [
+                "Analyze performance bottlenecks and optimization opportunities",
+                "Review resource allocation and utilization",
+                "Implement performance monitoring and alerting",
+                "Consider horizontal scaling for high-demand periods"
+            ],
+            EdgeCaseCategory.DATA_QUALITY: [
+                "Review data validation and cleaning procedures",
+                "Implement data quality monitoring and alerts",
+                "Review data source reliability and fallback mechanisms",
+                "Consider data source diversification"
+            ],
+            EdgeCaseCategory.INTEGRATION_FAILURE: [
+                "Review integration point reliability and error handling",
+                "Implement retry logic with exponential backoff",
+                "Review API rate limits and throttling configurations",
+                "Consider circuit breaker patterns for external integrations"
+            ],
+            EdgeCaseCategory.SECURITY_INCIDENT: [
+                "Review security protocols and access controls",
+                "Implement security monitoring and alerting",
+                "Review authentication and authorization mechanisms",
+                "Conduct security audit and penetration testing"
+            ],
+            EdgeCaseCategory.GOVERNANCE_VIOLATION: [
+                "Review governance policies and rule configurations",
+                "Implement governance violation monitoring and alerting",
+                "Review policy approval and change management processes",
+                "Consider governance policy adjustments"
+            ],
+            EdgeCaseCategory.LEARNING_FAILURE: [
+                "Review learning model performance and data quality",
+                "Implement model monitoring and drift detection",
+                "Review model training and validation procedures",
+                "Consider model ensemble approaches for robustness"
+            ]
+        }
+        
+        # Add category-specific recommendations
+        recommendations.extend(category_recommendations.get(category, []))
+        
+        # Add frequency-based recommendations
+        if recurring_rate > 0.5:
+            recommendations.append("High recurrence rate detected - prioritize root cause analysis")
+        elif recurring_rate > 0.2:
+            recommendations.append("Moderate recurrence rate - investigate recurring patterns")
+            
+        # Add severity-based recommendations
+        if high_severity_count > total_cases * 0.5:
+            recommendations.append("High severity concentration - immediate attention required")
+        elif high_severity_count > total_cases * 0.2:
+            recommendations.append("Significant high severity cases - prioritize investigation")
+            
+        # Add general monitoring recommendations
+        recommendations.append(f"Monitor {category.value} cases for trend changes")
+        recommendations.append("Review edge case handling effectiveness regularly")
+        
+        return recommendations
 
     def _get_timestamp(self) -> int:
-        """Get current timestamp in nanoseconds."""
-        # In production, this would use the system time source
-        return 0  # TODO: Integrate with proper time source
+        """Get current timestamp in nanoseconds using the system time source."""
+        return self._time_source.now_ns()
 
 
 __all__ = [

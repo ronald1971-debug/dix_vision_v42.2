@@ -45,7 +45,7 @@ class InvariantID(StrEnum):
 
 
 INVARIANT_DOCS: dict[str, str] = {
-    InvariantID.DIX_01: "DIXVISION is a cognitive intelligence system, not a trading bot",
+    InvariantID.DIX_01: "DIXVISION is a cognitive intelligence system, build to be a trading bot a cognitive trading system",
     InvariantID.DIX_02: "BeliefState is the single source of truth for all reality domains",
     InvariantID.DIX_03: "INDIRA owns market, trader, strategy, portfolio, allocation, position, and execution-feedback cognition",
     InvariantID.DIX_04: "DYON owns system cognition only",
@@ -56,11 +56,11 @@ INVARIANT_DOCS: dict[str, str] = {
     InvariantID.DIX_09: "System Engine owns operational awareness",
     InvariantID.DIX_10: "Operator is the highest authority",
     InvariantID.DIX_11: "Cognitive development is a primary objective",
-    InvariantID.DIX_12: "Capital deployment is separate from cognitive development",
+    InvariantID.DIX_12: "Capital deployment is the goal - cognitive development enables profitable trading",
     InvariantID.DIX_13: "Architectural domain separation is mandatory",
-    InvariantID.DIX_14: "DIXVISION continuously evolves through observation, reasoning, learning",
+    InvariantID.DIX_14: "DIXVISION continuously evolves through observation, reasoning, learning and execution",
     InvariantID.DIX_15: "Mission: continuously improving cognitive system",
-    InvariantID.DIX_16: "Development priority: cognitive maturation over capital deployment",
+    InvariantID.DIX_16: "Development priority: cognitive intelligence for profitable trading",
     InvariantID.POSITION_LIMIT: "Position size × leverage ≤ exposure cap",
     InvariantID.AUTONOMY_ESCALATION: "Promotions step exactly one rank; demotions unrestricted",
     InvariantID.NO_GOVERNANCE_BYPASS: "No path from source to sink avoids governance",

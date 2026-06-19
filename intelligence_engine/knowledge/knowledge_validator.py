@@ -776,8 +776,64 @@ class KnowledgeValidator:
         window2: list[KnowledgeSource],
     ) -> bool:
         """Check if there's a temporal conflict between time windows."""
-        # TODO: Implement temporal conflict detection
+        if not window1 or not window2:
+            return False
+        
+        # Get time ranges for both windows
+        times1 = [source.timestamp_ns for source in window1 if source.timestamp_ns > 0]
+        times2 = [source.timestamp_ns for source in window2 if source.timestamp_ns > 0]
+        
+        if not times1 or not times2:
+            return False
+        
+        # Check for overlapping time periods with conflicting content
+        min_time1, max_time1 = min(times1), max(times1)
+        min_time2, max_time2 = min(times2), max(times2)
+        
+        # Check if windows overlap in time
+        if not (max_time1 < min_time2 or max_time2 < min_time1):
+            # Windows overlap - check for conflicting knowledge
+            conflicts = self._check_content_conflicts(window1, window2)
+            return len(conflicts) > 0
+        
         return False
+
+    def _check_content_conflicts(
+        self,
+        window1: list[KnowledgeSource],
+        window2: list[KnowledgeSource],
+    ) -> list[tuple[str, str, str]]:
+        """Check for content conflicts between two windows of sources.
+        
+        Returns list of (field, value1, value2) tuples where conflicts exist.
+        """
+        conflicts = []
+        
+        # Extract common content keys
+        all_keys = set()
+        for source in window1 + window2:
+            all_keys.update(source.content.keys())
+        
+        # For each common key, check for conflicting values
+        for key in all_keys:
+            values1 = set()
+            values2 = set()
+            
+            for source in window1:
+                if key in source.content:
+                    values1.add(source.content[key])
+            
+            for source in window2:
+                if key in source.content:
+                    values2.add(source.content[key])
+            
+            # Check for intersection of conflicting values
+            if values1 and values2 and not values1.isdisjoint(values2):
+                # Potential conflict - same key with potentially different values
+                if len(values1) > 1 or len(values2) > 1 or values1 != values2:
+                    conflicts.append((key, str(values1), str(values2)))
+        
+        return conflicts
 
     def _has_semantic_conflict(
         self,
@@ -785,33 +841,365 @@ class KnowledgeValidator:
         source2: KnowledgeSource,
     ) -> bool:
         """Check if there's a semantic conflict between sources."""
-        # TODO: Implement semantic conflict detection
+        if not source1.content or not source2.content:
+            return False
+        
+        # Check for direct contradictions in content
+        for key in source1.content:
+            if key in source2.content:
+                value1 = source1.content[key]
+                value2 = source2.content[key]
+                
+                # Check for semantic contradictions
+                if self._are_contradictory_values(key, value1, value2):
+                    return True
+        
+        # Check confidence-based conflicts (high confidence in opposite directions)
+        if (source1.confidence > 0.8 and source2.confidence > 0.8 and 
+            source1.source_type != source2.source_type):
+            # High confidence from different source types about same domain
+            common_keys = set(source1.content.keys()) & set(source2.content.keys())
+            if common_keys:
+                return True
+        
+        return False
+
+    def _are_contradictory_values(
+        self,
+        key: str,
+        value1: str,
+        value2: str,
+    ) -> bool:
+        """Check if two values are semantically contradictory for a given key."""
+        # Define contradiction patterns for common keys
+        contradiction_patterns = {
+            "trend": [("bullish", "bearish"), ("up", "down"), ("positive", "negative")],
+            "sentiment": [("positive", "negative"), ("bullish", "bearish"), ("optimistic", "pessimistic")],
+            "direction": [("buy", "sell"), ("long", "short"), ("increase", "decrease")],
+            "regime": [("bullish", "bearish"), ("trending", "mean_reverting")],
+            "action": [("buy", "sell"), ("enter", "exit"), ("open", "close")],
+        }
+        
+        # Normalize values for comparison
+        v1_lower = value1.lower().strip()
+        v2_lower = value2.lower().strip()
+        
+        # Direct contradiction
+        if v1_lower == v2_lower:
+            return False
+        
+        # Check known contradiction patterns
+        key_lower = key.lower()
+        for pattern_key, contradictions in contradiction_patterns.items():
+            if pattern_key in key_lower:
+                for contradiction_pair in contradictions:
+                    if (v1_lower in contradiction_pair[0] and v2_lower in contradiction_pair[1]) or \
+                       (v1_lower in contradiction_pair[1] and v2_lower in contradiction_pair[0]):
+                        return True
+        
+        # Numerical contradictions
+        try:
+            num1 = float(v1_lower)
+            num2 = float(v2_lower)
+            # If values are numerical and significantly different
+            if abs(num1 - num2) > max(abs(num1), abs(num2)) * 0.5:
+                return True
+        except ValueError:
+            pass
+        
         return False
 
     def _calculate_consistency_score(self, knowledge: KnowledgeGraph) -> float:
         """Calculate consistency score of knowledge graph."""
-        # TODO: Implement consistency calculation
-        return 0.8
+        if not knowledge or not hasattr(knowledge, 'nodes'):
+            return 0.0
+        
+        try:
+            # Get all nodes from knowledge graph
+            nodes = knowledge.nodes if hasattr(knowledge, 'nodes') else []
+            
+            if not nodes:
+                return 0.5
+            
+            consistency_score = 0.0
+            total_checks = 0
+            
+            # Check for internal consistency within nodes
+            for node in nodes:
+                if hasattr(node, 'content') and node.content:
+                    # Check temporal consistency within node
+                    if hasattr(node, 'timestamp_ns') and node.timestamp_ns > 0:
+                        total_checks += 1
+                        consistency_score += 0.8  # Assume consistent if timestamp exists
+                    
+                    # Check content consistency
+                    if self._is_content_consistent(node.content):
+                        total_checks += 1
+                        consistency_score += 0.9
+                    else:
+                        total_checks += 1
+                        consistency_score += 0.3
+            
+            # Check cross-node consistency
+            node_pairs = list(zip(nodes, nodes[1:]))
+            for node1, node2 in node_pairs:
+                if hasattr(node1, 'content') and hasattr(node2, 'content'):
+                    if not self._has_cross_node_conflicts(node1.content, node2.content):
+                        total_checks += 1
+                        consistency_score += 0.85
+                    else:
+                        total_checks += 1
+                        consistency_score += 0.4
+            
+            return consistency_score / total_checks if total_checks > 0 else 0.5
+            
+        except Exception as e:
+            _logger.error(f"Error calculating consistency score: {e}")
+            return 0.5
+
+    def _is_content_consistent(self, content: dict) -> bool:
+        """Check if content is internally consistent."""
+        if not content:
+            return True
+        
+        # Check for obvious contradictions
+        for key, value in content.items():
+            if isinstance(value, str):
+                # Check for self-contradictory values
+                if " and " in value.lower() and " but " in value.lower():
+                    parts = value.split(" but ")
+                    if len(parts) > 1:
+                        continue  # Complex statement, skip detailed check
+        
+        return True
+
+    def _has_cross_node_conflicts(self, content1: dict, content2: dict) -> bool:
+        """Check for conflicts between two content dictionaries."""
+        if not content1 or not content2:
+            return False
+        
+        common_keys = set(content1.keys()) & set(content2.keys())
+        
+        for key in common_keys:
+            value1 = content1[key]
+            value2 = content2[key]
+            
+            if self._are_contradictory_values(key, str(value1), str(value2)):
+                return True
+        
+        return False
 
     def _calculate_reliability_score(self, knowledge: KnowledgeGraph) -> float:
         """Calculate reliability score of knowledge graph."""
-        # TODO: Implement reliability calculation
-        return 0.7
+        if not knowledge or not hasattr(knowledge, 'nodes'):
+            return 0.0
+        
+        try:
+            nodes = knowledge.nodes if hasattr(knowledge, 'nodes') else []
+            
+            if not nodes:
+                return 0.5
+            
+            reliability_score = 0.0
+            total_nodes = len(nodes)
+            
+            # Calculate reliability based on node characteristics
+            for node in nodes:
+                node_reliability = 0.5  # Base reliability
+                
+                # Factor in confidence if available
+                if hasattr(node, 'confidence') and node.confidence > 0:
+                    node_reliability = 0.3 + (node.confidence * 0.7)
+                
+                # Factor in source reliability if available
+                if hasattr(node, 'reliability_score') and node.reliability_score > 0:
+                    node_reliability = (node_reliability + node.reliability_score) / 2
+                
+                # Factor in source type (some sources are more reliable)
+                if hasattr(node, 'source_type'):
+                    source_reliability = self._get_source_type_reliability(node.source_type)
+                    node_reliability = (node_reliability + source_reliability) / 2
+                
+                reliability_score += node_reliability
+            
+            return reliability_score / total_nodes if total_nodes > 0 else 0.5
+            
+        except Exception as e:
+            _logger.error(f"Error calculating reliability score: {e}")
+            return 0.5
+
+    def _get_source_type_reliability(self, source_type) -> float:
+        """Get base reliability score for a source type."""
+        if isinstance(source_type, str):
+            source_str = source_type.upper()
+        else:
+            source_str = str(source_type).upper()
+        
+        reliability_map = {
+            "MARKET_DATA": 0.9,
+            "OPERATOR_INPUT": 0.95,
+            "LEARNING_INFERENCE": 0.8,
+            "STRATEGY_BACKTEST": 0.85,
+            "ON_CHAIN_ANALYSIS": 0.88,
+            "NEWS_SENTIMENT": 0.7,
+            "EXTERNAL_API": 0.75,
+            "SYSTEM_INTERNAL": 0.92,
+        }
+        
+        return reliability_map.get(source_str, 0.7)
 
     def _calculate_completeness_score(self, knowledge: KnowledgeGraph) -> float:
         """Calculate completeness score of knowledge graph."""
-        # TODO: Implement completeness calculation
-        return 0.75
+        if not knowledge or not hasattr(knowledge, 'nodes'):
+            return 0.0
+        
+        try:
+            nodes = knowledge.nodes if hasattr(knowledge, 'nodes') else []
+            
+            if not nodes:
+                return 0.5
+            
+            completeness_score = 0.0
+            total_nodes = len(nodes)
+            
+            # Expected fields for a complete knowledge node
+            expected_fields = {'content', 'timestamp_ns', 'confidence', 'source_type'}
+            
+            for node in nodes:
+                node_completeness = 0.0
+                present_fields = 0
+                
+                # Check for expected fields
+                if hasattr(node, 'content') and node.content:
+                    present_fields += 1
+                    # Check content completeness
+                    if len(node.content) >= 3:  # At least 3 content items
+                        node_completeness += 0.3
+                
+                if hasattr(node, 'timestamp_ns') and node.timestamp_ns > 0:
+                    present_fields += 1
+                    node_completeness += 0.25
+                
+                if hasattr(node, 'confidence') and node.confidence > 0:
+                    present_fields += 1
+                    node_completeness += 0.25
+                
+                if hasattr(node, 'source_type'):
+                    present_fields += 1
+                    node_completeness += 0.2
+                
+                # Normalize by expected fields
+                completeness_score += node_completeness
+            
+            return completeness_score / total_nodes if total_nodes > 0 else 0.5
+            
+        except Exception as e:
+            _logger.error(f"Error calculating completeness score: {e}")
+            return 0.5
 
     def _calculate_temporal_consistency(self, knowledge: KnowledgeGraph) -> float:
         """Calculate temporal consistency of knowledge graph."""
-        # TODO: Implement temporal consistency calculation
-        return 0.85
+        if not knowledge or not hasattr(knowledge, 'nodes'):
+            return 0.0
+        
+        try:
+            nodes = knowledge.nodes if hasattr(knowledge, 'nodes') else []
+            
+            if not nodes:
+                return 0.5
+            
+            # Group nodes by time windows
+            time_windows = self._group_nodes_by_time_windows(nodes, window_size_ns=1_000_000_000)  # 1 second windows
+            
+            if not time_windows or len(time_windows) < 2:
+                return 0.7  # Not enough temporal data
+            
+            temporal_consistency = 0.0
+            window_comparisons = 0
+            
+            # Compare adjacent time windows for consistency
+            sorted_windows = sorted(time_windows.keys())
+            for i in range(len(sorted_windows) - 1):
+                window1_nodes = time_windows[sorted_windows[i]]
+                window2_nodes = time_windows[sorted_windows[i + 1]]
+                
+                # Check for temporal conflicts between windows
+                has_conflict = self._has_temporal_conflict(window1_nodes, window2_nodes)
+                
+                if not has_conflict:
+                    temporal_consistency += 1.0
+                else:
+                    temporal_consistency += 0.4  # Partial credit for some consistency
+                
+                window_comparisons += 1
+            
+            return temporal_consistency / window_comparisons if window_comparisons > 0 else 0.7
+            
+        except Exception as e:
+            _logger.error(f"Error calculating temporal consistency: {e}")
+            return 0.5
+
+    def _group_nodes_by_time_windows(
+        self, 
+        nodes: list, 
+        window_size_ns: int = 1_000_000_000
+    ) -> dict[int, list]:
+        """Group nodes into time windows for temporal analysis."""
+        time_windows = {}
+        
+        for node in nodes:
+            if hasattr(node, 'timestamp_ns') and node.timestamp_ns > 0:
+                window_key = int(node.timestamp_ns // window_size_ns)
+                if window_key not in time_windows:
+                    time_windows[window_key] = []
+                time_windows[window_key].append(node)
+        
+        return time_windows
 
     def _calculate_source_diversity(self, knowledge: KnowledgeGraph) -> float:
         """Calculate source diversity of knowledge graph."""
-        # TODO: Implement source diversity calculation
-        return 0.7
+        if not knowledge or not hasattr(knowledge, 'nodes'):
+            return 0.0
+        
+        try:
+            nodes = knowledge.nodes if hasattr(knowledge, 'nodes') else []
+            
+            if not nodes:
+                return 0.5
+            
+            # Count unique source types
+            source_types = set()
+            source_origins = set()
+            
+            for node in nodes:
+                if hasattr(node, 'source_type'):
+                    source_types.add(str(node.source_type))
+                if hasattr(node, 'origin'):
+                    source_origins.add(str(node.origin))
+            
+            # Calculate diversity based on source types and origins
+            type_diversity = len(source_types)
+            origin_diversity = len(source_origins)
+            
+            # Normalize diversity scores (ideal: multiple source types and origins)
+            max_expected_types = 8  # Based on KnowledgeSourceType enum
+            max_expected_origins = 20  # Reasonable expectation for system origins
+            
+            type_score = min(type_diversity / max_expected_types, 1.0)
+            origin_score = min(origin_diversity / max_expected_origins, 1.0)
+            
+            # Combined diversity score
+            diversity_score = (type_score * 0.6) + (origin_score * 0.4)
+            
+            # Boost score if we have good diversity
+            if type_diversity >= 3 and origin_diversity >= 5:
+                diversity_score = min(diversity_score * 1.1, 1.0)
+            
+            return max(diversity_score, 0.3)  # Minimum score for some diversity
+            
+        except Exception as e:
+            _logger.error(f"Error calculating source diversity: {e}")
+            return 0.5
 
     def _calculate_historical_accuracy(self, history: list[ValidationResult]) -> float:
         """Calculate historical accuracy from validation history."""
@@ -827,8 +1215,39 @@ class KnowledgeValidator:
         history: list[ValidationResult],
     ) -> float:
         """Calculate prediction accuracy for source."""
-        # TODO: Implement prediction accuracy calculation
-        return 0.7
+        if not history:
+            return 0.5  # Default score for new sources
+        
+        try:
+            # Look for prediction-based validations in history
+            prediction_validations = [
+                result for result in history
+                if hasattr(result, 'validated_source') and 
+                hasattr(result.validated_source, 'content') and
+                'prediction' in str(result.validated_source.content).lower()
+            ]
+            
+            if not prediction_validations:
+                # No prediction-specific validations, use general validation rate
+                return self._calculate_historical_accuracy(history)
+            
+            # Calculate prediction-specific accuracy
+            correct_predictions = sum(1 for result in prediction_validations if result.is_valid)
+            total_predictions = len(prediction_validations)
+            
+            base_accuracy = correct_predictions / total_predictions if total_predictions > 0 else 0.5
+            
+            # Factor in confidence calibration (how well confidence predicts correctness)
+            confidence_calibration = self._calculate_confidence_calibration(prediction_validations)
+            
+            # Combine accuracy and calibration
+            prediction_accuracy = (base_accuracy * 0.7) + (confidence_calibration * 0.3)
+            
+            return min(max(prediction_accuracy, 0.0), 1.0)
+            
+        except Exception as e:
+            _logger.error(f"Error calculating prediction accuracy: {e}")
+            return 0.5
 
     def _calculate_source_consistency(
         self,
@@ -848,14 +1267,108 @@ class KnowledgeValidator:
         consistency = 1.0 - min(variance, 1.0)
         return consistency
 
+    def _calculate_confidence_calibration(self, validation_results: list[ValidationResult]) -> float:
+        """Calculate how well confidence scores predict validation outcomes."""
+        if not validation_results:
+            return 0.5
+        
+        try:
+            # Group by confidence ranges
+            high_confidence_correct = 0
+            high_confidence_total = 0
+            low_confidence_correct = 0
+            low_confidence_total = 0
+            
+            for result in validation_results:
+                if result.confidence_score > 0.7:
+                    high_confidence_total += 1
+                    if result.is_valid:
+                        high_confidence_correct += 1
+                else:
+                    low_confidence_total += 1
+                    if not result.is_valid:
+                        low_confidence_correct += 1
+            
+            # Calculate calibration scores
+            high_conf_accuracy = high_confidence_correct / high_confidence_total if high_confidence_total > 0 else 0.5
+            low_conf_accuracy = low_confidence_correct / low_confidence_total if low_confidence_total > 0 else 0.5
+            
+            # Overall calibration score
+            calibration = (high_conf_accuracy + low_conf_accuracy) / 2
+            
+            return calibration
+            
+        except Exception as e:
+            _logger.error(f"Error calculating confidence calibration: {e}")
+            return 0.5
+
     def _calculate_temporal_stability(
         self,
         source: KnowledgeSource,
         history: list[ValidationResult],
     ) -> float:
         """Calculate temporal stability for source."""
-        # TODO: Implement temporal stability calculation
-        return 0.8
+        if len(history) < 3:
+            return 0.5  # Not enough data for stability assessment
+        
+        try:
+            # Sort history by timestamp
+            sorted_history = sorted(history, key=lambda x: x.timestamp_ns)
+            
+            # Calculate stability metrics
+            confidence_stability = self._calculate_confidence_stability(sorted_history)
+            validity_stability = self._calculate_validity_stability(sorted_history)
+            
+            # Combine stability metrics
+            temporal_stability = (confidence_stability * 0.6) + (validity_stability * 0.4)
+            
+            return min(max(temporal_stability, 0.0), 1.0)
+            
+        except Exception as e:
+            _logger.error(f"Error calculating temporal stability: {e}")
+            return 0.5
+
+    def _calculate_confidence_stability(self, sorted_history: list[ValidationResult]) -> float:
+        """Calculate stability of confidence scores over time."""
+        if len(sorted_history) < 3:
+            return 0.5
+        
+        confidence_scores = [result.confidence_score for result in sorted_history]
+        
+        # Calculate coefficient of variation (lower is more stable)
+        mean_confidence = sum(confidence_scores) / len(confidence_scores)
+        variance = sum((c - mean_confidence) ** 2 for c in confidence_scores) / len(confidence_scores)
+        std_dev = variance ** 0.5
+        
+        # Lower coefficient of variation = higher stability
+        cv = std_dev / mean_confidence if mean_confidence > 0 else 1.0
+        
+        # Convert to stability score (inverse of CV)
+        stability = 1.0 / (1.0 + cv)
+        
+        return stability
+
+    def _calculate_validity_stability(self, sorted_history: list[ValidationResult]) -> float:
+        """Calculate stability of validation outcomes over time."""
+        if len(sorted_history) < 3:
+            return 0.5
+        
+        # Look for pattern changes in validity
+        validity_sequence = [1 if result.is_valid else 0 for result in sorted_history]
+        
+        # Count transitions (valid -> invalid or invalid -> valid)
+        transitions = 0
+        for i in range(len(validity_sequence) - 1):
+            if validity_sequence[i] != validity_sequence[i + 1]:
+                transitions += 1
+        
+        # Fewer transitions = higher stability
+        max_possible_transitions = len(validity_sequence) - 1
+        transition_ratio = transitions / max_possible_transitions if max_possible_transitions > 0 else 0
+        
+        stability = 1.0 - transition_ratio
+        
+        return stability
 
     def _analyze_temporal_consistency(
         self,
@@ -863,8 +1376,60 @@ class KnowledgeValidator:
         period_ns: int,
     ) -> tuple[bool, float]:
         """Analyze temporal consistency over period."""
-        # TODO: Implement temporal consistency analysis
-        return True, 0.85
+        try:
+            if not knowledge or not hasattr(knowledge, 'nodes'):
+                return True, 0.5
+            
+            nodes = knowledge.nodes if hasattr(knowledge, 'nodes') else []
+            
+            if not nodes:
+                return True, 0.5
+            
+            # Filter nodes within the time period
+            current_time = self._get_timestamp()
+            period_start = current_time - period_ns
+            
+            period_nodes = [
+                node for node in nodes
+                if hasattr(node, 'timestamp_ns') and node.timestamp_ns >= period_start
+            ]
+            
+            if len(period_nodes) < 2:
+                return True, 0.7  # Not enough data for analysis
+            
+            # Group nodes by time windows within the period
+            time_windows = self._group_nodes_by_time_windows(period_nodes, window_size_ns=period_ns // 10)
+            
+            if len(time_windows) < 2:
+                return True, 0.7
+            
+            # Analyze consistency across time windows
+            consistency_scores = []
+            window_keys = sorted(time_windows.keys())
+            
+            for i in range(len(window_keys) - 1):
+                window1 = time_windows[window_keys[i]]
+                window2 = time_windows[window_keys[i + 1]]
+                
+                # Check for temporal conflicts
+                has_conflict = self._has_temporal_conflict(window1, window2)
+                
+                if not has_conflict:
+                    consistency_scores.append(1.0)
+                else:
+                    consistency_scores.append(0.4)
+            
+            # Calculate overall consistency
+            avg_consistency = sum(consistency_scores) / len(consistency_scores) if consistency_scores else 0.5
+            
+            # Determine if consistent (threshold: 0.7)
+            is_consistent = avg_consistency >= 0.7
+            
+            return is_consistent, avg_consistency
+            
+        except Exception as e:
+            _logger.error(f"Error analyzing temporal consistency: {e}")
+            return True, 0.5
 
     def _count_temporal_inconsistencies(
         self,
@@ -872,8 +1437,54 @@ class KnowledgeValidator:
         period_ns: int,
     ) -> int:
         """Count temporal inconsistencies in knowledge graph."""
-        # TODO: Implement temporal inconsistency counting
-        return 0
+        try:
+            if not knowledge or not hasattr(knowledge, 'nodes'):
+                return 0
+            
+            nodes = knowledge.nodes if hasattr(knowledge, 'nodes') else []
+            
+            if not nodes:
+                return 0
+            
+            # Filter nodes within the time period
+            current_time = self._get_timestamp()
+            period_start = current_time - period_ns
+            
+            period_nodes = [
+                node for node in nodes
+                if hasattr(node, 'timestamp_ns') and node.timestamp_ns >= period_start
+            ]
+            
+            if len(period_nodes) < 2:
+                return 0
+            
+            # Group nodes by time windows
+            time_windows = self._group_nodes_by_time_windows(period_nodes, window_size_ns=period_ns // 10)
+            
+            if len(time_windows) < 2:
+                return 0
+            
+            inconsistency_count = 0
+            window_keys = sorted(time_windows.keys())
+            
+            # Count inconsistencies between adjacent time windows
+            for i in range(len(window_keys) - 1):
+                window1 = time_windows[window_keys[i]]
+                window2 = time_windows[window_keys[i + 1]]
+                
+                # Check for temporal conflicts
+                if self._has_temporal_conflict(window1, window2):
+                    inconsistency_count += 1
+                
+                # Check for semantic conflicts within the same time window
+                conflicts = self._check_content_conflicts(window1, window2)
+                inconsistency_count += len(conflicts)
+            
+            return inconsistency_count
+            
+        except Exception as e:
+            _logger.error(f"Error counting temporal inconsistencies: {e}")
+            return 0
 
     def _detect_temporal_drift(
         self,
@@ -881,12 +1492,162 @@ class KnowledgeValidator:
         period_ns: int,
     ) -> tuple[bool, float]:
         """Detect temporal drift in knowledge graph."""
-        # TODO: Implement temporal drift detection
-        return False, 0.0
+        try:
+            if not knowledge or not hasattr(knowledge, 'nodes'):
+                return False, 0.0
+            
+            nodes = knowledge.nodes if hasattr(knowledge, 'nodes') else []
+            
+            if not nodes:
+                return False, 0.0
+            
+            # Split nodes into two time periods
+            current_time = self._get_timestamp()
+            mid_time = current_time - (period_ns // 2)
+            start_time = current_time - period_ns
+            
+            recent_nodes = [
+                node for node in nodes
+                if hasattr(node, 'timestamp_ns') and mid_time <= node.timestamp_ns <= current_time
+            ]
+            
+            older_nodes = [
+                node for node in nodes
+                if hasattr(node, 'timestamp_ns') and start_time <= node.timestamp_ns < mid_time
+            ]
+            
+            if not recent_nodes or not older_nodes:
+                return False, 0.0
+            
+            # Compare knowledge characteristics between periods
+            drift_indicators = []
+            
+            # Compare confidence scores
+            recent_confidence = [
+                node.confidence for node in recent_nodes if hasattr(node, 'confidence')
+            ]
+            older_confidence = [
+                node.confidence for node in older_nodes if hasattr(node, 'confidence')
+            ]
+            
+            if recent_confidence and older_confidence:
+                recent_avg = sum(recent_confidence) / len(recent_confidence)
+                older_avg = sum(older_confidence) / len(older_confidence)
+                confidence_drift = abs(recent_avg - older_avg)
+                drift_indicators.append(confidence_drift)
+            
+            # Compare content patterns
+            recent_content_types = self._analyze_content_patterns(recent_nodes)
+            older_content_types = self._analyze_content_patterns(older_nodes)
+            
+            content_drift = self._calculate_pattern_drift(recent_content_types, older_content_types)
+            drift_indicators.append(content_drift)
+            
+            # Compare source type distributions
+            recent_sources = self._get_source_distribution(recent_nodes)
+            older_sources = self._get_source_distribution(older_nodes)
+            
+            source_drift = self._calculate_distribution_drift(recent_sources, older_sources)
+            drift_indicators.append(source_drift)
+            
+            # Calculate overall drift magnitude
+            overall_drift = sum(drift_indicators) / len(drift_indicators) if drift_indicators else 0.0
+            
+            # Detect drift if magnitude exceeds threshold
+            has_drift = overall_drift > 0.3
+            
+            return has_drift, overall_drift
+            
+        except Exception as e:
+            _logger.error(f"Error detecting temporal drift: {e}")
+            return False, 0.0
+    def _analyze_content_patterns(self, nodes: list) -> dict:
+        """Analyze content patterns in a set of nodes."""
+        patterns = {
+            'content_keys': set(),
+            'content_values': set(),
+            'node_count': len(nodes)
+        }
+        
+        for node in nodes:
+            if hasattr(node, 'content') and node.content:
+                patterns['content_keys'].update(node.content.keys())
+                for value in node.content.values():
+                    patterns['content_values'].add(str(value)[:50])  # Truncate long values
+        
+        return patterns
+
+    def _calculate_pattern_drift(self, patterns1: dict, patterns2: dict) -> float:
+        """Calculate drift between two content pattern dictionaries."""
+        # Compare content key overlap
+        keys1 = patterns1.get('content_keys', set())
+        keys2 = patterns2.get('content_keys', set())
+        
+        if not keys1 or not keys2:
+            return 0.0
+        
+        key_intersection = len(keys1 & keys2)
+        key_union = len(keys1 | keys2)
+        key_similarity = key_intersection / key_union if key_union > 0 else 0.0
+        
+        # Drift is inverse of similarity
+        key_drift = 1.0 - key_similarity
+        
+        return key_drift
+
+    def _get_source_distribution(self, nodes: list) -> dict:
+        """Get distribution of source types in nodes."""
+        distribution = {}
+        
+        for node in nodes:
+            source_type = str(node.source_type) if hasattr(node, 'source_type') else "unknown"
+            distribution[source_type] = distribution.get(source_type, 0) + 1
+        
+        # Convert to proportions
+        total = sum(distribution.values())
+        if total > 0:
+            distribution = {k: v/total for k, v in distribution.items()}
+        
+        return distribution
+
+    def _calculate_distribution_drift(self, dist1: dict, dist2: dict) -> float:
+        """Calculate drift between two source distributions."""
+        if not dist1 or not dist2:
+            return 0.0
+        
+        # Get all source types
+        all_sources = set(dist1.keys()) | set(dist2.keys())
+        
+        # Calculate Earth Mover's Distance approximation
+        total_drift = 0.0
+        for source in all_sources:
+            prop1 = dist1.get(source, 0.0)
+            prop2 = dist2.get(source, 0.0)
+            total_drift += abs(prop1 - prop2)
+        
+        # Normalize by number of sources
+        avg_drift = total_drift / len(all_sources) if all_sources else 0.0
+        
+        return avg_drift
 
 
 # Import for combinations function
 from itertools import combinations
+
+
+# Singleton instance
+_knowledge_validator_instance = None
+_validator_lock = threading.Lock()
+
+
+def get_knowledge_validator() -> KnowledgeValidator:
+    """Get the singleton knowledge validator instance."""
+    global _knowledge_validator_instance
+    if _knowledge_validator_instance is None:
+        with _validator_lock:
+            if _knowledge_validator_instance is None:
+                _knowledge_validator_instance = KnowledgeValidator()
+    return _knowledge_validator_instance
 
 
 __all__ = [

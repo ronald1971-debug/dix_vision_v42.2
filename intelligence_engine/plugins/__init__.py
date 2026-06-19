@@ -1,56 +1,31 @@
-"""Stub main plugins."""
+"""Real intelligence engine plugins for DIX VISION v42.2.
 
-class MicrostructureV1:
-    """Stub microstructure v1."""
-    def __init__(self, **kwargs: object):
-        pass
+All plugins are real implementations with ACTIVE lifecycle.
+Stubs have been replaced with concrete trading signal generators.
+"""
 
-class FootprintDeltaV1:
-    """Stub footprint delta v1."""
-    def __init__(self, **kwargs: object):
-        pass
+from intelligence_engine.plugins.footprint_delta.v1 import FootprintDeltaV1
+from intelligence_engine.plugins.liquidity_physics.v1 import LiquidityPhysicsV1
+from intelligence_engine.plugins.microstructure.microstructure_v1 import MicrostructureV1
+from intelligence_engine.plugins.news_reaction.v1 import NewsReactionV1
+from intelligence_engine.plugins.on_chain_pulse.v1 import OnChainPulseV1
+from intelligence_engine.plugins.order_book_pressure.v1 import OrderBookPressureV1
+from intelligence_engine.plugins.orderflow_imbalance.v1 import OrderflowImbalanceV1
+from intelligence_engine.plugins.regime_classifier.v1 import RegimeClassifierV1
+from intelligence_engine.plugins.sentiment_aggregator.v1 import SentimentAggregatorV1
+from intelligence_engine.plugins.trader_imitation.v1 import TraderImitationV1
+from intelligence_engine.plugins.vpin_imbalance.v1 import VpinImbalanceV1
 
-class LiquidityPhysicsV1:
-    """Stub liquidity physics v1."""
-    def __init__(self, **kwargs: object):
-        pass
-
-class NewsReactionV1:
-    """Stub news reaction v1."""
-    def __init__(self, **kwargs: object):
-        pass
-
-class OnChainPulseV1:
-    """Stub on-chain pulse v1."""
-    def __init__(self, **kwargs: object):
-        pass
-
-class OrderBookPressureV1:
-    """Stub order book pressure v1."""
-    def __init__(self, **kwargs: object):
-        pass
-
-class OrderflowImbalanceV1:
-    """Stub orderflow imbalance v1."""
-    def __init__(self, **kwargs: object):
-        pass
-
-class RegimeClassifierV1:
-    """Stub regime classifier v1."""
-    def __init__(self, **kwargs: object):
-        pass
-
-class SentimentAggregatorV1:
-    """Stub sentiment aggregator v1."""
-    def __init__(self, **kwargs: object):
-        pass
-
-class TraderImitationV1:
-    """Stub trader imitation v1."""
-    def __init__(self, **kwargs: object):
-        pass
-
-class VpinImbalanceV1:
-    """Stub vpin imbalance v1."""
-    def __init__(self, **kwargs: object):
-        pass
+__all__ = [
+    "FootprintDeltaV1",
+    "LiquidityPhysicsV1",
+    "MicrostructureV1",
+    "NewsReactionV1",
+    "OnChainPulseV1",
+    "OrderBookPressureV1",
+    "OrderflowImbalanceV1",
+    "RegimeClassifierV1",
+    "SentimentAggregatorV1",
+    "TraderImitationV1",
+    "VpinImbalanceV1",
+]

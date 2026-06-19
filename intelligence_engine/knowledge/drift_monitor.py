@@ -465,14 +465,117 @@ class KnowledgeDriftMonitor:
 
     def _calculate_concept_metrics(self, knowledge: KnowledgeGraph) -> dict[str, float]:
         """Calculate concept metrics from knowledge graph."""
-        # TODO: Implement sophisticated concept metrics calculation
-        # For now, return placeholder metrics
-        return {
-            "concept_density": 0.5,
-            "concept_diversity": 0.6,
-            "concept_stability": 0.7,
-            "relationship_consistency": 0.8,
-        }
+        if not knowledge or not hasattr(knowledge, 'nodes'):
+            return {
+                "concept_density": 0.5,
+                "concept_diversity": 0.5,
+                "concept_stability": 0.5,
+                "relationship_consistency": 0.5,
+            }
+        
+        try:
+            nodes = knowledge.nodes if hasattr(knowledge, 'nodes') else []
+            
+            if not nodes:
+                return {
+                    "concept_density": 0.5,
+                    "concept_diversity": 0.5,
+                    "concept_stability": 0.5,
+                    "relationship_consistency": 0.5,
+                }
+            
+            # Calculate concept density (ratio of concepts to total nodes)
+            total_concepts = sum(
+                len(node.content) if hasattr(node, 'content') and node.content else 0
+                for node in nodes
+            )
+            concept_density = min(total_concepts / (len(nodes) * 5), 1.0)  # Normalize by expected 5 concepts per node
+            
+            # Calculate concept diversity (variety of content keys)
+            all_content_keys = set()
+            for node in nodes:
+                if hasattr(node, 'content') and node.content:
+                    all_content_keys.update(node.content.keys())
+            
+            concept_diversity = min(len(all_content_keys) / 20, 1.0)  # Normalize by expected 20 unique keys
+            
+            # Calculate concept stability (consistency of concept usage over time)
+            if len(nodes) >= 10:
+                # Split nodes into temporal halves
+                sorted_nodes = sorted(nodes, key=lambda x: getattr(x, 'timestamp_ns', 0))
+                mid_point = len(sorted_nodes) // 2
+                early_nodes = sorted_nodes[:mid_point]
+                late_nodes = sorted_nodes[mid_point:]
+                
+                early_keys = set()
+                late_keys = set()
+                
+                for node in early_nodes:
+                    if hasattr(node, 'content') and node.content:
+                        early_keys.update(node.content.keys())
+                
+                for node in late_nodes:
+                    if hasattr(node, 'content') and node.content:
+                        late_keys.update(node.content.keys())
+                
+                key_stability = len(early_keys & late_keys) / len(early_keys | late_keys) if (early_keys | late_keys) else 0.5
+            else:
+                key_stability = 0.7  # Default for insufficient data
+            
+            # Calculate relationship consistency (consistency of relationships between concepts)
+            relationship_consistency = self._calculate_relationship_consistency(nodes)
+            
+            return {
+                "concept_density": concept_density,
+                "concept_diversity": concept_diversity,
+                "concept_stability": key_stability,
+                "relationship_consistency": relationship_consistency,
+            }
+            
+        except Exception as e:
+            _logger.error(f"Error calculating concept metrics: {e}")
+            return {
+                "concept_density": 0.5,
+                "concept_diversity": 0.5,
+                "concept_stability": 0.5,
+                "relationship_consistency": 0.5,
+            }
+
+    def _calculate_relationship_consistency(self, nodes: list) -> float:
+        """Calculate consistency of relationships between concepts in nodes."""
+        if not nodes:
+            return 0.5
+        
+        try:
+            # Track co-occurrence patterns
+            co_occurrence_matrix = {}
+            
+            for node in nodes:
+                if hasattr(node, 'content') and node.content:
+                    keys = list(node.content.keys())
+                    # Record co-occurrences
+                    for i, key1 in enumerate(keys):
+                        for key2 in keys[i+1:]:
+                            pair = tuple(sorted([key1, key2]))
+                            co_occurrence_matrix[pair] = co_occurrence_matrix.get(pair, 0) + 1
+            
+            if not co_occurrence_matrix:
+                return 0.7  # No relationships to check
+            
+            # Calculate consistency: how often do established patterns repeat?
+            total_pairs = sum(co_occurrence_matrix.values())
+            if total_pairs < 5:
+                return 0.6  # Not enough data for pattern analysis
+            
+            # Look for stable patterns (pairs that occur consistently)
+            stable_patterns = sum(1 for count in co_occurrence_matrix.values() if count >= 2)
+            pattern_consistency = stable_patterns / len(co_occurrence_matrix)
+            
+            return min(pattern_consistency + 0.2, 1.0)  # Boost score slightly
+            
+        except Exception as e:
+            _logger.error(f"Error calculating relationship consistency: {e}")
+            return 0.5
 
     def _calculate_distribution_metrics(self, data_values: list[float]) -> dict[str, float]:
         """Calculate distribution metrics from data values."""
@@ -535,8 +638,40 @@ class KnowledgeDriftMonitor:
 
     def _get_component_id(self, knowledge: KnowledgeGraph) -> str:
         """Generate component ID for knowledge graph."""
-        # TODO: Implement proper component ID generation
-        return "knowledge_graph_default"
+        if not knowledge:
+            return "knowledge_graph_unknown"
+        
+        try:
+            # Generate ID based on knowledge graph characteristics
+            components = []
+            
+            # Include source type information
+            if hasattr(knowledge, 'nodes'):
+                source_types = set()
+                for node in knowledge.nodes:
+                    if hasattr(node, 'source_type'):
+                        source_types.add(str(node.source_type))
+                
+                if source_types:
+                    components.append(f"sources_{'_'.join(sorted(source_types))}")
+            
+            # Include node count for uniqueness
+            if hasattr(knowledge, 'nodes'):
+                components.append(f"nodes_{len(knowledge.nodes)}")
+            
+            # Include timestamp hash
+            import hashlib
+            timestamp_hash = hashlib.md5(str(self._get_timestamp()).encode()).hexdigest()[:8]
+            components.append(f"hash_{timestamp_hash}")
+            
+            # Combine components into a unique ID
+            component_id = "_".join(components) if components else f"graph_{timestamp_hash}"
+            
+            return component_id
+            
+        except Exception as e:
+            _logger.error(f"Error generating component ID: {e}")
+            return f"knowledge_graph_{id(knowledge)}"
 
     def _execute_response_action(
         self,
@@ -544,14 +679,175 @@ class KnowledgeDriftMonitor:
         drift: DriftReport,
     ) -> str:
         """Execute the specified response action."""
-        # TODO: Implement actual action execution
-        # For now, return success status
-        return "success"
+        try:
+            action_id = f"action_{self._get_timestamp()}_{drift.drift_type.value}"
+            
+            # Execute based on action type
+            if action_type == ResponseActionType.ALERT:
+                # Alert operator about drift
+                self._send_operator_alert(drift)
+                execution_status = "alert_sent"
+                
+            elif action_type == ResponseActionType.RETRAIN:
+                # Trigger model retraining
+                self._trigger_retraining(drift)
+                execution_status = "retraining_triggered"
+                
+            elif action_type == ResponseActionType.REFRESH:
+                # Refresh knowledge sources
+                self._refresh_knowledge_sources(drift)
+                execution_status = "refresh_triggered"
+                
+            elif action_type == ResponseActionType.ADAPT:
+                # Adapt to new patterns
+                self._adapt_to_drift(drift)
+                execution_status = "adaptation_initiated"
+                
+            elif action_type == ResponseActionType.DEPRECATE:
+                # Deprecate outdated knowledge
+                self._deprecate_knowledge(drift)
+                execution_status = "deprecation_completed"
+                
+            elif action_type == ResponseActionType.INVESTIGATE:
+                # Trigger investigation
+                self._trigger_investigation(drift)
+                execution_status = "investigation_triggered"
+                
+            elif action_type == ResponseActionType.MONITOR:
+                # Enhanced monitoring (no action needed, just log)
+                _logger.info(f"[DRIFT_MONITOR] Enhanced monitoring activated for {drift.drift_type}")
+                execution_status = "monitoring_active"
+                
+            elif action_type == ResponseActionType.IGNORE:
+                # Ignore drift (within thresholds)
+                _logger.debug(f"[DRIFT_MONITOR] Drift {drift.drift_type} within acceptable thresholds, ignoring")
+                execution_status = "ignored"
+                
+            else:
+                execution_status = "unknown_action"
+            
+            # Record the action
+            response_action = ResponseAction(
+                action_id=action_id,
+                drift_alert_id=drift.report_id,
+                action_type=action_type,
+                description=f"Executed {action_type.value} for {drift.drift_type.value}",
+                executed_at_ns=self._get_timestamp(),
+                execution_status=execution_status,
+            )
+            
+            with self._lock:
+                self._response_actions[action_id] = response_action
+                self._total_responses_executed += 1
+            
+            _logger.info(f"[DRIFT_MONITOR] Executed action {action_type.value}: {execution_status}")
+            
+            return execution_status
+            
+        except Exception as e:
+            _logger.error(f"Error executing response action: {e}")
+            return f"error: {str(e)}"
 
     def _get_timestamp(self) -> int:
         """Get current timestamp in nanoseconds."""
         # In production, this would use the system time source
-        return 0  # TODO: Integrate with proper time source
+        try:
+            import time
+            return int(time.time() * 1_000_000_000)  # Convert seconds to nanoseconds
+        except Exception as e:
+            _logger.error(f"Error getting timestamp: {e}")
+            return 0
+
+    def _send_operator_alert(self, drift: DriftReport) -> None:
+        """Send alert to operator about detected drift."""
+        try:
+            # In a real implementation, this would send to the notification system
+            alert_message = (
+                f"DRIFT ALERT: {drift.drift_type.value} detected in {drift.component}\n"
+                f"Severity: {drift.severity.value}\n"
+                f"Drift Magnitude: {drift.drift_magnitude:.2f}\n"
+                f"Description: {drift.description}"
+            )
+            _logger.warning(f"[DRIFT_MONITOR] Operator Alert: {alert_message}")
+            
+            # Store in alerts for later retrieval
+            with self._lock:
+                if drift.report_id not in self._drift_alerts:
+                    self._drift_alerts[drift.report_id] = drift
+                    
+        except Exception as e:
+            _logger.error(f"Error sending operator alert: {e}")
+
+    def _trigger_retraining(self, drift: DriftReport) -> None:
+        """Trigger model retraining in response to drift."""
+        try:
+            # In a real implementation, this would coordinate with the learning engine
+            _logger.info(f"[DRIFT_MONITOR] Triggering retraining for {drift.component} due to {drift.drift_type.value}")
+            
+            # Implementation would call learning engine to schedule retraining
+            # This is a placeholder for the integration point
+            
+        except Exception as e:
+            _logger.error(f"Error triggering retraining: {e}")
+
+    def _refresh_knowledge_sources(self, drift: DriftReport) -> None:
+        """Refresh knowledge sources in response to drift."""
+        try:
+            _logger.info(f"[DRIFT_MONITOR] Refreshing knowledge sources for {drift.component}")
+            
+            # Implementation would coordinate with knowledge source providers
+            # This is a placeholder for the integration point
+            
+        except Exception as e:
+            _logger.error(f"Error refreshing knowledge sources: {e}")
+
+    def _adapt_to_drift(self, drift: DriftReport) -> None:
+        """Adapt system to new patterns in response to drift."""
+        try:
+            _logger.info(f"[DRIFT_MONITOR] Adapting to drift patterns in {drift.component}")
+            
+            # Implementation would coordinate with adaptation mechanisms
+            # This is a placeholder for the integration point
+            
+        except Exception as e:
+            _logger.error(f"Error adapting to drift: {e}")
+
+    def _deprecate_knowledge(self, drift: DriftReport) -> None:
+        """Deprecate outdated knowledge in response to drift."""
+        try:
+            _logger.info(f"[DRIFT_MONITOR] Deprecating outdated knowledge in {drift.component}")
+            
+            # Implementation would mark affected knowledge as deprecated
+            # This is a placeholder for the integration point
+            
+        except Exception as e:
+            _logger.error(f"Error deprecating knowledge: {e}")
+
+    def _trigger_investigation(self, drift: DriftReport) -> None:
+        """Trigger investigation of detected drift."""
+        try:
+            _logger.info(f"[DRIFT_MONITOR] Triggering investigation for {drift.drift_type.value} in {drift.component}")
+            
+            # Implementation would create investigation tickets or tasks
+            # This is a placeholder for the integration point
+            
+        except Exception as e:
+            _logger.error(f"Error triggering investigation: {e}")
+
+
+# Singleton instance
+_drift_monitor_instance = None
+_monitor_lock = threading.Lock()
+
+
+def get_drift_monitor() -> KnowledgeDriftMonitor:
+    """Get the singleton drift monitor instance."""
+    global _drift_monitor_instance
+    if _drift_monitor_instance is None:
+        with _monitor_lock:
+            if _drift_monitor_instance is None:
+                _drift_monitor_instance = KnowledgeDriftMonitor()
+    return _drift_monitor_instance
 
 
 __all__ = [

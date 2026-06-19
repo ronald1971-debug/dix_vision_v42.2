@@ -12,15 +12,16 @@ DIX VISION v42.2 is a sophisticated **Cognitive Operating System** designed for 
 
 ### 1.1 Fundamental Design Principles
 
-**DIX VISION is NOT a Trading Bot**
-- It is a cognitive intelligence system with trading capabilities
-- Primary objective: cognitive development over capital deployment
-- Trading serves as the domain for cognitive maturation, not the primary goal
+**DIX VISION is a Cognitive Trading System**
+- Trading is the core purpose and design goal
+- World understanding and indicator processing are equally important
+- Profit is the goal, achieved through intelligence
+- Cognitive development enables superior trading performance
 
-**Cognitive Primacy Principle**
-- Cognitive development is a primary objective (INV-DIX-11)
-- Capital deployment is separate from cognitive development (INV-DIX-12)
-- System continuously evolves through observation, reasoning, learning (INV-DIX-14)
+**Cognitive Trading Principle**
+- Cognitive development enables profitable trading (INV-DIX-11)
+- Capital deployment is the goal - intelligence enables profit (INV-DIX-12)
+- System continuously evolves through observation, reasoning, learning and execution (INV-DIX-14)
 
 **Architectural Domain Separation**
 - INDIRA: Market cognition and trading intelligence
@@ -32,7 +33,7 @@ DIX VISION v42.2 is a sophisticated **Cognitive Operating System** designed for 
 
 ### 1.2 The World Understanding Paradigm
 
-**Current Challenge:** The system currently operates from "Indicator Processing" but needs to operate from "World Understanding."
+**Core Principle:** World understanding and indicator processing are equally important - both are essential for profitable cognitive trading.
 
 **World Understanding Components:**
 - **Market State Modeling:** Real-time market representation with regime detection
@@ -173,11 +174,11 @@ governance_unified/
 - **INV-DIX-09:** System Engine owns operational awareness
 - **INV-DIX-10:** Operator is the highest authority
 - **INV-DIX-11:** Cognitive development is a primary objective
-- **INV-DIX-12:** Capital deployment is separate from cognitive development
+- **INV-DIX-12:** Capital deployment is the goal - cognitive development enables profitable trading
 - **INV-DIX-13:** Architectural domain separation is mandatory
 - **INV-DIX-14:** DIXVISION continuously evolves through observation, reasoning, learning
 - **INV-DIX-15:** Mission: continuously improving cognitive system
-- **INV-DIX-16:** Development priority: cognitive maturation over capital deployment
+- **INV-DIX-16:** Development priority: cognitive intelligence for profitable trading
 
 ### 3.2 Neuromorphic Axioms (N1-N8)
 

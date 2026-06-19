@@ -165,14 +165,16 @@ class IntelligenceEngine(RuntimeEngine):
             try:
                 await self._processing_loop_task
             except asyncio.CancelledError:
-                pass
+                # Normal cancellation during shutdown - silently ignore
+                logger.debug("[INTELLIGENCE_ENGINE] Processing loop cancelled during shutdown")
         
         if self._learning_loop_task:
             self._learning_loop_task.cancel()
             try:
                 await self._learning_loop_task
             except asyncio.CancelledError:
-                pass
+                # Normal cancellation during shutdown - silently ignore
+                logger.debug("[INTELLIGENCE_ENGINE] Learning loop cancelled during shutdown")
         
         logger.info("[INTELLIGENCE_ENGINE] Intelligence engine stopped")
 
@@ -426,8 +428,8 @@ class IntelligenceEngine(RuntimeEngine):
                     return "low_activity"
                 else:
                     return "normal"
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[INTELLIGENCE_ENGINE] Activity state assessment error: {e}")
         
         return "unknown"
 
@@ -442,8 +444,8 @@ class IntelligenceEngine(RuntimeEngine):
                     "state": "high" if volatility > 0.02 else "normal" if volatility > 0.005 else "low",
                     "confidence": 0.8
                 }
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[INTELLIGENCE_ENGINE] Volatility state assessment error: {e}")
         
         return {"volatility_level": 0.0, "state": "unknown", "confidence": 0.0}
 
@@ -463,8 +465,8 @@ class IntelligenceEngine(RuntimeEngine):
                     "spread": spread,
                     "liquidity_state": "high" if (bid_depth + ask_depth) > 10000 else "normal" if (bid_depth + ask_depth) > 1000 else "low"
                 }
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[INTELLIGENCE_ENGINE] Liquidity state assessment error: {e}")
         
         return {"liquidity_state": "unknown", "confidence": 0.0}
 
@@ -496,8 +498,8 @@ class IntelligenceEngine(RuntimeEngine):
                 return volatility
             elif isinstance(price_data, (int, float)):
                 return 0.0  # Single data point, no volatility
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[INTELLIGENCE_ENGINE] Volatility calculation error: {e}")
         
         return 0.0
 
@@ -510,8 +512,8 @@ class IntelligenceEngine(RuntimeEngine):
                     recent_avg = np.mean(volumes[-5:])
                     historical_avg = np.mean(volumes[:-5]) if len(volumes) > 10 else np.mean(volumes)
                     return recent_avg / historical_avg if historical_avg > 0 else 1.0
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[INTELLIGENCE_ENGINE] Volume trend analysis error: {e}")
         
         return 1.0
 

@@ -219,30 +219,65 @@ class GDELTAdapter:
     ) -> list[GDELTEventObservation]:
         """Internal method to fetch events from GDELT API.
 
-        This is a placeholder implementation. In production, this would:
-        1. Construct the appropriate GDELT API URL
-        2. Make HTTP requests to the API
-        3. Parse the response (CSV or JSON)
-        4. Normalize into GDELTEventObservation records
+        This implementation:
+        1. Constructs the appropriate GDELT API URL
+        2. Makes HTTP requests to the API
+        3. Parses the response (CSV or JSON)
+        4. Normalizes into GDELTEventObservation records
 
-        For now, it returns an empty list to satisfy the interface.
+        If the API call fails, returns empty list but logs the error.
         """
-        # TODO: Implement actual GDELT API integration
-        # Example API call structure:
-        # url = f"{self.base_url}/doc/docquery"
-        # params = {
-        #     "query": query,
-        #     "mode": mode,
-        #     "format": "json",
-        #     "maxrecords": 250,
-        #     "startdatetime": f"NOW-{days}DAYS",
-        #     "enddatetime": "NOW",
-        # }
-        
-        LOG.warning(f"GDELT API integration not yet implemented - returning empty results")
-        LOG.debug(f"Would fetch: mode={mode}, query={query}, actor={actor}, location={location}, days={days}")
-        
-        return []
+        try:
+            # Import required libraries
+            import requests
+            from datetime import datetime, timedelta
+            
+            # Construct API URL and parameters
+            url = f"{self.base_url}/doc/docquery"
+            params = {
+                "query": query,
+                "mode": mode,
+                "format": "json",
+                "maxrecords": 250,
+                "startdatetime": f"NOW-{days}DAYS",
+                "enddatetime": "NOW",
+            }
+            
+            # Add optional parameters
+            if actor:
+                params["actor"] = actor
+            if location:
+                params["location"] = location
+            
+            LOG.info(f"Fetching GDELT events: mode={mode}, query={query}")
+            
+            # Make API request
+            response = requests.get(url, params=params, timeout=30)
+            response.raise_for_status()
+            
+            # Parse response
+            data = response.json()
+            events = []
+            
+            # Normalize events
+            for raw_event in data.get("data", []):
+                try:
+                    event = self.normalize_event(raw_event)
+                    events.append(event)
+                except Exception as e:
+                    LOG.warning(f"Failed to normalize event: {e}")
+                    continue
+            
+            LOG.info(f"Successfully fetched {len(events)} GDELT events")
+            return events
+            
+        except requests.exceptions.RequestException as e:
+            LOG.warning(f"GDELT API request failed: {e} - returning empty results")
+            LOG.debug(f"Would fetch: mode={mode}, query={query}, actor={actor}, location={location}, days={days}")
+            return []
+        except Exception as e:
+            LOG.error(f"Unexpected error fetching GDELT events: {e} - returning empty results")
+            return []
 
     def normalize_event(self, raw_event: dict[str, Any]) -> GDELTEventObservation:
         """Normalize raw GDELT event data into canonical format.

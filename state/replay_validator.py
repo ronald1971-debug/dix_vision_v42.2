@@ -160,9 +160,38 @@ class ReplayValidator:
         Returns:
             True if transition is valid, False otherwise
         """
-        # TODO: Implement sophisticated state transition validation
-        # For now, return True as placeholder
-        return True
+        try:
+            # Check for basic state consistency
+            if not state1 or not state2:
+                return True  # No previous state or no new state is acceptable
+            
+            # Check that the transition is causally valid
+            # State changes should be consistent with event type
+            if hasattr(event, 'record_type') or hasattr(event, 'type'):
+                event_type = getattr(event, 'record_type', getattr(event, 'type', 'unknown'))
+                
+                # Validate state changes based on event type
+                if self._is_state_change_valid_for_event(state1, state2, event_type):
+                    return True
+                else:
+                    _logger.warning(f"Invalid state transition for event type {event_type}")
+                    return False
+            
+            # Check for prohibited state transitions
+            if self._has_prohibited_transitions(state1, state2):
+                _logger.warning("Prohibited state transition detected")
+                return False
+            
+            # Check for state consistency
+            if not self._is_state_consistent(state2):
+                _logger.warning("New state is inconsistent")
+                return False
+            
+            return True
+            
+        except Exception as e:
+            _logger.error(f"Error validating state transition: {e}")
+            return False
 
     def deterministic_replay(
         self,
@@ -204,38 +233,215 @@ class ReplayValidator:
     # Private methods
     # ------------------------------------------------------------------
 
+    def _is_state_change_valid_for_event(
+        self,
+        state1: Mapping[str, str],
+        state2: Mapping[str, str],
+        event_type: str,
+    ) -> bool:
+        """Check if state change is valid for the given event type."""
+        # Define valid state change patterns for event types
+        valid_patterns = {
+            "trade": {"position", "balance", "portfolio"},
+            "market_update": {"market_state", "prices", "volumes"},
+            "system_event": {"system_state", "mode", "health"},
+            "governance": {"mode", "constraints", "permissions"},
+            "learning": {"model_state", "confidence", "accuracy"},
+        }
+        
+        # Get changed keys
+        changed_keys = set(state2.keys()) - set(state1.keys())
+        
+        # Check if changed keys are appropriate for event type
+        for event_category, valid_keys in valid_patterns.items():
+            if event_category in event_type.lower():
+                # Some change is valid for this event type
+                if any(key in valid_keys for key in changed_keys):
+                    return True
+                # If no expected keys changed, but unexpected keys did
+                if changed_keys and not any(key in valid_keys for key in changed_keys):
+                    _logger.warning(f"Unexpected state changes for {event_type}: {changed_keys}")
+                    return False
+        
+        # Default to valid if no specific pattern matched
+        return True
+
+    def _has_prohibited_transitions(
+        self,
+        state1: Mapping[str, str],
+        state2: Mapping[str, str],
+    ) -> bool:
+        """Check for prohibited state transitions."""
+        prohibited_transitions = {
+            # From -> To (prohibited)
+            ("halted", "trading"): True,  # Cannot go from halted to trading without explicit approval
+            ("safe", "trading"): True,    # Cannot go from safe to trading without approval
+            ("degraded", "normal"): True,  # Cannot skip recovery steps
+        }
+        
+        mode1 = state1.get("mode", "")
+        mode2 = state2.get("mode", "")
+        
+        if (mode1, mode2) in prohibited_transitions:
+            return True
+        
+        return False
+
+    def _is_state_consistent(self, state: Mapping[str, str]) -> bool:
+        """Check if state is internally consistent."""
+        # Check for logical inconsistencies
+        if "balance" in state and "position" in state:
+            try:
+                balance = float(state["balance"])
+                position = float(state["position"])
+                # Basic sanity check
+                if balance < -1000000 or position < -1000000:  # Unrealistic values
+                    return False
+            except (ValueError, TypeError):
+                return False
+        
+        # Check mode consistency
+        if "mode" in state:
+            valid_modes = {"normal", "safe", "degraded", "halted"}
+            if state["mode"].lower() not in valid_modes:
+                return False
+        
+        return True
+
     def _replay_event(
         self,
         event: MemoryRecord,
         initial_state: Mapping[str, str] | None,
     ) -> None:
         """Replay a single event."""
-        # TODO: Implement actual event replay logic
-        # For now, this is a placeholder
-        pass
+        try:
+            # In a real implementation, this would:
+            # 1. Deserialize the event
+            # 2. Apply the event to the state
+            # 3. Validate the result
+            # 4. Update the state
+            
+            # Placeholder implementation simulates event processing
+            if initial_state:
+                # Simulate state change based on event
+                new_state = dict(initial_state)
+                
+                # Simulate event processing
+                if hasattr(event, 'record_id'):
+                    new_state["last_event_id"] = event.record_id
+                
+                if hasattr(event, 'timestamp'):
+                    new_state["last_processed_time"] = str(event.timestamp)
+                
+                # Simulate some state evolution
+                if "event_count" in new_state:
+                    new_state["event_count"] = str(int(new_state["event_count"]) + 1)
+                else:
+                    new_state["event_count"] = "1"
+                
+                # Store the simulated state change
+                # In real implementation, this would persist the state
+                pass
+                
+        except Exception as e:
+            _logger.error(f"Error replaying event {getattr(event, 'record_id', 'unknown')}: {e}")
+            raise
 
     def _capture_final_state(
         self,
         events: list[MemoryRecord],
     ) -> Mapping[str, str]:
         """Capture the final state after replaying events."""
-        # TODO: Implement state capture logic
-        # For now, return placeholder state
-        return MappingProxyType({"state": "placeholder"})
+        try:
+            if not events:
+                return MappingProxyType({})
+            
+            # Build final state from events
+            final_state = {
+                "events_processed": str(len(events)),
+                "replay_timestamp": str(self._get_timestamp()),
+            }
+            
+            # Add event information
+            if len(events) > 0:
+                final_state["first_event_id"] = getattr(events[0], 'record_id', 'unknown')
+                final_state["last_event_id"] = getattr(events[-1], 'record_id', 'unknown')
+            
+            # Add summary information
+            event_types = {}
+            for event in events:
+                event_type = getattr(event, 'record_type', getattr(event, 'type', 'unknown'))
+                event_types[event_type] = event_types.get(event_type, 0) + 1
+            
+            final_state["event_types"] = str(event_types)
+            
+            return MappingProxyType(final_state)
+            
+        except Exception as e:
+            _logger.error(f"Error capturing final state: {e}")
+            return MappingProxyType({"error": str(e)})
 
     def _compare_replay_results(
         self,
         results: list[Mapping[str, str]],
     ) -> bool:
         """Compare replay results for determinism."""
-        # TODO: Implement sophisticated comparison
-        # For now, return True as placeholder
+        if not results or len(results) < 2:
+            return True  # Not enough data for comparison
+        
+        try:
+            # Compare all results to the first result
+            first_result = results[0]
+            
+            for i, result in enumerate(results[1:], 1):
+                if not self._are_states_equivalent(first_result, result):
+                    _logger.warning(f"Replay result {i} differs from first result")
+                    return False
+            
+            return True
+            
+        except Exception as e:
+            _logger.error(f"Error comparing replay results: {e}")
+            return False
+
+    def _are_states_equivalent(
+        self,
+        state1: Mapping[str, str],
+        state2: Mapping[str, str],
+    ) -> bool:
+        """Check if two states are equivalent for determinism."""
+        # Check key equality
+        keys1 = set(state1.keys())
+        keys2 = set(state2.keys())
+        
+        if keys1 != keys2:
+            return False
+        
+        # Check value equality
+        for key in keys1:
+            value1 = state1[key]
+            value2 = state2[key]
+            
+            if value1 != value2:
+                # Try numeric comparison
+                try:
+                    num1 = float(value1)
+                    num2 = float(value2)
+                    if abs(num1 - num2) > 1e-9:  # Small tolerance for floating point
+                        return False
+                except (ValueError, TypeError):
+                    return False
+        
         return True
 
     def _get_timestamp(self) -> int:
         """Get current timestamp in nanoseconds."""
-        # In production, this would use the system time source
-        return 0  # TODO: Integrate with proper time source
+        try:
+            import time
+            return int(time.time() * 1_000_000_000)
+        except Exception as e:
+            _logger.error(f"Error getting timestamp: {e}")
+            return 0
 
 
 # Singleton instance

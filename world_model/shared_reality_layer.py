@@ -162,10 +162,35 @@ class SharedRealityLayer:
             
             self._system_permissions[system_type][system_id] = permissions or {}
             
+            # Auto-subscribe to updates for registered components
+            self._subscribe_to_updates(system_type, system_id, relevant_components)
+            
             logger.info(f"[SHARED_REALITY_LAYER] Registered system: {system_type.value}:{system_id}")
             
             return world_view
     
+    def _subscribe_to_updates(
+        self,
+        system_type: SystemType,
+        system_id: str,
+        components: List[str],
+    ) -> None:
+        """Subscribe a system to updates for specific components."""
+        try:
+            subscription = RealitySubscription(
+                system_type=system_type,
+                system_id=system_id,
+                subscribed_components=components,
+                active=True,
+                last_update=datetime.utcnow().isoformat(),
+            )
+            
+            self._subscriptions.append(subscription)
+            logger.info(f"[SHARED_REALITY_LAYER] Subscribed {system_type.value}:{system_id} to {len(components)} components")
+            
+        except Exception as e:
+            logger.error(f"Error subscribing to updates: {e}")
+
     def get_shared_state(self, system_type: SystemType, system_id: str) -> Dict[str, Any]:
         """
         Get the shared world state for a system.
@@ -286,6 +311,158 @@ class SharedRealityLayer:
                 return True
             else:
                 return False
+    
+    def setup_system_infrastructure(self) -> bool:
+        """Setup complete system infrastructure with all required integrations."""
+        try:
+            logger.info("[SHARED_REALITY_LAYER] Setting up system infrastructure...")
+            
+            # Register core systems
+            self._register_core_systems()
+            
+            # Setup data flow paths
+            self._setup_data_flow_paths()
+            
+            # Establish conflict resolution mechanisms
+            self._setup_conflict_resolution()
+            
+            # Initialize health monitoring
+            self._setup_health_monitoring()
+            
+            logger.info("[SHARED_REALITY_LAYER] System infrastructure setup complete")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error setting up system infrastructure: {e}")
+            return False
+    
+    def _register_core_systems(self) -> None:
+        """Register the core cognitive systems."""
+        # Register INDIRA (Market Intelligence)
+        self.register_system(
+            system_type=SystemType.INDIRA,
+            system_id="indira_main",
+            relevant_components=[
+                "market_state",
+                "agent_models", 
+                "causal_structure",
+                "predictions",
+            ],
+            permissions={
+                "market_state": ["read", "write"],
+                "agent_models": ["read", "write"],
+                "causal_structure": ["read", "write"],
+                "predictions": ["read", "write"],
+            }
+        )
+        
+        # Register DYON (System Intelligence)
+        self.register_system(
+            system_type=SystemType.DYON,
+            system_id="dyon_main",
+            relevant_components=[
+                "causal_structure",
+                "environment_state",
+                "dynamics",
+            ],
+            permissions={
+                "causal_structure": ["read", "write"],
+                "environment_state": ["read"],
+                "dynamics": ["read"],
+            }
+        )
+        
+        # Register GOVERNANCE (Control)
+        self.register_system(
+            system_type=SystemType.GOVERNANCE,
+            system_id="governance_main",
+            relevant_components=[
+                "market_state",
+                "causal_structure",
+                "environment_state",
+            ],
+            permissions={
+                "market_state": ["read"],
+                "causal_structure": ["read"],
+                "environment_state": ["read"],
+            }
+        )
+        
+        # Register EXECUTION
+        self.register_system(
+            system_type=SystemType.EXECUTION,
+            system_id="execution_main",
+            relevant_components=[
+                "market_state",
+                "agent_models",
+            ],
+            permissions={
+                "market_state": ["read"],
+                "agent_models": ["read"],
+            }
+        )
+        
+        logger.info("[SHARED_REALITY_LAYER] Core systems registered")
+    
+    def _setup_data_flow_paths(self) -> None:
+        """Setup data flow paths between systems."""
+        # Define data flow connections
+        data_flows = [
+            ("market_state", SystemType.EXECUTION, SystemType.INDIRA),
+            ("agent_models", SystemType.INDIRA, SystemType.DYON),
+            ("causal_structure", SystemType.INDIRA, SystemType.GOVERNANCE),
+            ("environment_state", SystemType.EXECUTION, SystemType.GOVERNANCE),
+        ]
+        
+        # Store data flow configurations
+        self._data_flow_configurations = {}
+        
+        for component, source_system, target_system in data_flows:
+            flow_id = f"{source_system.value}→{target_system.value}:{component}"
+            self._data_flow_configurations[flow_id] = {
+                "component": component,
+                "source": source_system,
+                "target": target_system,
+                "active": True,
+            }
+        
+        logger.info(f"[SHARED_REALITY_LAYER] {len(data_flows)} data flow paths configured")
+    
+    def _setup_conflict_resolution(self) -> None:
+        """Setup conflict resolution mechanisms."""
+        # Initialize conflict resolution policies
+        self._conflict_resolution_policies = {
+            "market_state": "merge_with_priority",
+            "agent_models": "consensus_based",
+            "causal_structure": "source_trust_weighted",
+            "environment_state": "latest_wins",
+        }
+        
+        logger.info("[SHARED_REALITY_LAYER] Conflict resolution policies established")
+    
+    def _setup_health_monitoring(self) -> None:
+        """Setup health monitoring for shared reality layer."""
+        self._health_metrics = {
+            "update_frequency": 0,
+            "conflict_count": 0,
+            "system_sync_status": {},
+        }
+        
+        logger.info("[SHARED_REALITY_LAYER] Health monitoring initialized")
+    
+    def get_system_health(self) -> Dict[str, Any]:
+        """Get health status of the shared reality layer and connected systems."""
+        with self._lock:
+            return {
+                "registered_systems": {
+                    system_type.value: list(systems.keys())
+                    for system_type, systems in self._registered_systems.items()
+                },
+                "active_subscriptions": len([s for s in self._subscriptions if s.active]),
+                "data_flow_paths": len(self._data_flow_configurations) if hasattr(self, '_data_flow_configurations') else 0,
+                "conflict_count": self._health_metrics.get("conflict_count", 0) if hasattr(self, '_health_metrics') else 0,
+                "timestamp": datetime.utcnow().isoformat(),
+            }
     
     def subscribe_to_updates(
         self,

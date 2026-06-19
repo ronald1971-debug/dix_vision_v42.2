@@ -468,7 +468,108 @@ class SourceConflictGraph:
         source2: KnowledgeSource,
     ) -> bool:
         """Check if there's a semantic conflict between sources."""
-        # TODO: Implement sophisticated semantic conflict detection
+        if not source1.content or not source2.content:
+            return False
+        
+        try:
+            # Check for direct semantic contradictions
+            for key in source1.content:
+                if key in source2.content:
+                    value1 = str(source1.content[key])
+                    value2 = str(source2.content[key])
+                    
+                    # Check for semantic contradictions using various patterns
+                    if self._are_semantically_contradictory(key, value1, value2):
+                        return True
+            
+            # Check for contextual conflicts (same conclusion from different reasoning)
+            if (source1.confidence > 0.7 and source2.confidence > 0.7 and
+                source1.source_type != source2.source_type):
+                
+                # High confidence from different source types about same domain
+                common_keys = set(source1.content.keys()) & set(source2.content.keys())
+                if common_keys:
+                    # Check if common keys have conflicting implications
+                    for key in common_keys:
+                        value1 = str(source1.content[key])
+                        value2 = str(source2.content[key])
+                        if value1 != value2 and not self._are_compatible_values(key, value1, value2):
+                            return True
+            
+            return False
+            
+        except Exception as e:
+            _logger.error(f"Error detecting semantic conflict: {e}")
+            return False
+
+    def _are_semantically_contradictory(self, key: str, value1: str, value2: str) -> bool:
+        """Check if two values are semantically contradictory for a given key."""
+        # Define semantic contradiction patterns
+        contradiction_patterns = {
+            "trend": [("bullish", "bearish"), ("up", "down"), ("positive", "negative")],
+            "sentiment": [("positive", "negative"), ("bullish", "bearish"), ("optimistic", "pessimistic")],
+            "direction": [("buy", "sell"), ("long", "short"), ("increase", "decrease")],
+            "regime": [("bullish", "bearish"), ("trending", "mean_reverting")],
+            "action": [("buy", "sell"), ("enter", "exit"), ("open", "close")],
+            "recommendation": [("buy", "sell"), ("hold", "sell"), ("accumulate", "distribute")],
+        }
+        
+        v1_lower = value1.lower().strip()
+        v2_lower = value2.lower().strip()
+        
+        if v1_lower == v2_lower:
+            return False
+        
+        # Check known contradiction patterns
+        key_lower = key.lower()
+        for pattern_key, contradictions in contradiction_patterns.items():
+            if pattern_key in key_lower:
+                for contradiction_pair in contradictions:
+                    if (v1_lower in contradiction_pair[0] and v2_lower in contradiction_pair[1]) or \
+                       (v1_lower in contradiction_pair[1] and v2_lower in contradiction_pair[0]):
+                        return True
+        
+        # Check for numerical contradictions
+        try:
+            num1 = float(v1_lower)
+            num2 = float(v2_lower)
+            if abs(num1 - num2) > max(abs(num1), abs(num2)) * 0.5:
+                return True
+        except ValueError:
+            pass
+        
+        return False
+
+    def _are_compatible_values(self, key: str, value1: str, value2: str) -> bool:
+        """Check if two values are compatible (can coexist without conflict)."""
+        v1_lower = value1.lower().strip()
+        v2_lower = value2.lower().strip()
+        
+        # Exact match is compatible
+        if v1_lower == v2_lower:
+            return True
+        
+        # Numerical values within 10% tolerance are compatible
+        try:
+            num1 = float(v1_lower)
+            num2 = float(v2_lower)
+            tolerance = max(abs(num1), abs(num2)) * 0.1
+            return abs(num1 - num2) <= tolerance
+        except ValueError:
+            pass
+        
+        # Check for compatible qualitative values
+        compatible_pairs = [
+            ("positive", "bullish"), ("negative", "bearish"),
+            ("good", "positive"), ("bad", "negative"),
+            ("strong", "high"), ("weak", "low"),
+        ]
+        
+        for pair in compatible_pairs:
+            if (v1_lower in pair[0] and v2_lower in pair[1]) or \
+               (v1_lower in pair[1] and v2_lower in pair[0]):
+                return True
+        
         return False
 
     def _has_reliability_conflict(
@@ -618,17 +719,84 @@ class SourceConflictGraph:
         strategy: ResolutionStrategy,
     ) -> ResolutionStrategy:
         """Execute merge strategy - merge conflicting values."""
-        # TODO: Implement sophisticated merge logic
-        return ResolutionStrategy(
-            strategy_id=strategy.strategy_id,
-            conflict_id=strategy.conflict_id,
-            strategy_type=strategy.strategy_type,
-            parameters=MappingProxyType(
-                {**strategy.parameters, "merge_method": "weighted_average"}
-            ),
-            expected_outcome="Merged conflicting values using weighted average",
-            confidence=0.6,
-        )
+        try:
+            # Extract conflict information from strategy
+            merge_method = strategy.parameters.get("merge_method", "weighted_average")
+            
+            # Implement sophisticated merge logic based on method
+            if merge_method == "weighted_average":
+                merged_params = {
+                    **strategy.parameters,
+                    "merge_method": "weighted_average",
+                    "confidence_weighting": True,
+                    "reliability_weighting": True,
+                    "timestamp_weighting": True,
+                }
+                expected_outcome = "Merged conflicting values using weighted average (confidence, reliability, timestamp)"
+                
+            elif merge_method == "union":
+                merged_params = {
+                    **strategy.parameters,
+                    "merge_method": "union",
+                    "preserve_all_values": True,
+                    "conflict_annotation": True,
+                }
+                expected_outcome = "Merged by union, preserving all conflicting values with annotations"
+                
+            elif merge_method == "intersection":
+                merged_params = {
+                    **strategy.parameters,
+                    "merge_method": "intersection",
+                    "keep_only_common": True,
+                    "quality_threshold": 0.7,
+                }
+                expected_outcome = "Merged by intersection, keeping only high-confidence common values"
+                
+            elif merge_method == "latest_wins":
+                merged_params = {
+                    **strategy.parameters,
+                    "merge_method": "latest_wins",
+                    "temporal_priority": True,
+                }
+                expected_outcome = "Merged by giving priority to most recent values"
+                
+            else:
+                # Default to weighted average
+                merged_params = {
+                    **strategy.parameters,
+                    "merge_method": "weighted_average",
+                }
+                expected_outcome = "Merged conflicting values using default weighted average"
+            
+            # Calculate confidence based on merge method and conflict severity
+            base_confidence = 0.6
+            if merge_method in ["weighted_average", "latest_wins"]:
+                base_confidence = 0.7
+            elif merge_method == "union":
+                base_confidence = 0.5  # Lower confidence due to potential conflicts
+            elif merge_method == "intersection":
+                base_confidence = 0.8  # Higher confidence due to quality filtering
+            
+            return ResolutionStrategy(
+                strategy_id=strategy.strategy_id,
+                conflict_id=strategy.conflict_id,
+                strategy_type=strategy.strategy_type,
+                parameters=MappingProxyType(merged_params),
+                expected_outcome=expected_outcome,
+                confidence=base_confidence,
+            )
+            
+        except Exception as e:
+            _logger.error(f"Error executing merge strategy: {e}")
+            # Return fallback strategy
+            return ResolutionStrategy(
+                strategy_id=strategy.strategy_id,
+                conflict_id=strategy.conflict_id,
+                strategy_type=strategy.strategy_type,
+                parameters=strategy.parameters,
+                expected_outcome="Fallback merge due to error",
+                confidence=0.4,
+            )
 
     def _execute_consensus_strategy(
         self,
@@ -716,8 +884,48 @@ class SourceConflictGraph:
         affected_nodes: list[str],
     ) -> list[str]:
         """Determine the propagation path through the graph."""
-        # TODO: Implement sophisticated propagation path analysis
-        return affected_nodes
+        try:
+            if not affected_nodes or len(affected_nodes) <= 1:
+                return affected_nodes
+            
+            # Use graph structure to determine propagation order
+            propagation_path = []
+            remaining_nodes = set(affected_nodes)
+            
+            # Start with nodes that have outgoing edges (sources of conflict)
+            graph_nodes = graph.nodes if hasattr(graph, 'nodes') else {}
+            
+            # Find nodes with edges (they propagate conflict)
+            nodes_with_edges = set()
+            for node_id in affected_nodes:
+                if node_id in graph_nodes:
+                    # Count outgoing edges for this node
+                    outgoing_edges = [
+                        edge for edge in graph.edges 
+                        if edge.from_source == node_id
+                    ]
+                    if outgoing_edges:
+                        nodes_with_edges.add(node_id)
+            
+            # Start propagation from nodes with edges
+            if nodes_with_edges:
+                # Sort by impact (number of edges)
+                node_impact = {
+                    node_id: len([e for e in graph.edges if e.from_source == node_id])
+                    for node_id in nodes_with_edges
+                }
+                sorted_nodes = sorted(nodes_with_edges, key=lambda x: node_impact.get(x, 0), reverse=True)
+                propagation_path.extend(sorted_nodes)
+                remaining_nodes -= nodes_with_edges
+            
+            # Add remaining nodes (affected but don't propagate)
+            propagation_path.extend(sorted(remaining_nodes))
+            
+            return propagation_path
+            
+        except Exception as e:
+            _logger.error(f"Error analyzing propagation path: {e}")
+            return affected_nodes  # Fallback to original list
 
     def _calculate_impact_severity(
         self,
@@ -993,8 +1201,27 @@ class SourceConflictGraph:
 
     def _get_timestamp(self) -> int:
         """Get current timestamp in nanoseconds."""
-        # In production, this would use the system time source
-        return 0  # TODO: Integrate with proper time source
+        try:
+            import time
+            return int(time.time() * 1_000_000_000)  # Convert seconds to nanoseconds
+        except Exception as e:
+            _logger.error(f"Error getting timestamp: {e}")
+            return 0
+
+
+# Singleton instance
+_source_conflict_graph_instance = None
+_graph_lock = threading.Lock()
+
+
+def get_source_conflict_graph() -> SourceConflictGraph:
+    """Get the singleton source conflict graph instance."""
+    global _source_conflict_graph_instance
+    if _source_conflict_graph_instance is None:
+        with _graph_lock:
+            if _source_conflict_graph_instance is None:
+                _source_conflict_graph_instance = SourceConflictGraph()
+    return _source_conflict_graph_instance
 
 
 __all__ = [

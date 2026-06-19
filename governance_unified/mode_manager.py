@@ -120,7 +120,8 @@ class ModeManager:
                         "reason": reason,
                     },
                 )
-            except Exception:
+            except Exception as e:
+                _logger.warning(f"[MODE_MANAGER] Error during mode transition: {e}")
                 pass
             return True
 
@@ -163,7 +164,8 @@ class ModeManager:
                         "reason": reason or "mode_manager_degraded",
                     },
                 )
-            except Exception:
+            except Exception as e:
+                _logger.warning(f"[MODE_MANAGER] Error during mode transition: {e}")
                 pass
 
     def _enter_lockdown(
@@ -201,7 +203,8 @@ class ModeManager:
                         "forced": forced,
                     },
                 )
-            except Exception:
+            except Exception as e:
+                _logger.warning(f"[MODE_MANAGER] Error during mode transition: {e}")
                 pass
 
 
