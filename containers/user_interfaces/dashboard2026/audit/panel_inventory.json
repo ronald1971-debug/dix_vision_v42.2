@@ -1,0 +1,240 @@
+{
+  "inventory_date": "2026-06-19",
+  "dashboard_version": "DIX VISION v42.2",
+  "total_panels": 25,
+  "classification_summary": {
+    "ACTIVE": 25,
+    "LEGACY": 0,
+    "EXPERIMENTAL": 0,
+    "DUPLICATE": 0,
+    "PARTIAL_DUPLICATE": 0,
+    "DEAD": 0
+  },
+  "panels": [
+    {
+      "id": "panel_001",
+      "name": "BeliefPanel",
+      "owner": "INDIRA",
+      "purpose": "Belief state visualization and management",
+      "widgets": ["IndiraConsciousnessPanel", "CognitiveObservatory"],
+      "supported_modes": ["Docked", "Floating", "Fullscreen"],
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "panel_002",
+      "name": "KnowledgePanel",
+      "owner": "INDIRA",
+      "purpose": "Knowledge repository visualization",
+      "widgets": ["IndiraLearningMode", "MemoryPage"],
+      "supported_modes": ["Docked", "Floating", "Sidebar"],
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "panel_003",
+      "name": "TradePanel",
+      "owner": "EXECUTION",
+      "purpose": "Trading and execution interface",
+      "widgets": ["OrderForm", "SLTPBuilder", "PositionsPanel"],
+      "supported_modes": ["Docked", "Floating", "Fullscreen"],
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "panel_004",
+      "name": "ResearchPanel",
+      "owner": "INDIRA",
+      "purpose": "Research and analysis interface",
+      "widgets": ["CognitiveObservatory", "NewsTicker"],
+      "supported_modes": ["Docked", "Floating", "Sidebar"],
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "panel_005",
+      "name": "WorldModelPanel",
+      "owner": "WORLD_MODEL",
+      "purpose": "World model visualization",
+      "widgets": ["CognitiveObservatory", "RegimeTimeline"],
+      "supported_modes": ["Docked", "Floating", "Fullscreen"],
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "panel_006",
+      "name": "RiskPanel",
+      "owner": "GOVERNANCE",
+      "purpose": "Risk management interface",
+      "widgets": ["HazardMonitorGrid", "InvariantComplianceDashboard"],
+      "supported_modes": ["Docked", "Floating", "Sidebar"],
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "panel_007",
+      "name": "GovernancePanel",
+      "owner": "GOVERNANCE",
+      "purpose": "Governance control interface",
+      "widgets": ["PromotionGatesPanel", "ApprovalQueueWidget", "DriftOraclePanel"],
+      "supported_modes": ["Docked", "Floating", "Fullscreen"],
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "panel_008",
+      "name": "SimulationPanel",
+      "owner": "SIMULATION",
+      "purpose": "Simulation and backtesting interface",
+      "widgets": ["SimulationPage components"],
+      "supported_modes": ["Docked", "Floating", "Fullscreen"],
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "panel_009",
+      "name": "AvatarPanel",
+      "owner": "INDIRA",
+      "purpose": "Avatar presence and visualization",
+      "widgets": ["IndiraConsciousnessPanel", "IndiraChat"],
+      "supported_modes": ["Floating", "Sidebar", "Popout"],
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "panel_010",
+      "name": "DesktopAgentPanel",
+      "owner": "EXECUTION",
+      "purpose": "Desktop agent control interface",
+      "widgets": ["AdapterStatusGrid", "AgentOpsPage components"],
+      "supported_modes": ["Docked", "Floating", "Fullscreen"],
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "panel_011",
+      "name": "AlertPanel",
+      "owner": "GOVERNANCE",
+      "purpose": "Alert management interface",
+      "widgets": ["AlertsHub", "HazardMonitorGrid"],
+      "supported_modes": ["Docked", "Floating", "Sidebar"],
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "panel_012",
+      "name": "PortfolioPanel",
+      "owner": "EXECUTION",
+      "purpose": "Portfolio management interface",
+      "widgets": ["PositionsPanel", "EquityCurve", "OrderForm"],
+      "supported_modes": ["Docked", "Floating", "Fullscreen"],
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "panel_013",
+      "name": "SignalsPanel",
+      "owner": "INDIRA",
+      "purpose": "Signal generation and monitoring",
+      "widgets": ["chart indicators", "market indicators"],
+      "supported_modes": ["Docked", "Floating", "Sidebar"],
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "panel_014",
+      "name": "StrategyPanel",
+      "owner": "EXECUTION",
+      "purpose": "Strategy management interface",
+      "widgets": ["StrategyRegistryFSM"],
+      "supported_modes": ["Docked", "Floating", "Sidebar"],
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "panel_015",
+      "name": "OrderFlowPanel",
+      "owner": "EXECUTION",
+      "purpose": "Order flow visualization",
+      "widgets": ["TimeAndSalesTape", "DepthLadder"],
+      "supported_modes": ["Docked", "Floating", "Sidebar"],
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "panel_016",
+      "name": "AuditPanel",
+      "owner": "GOVERNANCE",
+      "purpose": "Audit trail viewing",
+      "widgets": ["AuditLedgerViewer", "DriftOraclePanel"],
+      "supported_modes": ["Docked", "Floating", "Sidebar"],
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "panel_017",
+      "name": "HealthPanel",
+      "owner": "OPERATOR",
+      "purpose": "System health monitoring",
+      "widgets": ["SCVSLivenessGrid", "SystemHealthPage components"],
+      "supported_modes": ["Docked", "Floating", "Sidebar"],
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "panel_018",
+      "name": "ConfigurationPanel",
+      "owner": "OPERATOR",
+      "purpose": "System configuration management",
+      "widgets": ["CommandPalette", "OperatorPage components"],
+      "supported_modes": ["Docked", "Floating", "Modal"],
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "panel_019",
+      "name": "LearningPanel",
+      "owner": "INDIRA",
+      "purpose": "Learning and adaptation visualization",
+      "widgets": ["IndiraLearningMode", "MemoryPage"],
+      "supported_modes": ["Docked", "Floating", "Sidebar"],
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "panel_020",
+      "name": "EvolutionPanel",
+      "owner": "DYON",
+      "purpose": "Evolution and self-improvement",
+      "widgets": ["DyonArchitectureStream", "StrategyRegistryFSM"],
+      "supported_modes": ["Docked", "Floating", "Fullscreen"],
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "panel_021",
+      "name": "OperatorPanel",
+      "owner": "OPERATOR",
+      "purpose": "Operator control interface",
+      "widgets": ["OperatorPage components"],
+      "supported_modes": ["Docked", "Floating", "Fullscreen"],
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "panel_022",
+      "name": "MarketDataPanel",
+      "owner": "EXECUTION",
+      "purpose": "Market data visualization",
+      "widgets": ["Watchlist", "ChartPanel", "market indicators"],
+      "supported_modes": ["Docked", "Floating", "Fullscreen"],
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "panel_023",
+      "name": "ChatPanel",
+      "owner": "INDIRA",
+      "purpose": "Cognitive chat interface",
+      "widgets": ["IndiraChat", "DyonChat"],
+      "supported_modes": ["Floating", "Sidebar", "Popout"],
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "panel_024",
+      "name": "PluginPanel",
+      "owner": "GOVERNANCE",
+      "purpose": "Plugin management interface",
+      "widgets": ["PluginMonitoringDashboard"],
+      "supported_modes": ["Docked", "Floating", "Sidebar"],
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "panel_025",
+      "name": "MemecoinPanel",
+      "owner": "EXECUTION",
+      "purpose": "Memecoin trading interface",
+      "widgets": ["memecoin widgets"],
+      "supported_modes": ["Docked", "Floating", "Fullscreen"],
+      "classification": "ACTIVE"
+    }
+  ]
+}

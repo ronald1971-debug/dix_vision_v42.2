@@ -1,0 +1,106 @@
+{
+  "inventory_date": "2026-06-19",
+  "dashboard_version": "DIX VISION v42.2",
+  "total_stores": 6,
+  "classification_summary": {
+    "ACTIVE": 6,
+    "LEGACY": 0,
+    "EXPERIMENTAL": 0,
+    "DUPLICATE": 0,
+    "PARTIAL_DUPLICATE": 0,
+    "DEAD": 0
+  },
+  "stores": [
+    {
+      "id": "store_001",
+      "name": "widgetVisibility",
+      "path": "src/state/widgetVisibility.ts",
+      "size_bytes": 19872,
+      "owner": "OPERATOR",
+      "purpose": "Widget visibility and layout state management",
+      "dependencies": [],
+      "consumers": ["All pages", "All widgets"],
+      "runtime_usage": "VERY_HIGH",
+      "feature_association": "OPERATOR_WORKSPACE",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "store_002",
+      "name": "autonomy",
+      "path": "src/state/autonomy.ts",
+      "size_bytes": 3151,
+      "owner": "GOVERNANCE",
+      "purpose": "Autonomy and governance state management",
+      "dependencies": [],
+      "consumers": ["GlobalSystemControlBar", "AutonomyRibbon", "PromoteChain"],
+      "runtime_usage": "HIGH",
+      "feature_association": "GOVERNANCE_WORKSPACE",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "store_003",
+      "name": "cognitive_realtime",
+      "path": "src/state/cognitive_realtime.ts",
+      "size_bytes": 3473,
+      "owner": "INDIRA",
+      "purpose": "Cognitive real-time data state management",
+      "dependencies": ["realtime"],
+      "consumers": ["IndiraCognitiveCenterPage", "CognitiveObservatory"],
+      "runtime_usage": "HIGH",
+      "feature_association": "INDIRA_WORKSPACE",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "store_004",
+      "name": "hotkeys",
+      "path": "src/state/hotkeys.ts",
+      "size_bytes": 6604,
+      "owner": "OPERATOR",
+      "purpose": "Hotkey configuration and management",
+      "dependencies": [],
+      "consumers": ["CommandPalette", "HotkeyConfigurator"],
+      "runtime_usage": "HIGH",
+      "feature_association": "OPERATOR_WORKSPACE",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "store_005",
+      "name": "realtime",
+      "path": "src/state/realtime.ts",
+      "size_bytes": 4787,
+      "owner": "OPERATOR",
+      "purpose": "Real-time data connection state management",
+      "dependencies": [],
+      "consumers": ["All pages with real-time data", "WebSocket components"],
+      "runtime_usage": "VERY_HIGH",
+      "feature_association": "OPERATOR_WORKSPACE",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "store_006",
+      "name": "toast",
+      "path": "src/state/toast.ts",
+      "size_bytes": 1721,
+      "owner": "OPERATOR",
+      "purpose": "Toast notification state management",
+      "dependencies": [],
+      "consumers": ["ToastHost", "All pages"],
+      "runtime_usage": "HIGH",
+      "feature_association": "OPERATOR_WORKSPACE",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "store_007",
+      "name": "popout",
+      "path": "src/state/popout.ts",
+      "size_bytes": 1037,
+      "owner": "OPERATOR",
+      "purpose": "Popout window state management",
+      "dependencies": ["widgetVisibility"],
+      "consumers": ["PopoutButton", "WidgetTogglePanel"],
+      "runtime_usage": "LOW",
+      "feature_association": "OPERATOR_WORKSPACE",
+      "classification": "ACTIVE"
+    }
+  ]
+}

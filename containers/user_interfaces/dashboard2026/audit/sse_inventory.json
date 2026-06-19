@@ -1,0 +1,159 @@
+{
+  "inventory_date": "2026-06-19",
+  "dashboard_version": "DIX VISION v42.2",
+  "total_sse_endpoints": 12,
+  "classification_summary": {
+    "ACTIVE": 12,
+    "LEGACY": 0,
+    "EXPERIMENTAL": 0,
+    "DUPLICATE": 0,
+    "PARTIAL_DUPLICATE": 0,
+    "DEAD": 0
+  },
+  "sse_endpoints": [
+    {
+      "id": "sse_001",
+      "name": "cognitive_sse",
+      "endpoint": "/sse/cognitive",
+      "owner": "INDIRA",
+      "purpose": "SSE endpoint for cognitive intelligence updates",
+      "api_dependency": "cognitive",
+      "consumers": ["CognitiveObservatory", "IndiraCognitiveCenterPage"],
+      "runtime_usage": "HIGH",
+      "feature_association": "INDIRA_WORKSPACE",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "sse_002",
+      "name": "indira_intelligence_sse",
+      "endpoint": "/sse/indira",
+      "owner": "INDIRA",
+      "purpose": "SSE endpoint for INDIRA intelligence updates",
+      "api_dependency": "indiraIntelligence",
+      "consumers": ["IndiraWorkspacePage", "IndiraConsciousnessPanel"],
+      "runtime_usage": "HIGH",
+      "feature_association": "INDIRA_WORKSPACE",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "sse_003",
+      "name": "market_sse",
+      "endpoint": "/sse/markets",
+      "owner": "EXECUTION",
+      "purpose": "SSE endpoint for market data updates",
+      "api_dependency": "markets",
+      "consumers": ["MarketsPage", "TradingPage", "Watchlist"],
+      "runtime_usage": "VERY_HIGH",
+      "feature_association": "EXECUTION_WORKSPACE",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "sse_004",
+      "name": "execution_sse",
+      "endpoint": "/sse/execution",
+      "owner": "EXECUTION",
+      "purpose": "SSE endpoint for execution updates",
+      "api_dependency": "fabric",
+      "consumers": ["ExecutionPage", "OrderForm", "PositionsPanel"],
+      "runtime_usage": "VERY_HIGH",
+      "feature_association": "EXECUTION_WORKSPACE",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "sse_005",
+      "name": "governance_sse",
+      "endpoint": "/sse/governance",
+      "owner": "GOVERNANCE",
+      "purpose": "SSE endpoint for governance updates",
+      "api_dependency": "governance",
+      "consumers": ["GovernancePage", "PromotionGatesPanel", "HazardMonitorGrid"],
+      "runtime_usage": "HIGH",
+      "feature_association": "GOVERNANCE_WORKSPACE",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "sse_006",
+      "name": "alerts_sse",
+      "endpoint": "/sse/alerts",
+      "owner": "GOVERNANCE",
+      "purpose": "SSE endpoint for alert notifications",
+      "api_dependency": "alerts",
+      "consumers": ["AlertsPage", "AlertsHub"],
+      "runtime_usage": "HIGH",
+      "feature_association": "GOVERNANCE_WORKSPACE",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "sse_007",
+      "name": "risk_sse",
+      "endpoint": "/sse/risk",
+      "owner": "GOVERNANCE",
+      "purpose": "SSE endpoint for risk updates",
+      "api_dependency": "governance",
+      "consumers": ["RiskPage", "HazardMonitorGrid"],
+      "runtime_usage": "HIGH",
+      "feature_association": "GOVERNANCE_WORKSPACE",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "sse_008",
+      "name": "simulation_sse",
+      "endpoint": "/sse/simulation",
+      "owner": "SIMULATION",
+      "purpose": "SSE endpoint for simulation updates",
+      "api_dependency": "simulation",
+      "consumers": ["SimulationPage"],
+      "runtime_usage": "MEDIUM",
+      "feature_association": "SIMULATION_WORKSPACE",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "sse_009",
+      "name": "signals_sse",
+      "endpoint": "/sse/signals",
+      "owner": "EXECUTION",
+      "purpose": "SSE endpoint for signal updates",
+      "api_dependency": "signals",
+      "consumers": ["SignalsPage", "TradingPage"],
+      "runtime_usage": "MEDIUM",
+      "feature_association": "EXECUTION_WORKSPACE",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "sse_010",
+      "name": "health_sse",
+      "endpoint": "/sse/health",
+      "owner": "OPERATOR",
+      "purpose": "SSE endpoint for health updates",
+      "api_dependency": "syshealth",
+      "consumers": ["SystemHealthPage", "MissionControlPage"],
+      "runtime_usage": "VERY_HIGH",
+      "feature_association": "OPERATOR_WORKSPACE",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "sse_011",
+      "name": "learning_sse",
+      "endpoint": "/sse/learning",
+      "owner": "INDIRA",
+      "purpose": "SSE endpoint for learning updates",
+      "api_dependency": "memory",
+      "consumers": ["IndiraLearningMode", "MemoryPage"],
+      "runtime_usage": "MEDIUM",
+      "feature_association": "LEARNING_WORKSPACE",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "sse_012",
+      "name": "memecoin_sse",
+      "endpoint": "/sse/memecoin",
+      "owner": "EXECUTION",
+      "purpose": "SSE endpoint for memecoin data updates",
+      "api_dependency": "memecoin",
+      "consumers": ["memecoin pages"],
+      "runtime_usage": "MEDIUM",
+      "feature_association": "EXECUTION_WORKSPACE",
+      "classification": "ACTIVE"
+    }
+  ]
+}

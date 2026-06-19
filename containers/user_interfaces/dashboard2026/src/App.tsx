@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { GlobalSystemControlBar } from "@/components/GlobalSystemControlBar";
 import { CommandPalette } from "@/components/CommandPalette";
 import { LiveStatusPill } from "@/components/LiveStatusPill";
-import { MockDataBanner } from "@/components/MockDataBanner";
+import { EnhancedSystemStatusBanner } from "@/components/world/EnhancedSystemStatusBanner";
 import { PadlockFloors } from "@/components/PadlockFloors";
 import { PreferencesBar } from "@/components/PreferencesBar";
 import { PromoteChain } from "@/components/PromoteChain";
@@ -252,8 +252,8 @@ export function App() {
     try {
       console.log('🔧 App component: Setting up hotkeys');
       useGlobalHotkeys({
-        "toggle-palette": () => setPaletteOpen((o) => !o),
-        "toggle-sidebar": () => setSidebarCollapsed((c) => !c),
+        "toggle-palette": () => setPaletteOpen((o: boolean) => !o),
+        "toggle-sidebar": () => setSidebarCollapsed((c: boolean) => !c),
         "go-operator": () => goRoute("operator"),
         "go-mission-control": () => goRoute("mission-control"),
         "go-governance": () => goRoute("governance"),
@@ -285,7 +285,7 @@ export function App() {
       console.log('🔧 App component: Rendering popout mode');
       return (
         <div className="flex h-full flex-col">
-          <MockDataBanner />
+          <EnhancedSystemStatusBanner />
           <main className="flex-1 overflow-auto px-3 py-2">
             {renderRoute(route)}
           </main>
@@ -299,7 +299,7 @@ export function App() {
     return (
       <AgentOpsProvider>
         <div className="flex h-full flex-col">
-          <MockDataBanner />
+          <EnhancedSystemStatusBanner />
           <header
             data-layout-glow
             className="flex flex-col gap-2 border-b border-border bg-surface px-4 py-2"

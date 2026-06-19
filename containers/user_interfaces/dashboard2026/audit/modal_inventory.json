@@ -1,0 +1,125 @@
+{
+  "inventory_date": "2026-06-19",
+  "dashboard_version": "DIX VISION v42.2",
+  "total_modals": 10,
+  "classification_summary": {
+    "ACTIVE": 10,
+    "LEGACY": 0,
+    "EXPERIMENTAL": 0,
+    "DUPLICATE": 0,
+    "PARTIAL_DUPLICATE": 0,
+    "DEAD": 0
+  },
+  "modals": [
+    {
+      "id": "modal_001",
+      "name": "CommandPaletteModal",
+      "owner": "OPERATOR",
+      "purpose": "Command palette modal for quick actions",
+      "trigger_components": ["CommandPalette", "GlobalSystemControlBar"],
+      "consumers": ["All pages"],
+      "runtime_usage": "HIGH",
+      "feature_association": "OPERATOR_WORKSPACE",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "modal_002",
+      "name": "OrderEntryModal",
+      "owner": "EXECUTION",
+      "purpose": "Order entry modal for trading",
+      "trigger_components": ["OrderForm", "TradingFormTiles"],
+      "consumers": ["TradingPage", "MarketsPage"],
+      "runtime_usage": "VERY_HIGH",
+      "feature_association": "EXECUTION_WORKSPACE",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "modal_003",
+      "name": "ApprovalModal",
+      "owner": "GOVERNANCE",
+      "purpose": "Approval request modal",
+      "trigger_components": ["PromotionGatesPanel", "ApprovalQueueWidget"],
+      "consumers": ["GovernancePage", "AgentOpsPage"],
+      "runtime_usage": "HIGH",
+      "feature_association": "GOVERNANCE_WORKSPACE",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "modal_004",
+      "name": "AlertModal",
+      "owner": "GOVERNANCE",
+      "purpose": "Alert notification modal",
+      "trigger_components": ["AlertsHub", "HazardMonitorGrid"],
+      "consumers": ["All pages"],
+      "runtime_usage": "HIGH",
+      "feature_association": "GOVERNANCE_WORKSPACE",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "modal_005",
+      "name": "ConfigurationModal",
+      "owner": "OPERATOR",
+      "purpose": "System configuration modal",
+      "trigger_components": ["CommandPalette", "OperatorPage"],
+      "consumers": ["SystemHealthPage", "OperatorWorkspacePage"],
+      "runtime_usage": "MEDIUM",
+      "feature_association": "OPERATOR_WORKSPACE",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "modal_006",
+      "name": "HotkeyConfiguratorModal",
+      "owner": "OPERATOR",
+      "purpose": "Hotkey configuration modal",
+      "trigger_components": ["HotkeyConfigurator", "PreferencesBar"],
+      "consumers": ["All pages"],
+      "runtime_usage": "LOW",
+      "feature_association": "OPERATOR_WORKSPACE",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "modal_007",
+      "name": "WidgetConfigurationModal",
+      "owner": "OPERATOR",
+      "purpose": "Widget configuration and layout modal",
+      "trigger_components": ["WidgetTogglePanel", "PopoutButton"],
+      "consumers": ["All pages"],
+      "runtime_usage": "MEDIUM",
+      "feature_association": "OPERATOR_WORKSPACE",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "modal_008",
+      "name": "ChatModal",
+      "owner": "INDIRA",
+      "purpose": "Cognitive chat modal",
+      "trigger_components": ["IndiraChat", "DyonChat"],
+      "consumers": ["All pages"],
+      "runtime_usage": "MEDIUM",
+      "feature_association": "INDIRA_WORKSPACE",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "modal_009",
+      "name": "RiskAssessmentModal",
+      "owner": "GOVERNANCE",
+      "purpose": "Risk assessment modal",
+      "trigger_components": ["RiskPage", "HazardMonitorGrid"],
+      "consumers": ["TradingPage", "GovernancePage"],
+      "runtime_usage": "HIGH",
+      "feature_association": "GOVERNANCE_WORKSPACE",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "modal_010",
+      "name": "PluginInstallModal",
+      "owner": "GOVERNANCE",
+      "purpose": "Plugin installation modal",
+      "trigger_components": ["PluginsPage", "PluginMonitoringDashboard"],
+      "consumers": ["PluginsPage"],
+      "runtime_usage": "LOW",
+      "feature_association": "OPERATOR_WORKSPACE",
+      "classification": "ACTIVE"
+    }
+  ]
+}

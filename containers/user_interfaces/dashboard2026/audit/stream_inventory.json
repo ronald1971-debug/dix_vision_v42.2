@@ -1,0 +1,180 @@
+{
+  "inventory_date": "2026-06-19",
+  "dashboard_version": "DIX VISION v42.2",
+  "total_streams": 15,
+  "classification_summary": {
+    "ACTIVE": 15,
+    "LEGACY": 0,
+    "EXPERIMENTAL": 0,
+    "DUPLICATE": 0,
+    "PARTIAL_DUPLICATE": 0,
+    "DEAD": 0
+  },
+  "streams": [
+    {
+      "id": "stream_001",
+      "name": "cognitive_realtime",
+      "owner": "INDIRA",
+      "purpose": "Cognitive intelligence real-time data streaming",
+      "api_endpoint": "cognitive",
+      "consumers": ["CognitiveObservatory", "IndiraCognitiveCenterPage"],
+      "runtime_usage": "HIGH",
+      "feature_association": "INDIRA_WORKSPACE",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "stream_002",
+      "name": "indira_intelligence_stream",
+      "owner": "INDIRA",
+      "purpose": "INDIRA intelligence streaming",
+      "api_endpoint": "indiraIntelligence",
+      "consumers": ["IndiraWorkspacePage", "IndiraConsciousnessPanel"],
+      "runtime_usage": "HIGH",
+      "feature_association": "INDIRA_WORKSPACE",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "stream_003",
+      "name": "market_data_stream",
+      "owner": "EXECUTION",
+      "purpose": "Market data real-time streaming",
+      "api_endpoint": "markets",
+      "consumers": ["MarketsPage", "TradingPage", "Watchlist"],
+      "runtime_usage": "VERY_HIGH",
+      "feature_association": "EXECUTION_WORKSPACE",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "stream_004",
+      "name": "execution_stream",
+      "owner": "EXECUTION",
+      "purpose": "Execution and order streaming",
+      "api_endpoint": "fabric",
+      "consumers": ["ExecutionPage", "OrderForm", "PositionsPanel"],
+      "runtime_usage": "VERY_HIGH",
+      "feature_association": "EXECUTION_WORKSPACE",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "stream_005",
+      "name": "governance_stream",
+      "owner": "GOVERNANCE",
+      "purpose": "Governance events streaming",
+      "api_endpoint": "governance",
+      "consumers": ["GovernancePage", "PromotionGatesPanel", "HazardMonitorGrid"],
+      "runtime_usage": "HIGH",
+      "feature_association": "GOVERNANCE_WORKSPACE",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "stream_006",
+      "name": "alert_stream",
+      "owner": "GOVERNANCE",
+      "purpose": "System alerts streaming",
+      "api_endpoint": "alerts",
+      "consumers": ["AlertsPage", "AlertsHub"],
+      "runtime_usage": "HIGH",
+      "feature_association": "GOVERNANCE_WORKSPACE",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "stream_007",
+      "name": "dyon_architecture_stream",
+      "owner": "DYON",
+      "purpose": "DYON architecture updates streaming",
+      "api_endpoint": "governance",
+      "consumers": ["DyonWorkspace", "DyonArchitectureStream"],
+      "runtime_usage": "MEDIUM",
+      "feature_association": "DYON_WORKSPACE",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "stream_008",
+      "name": "risk_stream",
+      "owner": "GOVERNANCE",
+      "purpose": "Risk metrics streaming",
+      "api_endpoint": "governance",
+      "consumers": ["RiskPage", "HazardMonitorGrid"],
+      "runtime_usage": "HIGH",
+      "feature_association": "GOVERNANCE_WORKSPACE",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "stream_009",
+      "name": "simulation_stream",
+      "owner": "SIMULATION",
+      "purpose": "Simulation progress streaming",
+      "api_endpoint": "simulation",
+      "consumers": ["SimulationPage"],
+      "runtime_usage": "MEDIUM",
+      "feature_association": "SIMULATION_WORKSPACE",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "stream_010",
+      "name": "learning_stream",
+      "owner": "INDIRA",
+      "purpose": "Learning progress streaming",
+      "api_endpoint": "memory",
+      "consumers": ["IndiraLearningMode", "MemoryPage"],
+      "runtime_usage": "MEDIUM",
+      "feature_association": "LEARNING_WORKSPACE",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "stream_011",
+      "name": "signals_stream",
+      "owner": "EXECUTION",
+      "purpose": "Trading signals streaming",
+      "api_endpoint": "signals",
+      "consumers": ["SignalsPage", "TradingPage"],
+      "runtime_usage": "MEDIUM",
+      "feature_association": "EXECUTION_WORKSPACE",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "stream_012",
+      "name": "memecoin_stream",
+      "owner": "EXECUTION",
+      "purpose": "Memecoin data streaming",
+      "api_endpoint": "memecoin",
+      "consumers": ["memecoin pages"],
+      "runtime_usage": "MEDIUM",
+      "feature_association": "EXECUTION_WORKSPACE",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "stream_013",
+      "name": "cognitive_chat_stream",
+      "owner": "INDIRA",
+      "purpose": "Cognitive chat streaming",
+      "api_endpoint": "cognitive_chat",
+      "consumers": ["CognitiveChatPage", "IndiraChat"],
+      "runtime_usage": "MEDIUM",
+      "feature_association": "INDIRA_WORKSPACE",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "stream_014",
+      "name": "health_stream",
+      "owner": "OPERATOR",
+      "purpose": "System health metrics streaming",
+      "api_endpoint": "syshealth",
+      "consumers": ["SystemHealthPage", "MissionControlPage"],
+      "runtime_usage": "VERY_HIGH",
+      "feature_association": "OPERATOR_WORKSPACE",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "stream_015",
+      "name": "operator_stream",
+      "owner": "OPERATOR",
+      "purpose": "Operator state streaming",
+      "api_endpoint": "operator",
+      "consumers": ["OperatorPage", "OperatorWorkspacePage"],
+      "runtime_usage": "HIGH",
+      "feature_association": "OPERATOR_WORKSPACE",
+      "classification": "ACTIVE"
+    }
+  ]
+}

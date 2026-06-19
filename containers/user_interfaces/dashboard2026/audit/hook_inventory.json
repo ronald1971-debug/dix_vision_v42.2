@@ -1,0 +1,54 @@
+{
+  "inventory_date": "2026-06-19",
+  "dashboard_version": "DIX VISION v42.2",
+  "total_hooks": 3,
+  "classification_summary": {
+    "ACTIVE": 3,
+    "LEGACY": 0,
+    "EXPERIMENTAL": 0,
+    "DUPLICATE": 0,
+    "PARTIAL_DUPLICATE": 0,
+    "DEAD": 0
+  },
+  "hooks": [
+    {
+      "id": "hook_001",
+      "name": "useIndiraIntelligence",
+      "path": "src/hooks/useIndiraIntelligence.ts",
+      "size_bytes": 9830,
+      "owner": "INDIRA",
+      "purpose": "Custom hook for INDIRA intelligence integration",
+      "dependencies": ["indiraIntelligence", "cognitive"],
+      "consumers": ["IndiraWorkspacePage", "IndiraCognitiveCenterPage"],
+      "runtime_usage": "HIGH",
+      "feature_association": "INDIRA_WORKSPACE",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "hook_002",
+      "name": "useMarkets",
+      "path": "src/hooks/useMarkets.ts",
+      "size_bytes": 9847,
+      "owner": "EXECUTION",
+      "purpose": "Custom hook for market data integration",
+      "dependencies": ["markets", "fabric"],
+      "consumers": ["TradingPage", "MarketsPage", "FabricPage"],
+      "runtime_usage": "VERY_HIGH",
+      "feature_association": "EXECUTION_WORKSPACE",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "hook_003",
+      "name": "useWebSocketWithMock",
+      "path": "src/hooks/useWebSocketWithMock.ts",
+      "size_bytes": 2175,
+      "owner": "OPERATOR",
+      "purpose": "Custom hook for WebSocket with mock data support",
+      "dependencies": ["testing", "realtime"],
+      "consumers": ["All pages with real-time data"],
+      "runtime_usage": "HIGH",
+      "feature_association": "OPERATOR_WORKSPACE",
+      "classification": "ACTIVE"
+    }
+  ]
+}

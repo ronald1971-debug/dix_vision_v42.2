@@ -1,0 +1,125 @@
+{
+  "inventory_date": "2026-06-19",
+  "dashboard_version": "DIX VISION v42.2",
+  "total_workspaces": 10,
+  "classification_summary": {
+    "ACTIVE": 10,
+    "LEGACY": 0,
+    "EXPERIMENTAL": 0,
+    "DUPLICATE": 0,
+    "PARTIAL_DUPLICATE": 0,
+    "DEAD": 0
+  },
+  "workspaces": [
+    {
+      "id": "workspace_001",
+      "name": "INDIRA_WORKSPACE",
+      "owner": "INDIRA",
+      "purpose": "INDIRA market cognitive intelligence workspace",
+      "routes": ["indira-workspace", "/"],
+      "widgets": ["CognitiveObservatory", "IndiraConsciousnessPanel", "IndiraLearningMode", "IndiraCognitiveStream"],
+      "features": ["Belief tracking", "Knowledge management", "Hypothesis generation", "Cognitive monitoring"],
+      "runtime_usage": "VERY_HIGH",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "workspace_002",
+      "name": "DYON_WORKSPACE",
+      "owner": "DYON",
+      "purpose": "DYON system cognitive engineering workspace",
+      "routes": ["/dyon"],
+      "widgets": ["DyonWorkspace", "DyonArchitectureStream", "DyonLearningMode", "DyonChat"],
+      "features": ["Architecture visualization", "Technical debt tracking", "Evolution planning", "System learning"],
+      "runtime_usage": "HIGH",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "workspace_003",
+      "name": "GOVERNANCE_WORKSPACE",
+      "owner": "GOVERNANCE",
+      "purpose": "Governance and policy enforcement workspace",
+      "routes": ["/governance", "/risk", "/alerts"],
+      "widgets": ["PromotionGatesPanel", "HazardMonitorGrid", "ApprovalQueueWidget", "DriftOraclePanel"],
+      "features": ["Policy enforcement", "Risk evaluation", "Promotion gate validation", "Audit management"],
+      "runtime_usage": "VERY_HIGH",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "workspace_004",
+      "name": "WORLD_MODEL_WORKSPACE",
+      "owner": "WORLD_MODEL",
+      "purpose": "World model visualization and monitoring workspace",
+      "routes": ["/observatory", "/market-context"],
+      "widgets": ["CognitiveObservatory", "NewsTicker", "CoherencePanel", "RegimeTimeline"],
+      "features": ["Market state representation", "Causal understanding", "Prediction tracking", "World state visualization"],
+      "runtime_usage": "HIGH",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "workspace_005",
+      "name": "EXECUTION_WORKSPACE",
+      "owner": "EXECUTION",
+      "purpose": "Trading execution and order management workspace",
+      "routes": ["/fabric", "/execution", "/trading", "/orders-fills"],
+      "widgets": ["OrderForm", "SLTPBuilder", "PositionsPanel", "DepthLadder", "TimeAndSalesTape"],
+      "features": ["Order construction", "Venue selection", "Fill tracking", "Slippage calculations"],
+      "runtime_usage": "VERY_HIGH",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "workspace_006",
+      "name": "LEARNING_WORKSPACE",
+      "owner": "INDIRA",
+      "purpose": "Learning and adaptation monitoring workspace",
+      "routes": ["/memory", "/indira-learning", "/dyon-learning"],
+      "widgets": ["IndiraLearningMode", "MemoryPage", "CoherencePanel"],
+      "features": ["Outcome measurement", "Performance attribution", "Confidence updating", "Strategy learning"],
+      "runtime_usage": "MEDIUM",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "workspace_007",
+      "name": "EVOLUTION_WORKSPACE",
+      "owner": "DYON",
+      "purpose": "System evolution and self-improvement workspace",
+      "routes": ["/dyon", "/architecture"],
+      "widgets": ["DyonArchitectureStream", "StrategyRegistryFSM", "DriftOraclePanel"],
+      "features": ["Evolution planning", "Patch management", "Technical debt tracking", "System learning"],
+      "runtime_usage": "LOW",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "workspace_008",
+      "name": "SIMULATION_WORKSPACE",
+      "owner": "SIMULATION",
+      "purpose": "Simulation and backtesting workspace",
+      "routes": ["/simulation", "/testing", "/strategies"],
+      "widgets": ["SimulationPage components", "ChartPanel", "StrategyRegistryFSM"],
+      "features": ["Strategy execution", "Replay history", "Simulation execution", "Regime testing"],
+      "runtime_usage": "MEDIUM",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "workspace_009",
+      "name": "OPERATOR_WORKSPACE",
+      "owner": "OPERATOR",
+      "purpose": "Operator control and system management workspace",
+      "routes": ["/mission-control", "/operator", "/operator-workspace", "/system-health"],
+      "widgets": ["GlobalSystemControlBar", "CommandPalette", "OperatorPage components"],
+      "features": ["Operator sovereignty", "System monitoring", "Configuration management", "Operator console"],
+      "runtime_usage": "VERY_HIGH",
+      "classification": "ACTIVE"
+    },
+    {
+      "id": "workspace_010",
+      "name": "DESKTOP_AGENT_WORKSPACE",
+      "owner": "EXECUTION",
+      "purpose": "Desktop agent control and automation workspace",
+      "routes": ["/adapters", "/agent-ops"],
+      "widgets": ["AdapterStatusGrid", "AgentOpsPage components"],
+      "features": ["Browser control", "Desktop control", "Application control", "Workflow automation"],
+      "runtime_usage": "LOW",
+      "classification": "ACTIVE"
+    }
+  ]
+}

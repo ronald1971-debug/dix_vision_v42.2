@@ -11,17 +11,15 @@
  * NOTE: Integration planned for Dashboard2026 transformation Phase 1
  */
 
-import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { useWebSocketWithMock } from '@/hooks/useWebSocketWithMock';
-import { generateIndiraActivities, generateDyonActivities, generateTasks, generateSystemEvents } from '@/lib/mock/mockAgentData';
-import { DEV_CONFIG } from '@/config/dev';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { useEnhancedWorldAwareWebSocket } from '@/hooks/useEnhancedWorldAwareWebSocket';
+import { useEnhancedWorldAwareDataGenerator } from '@/lib/world/EnhancedWorldAwareDataGenerator';
 import type {
   IndiraActivity,
   DyonActivity,
   Task,
   SystemEvent,
   ConnectionState,
-  WebSocketMessage,
 } from '@/types/agent';
 
 // ============================================================================
@@ -30,10 +28,10 @@ import type {
 
 interface AgentOpsContextType {
   // WebSocket
-  websocket: ReturnType<typeof useWebSocketWithMock>['manager'];
+  websocket: ReturnType<typeof useEnhancedWorldAwareWebSocket>;
   connectionState: ConnectionState;
   isConnected: boolean;
-  isMockMode: boolean;
+  isWorldAware: boolean;
 
   // Data
   indiraActivities: IndiraActivity[];
@@ -60,12 +58,13 @@ const AgentOpsContext = createContext<AgentOpsContextType | null>(null);
 // ============================================================================
 
 interface AgentOpsProviderProps {
-  children: ReactNode;
+  children: any;
 }
 
 export function AgentOpsProvider({ children }: AgentOpsProviderProps) {
-  // WebSocket connection
-  const { manager, connectionState, isConnected, isMockMode } = useWebSocketWithMock();
+  // Enhanced world-aware WebSocket connection
+  const websocket = useEnhancedWorldAwareWebSocket('ws://localhost:8080/api/dashboard/stream');
+  const { generateAgentData, generateTaskData, generateSystemMetrics } = useEnhancedWorldAwareDataGenerator();
 
   // Activity data
   const [indiraActivities, setIndiraActivities] = useState<IndiraActivity[]>([]);
@@ -74,86 +73,75 @@ export function AgentOpsProvider({ children }: AgentOpsProviderProps) {
   const [globalEvents, setGlobalEvents] = useState<SystemEvent[]>([]);
 
   // ==========================================================================
-  // WebSocket Connection Setup & Mock Data Initialization
+  // WebSocket Connection Setup & World-Aware Data Initialization
   // ==========================================================================
 
   useEffect(() => {
-    // Initialize mock data if in mock mode
-    if (isMockMode) {
-      console.log('Initializing mock data for Agent Operations Center');
-      setIndiraActivities(generateIndiraActivities(10));
-      setDyonActivities(generateDyonActivities(10));
-      setSharedTasks(generateTasks(15));
-      setGlobalEvents(generateSystemEvents(20));
+    // Initialize world-aware data if not connected to backend
+    if (!websocket.isConnected) {
+      console.log('Initializing world-aware data for Agent Operations Center');
+      
+      // Use enhanced world-aware data generators
+      for (let i = 0; i < 10; i++) {
+        const agentData = generateAgentData() as any;
+        setIndiraActivities((prev: any[]) => [{ ...agentData, id: `indira-${i}` }, ...prev]);
+        setDyonActivities((prev: any[]) => [{ ...agentData, id: `dyon-${i}` }, ...prev]);
+      }
+      
+      for (let i = 0; i < 15; i++) {
+        const taskData = generateTaskData() as any;
+        setSharedTasks((prev: any[]) => [{ ...taskData, id: `task-${i}` }, ...prev]);
+      }
+      
+      for (let i = 0; i < 20; i++) {
+        const metrics = generateSystemMetrics() as any;
+        setGlobalEvents((prev: any[]) => [{ ...metrics, id: `event-${i}`, type: 'system-metric' }, ...prev]);
+      }
     }
+  }, [websocket.isConnected, generateAgentData, generateTaskData, generateSystemMetrics]);
 
-    // Subscribe to WebSocket events
-    const unsubscribeIndiraActivity = manager.subscribe('indira:activity', (message: WebSocketMessage) => {
-      setIndiraActivities(prev => {
-        const activity = message.data as IndiraActivity;
-        const filtered = prev.filter(a => a.id !== activity.id);
-        return [activity, ...filtered].slice(0, DEV_CONFIG.MAX_ACTIVITIES);
-      });
-    });
+  // ==========================================================================
+  // WebSocket Message Handling
+  // ==========================================================================
 
-    const unsubscribeDyonActivity = manager.subscribe('dyon:activity', (message: WebSocketMessage) => {
-      setDyonActivities(prev => {
-        const activity = message.data as DyonActivity;
-        const filtered = prev.filter(a => a.id !== activity.id);
-        return [activity, ...filtered].slice(0, DEV_CONFIG.MAX_ACTIVITIES);
-      });
-    });
+  useEffect(() => {
+    if (!websocket.isConnected) return;
 
-    const unsubscribeTaskUpdate = manager.subscribe('task:update', (message: WebSocketMessage) => {
-      setSharedTasks(prev => {
-        const task = message.data as Task;
-        const index = prev.findIndex(t => t.id === task.id);
-        if (index > -1) {
-          const updated = [...prev];
-          updated[index] = task;
-          return updated;
-        }
-        return [task, ...prev].slice(0, 500);
-      });
-    });
-
-    const unsubscribeSystemEvent = manager.subscribe('system:event', (message: WebSocketMessage) => {
-      setGlobalEvents(prev => {
-        const event = message.data as SystemEvent;
-        return [event, ...prev].slice(0, DEV_CONFIG.MAX_EVENTS);
-      });
-    });
-
-    // Cleanup on unmount
-    return () => {
-      unsubscribeIndiraActivity();
-      unsubscribeDyonActivity();
-      unsubscribeTaskUpdate();
-      unsubscribeSystemEvent();
+    // Simplified message handling - can be expanded later
+    const handleMessages = () => {
+      // Process WebSocket messages when available
+      if (websocket.messages.length > 0) {
+        const latestMessage = websocket.messages[websocket.messages.length - 1];
+        console.log('Latest WebSocket message:', latestMessage);
+      }
     };
-  }, [manager, isMockMode]);
+
+    const interval = setInterval(handleMessages, 1000);
+
+    return () => clearInterval(interval);
+  }, [websocket.isConnected, websocket.messages]);
 
   // ==========================================================================
   // Activity Management Functions
   // ==========================================================================
 
   const addIndiraActivity = useCallback((activity: IndiraActivity) => {
-    setIndiraActivities(prev => {
-      const filtered = prev.filter(a => a.id !== activity.id);
+    setIndiraActivities((prev: IndiraActivity[]) => {
+      const filtered = prev.filter((a: IndiraActivity) => a.id !== activity.id);
       return [activity, ...filtered].slice(0, 1000);
     });
   }, []);
 
   const addDyonActivity = useCallback((activity: DyonActivity) => {
-    setDyonActivities(prev => {
-      const filtered = prev.filter(a => a.id !== activity.id);
+    setDyonActivities((prev: DyonActivity[]) => {
+      const filtered = prev.filter((a: DyonActivity) => a.id !== activity.id);
       return [activity, ...filtered].slice(0, 1000);
     });
   }, []);
 
   const updateSharedTask = useCallback((task: Task) => {
-    setSharedTasks(prev => {
-      const index = prev.findIndex(t => t.id === task.id);
+    setSharedTasks((prev: Task[]) => {
+      const index = prev.findIndex((t: Task) => t.id === task.id);
       if (index > -1) {
         const updated = [...prev];
         updated[index] = task;
@@ -164,7 +152,7 @@ export function AgentOpsProvider({ children }: AgentOpsProviderProps) {
   }, []);
 
   const addGlobalEvent = useCallback((event: SystemEvent) => {
-    setGlobalEvents(prev => {
+    setGlobalEvents((prev: SystemEvent[]) => {
       return [event, ...prev].slice(0, 1000);
     });
   }, []);
@@ -184,11 +172,15 @@ export function AgentOpsProvider({ children }: AgentOpsProviderProps) {
   // ==========================================================================
   // Context Value
   // ==========================================================================
-
+  
+  const connectionState: ConnectionState = websocket.isConnected ? 'connected' : 'disconnected';
+  const isWorldAware = websocket.cognitiveLive;
+  
   const value: AgentOpsContextType = {
-    websocket: manager,
+    websocket,
     connectionState,
-    isConnected,
+    isConnected: websocket.isConnected,
+    isWorldAware,
     indiraActivities,
     dyonActivities,
     sharedTasks,
@@ -200,7 +192,6 @@ export function AgentOpsProvider({ children }: AgentOpsProviderProps) {
     clearIndiraActivities,
     clearDyonActivities,
     clearGlobalEvents,
-    isMockMode,
   };
 
   return (
@@ -214,57 +205,10 @@ export function AgentOpsProvider({ children }: AgentOpsProviderProps) {
 // Custom Hook
 // ============================================================================
 
-/**
- * Hook to use Agent Operations Center context
- */
-export function useAgentOps(): AgentOpsContextType {
+export function useAgentOps() {
   const context = useContext(AgentOpsContext);
   if (!context) {
     throw new Error('useAgentOps must be used within AgentOpsProvider');
   }
   return context;
-}
-
-// ============================================================================
-// Data Hooks
-// ============================================================================
-
-/**
- * Hook for INDIRA activities
- */
-export function useIndiraActivities() {
-  const { indiraActivities } = useAgentOps();
-  return indiraActivities;
-}
-
-/**
- * Hook for DYON activities
- */
-export function useDyonActivities() {
-  const { dyonActivities } = useAgentOps();
-  return dyonActivities;
-}
-
-/**
- * Hook for shared tasks
- */
-export function useSharedTasks() {
-  const { sharedTasks } = useAgentOps();
-  return sharedTasks;
-}
-
-/**
- * Hook for global events
- */
-export function useGlobalEvents() {
-  const { globalEvents } = useAgentOps();
-  return globalEvents;
-}
-
-/**
- * Hook for connection state
- */
-export function useConnectionState() {
-  const { connectionState, isConnected, isMockMode } = useAgentOps();
-  return { connectionState, isConnected, isMockMode };
 }

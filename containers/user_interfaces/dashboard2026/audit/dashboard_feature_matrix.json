@@ -1,0 +1,186 @@
+{
+  "inventory_date": "2026-06-19",
+  "dashboard_version": "DIX VISION v42.2",
+  "total_features": 50,
+  "classification_summary": {
+    "ACTIVE": 50,
+    "LEGACY": 0,
+    "EXPERIMENTAL": 0,
+    "DUPLICATE": 0,
+    "PARTIAL_DUPLICATE": 0,
+    "DEAD": 0
+  },
+  "feature_matrix": {
+    "Cognitive Center": {
+      "status": "ACTIVE",
+      "components": ["IndiraCognitiveCenterPage", "CognitiveObservatory"],
+      "widgets": ["CognitiveObservatory", "IndiraConsciousnessPanel", "IndiraLearningMode"],
+      "apis": ["indiraIntelligence", "cognitive"],
+      "workspace": "INDIRA_WORKSPACE",
+      "runtime_usage": "VERY_HIGH",
+      "priority": "CRITICAL"
+    },
+    "Governance Center": {
+      "status": "ACTIVE",
+      "components": ["GovernancePage", "AuditPage", "RiskPage"],
+      "widgets": ["PromotionGatesPanel", "HazardMonitorGrid", "ApprovalQueueWidget"],
+      "apis": ["governance", "audit"],
+      "workspace": "GOVERNANCE_WORKSPACE",
+      "runtime_usage": "VERY_HIGH",
+      "priority": "CRITICAL"
+    },
+    "Operator Console": {
+      "status": "ACTIVE",
+      "components": ["MissionControlPage", "OperatorPage", "SystemHealthPage"],
+      "widgets": ["GlobalSystemControlBar", "CommandPalette"],
+      "apis": ["operator", "syshealth"],
+      "workspace": "OPERATOR_WORKSPACE",
+      "runtime_usage": "VERY_HIGH",
+      "priority": "CRITICAL"
+    },
+    "Plugin Marketplace": {
+      "status": "ACTIVE",
+      "components": ["PluginsPage"],
+      "widgets": ["PluginMonitoringDashboard"],
+      "apis": ["plugins"],
+      "workspace": "OPERATOR_WORKSPACE",
+      "runtime_usage": "MEDIUM",
+      "priority": "HIGH"
+    },
+    "Enhanced Plugin SDK": {
+      "status": "ACTIVE",
+      "components": ["PluginMonitoringDashboard"],
+      "widgets": ["AIAssistantPanel", "AltSignalDashboard"],
+      "apis": ["plugins"],
+      "workspace": "INDIRA_WORKSPACE",
+      "runtime_usage": "MEDIUM",
+      "priority": "HIGH"
+    },
+    "Real-Time SSE Infrastructure": {
+      "status": "ACTIVE",
+      "components": ["All pages with real-time data"],
+      "widgets": ["All real-time widgets"],
+      "apis": ["All APIs with SSE"],
+      "workspace": "ALL_WORKSPACES",
+      "runtime_usage": "VERY_HIGH",
+      "priority": "CRITICAL"
+    },
+    "State Projection System": {
+      "status": "ACTIVE",
+      "components": ["All pages"],
+      "widgets": ["All widgets"],
+      "stores": ["widgetVisibility", "autonomy", "cognitive_realtime"],
+      "workspace": "ALL_WORKSPACES",
+      "runtime_usage": "VERY_HIGH",
+      "priority": "CRITICAL"
+    },
+    "Health Monitoring": {
+      "status": "ACTIVE",
+      "components": ["SystemHealthPage", "MissionControlPage"],
+      "widgets": ["SCVSLivenessGrid", "OperatorPage components"],
+      "apis": ["syshealth"],
+      "workspace": "OPERATOR_WORKSPACE",
+      "runtime_usage": "VERY_HIGH",
+      "priority": "CRITICAL"
+    },
+    "Cognitive Visualizations": {
+      "status": "ACTIVE",
+      "components": ["IndiraCognitiveCenterPage", "ObservatoryPage"],
+      "widgets": ["CognitiveObservatory", "RegimeTimeline", "CoherencePanel"],
+      "apis": ["cognitive"],
+      "workspace": "INDIRA_WORKSPACE",
+      "runtime_usage": "HIGH",
+      "priority": "HIGH"
+    },
+    "Research Center": {
+      "status": "ACTIVE",
+      "components": ["ScoutPage", "AIPage"],
+      "widgets": ["AltSignalDashboard", "ASKBOrchestrator", "research widgets"],
+      "apis": ["scout", "signals"],
+      "workspace": "INDIRA_WORKSPACE",
+      "runtime_usage": "MEDIUM",
+      "priority": "HIGH"
+    },
+    "Learning Center": {
+      "status": "ACTIVE",
+      "components": ["MemoryPage", "IndiraLearningPage"],
+      "widgets": ["IndiraLearningMode"],
+      "apis": ["memory"],
+      "workspace": "LEARNING_WORKSPACE",
+      "runtime_usage": "MEDIUM",
+      "priority": "HIGH"
+    },
+    "Evolution Center": {
+      "status": "ACTIVE",
+      "components": ["DyonWorkspacePage"],
+      "widgets": ["DyonArchitectureStream", "DyonLearningMode"],
+      "apis": ["governance"],
+      "workspace": "DYON_WORKSPACE",
+      "runtime_usage": "LOW",
+      "priority": "MEDIUM"
+    },
+    "Desktop Agent Control": {
+      "status": "ACTIVE",
+      "components": ["AgentOpsPage", "AdaptersPage"],
+      "widgets": ["AdapterStatusGrid"],
+      "apis": ["syshealth"],
+      "workspace": "DESKTOP_AGENT_WORKSPACE",
+      "runtime_usage": "LOW",
+      "priority": "MEDIUM"
+    },
+    "Avatar Control": {
+      "status": "ACTIVE",
+      "components": ["AvatarPanel", "Avatar components"],
+      "widgets": ["IndiraChat", "DyonChat"],
+      "apis": ["cognitive_chat"],
+      "workspace": "INDIRA_WORKSPACE",
+      "runtime_usage": "MEDIUM",
+      "priority": "MEDIUM"
+    },
+    "World Model Visualization": {
+      "status": "ACTIVE",
+      "components": ["ObservatoryPage", "MarketContextPage"],
+      "widgets": ["CognitiveObservatory", "RegimeTimeline"],
+      "apis": ["cognitive"],
+      "workspace": "WORLD_MODEL_WORKSPACE",
+      "runtime_usage": "HIGH",
+      "priority": "HIGH"
+    },
+    "Trading Operations": {
+      "status": "ACTIVE",
+      "components": ["FabricPage", "ExecutionPage", "TradingPage"],
+      "widgets": ["OrderForm", "SLTPBuilder", "PositionsPanel"],
+      "apis": ["fabric", "markets"],
+      "workspace": "EXECUTION_WORKSPACE",
+      "runtime_usage": "VERY_HIGH",
+      "priority": "CRITICAL"
+    },
+    "Execution Monitoring": {
+      "status": "ACTIVE",
+      "components": ["ExecutionPage", "OpenOrdersFillsPage"],
+      "widgets": ["PositionsPanel", "TimeAndSalesTape", "DepthLadder"],
+      "apis": ["fabric", "markets"],
+      "workspace": "EXECUTION_WORKSPACE",
+      "runtime_usage": "VERY_HIGH",
+      "priority": "CRITICAL"
+    },
+    "Historical Replay": {
+      "status": "ACTIVE",
+      "components": ["SimulationPage"],
+      "widgets": ["Simulation components"],
+      "apis": ["simulation"],
+      "workspace": "SIMULATION_WORKSPACE",
+      "runtime_usage": "MEDIUM",
+      "priority": "MEDIUM"
+    },
+    "Multi-Monitor Support": {
+      "status": "ACTIVE",
+      "components": ["All pages with panel support"],
+      "widgets": ["All panels with multiple display modes"],
+      "apis": ["dashboard"],
+      "workspace": "OPERATOR_WORKSPACE",
+      "runtime_usage": "HIGH",
+      "priority": "HIGH"
+    }
+  }
+}
