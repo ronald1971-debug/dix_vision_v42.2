@@ -72,9 +72,18 @@ import hashlib
 import json
 import multiprocessing
 from collections.abc import Callable, Iterable, Mapping, Sequence
+from collections import deque
 from dataclasses import dataclass, field
 from queue import Empty
-from typing import Any, Generic, TypeVar
+from typing import Any, Generic, TypeVar, Optional, Dict, List
+from enum import Enum
+
+# World context integration (Phase 9.2 enhancement)
+try:
+    from world_model.indicator_integration import get_integration_bridge
+    WORLD_MODEL_AVAILABLE = True
+except ImportError:
+    WORLD_MODEL_AVAILABLE = False
 
 EVENT_FABRIC_VERSION: int = 1
 
@@ -92,6 +101,33 @@ T = TypeVar("T")
 U = TypeVar("U")
 K = TypeVar("K")
 A = TypeVar("A")
+
+
+# ---------------------------------------------------------------------------
+# World Context Integration (Phase 9.2 Enhancement)
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True, slots=True)
+class WorldContext:
+    """World context for event processing with enhanced metadata."""
+    
+    market_regime: str = "unknown"
+    market_trend: str = "unknown"
+    volatility_regime: str = "unknown"
+    liquidity_state: str = "unknown"
+    agent_activity: Dict[str, float] = field(default_factory=dict)
+    causal_factors: List[str] = field(default_factory=list)
+    prediction_confidence: float = 0.0
+    timestamp_ns: int = 0
+
+
+class EventPriority(Enum):
+    """Event priority levels for world-aware event scheduling."""
+    CRITICAL = 1  # Financial events during high volatility
+    HIGH = 2      # Trading-related events
+    NORMAL = 3    # Standard events
+    LOW = 4       # Background events
 
 
 # ---------------------------------------------------------------------------
@@ -281,13 +317,15 @@ class Dataflow:
 
 @dataclass(frozen=True, slots=True)
 class FabricResult:
-    """One emitted output from the fabric.
+    """Enhanced fabric output with world context metadata (Phase 9.2).
 
     The fabric is purely a transport — ``payload`` carries
     already-constructed DIX events (``SignalEvent`` / ``HazardEvent``
     / ``ExecutionEvent`` / ``SystemEvent``) or downstream aggregates.
     The fabric never constructs typed events itself; that authority
     stays with the producing engine (B27 / B28 / INV-71).
+    
+    Enhanced with world context for prioritization and correlation.
     """
 
     seq: int
@@ -296,6 +334,9 @@ class FabricResult:
     key: str = ""
     bucket_idx: int = -1
     meta: Mapping[str, str] = field(default_factory=dict)
+    world_context: Optional[WorldContext] = None  # Phase 9.2 enhancement
+    priority: EventPriority = EventPriority.NORMAL  # Phase 9.2 enhancement
+    world_correlated: bool = False  # Phase 9.2 enhancement
 
 
 # ---------------------------------------------------------------------------
@@ -357,6 +398,205 @@ def run_dataflow(
         seq += 1
 
     return tuple(final_results)
+
+
+# ---------------------------------------------------------------------------
+# World-Aware Event Fabric Manager (Phase 9.2 Enhancement)
+# ---------------------------------------------------------------------------
+
+
+class WorldAwareEventFabricManager:
+    """Enhanced event fabric manager with world context integration.
+    
+    Provides world-aware event prioritization, correlation, and pattern detection
+    while maintaining the core OFFLINE_ONLY architecture constraints.
+    """
+    
+    def __init__(self):
+        self._world_integration_bridge = None
+        self._current_world_context: Optional[WorldContext] = None
+        self._world_state_buffer: deque = deque(maxlen=200)  # World state history
+        self._event_patterns: dict[str, deque] = {}  # Event pattern detection
+        self._total_events_processed: int = 0
+        self._world_correlated_events: int = 0
+        
+        if WORLD_MODEL_AVAILABLE:
+            self._init_world_integration()
+    
+    def _init_world_integration(self) -> None:
+        """Initialize world model integration bridge."""
+        try:
+            self._world_integration_bridge = get_integration_bridge()
+            print("[EVENT_FABRIC] World model integration initialized")
+        except Exception as e:
+            print(f"[EVENT_FABRIC] Failed to initialize world integration: {e}")
+            self._world_integration_bridge = None
+    
+    def _get_world_context(self) -> Optional[WorldContext]:
+        """Get current world context from world model."""
+        if not self._world_integration_bridge:
+            return None
+        
+        try:
+            world_state = self._world_integration_bridge.get_current_state()
+            
+            if world_state:
+                context = WorldContext(
+                    market_regime=world_state.get('market_regime', 'unknown'),
+                    market_trend=world_state.get('market_trend', 'unknown'),
+                    volatility_regime=world_state.get('volatility_regime', 'unknown'),
+                    liquidity_state=world_state.get('liquidity_state', 'unknown'),
+                    agent_activity=world_state.get('agent_activity', {}),
+                    causal_factors=world_state.get('causal_factors', []),
+                    prediction_confidence=world_state.get('prediction_confidence', 0.0),
+                    timestamp_ns=int(world_state.get('timestamp', 0) * 1_000_000_000)
+                )
+                self._current_world_context = context
+                self._world_state_buffer.append(context)
+                return context
+        
+        except Exception as e:
+            print(f"[EVENT_FABRIC] Failed to get world context: {e}")
+        
+        return None
+    
+    def calculate_event_priority(self, event: object, operator_name: str) -> EventPriority:
+        """Calculate event priority based on world context and event characteristics."""
+        world_context = self._get_world_context()
+        
+        if not world_context:
+            return EventPriority.NORMAL
+        
+        # Financial and trading events get higher priority during high volatility
+        financial_operators = ['trade', 'market', 'price', 'order', 'execution', 'signal']
+        operator_lower = operator_name.lower()
+        
+        if any(keyword in operator_lower for keyword in financial_operators):
+            if world_context.volatility_regime == "high":
+                return EventPriority.CRITICAL
+            elif world_context.volatility_regime == "medium":
+                return EventPriority.HIGH
+        
+        # System events during regime transitions
+        if world_context.market_regime != "unknown" and 'regime' in operator_lower:
+            if world_context.volatility_regime == "high":
+                return EventPriority.HIGH
+        
+        return EventPriority.NORMAL
+    
+    def correlate_with_world_state(self, event: object) -> bool:
+        """Correlate event with world state changes."""
+        world_context = self._current_world_context
+        
+        if not world_context or len(self._world_state_buffer) < 2:
+            return False
+        
+        # Check if this event correlates with recent world state changes
+        previous_context = self._world_state_buffer[-2]
+        
+        # Regime transition correlation
+        if previous_context.market_regime != world_context.market_regime:
+            return True
+        
+        # Volatility spike correlation
+        if previous_context.volatility_regime != world_context.volatility_regime:
+            return world_context.volatility_regime == "high"
+        
+        # Trend change correlation
+        if previous_context.market_trend != world_context.market_trend:
+            return True
+        
+        return False
+    
+    def detect_event_pattern(self, event: object, operator_name: str) -> Optional[str]:
+        """Detect patterns in event streams with world context."""
+        pattern_key = f"{operator_name}_{type(event).__name__}"
+        
+        if pattern_key not in self._event_patterns:
+            self._event_patterns[pattern_key] = deque(maxlen=10)
+        
+        self._event_patterns[pattern_key].append(event)
+        
+        # Simple pattern detection - check for repeated events
+        if len(self._event_patterns[pattern_key]) >= 3:
+            # Could add more sophisticated pattern detection here
+            pass
+        
+        return None
+    
+    def run_dataflow_with_world_context(
+        self,
+        df: Dataflow,
+        events: Iterable[object],
+    ) -> tuple[FabricResult, ...]:
+        """Enhanced dataflow execution with world context integration.
+        
+        Maintains core determinism while adding world-aware metadata.
+        """
+        # Get current world context
+        world_context = self._get_world_context()
+        
+        # Run standard dataflow (maintains determinism)
+        results = run_dataflow(df, events)
+        
+        # Enhance results with world context metadata
+        enhanced_results = []
+        
+        for result in results:
+            # Calculate priority based on world context
+            priority = self.calculate_event_priority(result.payload, result.operator_name)
+            
+            # Correlate with world state
+            world_correlated = self.correlate_with_world_state(result.payload)
+            if world_correlated:
+                self._world_correlated_events += 1
+            
+            # Detect patterns
+            self.detect_event_pattern(result.payload, result.operator_name)
+            
+            # Track total events
+            self._total_events_processed += 1
+            
+            # Create enhanced result
+            enhanced_result = FabricResult(
+                seq=result.seq,
+                operator_name=result.operator_name,
+                payload=result.payload,
+                key=result.key,
+                bucket_idx=result.bucket_idx,
+                meta=result.meta,
+                world_context=world_context,
+                priority=priority,
+                world_correlated=world_correlated
+            )
+            
+            enhanced_results.append(enhanced_result)
+        
+        return tuple(enhanced_results)
+    
+    def get_fabric_statistics(self) -> dict[str, Any]:
+        """Get event fabric statistics with world context information."""
+        return {
+            "total_events_processed": self._total_events_processed,
+            "world_correlated_events": self._world_correlated_events,
+            "world_integration_available": WORLD_MODEL_AVAILABLE,
+            "world_integration_active": self._world_integration_bridge is not None,
+            "current_world_context": self._current_world_context.market_regime if self._current_world_context else "unknown",
+            "world_state_buffer_size": len(self._world_state_buffer),
+            "event_patterns_detected": len(self._event_patterns)
+        }
+
+
+# Global fabric manager instance
+_global_fabric_manager: Optional[WorldAwareEventFabricManager] = None
+
+
+def get_world_aware_fabric_manager() -> WorldAwareEventFabricManager:
+    """Get the global world-aware event fabric manager instance."""
+    global _global_fabric_manager
+    if _global_fabric_manager is None:
+        _global_fabric_manager = WorldAwareEventFabricManager()
+    return _global_fabric_manager
 
 
 def _apply_reduce(

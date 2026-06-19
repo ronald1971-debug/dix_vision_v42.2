@@ -1,38 +1,249 @@
-"""Actual API implementations for all data sources.
+"""Enhanced API implementations with world context integration.
 
-This module contains the concrete API implementations for all 62+ data sources
-added to the DIX VISION system. Each source has a specific implementation class
-that handles authentication, rate limiting, and data normalization.
+This module contains concrete API implementations for all data sources
+with world-aware rate limiting, caching, and prioritization capabilities.
 """
 
 from __future__ import annotations
 
 import logging
 import time
+import statistics
 from datetime import UTC, datetime
-from typing import Any
+from typing import Any, Optional, Dict
+from dataclasses import dataclass, field
+from collections import deque
+from enum import Enum
 
 LOG = logging.getLogger(__name__)
 
+# World context integration
+try:
+    from world_model.indicator_integration import get_integration_bridge
+    WORLD_MODEL_AVAILABLE = True
+except ImportError:
+    WORLD_MODEL_AVAILABLE = False
+    LOG.warning("[API_IMPLEMENTATIONS] World model integration not available")
+
+
+@dataclass
+class WorldContext:
+    """World context for API operations."""
+    market_regime: str = "unknown"
+    market_trend: str = "unknown"
+    volatility_regime: str = "unknown"
+    liquidity_state: str = "unknown"
+    agent_activity: Dict[str, float] = field(default_factory=dict)
+    causal_factors: list[str] = field(default_factory=list)
+    prediction_confidence: float = 0.0
+    timestamp: datetime = field(default_factory=datetime.utcnow)
+
+
+class APIPriority(Enum):
+    """API priority levels for world-aware request scheduling."""
+    CRITICAL = 1  # Financial data during high volatility
+    HIGH = 2      # Trading-related data
+    NORMAL = 3    # Standard data requests
+    LOW = 4       # Background data collection
+
 
 class BaseAPIAdapter:
-    """Base class for all API adapters with common functionality."""
+    """Enhanced base class for all API adapters with world-aware capabilities."""
     
     def __init__(self):
         self._last_request_time: float = 0.0
-        self._min_request_interval: float = 1.0  # Rate limiting
+        self._base_min_request_interval: float = 1.0  # Base rate limiting
+        self._current_min_request_interval: float = 1.0  # World-aware rate limiting
         self._api_key: str | None = None
+        
+        # World context integration
+        self._world_integration_bridge = None
+        self._current_world_context: Optional[WorldContext] = None
+        
+        # API health monitoring
+        self._request_history: deque = deque(maxlen=100)
+        self._error_count: int = 0
+        self._success_count: int = 0
+        
+        # Request caching (simple implementation)
+        self._cache: Dict[str, tuple[Any, float]] = {}  # key -> (value, timestamp)
+        self._cache_ttl: float = 30.0  # Cache TTL in seconds
+        
+        if WORLD_MODEL_AVAILABLE:
+            self._init_world_integration()
     
-    def _rate_limit(self) -> None:
-        """Enforce rate limiting between requests."""
+    def _init_world_integration(self) -> None:
+        """Initialize world model integration bridge."""
+        try:
+            self._world_integration_bridge = get_integration_bridge()
+            LOG.info(f"[{self.__class__.__name__}] World model integration initialized")
+        except Exception as e:
+            LOG.warning(f"[{self.__class__.__name__}] Failed to initialize world integration: {e}")
+            self._world_integration_bridge = None
+    
+    def _get_world_context(self) -> Optional[WorldContext]:
+        """Get current world context from world model."""
+        if not self._world_integration_bridge:
+            return None
+        
+        try:
+            world_state = self._world_integration_bridge.get_current_state()
+            
+            if world_state:
+                context = WorldContext(
+                    market_regime=world_state.get('market_regime', 'unknown'),
+                    market_trend=world_state.get('market_trend', 'unknown'),
+                    volatility_regime=world_state.get('volatility_regime', 'unknown'),
+                    liquidity_state=world_state.get('liquidity_state', 'unknown'),
+                    agent_activity=world_state.get('agent_activity', {}),
+                    causal_factors=world_state.get('causal_factors', []),
+                    prediction_confidence=world_state.get('prediction_confidence', 0.0),
+                    timestamp=datetime.utcnow()
+                )
+                self._current_world_context = context
+                return context
+        
+        except Exception as e:
+            LOG.debug(f"[{self.__class__.__name__}] Failed to get world context: {e}")
+        
+        return None
+    
+    def _calculate_world_aware_priority(self, endpoint: str) -> APIPriority:
+        """Calculate API request priority based on world context and endpoint."""
+        world_context = self._get_world_context()
+        
+        if not world_context:
+            return APIPriority.NORMAL
+        
+        # Financial data endpoints get higher priority during high volatility
+        financial_endpoints = ['price', 'market', 'trade', 'order', 'ticker']
+        
+        if any(keyword in endpoint.lower() for keyword in financial_endpoints):
+            if world_context.volatility_regime == "high":
+                return APIPriority.CRITICAL
+            elif world_context.volatility_regime == "medium":
+                return APIPriority.HIGH
+        
+        return APIPriority.NORMAL
+    
+    def _calculate_world_aware_rate_limit(self, priority: APIPriority) -> float:
+        """Calculate adaptive rate limit based on world context and priority."""
+        world_context = self._get_world_context()
+        
+        base_interval = self._base_min_request_interval
+        
+        if not world_context:
+            return base_interval
+        
+        # Adjust rate limit based on volatility and priority
+        if world_context.volatility_regime == "high":
+            if priority == APIPriority.CRITICAL:
+                return base_interval * 0.2  # 5x faster for critical requests
+            elif priority == APIPriority.HIGH:
+                return base_interval * 0.5  # 2x faster for high priority
+            else:
+                return base_interval * 0.8  # 1.25x faster for normal requests
+        elif world_context.volatility_regime == "low" and world_context.market_trend == "stable":
+            # Slow down requests during stable periods
+            if priority == APIPriority.LOW:
+                return base_interval * 2.0  # 2x slower for low priority
+            else:
+                return base_interval * 1.5  # 1.5x slower for normal requests
+        
+        return base_interval
+    
+    def _rate_limit(self, endpoint: str = "default") -> None:
+        """Enforce world-aware rate limiting between requests."""
+        # Calculate priority for this endpoint
+        priority = self._calculate_world_aware_priority(endpoint)
+        
+        # Calculate adaptive rate limit
+        adaptive_interval = self._calculate_world_aware_rate_limit(priority)
+        self._current_min_request_interval = adaptive_interval
+        
         elapsed = time.time() - self._last_request_time
-        if elapsed < self._min_request_interval:
-            time.sleep(self._min_request_interval - elapsed)
+        if elapsed < adaptive_interval:
+            time.sleep(adaptive_interval - elapsed)
         self._last_request_time = time.time()
+    
+    def _get_cache_key(self, endpoint: str, params: dict = None) -> str:
+        """Generate cache key for request."""
+        key_parts = [endpoint]
+        if params:
+            key_parts.extend([f"{k}={v}" for k, v in sorted(params.items())])
+        return "|".join(key_parts)
+    
+    def _get_from_cache(self, cache_key: str) -> Optional[Any]:
+        """Get response from cache if available and not expired."""
+        if cache_key in self._cache:
+            value, timestamp = self._cache[cache_key]
+            age = time.time() - timestamp
+            
+            world_context = self._get_world_context()
+            if world_context and world_context.market_trend == "stable":
+                # Use longer cache TTL during stable periods
+                cache_ttl = self._cache_ttl * 2
+            else:
+                cache_ttl = self._cache_ttl
+            
+            if age < cache_ttl:
+                return value
+            else:
+                del self._cache[cache_key]
+        
+        return None
+    
+    def _store_in_cache(self, cache_key: str, value: Any) -> None:
+        """Store response in cache."""
+        self._cache[cache_key] = (value, time.time())
     
     def _get_timestamp_ns(self) -> int:
         """Get current timestamp in nanoseconds."""
         return int(datetime.now(UTC).timestamp() * 1_000_000_000)
+    
+    def _track_request(self, success: bool, latency_ms: float) -> None:
+        """Track API request statistics for health monitoring."""
+        self._request_history.append({
+            'success': success,
+            'latency_ms': latency_ms,
+            'timestamp': time.time()
+        })
+        
+        if success:
+            self._success_count += 1
+        else:
+            self._error_count += 1
+    
+    def get_api_health(self) -> dict[str, Any]:
+        """Get API health statistics."""
+        if not self._request_history:
+            return {
+                "status": "unknown",
+                "success_rate": 1.0,
+                "avg_latency_ms": 0.0,
+                "world_aware": self._world_integration_bridge is not None
+            }
+        
+        recent_requests = list(self._request_history)[-20:]  # Last 20 requests
+        success_rate = sum(1 for r in recent_requests if r['success']) / len(recent_requests)
+        avg_latency = statistics.mean([r['latency_ms'] for r in recent_requests])
+        
+        # Determine health status
+        if success_rate > 0.95 and avg_latency < 1000:
+            status = "healthy"
+        elif success_rate > 0.8 and avg_latency < 5000:
+            status = "degraded"
+        else:
+            status = "unhealthy"
+        
+        return {
+            "status": status,
+            "success_rate": success_rate,
+            "avg_latency_ms": avg_latency,
+            "total_requests": self._success_count + self._error_count,
+            "world_aware": self._world_integration_bridge is not None,
+            "current_rate_interval": self._current_min_request_interval
+        }
 
 
 class CoinGeckoAdapter(BaseAPIAdapter):
@@ -44,11 +255,21 @@ class CoinGeckoAdapter(BaseAPIAdapter):
         self._min_request_interval = 1.0  # CoinGecko free tier: ~10-30 calls/min
     
     def fetch_price(self, coin_id: str) -> dict[str, Any]:
-        """Fetch current price from CoinGecko."""
+        """Enhanced fetch with world-aware rate limiting and caching."""
         import urllib.request
         import json
         
-        self._rate_limit()
+        # Check cache first
+        cache_key = self._get_cache_key("price", {"coin_id": coin_id})
+        cached_response = self._get_from_cache(cache_key)
+        if cached_response:
+            LOG.debug(f"[CoinGecko] Returning cached response for {coin_id}")
+            return cached_response
+        
+        # World-aware rate limiting
+        self._rate_limit("price")
+        
+        start_time = time.time()
         
         try:
             url = f"{self._base_url}/coins/markets"
@@ -58,8 +279,10 @@ class CoinGeckoAdapter(BaseAPIAdapter):
             with urllib.request.urlopen(full_url, timeout=10) as response:
                 data = json.loads(response.read().decode())
                 
+                latency_ms = (time.time() - start_time) * 1000
+                
                 if data and len(data) > 0:
-                    return {
+                    response_data = {
                         "provider": "coingecko",
                         "symbol": coin_id,
                         "price": float(data[0].get("current_price", 0.0)),
@@ -68,12 +291,23 @@ class CoinGeckoAdapter(BaseAPIAdapter):
                         "price_change_24h": float(data[0].get("price_change_percentage_24h", 0.0)),
                         "timestamp_ns": self._get_timestamp_ns(),
                     }
+                    
+                    # Cache the response
+                    self._store_in_cache(cache_key, response_data)
+                    
+                    # Track successful request
+                    self._track_request(True, latency_ms)
+                    
+                    return response_data
                 else:
-                    LOG.warning(f"No data returned for {coin_id}")
+                    LOG.warning(f"[CoinGecko] No data returned for {coin_id}")
+                    self._track_request(False, latency_ms)
                     return self._empty_response(coin_id)
                     
         except Exception as e:
-            LOG.error(f"CoinGecko API error: {e}")
+            latency_ms = (time.time() - start_time) * 1000
+            LOG.error(f"[CoinGecko] API error: {e}")
+            self._track_request(False, latency_ms)
             return self._empty_response(coin_id)
     
     def _empty_response(self, symbol: str) -> dict[str, Any]:

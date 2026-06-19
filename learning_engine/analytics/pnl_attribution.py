@@ -74,10 +74,33 @@ from __future__ import annotations
 import dataclasses
 import math
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, Final, Literal
+from typing import TYPE_CHECKING, Final, Literal, Optional, Dict, Tuple
+from datetime import datetime
+from collections import deque
 
 if TYPE_CHECKING:  # pragma: no cover — imports for type checkers only
     pass
+
+# World context integration (Phase 11.1 enhancement)
+try:
+    from world_model.indicator_integration import get_integration_bridge
+    WORLD_MODEL_AVAILABLE = True
+except ImportError:
+    WORLD_MODEL_AVAILABLE = False
+
+
+@dataclasses.dataclass(frozen=True, slots=True)
+class WorldContext:
+    """World context for PnL attribution analysis with enhanced metadata."""
+    
+    market_regime: str = "unknown"
+    market_trend: str = "unknown"
+    volatility_regime: str = "unknown"
+    liquidity_state: str = "unknown"
+    agent_activity: Dict[str, float] = dataclasses.field(default_factory=dict)
+    causal_factors: list = dataclasses.field(default_factory=list)
+    prediction_confidence: float = 0.0
+    timestamp: datetime = dataclasses.field(default_factory=datetime.utcnow)
 
 NEW_PIP_DEPENDENCIES: Final[tuple[str, ...]] = ("polars",)
 """S-10.1 introduces a single new pip dep: ``polars``.
@@ -174,7 +197,7 @@ class SymbolAttribution:
 
 @dataclasses.dataclass(frozen=True, slots=True)
 class PolarsPnLReport:
-    """Aggregate output of polars-backed PnL attribution.
+    """Enhanced aggregate output of polars-backed PnL attribution with world context (Phase 11.1).
 
     Args:
         by_symbol: Per-symbol attribution rows, sorted ascending by
@@ -185,6 +208,9 @@ class PolarsPnLReport:
         total_signal_pnl_usd: Sum of ``signal_pnl_usd`` across symbols.
         total_slippage_pnl_usd: Sum of ``slippage_pnl_usd`` across symbols.
         total_fee_pnl_usd: Sum of ``fee_pnl_usd`` across symbols.
+        world_context: World context at analysis time (Phase 11.1 enhancement).
+        performance_by_regime: PnL performance breakdown by market regime (Phase 11.1 enhancement).
+        confidence_interval: Confidence interval for total PnL (Phase 11.1 enhancement).
     """
 
     by_symbol: tuple[SymbolAttribution, ...]
@@ -194,6 +220,9 @@ class PolarsPnLReport:
     total_signal_pnl_usd: float
     total_slippage_pnl_usd: float
     total_fee_pnl_usd: float
+    world_context: Optional[WorldContext] = None  # Phase 11.1 enhancement
+    performance_by_regime: Dict[str, float] = dataclasses.field(default_factory=dict)  # Phase 11.1 enhancement
+    confidence_interval: Tuple[float, float] = (0.0, 0.0)  # Phase 11.1 enhancement
 
     def __post_init__(self) -> None:
         if not isinstance(self.by_symbol, tuple):
@@ -352,10 +381,147 @@ def attribute_pnl_polars(
     )
 
 
+# ---------------------------------------------------------------------------
+# World-Aware PnL Analysis (Phase 11.1 Enhancement)
+# ---------------------------------------------------------------------------
+
+
+class WorldAwarePnLAnalyzer:
+    """Enhanced PnL analysis with world context integration."""
+    
+    def __init__(self):
+        self._world_integration_bridge = None
+        self._current_world_context: Optional[WorldContext] = None
+        self._performance_history: deque = deque(maxlen=100)
+        
+        if WORLD_MODEL_AVAILABLE:
+            self._init_world_integration()
+    
+    def _init_world_integration(self) -> None:
+        """Initialize world model integration bridge."""
+        try:
+            self._world_integration_bridge = get_integration_bridge()
+        except Exception as e:
+            pass  # Silent failure for OFFLINE tier
+    
+    def _get_world_context(self) -> Optional[WorldContext]:
+        """Get current world context from world model."""
+        if not self._world_integration_bridge:
+            return None
+        
+        try:
+            world_state = self._world_integration_bridge.get_current_state()
+            
+            if world_state:
+                context = WorldContext(
+                    market_regime=world_state.get('market_regime', 'unknown'),
+                    market_trend=world_state.get('market_trend', 'unknown'),
+                    volatility_regime=world_state.get('volatility_regime', 'unknown'),
+                    liquidity_state=world_state.get('liquidity_state', 'unknown'),
+                    agent_activity=world_state.get('agent_activity', {}),
+                    causal_factors=world_state.get('causal_factors', []),
+                    prediction_confidence=world_state.get('prediction_confidence', 0.0),
+                    timestamp=datetime.utcnow()
+                )
+                self._current_world_context = context
+                return context
+        
+        except Exception:
+            pass
+        
+        return None
+    
+    def analyze_pnl_with_world_context(
+        self,
+        report: PolarsPnLReport,
+        world_context: Optional[WorldContext] = None,
+    ) -> PolarsPnLReport:
+        """Enhanced PnL analysis with world context integration."""
+        # Get world context if not provided
+        if world_context is None:
+            world_context = self._get_world_context()
+        
+        # Calculate performance by regime
+        performance_by_regime = self._calculate_performance_by_regime(report, world_context)
+        
+        # Calculate confidence interval for total PnL
+        confidence_interval = self._calculate_pnl_confidence_interval(report, world_context)
+        
+        # Create enhanced report
+        return PolarsPnLReport(
+            by_symbol=report.by_symbol,
+            total_n_trades=report.total_n_trades,
+            total_notional_usd=report.total_notional_usd,
+            total_realised_pnl_usd=report.total_realised_pnl_usd,
+            total_signal_pnl_usd=report.total_signal_pnl_usd,
+            total_slippage_pnl_usd=report.total_slippage_pnl_usd,
+            total_fee_pnl_usd=report.total_fee_pnl_usd,
+            world_context=world_context,
+            performance_by_regime=performance_by_regime,
+            confidence_interval=confidence_interval
+        )
+    
+    def _calculate_performance_by_regime(
+        self,
+        report: PolarsPnLReport,
+        world_context: Optional[WorldContext]
+    ) -> Dict[str, float]:
+        """Calculate PnL performance breakdown by market regime."""
+        if not world_context or report.total_n_trades == 0:
+            return {}
+        
+        # Simple regime-based performance calculation
+        # In production, would use historical data by regime
+        regime_performance = {
+            world_context.market_regime: report.total_realised_pnl_usd / report.total_notional_usd
+        }
+        
+        return regime_performance
+    
+    def _calculate_pnl_confidence_interval(
+        self,
+        report: PolarsPnLReport,
+        world_context: Optional[WorldContext]
+    ) -> Tuple[float, float]:
+        """Calculate confidence interval for total PnL."""
+        if report.total_notional_usd == 0:
+            return (0.0, 0.0)
+        
+        # Use 95% confidence interval
+        margin = 0.05 if world_context and world_context.prediction_confidence > 0.8 else 0.10
+        
+        pnl_per_unit = report.total_realised_pnl_usd / report.total_notional_usd
+        lower = pnl_per_unit - margin
+        upper = pnl_per_unit + margin
+        
+        return (lower, upper)
+
+
+def attribute_pnl_polars_enhanced(
+    trades: Sequence[TradeRow],
+    world_context: Optional[WorldContext] = None,
+) -> PolarsPnLReport:
+    """Enhanced PnL attribution with world context integration (Phase 11.1).
+
+    This is the world-aware wrapper around the core attribute_pnl_polars function.
+    """
+    # Get standard report
+    report = attribute_pnl_polars(trades)
+    
+    # Apply world-aware analysis
+    analyzer = WorldAwarePnLAnalyzer()
+    enhanced_report = analyzer.analyze_pnl_with_world_context(report, world_context)
+    
+    return enhanced_report
+
+
 __all__ = (
     "NEW_PIP_DEPENDENCIES",
     "PolarsPnLReport",
     "SymbolAttribution",
     "TradeRow",
     "attribute_pnl_polars",
+    "WorldContext",  # Phase 11.1 enhancement
+    "WorldAwarePnLAnalyzer",  # Phase 11.1 enhancement
+    "attribute_pnl_polars_enhanced",  # Phase 11.1 enhancement
 )

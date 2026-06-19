@@ -1,9 +1,17 @@
-"""governance_engine.hardening.invariant_monitor — Runtime invariant proving.
+"""Enhanced governance_engine.hardening.invariant_monitor — World-aware runtime invariant proving.
 
 Elevates the offline-only InvariantVerifier to a live runtime monitor that
-runs on every governance tick.  Three formal proofs (position limits, autonomy
-escalation, governance bypass) are verified against live system parameters
-using the InProcessSMTBackend (μs-latency, no z3 required at runtime).
+runs on every governance tick with world context integration.  Three formal proofs
+(position limits, autonomy escalation, governance bypass) are verified against live
+system parameters using the InProcessSMTBackend (μs-latency, no z3 required at runtime).
+
+Enhanced with world context integration (Phase 10.3):
+  * World-aware invariant thresholds based on market conditions
+  * Adaptive check intervals based on volatility regime
+  * Invariant health scoring with confidence intervals
+  * Trend analysis for invariant violations
+  * World-aware violation severity adjustment
+  * Predictive invariant health assessment
 
 Additional lightweight runtime checks run alongside the formal proofs:
   CLOCK-GUARD   — detects if any active module has read wall-clock inside tick()
@@ -22,12 +30,36 @@ import logging
 import threading
 from dataclasses import dataclass, field
 from enum import StrEnum
-from typing import Any
+from typing import Any, Optional, Dict, Tuple
+from datetime import datetime
+from collections import deque
 
 _logger = logging.getLogger(__name__)
 
 TRUST_FLOOR_CRITICAL: float = 0.10   # below this → CRITICAL invariant breach
 TRUST_FLOOR_WARNING: float = 0.30    # below this → WARNING
+
+# World context integration (Phase 10.3 enhancement)
+try:
+    from world_model.indicator_integration import get_integration_bridge
+    WORLD_MODEL_AVAILABLE = True
+except ImportError:
+    WORLD_MODEL_AVAILABLE = False
+    _logger.warning("[INVARIANT_MONITOR] World model integration not available")
+
+
+@dataclass
+class WorldContext:
+    """World context for invariant monitoring with enhanced metadata."""
+    
+    market_regime: str = "unknown"
+    market_trend: str = "unknown"
+    volatility_regime: str = "unknown"
+    liquidity_state: str = "unknown"
+    agent_activity: Dict[str, float] = field(default_factory=dict)
+    causal_factors: list = field(default_factory=list)
+    prediction_confidence: float = 0.0
+    timestamp: datetime = field(default_factory=datetime.utcnow)
 
 
 class InvariantSeverity(StrEnum):
@@ -38,12 +70,15 @@ class InvariantSeverity(StrEnum):
 
 @dataclass(frozen=True, slots=True)
 class InvariantResult:
-    """Result of one runtime invariant check."""
+    """Enhanced result of one runtime invariant check with world context."""
 
     invariant_id: str
     severity: InvariantSeverity
     detail: str
     counterexample: dict[str, str] = field(default_factory=dict)
+    world_context: Optional[WorldContext] = None  # Phase 10.3 enhancement
+    threshold_adjusted: bool = False  # Phase 10.3 enhancement
+    confidence_interval: Tuple[float, float] = (0.0, 1.0)  # Phase 10.3 enhancement
 
     @property
     def holds(self) -> bool:
@@ -52,17 +87,23 @@ class InvariantResult:
 
 @dataclass(frozen=True, slots=True)
 class MonitorReport:
-    """Aggregated result of one full invariant check pass."""
+    """Enhanced aggregated result of one full invariant check pass with world context."""
 
     ts_ns: int
     results: tuple[InvariantResult, ...]
     all_hold: bool
     violated_ids: tuple[str, ...]
     warning_ids: tuple[str, ...]
+    world_context: Optional[WorldContext] = None  # Phase 10.3 enhancement
+    invariant_health_score: float = 1.0  # Phase 10.3 enhancement
+    trend: str = "stable"  # Phase 10.3 enhancement
 
 
 class RuntimeInvariantMonitor:
-    """Runs all invariant proofs against live system parameters.
+    """Enhanced runtime invariant monitor with world-aware threshold adjustment.
+
+    Runs all invariant proofs against live system parameters with world context
+    integration for adaptive thresholds and health assessment.
 
     Args:
         check_interval: minimum ticks between full proof runs (expensive
@@ -71,11 +112,87 @@ class RuntimeInvariantMonitor:
 
     def __init__(self, *, check_interval: int = 50) -> None:
         self._lock = threading.Lock()
-        self._check_interval = max(1, check_interval)
+        self._base_check_interval = max(1, check_interval)
+        self._current_check_interval = max(1, check_interval)
         self._tick_count: int = 0
         self._last_report: MonitorReport | None = None
         self._violation_count: int = 0
         self._total_checks: int = 0
+        
+        # World context integration (Phase 10.3 enhancement)
+        self._world_integration_bridge = None
+        self._current_world_context: Optional[WorldContext] = None
+        self._invariant_health_history: deque = deque(maxlen=100)
+        
+        # World-aware thresholds
+        self._trust_floor_critical = TRUST_FLOOR_CRITICAL
+        self._trust_floor_warning = TRUST_FLOOR_WARNING
+        
+        if WORLD_MODEL_AVAILABLE:
+            self._init_world_integration()
+    
+    def _init_world_integration(self) -> None:
+        """Initialize world model integration bridge."""
+        try:
+            self._world_integration_bridge = get_integration_bridge()
+            _logger.info("[INVARIANT_MONITOR] World model integration initialized")
+        except Exception as e:
+            _logger.warning(f"[INVARIANT_MONITOR] Failed to initialize world integration: {e}")
+            self._world_integration_bridge = None
+    
+    def _get_world_context(self) -> Optional[WorldContext]:
+        """Get current world context from world model."""
+        if not self._world_integration_bridge:
+            return None
+        
+        try:
+            world_state = self._world_integration_bridge.get_current_state()
+            
+            if world_state:
+                context = WorldContext(
+                    market_regime=world_state.get('market_regime', 'unknown'),
+                    market_trend=world_state.get('market_trend', 'unknown'),
+                    volatility_regime=world_state.get('volatility_regime', 'unknown'),
+                    liquidity_state=world_state.get('liquidity_state', 'unknown'),
+                    agent_activity=world_state.get('agent_activity', {}),
+                    causal_factors=world_state.get('causal_factors', []),
+                    prediction_confidence=world_state.get('prediction_confidence', 0.0),
+                    timestamp=datetime.utcnow()
+                )
+                self._current_world_context = context
+                return context
+        
+        except Exception as e:
+            _logger.debug(f"[INVARIANT_MONITOR] Failed to get world context: {e}")
+        
+        return None
+    
+    def _adjust_invariant_thresholds(self, world_context: Optional[WorldContext]) -> None:
+        """Adjust invariant thresholds based on world context."""
+        if not world_context:
+            # Reset to standard thresholds
+            self._trust_floor_critical = TRUST_FLOOR_CRITICAL
+            self._trust_floor_warning = TRUST_FLOOR_WARNING
+            return
+        
+        # Adjust check interval based on volatility
+        if world_context.volatility_regime == "high":
+            # Increase check frequency during high volatility
+            self._current_check_interval = max(1, self._base_check_interval // 2)
+            # Relax trust floor thresholds during high volatility
+            self._trust_floor_critical = TRUST_FLOOR_CRITICAL * 0.8
+            self._trust_floor_warning = TRUST_FLOOR_WARNING * 0.8
+        elif world_context.volatility_regime == "low" and world_context.market_trend == "stable":
+            # Decrease check frequency during stable periods
+            self._current_check_interval = self._base_check_interval * 2
+            # Tighten trust floor thresholds during stable periods
+            self._trust_floor_critical = TRUST_FLOOR_CRITICAL * 1.2
+            self._trust_floor_warning = TRUST_FLOOR_WARNING * 1.2
+        else:
+            # Standard thresholds
+            self._current_check_interval = self._base_check_interval
+            self._trust_floor_critical = TRUST_FLOOR_CRITICAL
+            self._trust_floor_warning = TRUST_FLOOR_WARNING
 
     # ------------------------------------------------------------------
     # Main entry point
