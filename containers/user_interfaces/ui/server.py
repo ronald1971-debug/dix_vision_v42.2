@@ -31,12 +31,62 @@ from __future__ import annotations
 import json
 import logging
 import os
+import sys
 import threading
 from collections import deque
 from collections.abc import AsyncIterator, Mapping, Sequence
 from dataclasses import asdict, is_dataclass
 from pathlib import Path
 from typing import Any
+
+# ============================================================================
+# Python Path Configuration - Must be before any module imports
+# ============================================================================
+
+# Add proper Python paths for DIX VISION canonical system architecture
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+infrastructure_path = os.path.join(project_root, 'containers', 'infrastructure')
+infrastructure_security_path = os.path.join(infrastructure_path, 'security')
+system_core_path = os.path.join(project_root, 'containers', 'system_core')
+system_engine_path = os.path.join(system_core_path, 'system_engine')  # System infrastructure
+system_path = os.path.join(system_core_path, 'system')  # System components
+system_unified_path = os.path.join(system_core_path, 'system_unified')  # Unified system components
+user_interfaces_path = os.path.join(project_root, 'containers', 'user_interfaces')
+evolution_engine_path = os.path.join(system_core_path, 'evolution_engine')
+governance_unified_path = os.path.join(system_core_path, 'governance_unified')
+cognitive_domains_path = os.path.join(governance_unified_path, 'domains', 'cognitive')
+execution_unified_path = os.path.join(system_core_path, 'execution_unified')
+execution_core_path = os.path.join(execution_unified_path, 'core')
+execution_engine_archive_path = os.path.join(execution_unified_path, 'engine_archive')
+cognitive_control_center_path = os.path.join(system_core_path, 'cognitive_control_center')
+intelligence_engine_path = os.path.join(system_core_path, 'intelligence_engine')
+learning_engine_path = os.path.join(system_core_path, 'learning_engine')
+state_path = os.path.join(system_core_path, 'state')
+mind_path = os.path.join(system_core_path, 'mind')
+
+sys.path.insert(0, infrastructure_path)
+sys.path.insert(0, infrastructure_security_path)  # Security module
+sys.path.insert(0, system_core_path)
+sys.path.insert(0, system_engine_path)  # System infrastructure first
+sys.path.insert(0, system_path)  # System components
+sys.path.insert(0, system_unified_path)  # Unified system components
+sys.path.insert(0, user_interfaces_path)
+sys.path.insert(0, os.path.join(user_interfaces_path, 'dashboard_backend'))
+sys.path.insert(0, evolution_engine_path)
+sys.path.insert(0, governance_unified_path)
+sys.path.insert(0, cognitive_domains_path)
+sys.path.insert(0, execution_unified_path)
+sys.path.insert(0, execution_core_path)
+sys.path.insert(0, execution_engine_archive_path)
+sys.path.insert(0, cognitive_control_center_path)
+sys.path.insert(0, intelligence_engine_path)
+sys.path.insert(0, learning_engine_path)
+sys.path.insert(0, state_path)
+sys.path.insert(0, mind_path)
+
+# ============================================================================
+# Standard Library and Third-Party Imports
+# ============================================================================
 
 import yaml
 from fastapi import Depends, FastAPI, HTTPException, Request, status
@@ -45,7 +95,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 # Security imports for authentication (M-7)
-from security.authentication import get_authenticator
+from infrastructure.security.authentication import get_authenticator
 from ui.auth_middleware import optional_auth, require_auth, verify_token
 
 from core.cognitive_router import (
@@ -108,9 +158,9 @@ from evolution_engine.patch_pipeline.orchestrator import (
     StageEvidence,
 )
 from evolution_engine.patch_pipeline.pipeline import PatchPipeline
-from execution_engine.engine import ExecutionEngine
-from execution_engine.execution_gate import AuthorityGuard
-from execution_engine.protections.feedback import FeedbackCollector
+from execution_unified.core.execution_engine import ExecutionEngine
+from execution_unified.engine_archive.execution_gate import AuthorityGuard
+from execution_unified.core.protections.feedback import FeedbackCollector
 from governance_unified.control_plane.decision_signer import (
     DecisionSigner,
     make_decision_signer,
@@ -142,7 +192,7 @@ from ui.state_projection import StateProjection, init_state_projection
 # authority lint B33 rule fires at CI time and at runtime the call
 # raises :class:`HarnessApproverDisabledError`.
 os.environ.setdefault(HARNESS_APPROVER_ENV_VAR, "1")
-from execution_engine.adapters.registry import (
+from execution_unified.engine_archive.registry import (
     default_registry as default_adapter_registry,
 )
 from intelligence_engine.cognitive.approval_edge import (
@@ -207,7 +257,7 @@ from learning_engine.loops.closed_loop import (
 )
 from learning_engine.update_emitter import UpdateEmitter
 from state.ledger.reader import LedgerReader
-from system.time_source import wall_ns
+from system_unified.time_source import wall_ns
 from system_engine.backtest_ingest.internal import (
     BacktestRequest,
     run_deterministic_backtest,
@@ -327,7 +377,7 @@ class _State:
 
     def _init_operator_authority_state(self) -> None:
         from core.contracts.operator_authority import OperatorAuthority
-        from execution_engine.semi_auto.approval_queue import ApprovalQueue
+        from execution_unified.core.semi_auto.approval_queue import ApprovalQueue
         from registry.operator import DEFAULT_AUTHORITY
 
         self.operator_authority: OperatorAuthority = DEFAULT_AUTHORITY
@@ -756,7 +806,7 @@ class _State:
         # Cognitive governance engine — single process-level instance. Stored
         # on _State so the runtime topology registrar can track it as an
         # active declared node (STARTED vs DORMANT).
-        from cognitive_governance.engine import get_cognitive_governance as _cogov  # noqa: PLC0415
+        from governance_unified.domains.cognitive.cognitive_engine import get_cognitive_governance as _cogov  # noqa: PLC0415
         self.cognitive_governance_engine = _cogov()
 
     def _build_event_buffers(self) -> None:
@@ -783,7 +833,7 @@ class _State:
 
         # Phase 6 dashboard widgets (DASH-1)
         try:
-            from governance_engine.fsm.strategy_fsm import StrategyStateMachine
+            from governance_unified.fsm.strategy_fsm import StrategyStateMachine
             self.strategy_fsm = StrategyStateMachine()
         except ImportError:
             _logger.warning("[BOOT] StrategyStateMachine not available, dashboard strategy controls disabled")

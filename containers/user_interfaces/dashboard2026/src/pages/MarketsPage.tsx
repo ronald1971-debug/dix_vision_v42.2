@@ -16,7 +16,7 @@ import { Panel, PanelLayout, PanelSection } from '@/components/agent/Panel';
 import { ChartPanel } from '@/widgets/ChartPanel';
 import { DepthLadder } from '@/widgets/DepthLadder';
 import { TimeAndSalesTape } from '@/widgets/TimeAndSalesTape';
-import { OrderForm } from '@/widgets/OrderForm';
+import { OrderForm } from '@/domains/execution/widgets/OrderForm';
 import { CandlestickChart, BarChart3, Activity, Layers, Compass, Settings, Play, Pause } from 'lucide-react';
 import {
   useTopGainers,

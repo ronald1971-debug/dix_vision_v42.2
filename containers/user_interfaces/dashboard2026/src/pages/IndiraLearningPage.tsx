@@ -1,7 +1,5 @@
 import { CognitiveHealthStrip } from "@/components/CognitiveHealthStrip";
-import { IndiraCognitiveStream } from "@/widgets/IndiraCognitiveStream";
-import { IndiraConsciousnessPanel } from "@/widgets/IndiraConsciousnessPanel";
-import { IndiraLearningMode } from "@/widgets/IndiraLearningMode";
+import { IndiraCognitiveStream, IndiraConsciousnessPanel, IndiraLearningMode } from "@/domains/indira";
 import { WidgetSlot } from "@/components/WidgetSlot";
 
 export function IndiraLearningPage() {

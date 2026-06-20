@@ -40,7 +40,7 @@ from typing import Final
 from fastapi import APIRouter, Query
 from pydantic import BaseModel, Field
 
-from system.time_source import utc_now
+from system_unified.time_source import utc_now
 
 # ---------------------------------------------------------------------------
 # DEX response models

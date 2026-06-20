@@ -87,7 +87,7 @@ from core.contracts.source_trust_promotions import (
     PROMOTION_LEDGER_KIND,
     is_promotable_target,
 )
-from system.time_source import wall_ns
+from system_unified.time_source import wall_ns
 
 _STRATEGY_STATE_KEYS = (
     ("PROPOSED", "proposed"),

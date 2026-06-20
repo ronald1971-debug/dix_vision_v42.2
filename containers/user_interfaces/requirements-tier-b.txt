@@ -1,0 +1,18 @@
+# DIX VISION v42.2 — Tier B pip requirements
+# Install after simulation/ and learning_engine/ are built
+ray[default]
+evotorch
+deap
+finrl
+nevergrad
+pyautogen
+pandas-ta
+tsfresh
+scrapy
+spacy
+z3-solver
+backtrader
+sentry-sdk
+vectorbt
+jesse
+mlflow

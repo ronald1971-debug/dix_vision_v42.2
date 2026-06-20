@@ -7,7 +7,7 @@ is a thin Python seam that:
 1. Receives a strongly typed :class:`OperatorRequest` (one of the four
    :class:`OperatorAction` categories).
 2. Forwards it verbatim to the GOV-CP-07
-   :class:`~governance_engine.control_plane.operator_interface_bridge.OperatorInterfaceBridge`.
+   :class:`~governance_unified.control_plane.operator_interface_bridge.OperatorInterfaceBridge`.
 3. Returns the resulting :class:`GovernanceDecision` to the caller
    (typically the FastAPI surface in :mod:`ui.server`).
 
@@ -18,7 +18,7 @@ write path. INV-12 / INV-37 enforced.
 Authority lint:
 
 * B7 — only imports allowed: ``core.contracts``, the GOV-CP-07
-  bridge surface from ``governance_engine.control_plane``.
+  bridge surface from ``governance_unified.control_plane``.
 * B1 — no plugin-style cross-engine imports.
 """
 
@@ -30,7 +30,7 @@ from core.contracts.governance import (
     GovernanceDecision,
     OperatorRequest,
 )
-from governance_engine.control_plane.operator_interface_bridge import (
+from governance_unified.control_plane.operator_interface_bridge import (
     OperatorInterfaceBridge,
 )
 

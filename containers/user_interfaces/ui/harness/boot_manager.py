@@ -112,7 +112,7 @@ class HarnessBootManager:
 
         # Phase 2 — boot SystemKernel after all core tiers are up.
         # Registers all 6 engines as KernelService adapters, runs
-        # health checks, and syncs initial mode/freeze from governance.
+        # health checks, and syncs initial mode/freeze from governance_unified.
         _logger.info("[BOOT] _boot_system_kernel: starting")
         state._boot_system_kernel()
         _logger.info("[BOOT] _boot_system_kernel: OK")

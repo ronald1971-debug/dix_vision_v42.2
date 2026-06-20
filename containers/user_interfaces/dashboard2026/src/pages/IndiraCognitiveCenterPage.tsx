@@ -43,7 +43,7 @@ import {
   useResearchCollaboration,
 } from '@/hooks/useIndiraIntelligence';
 import { getAIOrchestrator, getPerformanceMonitor } from '@/core/ai';
-import { AIAssistantPanel } from '@/components/ai/AIAssistantPanel';
+import { AIAssistantPanel } from '@/domains/learning/components/AIAssistantPanel';
 import { 
   Brain, 
   TrendingUp, 

@@ -262,7 +262,7 @@ class AuthenticationService:
             
             # Update metrics
             auth_time = (datetime.now() - start_time).total_seconds() * 1000
-            self._update_metrics(auth_time, success=True, token.token_type)
+            self._update_metrics(auth_time, success=True, token_type=token.token_type)
             
             # Log successful authentication
             self._log_audit_event("authentication_success", operator_id, token.token_id, context)
@@ -274,7 +274,7 @@ class AuthenticationService:
         except Exception as e:
             logger.error(f"[AUTH_SERVICE] Authentication error for {operator_id}: {e}")
             auth_time = (datetime.now() - start_time).total_seconds() * 1000
-            self._update_metrics(auth_time, success=False, None)
+            self._update_metrics(auth_time, success=False, token_type=None)
             return AuthenticationStatus.UNAUTHENTICATED, None
     
     def _is_account_locked(self, operator_id: str) -> bool:
@@ -639,6 +639,16 @@ def get_auth_service() -> AuthenticationService:
     if _auth_service is None:
         _auth_service = AuthenticationService()
     return _auth_service
+
+
+def get_or_create_token(operator_id: str, context: Dict[str, Any] = None) -> AuthenticationToken:
+    """Get or create an authentication token for the operator."""
+    service = get_auth_service()
+    status, token = service.authenticate(operator_id, context or {})
+    if status == AuthenticationStatus.AUTHENTICATED and token:
+        return token
+    else:
+        raise ValueError(f"Failed to create token for operator {operator_id}")
 
 
 __all__ = [

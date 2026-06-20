@@ -16,8 +16,19 @@ Architecture:
 This provides the single execution layer called for in the comprehensive plan.
 """
 
-# CRITICAL: Import core.contracts first to prevent circular dependency with governance_unified
-import core.contracts
+# CRITICAL: Import core.contracts using consolidated system_engine architecture
+import sys
+sys.path.insert(0, '..')
+# Try to import from system_engine first (consolidated approach)
+try:
+    from system_engine import core as system_engine_core
+    sys.modules['core'] = system_engine_core
+    sys.modules['core.contracts'] = system_engine_core.contracts
+except (ImportError, AttributeError):
+    # Fallback to core directory if system_engine not available yet
+    from core import contracts as fallback_contracts
+    sys.modules['core'] = sys.modules['core']  # Use existing core module
+    sys.modules['core.contracts'] = fallback_contracts
 
 # Start with minimal imports and add back gradually
 from .core.kernel import (

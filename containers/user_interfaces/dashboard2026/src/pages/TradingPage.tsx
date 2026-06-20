@@ -3,7 +3,7 @@ import { BasketOrderEditor } from "@/widgets/trading/BasketOrderEditor";
 import { ConditionalBracketBuilder } from "@/widgets/trading/ConditionalBracketBuilder";
 import { OrderHotkeysPanel } from "@/widgets/trading/OrderHotkeysPanel";
 import { PreTradeSlippageSim } from "@/widgets/trading/PreTradeSlippageSim";
-import { OrderEntryForm, OpenOrdersTable, FillsTable } from "@/widgets/orders/OrdersWidgets";
+import { OrderEntryForm, OpenOrdersTable, FillsTable } from "@/domains/execution";
 import { WidgetSlot } from "@/components/WidgetSlot";
 
 export function TradingPage() {

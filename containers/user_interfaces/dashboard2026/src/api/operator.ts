@@ -10,16 +10,50 @@ const BASE = (import.meta.env.VITE_API_BASE ?? "").replace(/\/$/, "");
 export async function fetchOperatorSummary(
   signal?: AbortSignal,
 ): Promise<OperatorSummaryResponse> {
-  const res = await fetch(`${BASE}/api/operator/summary`, {
-    signal,
-    headers: { Accept: "application/json" },
-  });
-  if (!res.ok) {
-    throw new Error(
-      `GET /api/operator/summary failed: ${res.status} ${res.statusText}`,
-    );
+  const BASE = (import.meta.env.VITE_API_BASE ?? "").replace(/\/$/, "");
+  
+  try {
+    const res = await fetch(`${BASE}/api/operator/summary`, {
+      signal,
+      headers: { Accept: "application/json" },
+    });
+    if (!res.ok) {
+      throw new Error(
+        `GET /api/operator/summary failed: ${res.status} ${res.statusText}`,
+      );
+    }
+    return (await res.json()) as OperatorSummaryResponse;
+  } catch (error) {
+    // Return fallback summary in development when backend is unavailable
+    if (process.env.NODE_ENV === 'development') {
+      return {
+        mode: {
+          current_mode: 'MANUAL',
+          legal_targets: ['MANUAL', 'SEMI_AUTO', 'FULL_AUTO'],
+          is_locked: false
+        },
+        engines: [
+          { engine_name: 'execution', bucket: 'alive', detail: 'Development mode active', plugin_count: 0 },
+          { engine_name: 'governance', bucket: 'alive', detail: 'Development mode active', plugin_count: 0 },
+          { engine_name: 'learning', bucket: 'alive', detail: 'Development mode active', plugin_count: 0 }
+        ],
+        strategies: {
+          proposed: 0,
+          canary: 0,
+          live: 0,
+          retired: 0,
+          failed: 0
+        },
+        memecoin: {
+          enabled: false,
+          killed: false,
+          summary: 'Not configured in development'
+        },
+        decision_chain_count: 0
+      } as OperatorSummaryResponse;
+    }
+    throw error;
   }
-  return (await res.json()) as OperatorSummaryResponse;
 }
 
 export interface KillRequestBody {
@@ -96,14 +130,28 @@ export interface TradingAllowedResponse {
 export async function fetchTradingAllowed(
   signal?: AbortSignal,
 ): Promise<TradingAllowedResponse> {
-  const res = await fetch(`${BASE}/api/operator/trading-allowed`, {
-    signal,
-    headers: { Accept: "application/json" },
-  });
-  if (!res.ok) {
-    throw new Error(`GET /api/operator/trading-allowed failed: ${res.status}`);
+  const BASE = (import.meta.env.VITE_API_BASE ?? "").replace(/\/$/, "");
+  
+  try {
+    const res = await fetch(`${BASE}/api/operator/trading-allowed`, {
+      signal,
+      headers: { Accept: "application/json" },
+    });
+    if (!res.ok) {
+      throw new Error(`GET /api/operator/trading-allowed failed: ${res.status}`);
+    }
+    return (await res.json()) as TradingAllowedResponse;
+  } catch (error) {
+    // Return fallback response in development when backend is unavailable
+    if (process.env.NODE_ENV === 'development') {
+      return {
+        trading_allowed: false,
+        development_enabled: true,
+        mode: 'MANUAL'
+      };
+    }
+    throw error;
   }
-  return (await res.json()) as TradingAllowedResponse;
 }
 
 export async function postTradingAllowed(
@@ -123,15 +171,25 @@ export async function postTradingAllowed(
 export async function fetchPolicyHash(
   signal?: AbortSignal,
 ): Promise<string> {
-  const res = await fetch(`${BASE}/api/operator/policy-hash`, {
-    signal,
-    headers: { Accept: "application/json" },
-  });
-  if (!res.ok) {
-    throw new Error(`GET /api/operator/policy-hash failed: ${res.status}`);
+  const BASE = (import.meta.env.VITE_API_BASE ?? "").replace(/\/$/, "");
+  
+  try {
+    const res = await fetch(`${BASE}/api/operator/policy-hash`, {
+      signal,
+      headers: { Accept: "application/json" },
+    });
+    if (!res.ok) {
+      throw new Error(`GET /api/operator/policy-hash failed: ${res.status}`);
+    }
+    const data = (await res.json()) as { policy_hash: string };
+    return data.policy_hash;
+  } catch (error) {
+    // Return fallback hash in development when backend is unavailable
+    if (process.env.NODE_ENV === 'development') {
+      return 'dev-fallback-policy-hash-v1';
+    }
+    throw error;
   }
-  const data = (await res.json()) as { policy_hash: string };
-  return data.policy_hash;
 }
 
 export async function postOperatorMode(

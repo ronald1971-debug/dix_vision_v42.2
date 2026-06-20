@@ -1,0 +1,18 @@
+# DIX VISION v42.2 — Tier A pip requirements
+# Install after Tier S modules are working
+stable-baselines3[extra]
+langgraph
+dspy-ai
+opa-python-client
+prometheus-client
+opentelemetry-sdk
+opentelemetry-instrumentation-fastapi
+opentelemetry-exporter-otlp-proto-http
+qdrant-client
+neo4j
+networkx
+hypothesis
+duckdb
+helius
+abides-markets
+playwright

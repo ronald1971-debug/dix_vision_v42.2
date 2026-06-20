@@ -1,4 +1,4 @@
-import { CognitiveObservatory } from "@/widgets/CognitiveObservatory";
+import { CognitiveObservatory } from "@/domains/world_model";
 
 export function ObservatoryPage() {
   return (

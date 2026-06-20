@@ -11,7 +11,7 @@
  * NOTE: Integration planned for Dashboard2026 transformation Phase 1
  */
 
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { useEnhancedWorldAwareWebSocket } from '@/hooks/useEnhancedWorldAwareWebSocket';
 import { useEnhancedWorldAwareDataGenerator } from '@/lib/world/EnhancedWorldAwareDataGenerator';
 import type {
@@ -76,10 +76,13 @@ export function AgentOpsProvider({ children }: AgentOpsProviderProps) {
   // WebSocket Connection Setup & World-Aware Data Initialization
   // ==========================================================================
 
+  const initializedRef = useRef(false);
+
   useEffect(() => {
     // Initialize world-aware data if not connected to backend
-    if (!websocket.isConnected) {
+    if (!websocket.isConnected && !initializedRef.current) {
       console.log('Initializing world-aware data for Agent Operations Center');
+      initializedRef.current = true;
       
       // Use enhanced world-aware data generators
       for (let i = 0; i < 10; i++) {
@@ -98,7 +101,7 @@ export function AgentOpsProvider({ children }: AgentOpsProviderProps) {
         setGlobalEvents((prev: any[]) => [{ ...metrics, id: `event-${i}`, type: 'system-metric' }, ...prev]);
       }
     }
-  }, [websocket.isConnected, generateAgentData, generateTaskData, generateSystemMetrics]);
+  }, [websocket.isConnected]);
 
   // ==========================================================================
   // WebSocket Message Handling

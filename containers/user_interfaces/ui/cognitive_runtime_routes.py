@@ -21,7 +21,7 @@ from typing import Any
 
 from fastapi import APIRouter
 
-from system.time_source import utc_now, wall_ns
+from system_unified.time_source import utc_now, wall_ns
 
 
 def build_cognitive_runtime_router() -> APIRouter:

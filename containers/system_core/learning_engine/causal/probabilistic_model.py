@@ -29,7 +29,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-from system.time_source import wall_ns
+from system_unified.time_source import wall_ns
 
 
 @dataclass(frozen=True, slots=True)

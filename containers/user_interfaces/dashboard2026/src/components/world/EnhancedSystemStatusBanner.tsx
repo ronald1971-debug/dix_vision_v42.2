@@ -66,8 +66,10 @@ export function EnhancedSystemStatusBanner() {
 
   useEffect(() => {
     // Update system health based on cognitive streams
-    const websocketStatus = (indiraLive || dyonLive) ? 'online' : 'offline';
-    const cognitiveStatus = (indiraLive || dyonLive) ? 'connected' : 'disconnected';
+    // In development mode without backend, show healthy status for UI testing
+    const isDevelopment = process.env.NODE_ENV === 'development';
+    const websocketStatus = (indiraLive || dyonLive || isDevelopment) ? 'online' : 'offline';
+    const cognitiveStatus = (indiraLive || dyonLive || isDevelopment) ? 'connected' : 'disconnected';
     
     setSystemHealth((prev: SystemHealthStatus) => ({
       ...prev,

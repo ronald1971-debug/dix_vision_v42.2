@@ -12,7 +12,7 @@ backend. They implement two kinds of behaviour:
 
 Authority lint rule **B7** (dashboard isolation) restricts imports to
 ``core.contracts``, ``core.coherence`` (read-only projections),
-``governance_engine.control_plane`` (Protocol surfaces only), and
+``governance_unified.control_plane`` (Protocol surfaces only), and
 peer engines' ``check_self``-style read APIs. The dashboard may not
 import private modules of any engine.
 """

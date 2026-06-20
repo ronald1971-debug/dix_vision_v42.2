@@ -22,7 +22,7 @@ from typing import Any
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-from system.time_source import utc_now
+from system_unified.time_source import utc_now
 
 _logger = logging.getLogger(__name__)
 
@@ -36,7 +36,7 @@ def build_paper_trading_router() -> APIRouter:
 
     def _hub():
         try:
-            from execution_engine.paper_trading.hub import get_paper_trading_hub
+            from execution_unified.paper_trading.hub import get_paper_trading_hub
             return get_paper_trading_hub()
         except Exception as exc:
             _logger.warning("paper_trading_routes: hub unavailable: %s", exc)
@@ -90,7 +90,7 @@ def build_paper_trading_router() -> APIRouter:
             raise HTTPException(status_code=404, detail=f"unknown paper venue {venue!r}")
         limit = min(limit, 200)
         fills = adapter.recent_fills(limit)
-        from execution_engine.paper_trading.adapter import _evt_to_dict
+        from execution_unified.paper_trading.adapter import _evt_to_dict
         return {
             "venue": venue,
             "count": len(fills),

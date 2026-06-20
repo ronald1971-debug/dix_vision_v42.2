@@ -5,5 +5,7 @@
  * This directory contains all INDIRA-specific widget components.
  */
 
-// Widget exports will be added during migration phase
-export {};
+export { IndiraChat } from './IndiraChat';
+export { IndiraCognitiveStream } from './IndiraCognitiveStream';
+export { IndiraConsciousnessPanel } from './IndiraConsciousnessPanel';
+export { IndiraLearningMode } from './IndiraLearningMode';

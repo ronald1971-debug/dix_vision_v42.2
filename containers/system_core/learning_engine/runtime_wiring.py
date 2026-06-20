@@ -37,7 +37,7 @@ def wire_learning_runtime(state: Any | None = None) -> LearningWiringResult:
         patch_outcome_wired = getattr(state, "patch_outcome_feedback", None) is not None
 
     try:
-        from governance.market_context_projector import get_market_context_projector
+        from governance_unified.market_context_projector import get_market_context_projector
         from intelligence_engine.cognitive.dyon_signal_bridge import get_dyon_signal_bridge
 
         get_market_context_projector().activate()

@@ -30,7 +30,7 @@ from typing import Any
 from fastapi import APIRouter, Request
 from fastapi.responses import StreamingResponse
 
-from system.time_source import utc_now
+from system_unified.time_source import utc_now
 
 # ---------------------------------------------------------------------------
 # SSE helpers

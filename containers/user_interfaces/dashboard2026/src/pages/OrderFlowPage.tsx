@@ -1,9 +1,9 @@
-import { AggressorRatio } from "@/widgets/orderflow/AggressorRatio";
-import { CVDChart } from "@/widgets/orderflow/CVDChart";
-import { DOMClickLadder } from "@/widgets/orderflow/DOMClickLadder";
-import { FootprintChart } from "@/widgets/orderflow/FootprintChart";
-import { LiquidityHeatmap } from "@/widgets/orderflow/LiquidityHeatmap";
-import { SweepIcebergMonitor } from "@/widgets/orderflow/SweepIcebergMonitor";
+import { AggressorRatio } from "@/domains/execution/widgets/AggressorRatio";
+import { CVDChart } from "@/domains/execution/widgets/CVDChart";
+import { DOMClickLadder } from "@/domains/execution/widgets/DOMClickLadder";
+import { FootprintChart } from "@/domains/execution/widgets/FootprintChart";
+import { LiquidityHeatmap } from "@/domains/execution/widgets/LiquidityHeatmap";
+import { SweepIcebergMonitor } from "@/domains/execution/widgets/SweepIcebergMonitor";
 import { WidgetSlot } from "@/components/WidgetSlot";
 
 export function OrderFlowPage() {

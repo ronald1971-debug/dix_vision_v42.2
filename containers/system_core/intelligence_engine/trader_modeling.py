@@ -1,4 +1,4 @@
-+"""
+"""
 Trader Modeling - World-Aware Production-Grade Implementation
 
 Provides real trader behavior modeling and analysis for the DIX VISION system,

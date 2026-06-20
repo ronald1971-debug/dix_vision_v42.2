@@ -22,7 +22,7 @@ from typing import Any
 
 from fastapi import APIRouter
 
-from system.time_source import utc_now
+from system_unified.time_source import utc_now
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -682,7 +682,7 @@ def _dyon_topology_snapshot() -> dict[str, Any]:
         import pathlib
 
         from evolution_engine.dyon.topology_scanner import get_scanner
-        from system.time_source import wall_ns as _wall_ns
+        from system_unified.time_source import wall_ns as _wall_ns
         ts_ns = _wall_ns()
         result = get_scanner().scan_and_emit(pathlib.Path("."), ts_ns=ts_ns)
         from evolution_engine.dyon.dyon_runtime import _scan_to_dict

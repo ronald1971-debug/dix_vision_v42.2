@@ -1,0 +1,1397 @@
+# DIX VISION v42.2 — Canonical Repository Assimilation Map
+# Follows manifest v42.2 integration protocol
+# Each entry: what to extract → where it goes in DIX → safety constraints
+# Generated: 2026-05-08
+#
+# PROTOCOL (per manifest phases 1-8):
+#   1. Clone repo → /external_imports/<name>/
+#   2. Extract ONLY listed files/classes
+#   3. Adapt to listed DIX contract
+#   4. Register in registry/*.yaml
+#   5. Wire to event bus / ledger
+#   6. Generate tests
+#   7. Run authority_lint --strict
+#   8. Run pytest — must stay green
+# ================================================================
+
+
+# ================================================================
+# SECTION 1 — PROTOCOLS / SERIALIZATION
+# Manifest ref: "PROTOCOLS / SERIALIZATION"
+# ================================================================
+
+- repo: google/protobuf
+  pip: protobuf grpcio grpcio-tools
+  extract:
+    - protoc compiler patterns for .proto → Python dataclass generation
+    - google/protobuf/descriptor.py — message reflection
+  fills:
+    - contracts/execution.proto
+    - contracts/governance.proto
+    - contracts/ledger.proto
+    - contracts/market.proto
+    - contracts/system.proto
+  dix_contract: contracts/events.proto (already exists — extend same pattern)
+  how: >
+    Run protoc on each new .proto file.
+    Generated Python classes become frozen dataclasses in core/contracts/.
+    Keep pydantic as primary runtime contract, protobuf for cross-language boundary only.
+  safety_rails:
+    - proto files are data contracts only — no logic
+    - generated code must pass authority_lint
+    - never import grpc runtime into hot_path/
+
+- repo: ijl/orjson
+  pip: orjson
+  extract:
+    - orjson.dumps / orjson.loads — drop-in json replacement
+  fills:
+    - state/ledger/append.py (faster serialization)
+    - ui/server.py (FastAPI response serialization)
+  how: Replace json.dumps with orjson.dumps in ledger writes and API responses.
+  safety_rails:
+    - orjson is deterministic for same input — safe for replay
+    - use only for serialization, never for contract validation
+
+- repo: jcrist/msgspec
+  pip: msgspec
+  extract:
+    - msgspec.Struct — zero-copy typed structs
+    - msgspec.json.encode / decode
+  fills:
+    - execution_engine/hot_path/ (sub-microsecond serialization)
+  how: >
+    Replace dict-based hot_path event passing with msgspec.Struct.
+    Benchmark against current pydantic models — only adopt if p99 improves.
+  safety_rails:
+    - hot_path only — offline code keeps pydantic for richer validation
+    - msgspec.Struct must be validated against core/contracts/ pydantic models at boundary
+
+
+# ================================================================
+# SECTION 2 — EVENT STREAMING / CEP
+# Manifest ref: "EVENT STREAMING / CEP"
+# Fills: execution/async_bus.py, system_engine/event_processing/
+# ================================================================
+
+- repo: bytewax/bytewax
+  pip: bytewax
+  extract:
+    - bytewax/dataflow.py — Dataflow, map, filter, windowed_join
+    - bytewax/window.py — TumblingWindow, SlidingWindow
+    - bytewax/inputs.py — ManualInputConfig (for DIX event sources)
+  fills:
+    - execution/async_bus.py
+    - system_engine/event_processing/ (CEP layer)
+  dix_contract: core/contracts/events.py (SignalEvent, HazardEvent)
+  how: >
+    Build DIX event bus as Bytewax Dataflow.
+    Each engine subscribes as a Dataflow operator.
+    Hazard detection becomes a windowed stateful operator over HazardEvent stream.
+    OFFLINE only initially — benchmark vs asyncio queue before migrating RUNTIME.
+  safety_rails:
+    - Bytewax operators must be pure functions — no side effects in operator body
+    - All state mutations must still write to DIX ledger
+    - RUNTIME migration requires replay determinism proof first
+
+- repo: robinhood/faust
+  pip: faust-streaming
+  extract:
+    - faust/app.py — agent decorator pattern (event stream consumer)
+    - faust/streams.py — Stream.filter(), Stream.group_by()
+    - faust/models.py — Record base for typed stream messages
+  fills:
+    - execution/event_emitter.py
+    - system_engine/event_processing/
+  how: >
+    Use Faust Record as alternative to pydantic for stream message typing.
+    Extract agent pattern for news_fanout — each feed becomes a Faust agent.
+    Do NOT use Faust's built-in Kafka transport — wire to DIX event bus instead.
+  safety_rails:
+    - Faust's Kafka dependency must be sandboxed behind DIX event bus abstraction
+    - Never let Faust manage DIX state — Faust is transport only
+
+- repo: espertechinc/esper (concepts only — Java)
+  pip: streamz  # Python CEP alternative
+  extract:
+    - CEP pattern language: every/where/within clauses (conceptual extraction)
+    - Esper EPL query patterns → reimplement as streamz Filter+Window
+  fills:
+    - system_engine/event_processing/
+    - system_engine/hazard_sensors/ (multi-event hazard patterns)
+  how: >
+    Extract Esper's temporal CEP pattern concepts.
+    Reimplement as streamz-based pattern matchers in Python.
+    Example: HAZ-DRIFT-COMPOSITE = (3 HazardEvents within 30s) → escalate.
+  safety_rails:
+    - CEP patterns must be registered in registry/constraint_rules.yaml
+    - All pattern matches emit HazardEvent — never direct action
+
+
+# ================================================================
+# SECTION 3 — MARKET MICROSTRUCTURE / HFT
+# Manifest ref: "MARKET MICROSTRUCTURE / HFT"
+# Fills: simulation/ package (27 missing files)
+# ================================================================
+
+- repo: nkaz001/hftbacktest
+  pip: hftbacktest
+  extract:
+    - hftbacktest/backtest/proc/local.py
+        → fill() method — queue-position fill logic
+        → slippage calculation
+        → latency injection
+    - hftbacktest/latency/
+        → ConstantLatency, FeedLatency classes
+    - hftbacktest/data/
+        → LOBSnapshot, Trade data structures
+    - hftbacktest/backtest/assettype.py
+        → Linear/Inverse asset math
+  fills:
+    - simulation/slippage_model.py
+    - simulation/latency_model.py
+    - execution_engine/strategic_execution/slippage_curve.py
+    - execution_engine/strategic_execution/depth_estimator.py
+    - execution_engine/market_data/latency_tracker.py
+  dix_contract: core/contracts/simulation.py → RealityScenario, SlippageResult
+  how: >
+    Extract fill() math verbatim — this is the battle-tested core.
+    Wrap in DIX SlippageModel(seed: int) class.
+    Replace hftbacktest's internal clock with TimeSource injection.
+    Replace numpy.random calls with seeded Generator passed at construction.
+    Output must be a frozen SlippageResult dataclass matching simulation contract.
+  safety_rails:
+    - seed: int is mandatory constructor param — no default, no fallback
+    - numpy global random state must never be touched
+    - SlippageModel.compute() is a pure function — same inputs = same output
+    - Offline only — never called in RUNTIME execution path
+
+- repo: nautechsystems/nautilus_trader
+  pip: nautilus_trader
+  extract:
+    - nautilus_trader/backtest/engine.py
+        → BacktestEngine event loop architecture
+        → Clock injection pattern
+        → fill simulation dispatch
+    - nautilus_trader/model/orderbook/
+        → OrderBook data structure
+        → L2OrderBook aggregation
+    - nautilus_trader/data/engine.py
+        → data normalization pipeline
+        → bar aggregation
+    - nautilus_trader/model/events/
+        → OrderFilled, OrderRejected, PositionChanged event types
+  fills:
+    - simulation/engine.py
+    - simulation/event_replayer.py
+    - execution_engine/market_data/book_builder.py
+    - execution_engine/market_data/normalizer.py
+    - execution_engine/market_data/aggregator.py
+  dix_contract: core/contracts/simulation.py, core/contracts/events.py
+  how: >
+    Extract NautilusTrader's BacktestEngine event loop structure.
+    Replace Nautilus actors with DIX engine Protocol.
+    Replace Nautilus clock with DIX TimeSource.
+    Map Nautilus OrderFilled → DIX ExecutionEvent.
+    Keep Nautilus OrderBook implementation — it is production-grade.
+  safety_rails:
+    - Nautilus live trading wiring must be stripped — simulation only
+    - No Nautilus actors/ports in DIX RUNTIME tier
+    - All Nautilus state must be accessible to DIX ledger writer
+
+- repo: abides-sim/abides-markets
+  pip: abides-markets
+  extract:
+    - abides_markets/agents/market_makers/simple_market_maker.py
+        → spread calculation, inventory management
+    - abides_markets/agents/spoofing_agent.py
+        → adversarial order placement patterns
+    - abides_markets/agents/momentum_agent.py
+        → trend-following agent behavior
+    - abides_markets/models/order_book.py
+        → simulated LOB mechanics
+  fills:
+    - simulation/adversarial/flash_crash_synth.py
+    - simulation/adversarial/stop_hunter.py
+    - simulation/adversarial/liquidity_attacker.py
+    - simulation/crowd_density_sim.py
+    - simulation/strategy_arena/arena.py
+  dix_contract: core/contracts/simulation.py → AdversarialAgent
+  how: >
+    Extract adversarial agent behavior patterns.
+    Each ABIDES agent becomes a DIX AdversarialAgent subclass.
+    Feed agent orders into Nautilus OrderBook (from above).
+    Arena runner drives agents through DIX SimulationEngine.
+  safety_rails:
+    - Adversarial agents run in simulation/ only — never execution_engine/
+    - ABIDES MPI parallelism stripped — use DIX parallel_runner.py + Ray instead
+    - Agent actions never emit real ExecutionEvent — only SimulationFillEvent
+
+- repo: Kautenja/limit-order-book + JAX-LOB/JAX-LOB
+  pip: sortedcontainers  # core dependency of both
+  extract:
+    - limit-order-book/src/limit_order_book.cpp concepts → Python with sortedcontainers
+    - JAX-LOB: jaxlob/orderbook.py → vectorized LOB for fast batch simulation
+  fills:
+    - simulation/engine.py (LOB component)
+    - simulation/adversarial/flash_crash_synth.py
+  how: >
+    Use sortedcontainers.SortedDict as bid/ask book backing structure.
+    JAX-LOB's vectorized approach usable for batch simulation scoring (offline only).
+    Never use JAX in RUNTIME tier — not deterministic across hardware.
+  safety_rails:
+    - JAX offline only — fails INV-15 if used in RUNTIME replay
+    - sortedcontainers is deterministic — safe for RUNTIME
+
+- repo: bmoscon/cryptofeed
+  pip: cryptofeed
+  extract:
+    - cryptofeed/exchanges/
+        → exchange-specific websocket handlers
+        → message normalization per exchange
+    - cryptofeed/types.py → Trade, OrderBook, Ticker normalized types
+    - cryptofeed/connection.py → reconnection / backoff logic
+    - cryptofeed/backends/backend.py → callback interface (extract this pattern)
+  fills:
+    - execution_engine/market_data/aggregator.py
+    - execution_engine/market_data/normalizer.py
+    - execution_engine/market_data/latency_tracker.py
+    - ui/feeds/binance_public_ws.py (enhance existing)
+  dix_contract: core/contracts/events.py → SignalEvent
+  how: >
+    Wrap cryptofeed feed handlers behind DIX MarketDataAggregator.
+    cryptofeed's Trade/OrderBook → normalize → DIX SignalEvent.
+    Keep cryptofeed reconnection logic INTACT — battle-tested edge cases.
+    Replace cryptofeed backends (Arctic/Redis) with DIX ledger writer.
+  safety_rails:
+    - No cryptofeed backend except DIX ledger
+    - Feed runs in separate asyncio task — never blocks RUNTIME hot_path
+    - SignalEvent timestamp must use DIX TimeSource, not cryptofeed's clock
+
+
+# ================================================================
+# SECTION 4 — EXECUTION / CONNECTIVITY
+# Manifest ref: "EXECUTION / CONNECTIVITY"
+# Fills: execution_engine/adapters/
+# ================================================================
+
+- repo: ccxt/ccxt
+  pip: ccxt
+  extract:
+    - ccxt/python/ccxt/binance.py
+        → create_order(), cancel_order(), fetch_order()
+        → fetch_balance(), fetch_positions()
+        → _handle_errors() — battle-tested error taxonomy
+        → rate_limit and throttle logic
+    - ccxt/python/ccxt/base/exchange.py
+        → retry decorator patterns
+        → sign() authentication logic
+        → parse_order() normalization
+  fills:
+    - execution_engine/adapters/binance.py
+  dix_contract: execution_engine/adapters/base.py → BrokerAdapter Protocol
+  how: >
+    ccxt Binance.create_order() → DIX BrokerAdapter.submit().
+    Map ccxt order response → DIX ExecutionEvent.
+    Inject DIX TimeSource — strip all datetime.now() calls.
+    Keep _handle_errors() verbatim — every error case is a lesson.
+    Keep rate_limit logic verbatim — protects against exchange bans.
+  safety_rails:
+    - ccxt must be imported ONLY in execution_engine/adapters/ — authority_lint enforced
+    - No ccxt in hot_path/, intelligence_engine/, governance_engine/
+    - All orders must be approved by governance before reaching ccxt layer
+    - ccxt exceptions must map to DIX HazardEvent before propagating up
+
+- repo: binance/binance-connector-python
+  pip: python-binance
+  extract:
+    - binance/spot/trade.py → new_order(), cancel_order() — official Binance SDK
+    - binance/websocket/spot/ → UserDataStream, BookTickerStream
+  fills:
+    - execution_engine/adapters/binance.py (websocket extension)
+    - execution_engine/market_data/aggregator.py (user data stream)
+  how: >
+    Use official Binance connector for websocket user data stream alongside ccxt.
+    ccxt handles order management, Binance connector handles real-time fills.
+    Both wrapped behind same BrokerAdapter interface.
+  safety_rails:
+    - Same as ccxt above
+    - UserDataStream events → ExecutionEvent → ledger write
+
+- repo: InteractiveBrokers/ib_insync
+  pip: ib-insync
+  extract:
+    - ib_insync/ib.py → placeOrder(), cancelOrder(), reqPositions()
+    - ib_insync/objects.py → Order, Trade, Position, Fill types
+    - ib_insync/contract.py → Contract specification
+  fills:
+    - execution_engine/adapters/oanda.py (extend to IB as well)
+  how: >
+    Wrap ib_insync behind BrokerAdapter for traditional asset trading.
+    ib_insync runs in its own event loop thread — bridge to DIX asyncio.
+    Map IB Fill → DIX ExecutionEvent.
+  safety_rails:
+    - IB adapter sandbox-isolated: no direct portfolio access
+    - All positions must reconcile with DIX exposure_store
+    - ib_insync event loop must never block DIX RUNTIME tier
+
+
+# ================================================================
+# SECTION 5 — AI ORCHESTRATION / MODEL ROUTING
+# Manifest ref: "AI ORCHESTRATION / MODEL ROUTING"
+# Fills: intelligence_engine/cognitive/
+# ================================================================
+
+- repo: BerriAI/litellm
+  pip: litellm openai anthropic google-generativeai groq
+  extract:
+    - litellm/main.py → completion() unified call
+    - litellm/router.py → Router class — fallback, retry, load balancing
+    - litellm/utils.py → token counting, cost tracking
+    - litellm/exceptions.py → unified exception taxonomy
+  fills:
+    - intelligence_engine/cognitive/chat/registry_driven_chat_model.py
+  dix_contract: core/contracts/api/cognitive_chat.py
+  how: >
+    LiteLLM Router becomes DIX AIRouter.
+    Model list driven by registry/plugins.yaml — not hardcoded.
+    All completions gated through governance approval_edge before execution.
+    Cost tracking writes to DIX ledger as SystemEvent.
+    Supports: OpenAI, Claude, Gemini, Grok, DeepSeek, Ollama, vLLM.
+  safety_rails:
+    - NO direct runtime authority — advisory only
+    - Every AI call must have a governance-approved budget cap
+    - AI outputs must pass schema validation before entering any DIX contract
+    - Hallucination quarantine: outputs with low confidence score → HazardEvent
+
+- repo: pydantic/pydantic-ai
+  pip: pydantic-ai
+  extract:
+    - pydantic_ai/agent.py → Agent base with typed result validation
+    - pydantic_ai/models/ → multi-provider abstraction (ModelSettings, etc.)
+    - pydantic_ai/result.py → RunResult — structured validated output
+    - pydantic_ai/tools.py → Tool — function calling with schema
+  fills:
+    - intelligence_engine/cognitive/chat/registry_driven_chat_model.py
+    - intelligence_engine/cognitive/approval_edge.py
+  how: >
+    PydanticAI Agent wraps LiteLLM router.
+    Result types are DIX Pydantic contracts from core/contracts/.
+    Tools are DIX plugin functions registered in registry/plugins.yaml.
+    RunResult validation catches schema violations before any downstream use.
+  safety_rails:
+    - Agent.run() is async and sandboxed — never called in RUNTIME sync path
+    - Tool functions must be registered in registry/ before exposure to agent
+    - Result validation failure → quarantine → HazardEvent
+
+- repo: dottxt-ai/outlines
+  pip: outlines
+  extract:
+    - outlines/generate/regex.py → regex-constrained generation
+    - outlines/generate/json.py → JSON schema-constrained generation
+    - outlines/models/ → model wrapper
+  fills:
+    - intelligence_engine/cognitive/chat/registry_driven_chat_model.py
+  how: >
+    Use Outlines JSON-constrained generation to force AI outputs
+    to match DIX Pydantic contract schemas exactly.
+    Eliminates hallucinated field names and type mismatches.
+  safety_rails:
+    - Outlines schema must be derived from core/contracts/ — never invented
+    - Offline model inference only — no outlines in RUNTIME tier
+
+- repo: microsoft/guidance
+  pip: guidance
+  extract:
+    - guidance/_program.py → program() — templated generation with constraints
+    - guidance/library/ → select(), gen() constrained primitives
+  fills:
+    - intelligence_engine/cognitive/chat/registry_driven_chat_model.py (alternative to outlines)
+  how: >
+    Guidance programs for structured governance reasoning:
+    "Given these constraints {{constraints}}, is this trade approved? select(['yes','no'])"
+    Ensures binary governance decisions are never free-form text.
+  safety_rails:
+    - Guidance programs run offline / advisory only
+    - Program templates stored in registry — not hardcoded in source
+
+
+# ================================================================
+# SECTION 6 — MULTI-AGENT SYSTEMS
+# Manifest ref: "MULTI-AGENT SYSTEMS"
+# Fills: intelligence_engine/agents/
+# ================================================================
+
+- repo: langchain-ai/langgraph
+  pip: langgraph
+  extract:
+    - langgraph/graph/state.py → StateGraph — conditional routing
+    - langgraph/checkpoint/ → MemorySaver, checkpointing interface
+    - langgraph/prebuilt/tool_node.py → ToolNode — safe tool execution
+  fills:
+    - intelligence_engine/agents/_base.py
+    - intelligence_engine/meta_controller/evaluation/debate_round.py
+    - intelligence_engine/cognitive/approval_edge.py
+  dix_contract: core/contracts/agent.py → AgentContract
+  how: >
+    StateGraph drives the agent debate loop.
+    Nodes = DIX AgentContract implementations (scalper, swing, macro, etc.).
+    Edges = governance-validated transitions only.
+    Checkpoints write to DIX ledger — not LangSmith.
+    ToolNode executes only registry-registered plugin functions.
+  safety_rails:
+    - Sandbox only unless governance-approved for paper mode
+    - No StateGraph node may directly emit ExecutionEvent
+    - All state transitions logged to ledger as SystemEvent
+    - Infinite loop detection: max_iterations enforced per governance policy
+
+- repo: microsoft/autogen
+  pip: pyautogen
+  extract:
+    - autogen/agentchat/conversable_agent.py → ConversableAgent base
+    - autogen/agentchat/groupchat.py → GroupChat, GroupChatManager
+    - autogen/agentchat/user_proxy_agent.py → human-in-loop pattern
+  fills:
+    - intelligence_engine/agents/adversarial_observer.py
+    - intelligence_engine/meta_controller/evaluation/debate_round.py
+  how: >
+    GroupChat becomes the strategy debate council.
+    Bull agent + Bear agent + Risk agent debate ExecutionIntent.
+    GroupChatManager routes to governance for final approval.
+    UserProxyAgent = human operator override path.
+  safety_rails:
+    - GroupChat code execution disabled — DIX has own sandbox
+    - AutoGen uses LiteLLM router — never direct API keys
+    - Debate transcript logged to ledger as SystemEvent
+
+- repo: crewAIInc/crewAI
+  pip: crewai
+  extract:
+    - crewai/agent.py → Agent with role/goal/backstory
+    - crewai/crew.py → Crew orchestration
+    - crewai/task.py → Task with expected_output schema
+  fills:
+    - intelligence_engine/agents/ (archetype implementations)
+  how: >
+    Each DIX archetype (scalper, swing, macro, LP) becomes a CrewAI Agent.
+    Task.expected_output schema maps to DIX Pydantic contract.
+    Crew.kickoff() output → ExecutionIntent → governance gate.
+  safety_rails:
+    - CrewAI agents advisory only — no direct trade authority
+    - expected_output must be a DIX contract type — no free-form strings
+    - Agent memory uses DIX state/memory_tensor/, not CrewAI built-in memory
+
+
+# ================================================================
+# SECTION 7 — VECTOR MEMORY / KNOWLEDGE SYSTEMS
+# Manifest ref: "VECTOR MEMORY / KNOWLEDGE SYSTEMS"
+# Fills: state/memory_tensor/
+# ================================================================
+
+- repo: facebookresearch/faiss
+  pip: faiss-cpu
+  extract:
+    - faiss/python/faiss/swigfaiss.py → IndexFlatL2, IndexIVFFlat, IndexHNSW
+    - faiss/python/faiss/extra_wrappers.py → knn_gpu (offline only)
+  fills:
+    - state/memory_tensor/episodic.py
+    - state/memory_tensor/semantic.py
+    - state/memory_tensor/trader_patterns/archetype_store.py
+    - state/memory_tensor/trader_patterns/profile_store.py
+  dix_contract: core/contracts/trader_intelligence.py
+  how: >
+    FAISS IndexHNSW as primary similarity search engine.
+    Each memory type (episodic/semantic/archetype) gets own FAISS index.
+    Indexes serialized to disk via faiss.write_index() — replay safe.
+    Query result → TraderPattern contract → opponent_model/ consumer.
+  safety_rails:
+    - FAISS index files are append-friendly but not ledger entries
+    - Index snapshots written alongside ledger snapshots
+    - faiss-gpu prohibited in RUNTIME tier — CPU index only on hot path
+
+- repo: qdrant/qdrant-client
+  pip: qdrant-client
+  extract:
+    - qdrant_client/qdrant_client.py → upsert(), search(), filter()
+    - qdrant_client/models/ → VectorParams, PointStruct, Filter
+    - Local mode: QdrantClient(":memory:") — no server needed
+  fills:
+    - state/memory_tensor/semantic.py (Qdrant as alternative to FAISS)
+    - state/memory_tensor/trader_patterns/profile_store.py
+  how: >
+    Qdrant local mode for rich metadata filtering alongside vector search.
+    Use where FAISS pure kNN is insufficient (e.g. filter by regime + similarity).
+    PointStruct payload = DIX TraderPattern fields.
+  safety_rails:
+    - Local mode only — no Qdrant cloud until security review
+    - Qdrant collections backed up with ledger snapshots
+
+- repo: lancedb/lancedb
+  pip: lancedb
+  extract:
+    - lancedb/db.py → LanceDB.open_table(), create_table()
+    - lancedb/table.py → Table.search(), Table.add()
+    - Arrow-native storage — integrates with pyarrow snapshots
+  fills:
+    - state/memory_tensor/semantic.py (LanceDB as lightweight alternative)
+    - state/feature_store.py (vector + tabular in one store)
+  how: >
+    LanceDB for unified vector + feature store backed by Parquet/Arrow.
+    Lower operational overhead than FAISS + Feast combination.
+    Evaluate alongside FAISS — use best fit per memory type.
+  safety_rails:
+    - LanceDB tables versioned with lancedb's built-in versioning
+    - Table versions pinned in ledger for replay consistency
+
+- repo: chroma-core/chroma
+  pip: chromadb
+  extract:
+    - chromadb/api/client.py → Client.create_collection(), add(), query()
+    - Ephemeral client mode: chromadb.Client() — no server needed
+  fills:
+    - state/memory_tensor/semantic.py (Chroma as simplest option for prototyping)
+  how: >
+    Use Chroma ephemeral mode for rapid prototyping of memory retrieval.
+    Migrate to FAISS or Qdrant for production once interface is stable.
+  safety_rails:
+    - Ephemeral only in tests — persistent mode requires governance approval
+
+- repo: huggingface/transformers  +  sentence-transformers/sentence-transformers
+  pip: transformers tokenizers sentence-transformers
+  extract:
+    - sentence_transformers/SentenceTransformer.py → encode() batch embedding
+    - transformers/models/bert/ — reference for embedding architecture
+  fills:
+    - learning_engine/trader_abstraction/embedder.py
+    - learning_engine/trader_abstraction/encoder.py
+    - state/memory_tensor/ (embedding generation for all stores)
+  how: >
+    SentenceTransformer.encode() generates embeddings for:
+    - news events → semantic memory
+    - trade patterns → archetype store
+    - governance decisions → knowledge graph
+    Offline batch embedding — never called in RUNTIME hot_path.
+  safety_rails:
+    - Model weights cached locally — no runtime network calls
+    - Embedding model pinned by hash in registry/calibration.yaml
+    - Offline only — embedding never blocks ExecutionEvent processing
+
+
+# ================================================================
+# SECTION 8 — KNOWLEDGE GRAPHS / CAUSAL SYSTEMS
+# Manifest ref: "KNOWLEDGE GRAPHS / CAUSAL SYSTEMS"
+# Fills: state/knowledge_store.py, core/causal_graph.py
+# ================================================================
+
+- repo: networkx/networkx
+  pip: networkx
+  extract:
+    - networkx/classes/digraph.py → DiGraph
+    - networkx/algorithms/dag.py → topological_sort, is_directed_acyclic_graph
+    - networkx/algorithms/shortest_paths/ → dijkstra_path (influence propagation)
+    - networkx/algorithms/cycles.py → find_cycle (detect authority violations)
+  fills:
+    - core/causal_graph.py
+    - tools/dependency_audit.py (fixes dep_graph_valid: False)
+  how: >
+    DIX CausalGraph wraps NetworkX DiGraph.
+    Nodes = strategies, signals, regimes, events.
+    Edges = causal influence with weight = historical correlation.
+    topological_sort drives engine boot order.
+    find_cycle detects import cycles in authority graph.
+  safety_rails:
+    - CausalGraph is read-only in RUNTIME — mutations offline only
+    - Graph snapshots written to ledger on each offline update
+    - Cycles in authority graph → CI FAIL via tools/dependency_audit.py
+
+- repo: neo4j/neo4j-python-driver
+  pip: neo4j
+  extract:
+    - neo4j/work/session.py → Session.run() Cypher execution
+    - neo4j/graph.py → Node, Relationship types
+    - neo4j/data.py → Record, Value
+  fills:
+    - state/knowledge_store.py
+    - state/memory_tensor/trader_patterns/archetype_store.py (graph queries)
+  how: >
+    Neo4j local (embedded) stores strategy lineage graph.
+    Cypher queries: "MATCH (s:Strategy)-[:DERIVED_FROM]->(parent) RETURN parent"
+    Used for: strategy ancestry, signal provenance, governance decision chains.
+    NetworkX for in-process analytics, Neo4j for persistent graph storage.
+  safety_rails:
+    - Neo4j local mode only until distributed deployment phase
+    - All graph writes go through DIX OfflineEngine tier
+    - Graph data backed up with ledger snapshots
+
+
+# ================================================================
+# SECTION 9 — FEATURE STORES / DATA GOVERNANCE
+# Manifest ref: "FEATURE STORES / DATA GOVERNANCE"
+# Fills: state/feature_store.py, state/dataset_registry.py
+# ================================================================
+
+- repo: feast-dev/feast
+  pip: feast
+  extract:
+    - sdk/python/feast/feature_store.py → FeatureStore.get_online_features()
+    - sdk/python/feast/registry/ → FeatureView, Entity definitions
+    - sdk/python/feast/infra/offline_stores/file.py → Parquet-backed offline store
+    - sdk/python/feast/infra/online_stores/sqlite.py → SQLite online store
+  fills:
+    - state/feature_store.py
+    - state/dataset_registry.py
+  how: >
+    DIX FeatureStore wraps Feast with SQLite online + Parquet offline.
+    Feature definitions in registry/features.yaml (new file).
+    Online features: latest regime, current volatility, agent state.
+    Offline features: historical patterns for training runs.
+    Feast ensures online/offline parity — same features in training and live.
+  safety_rails:
+    - Online feature reads are RUNTIME-safe (SQLite lookup, bounded latency)
+    - Offline materialization runs in OFFLINE tier only
+    - Feature definitions versioned in registry — no schema drift
+
+- repo: mlflow/mlflow
+  pip: mlflow
+  extract:
+    - mlflow/tracking/ → MlflowClient.log_metric(), log_artifact()
+    - mlflow/entities/ → Run, Experiment
+    - mlflow/models/ → Model registry interface
+  fills:
+    - evolution_engine/pipeline.py
+    - learning_engine/performance_analysis/ (experiment tracking)
+  how: >
+    MLflow local tracking server (file-backed) records:
+    - evolution runs: fitness scores, generation, params
+    - strategy performance: Sharpe, drawdown, win rate
+    - model artifacts: policy weights, calibration params
+    Promotion gate checks MLflow run metrics before proposing UPDATE_PROPOSED.
+  safety_rails:
+    - MLflow tracking is OFFLINE only
+    - MLflow model registry is advisory — promotion requires governance approval
+    - No MLflow model serving — DIX uses its own inference path
+
+- repo: treeverse/lakeFS
+  pip: lakefs
+  extract:
+    - lakefs_client/api/ → BranchesApi, CommitsApi, ObjectsApi
+    - Git-like data versioning patterns
+  fills:
+    - state/data_versioning/ (new directory)
+    - state/ledger/snapshots.py (data version tagging)
+  how: >
+    LakeFS provides Git-like versioning for training datasets.
+    Each learning run references a pinned dataset commit.
+    Ensures reproducibility: re-running training on same commit = same result.
+  safety_rails:
+    - LakeFS local mode only (MinIO backend)
+    - Dataset commit hash stored in evolution_engine experiment log
+
+
+# ================================================================
+# SECTION 10 — FEDERATED LEARNING
+# Manifest ref: "FEDERATED LEARNING"
+# Fills: learning_engine/lanes/federated.py
+# ================================================================
+
+- repo: adap/flower
+  pip: flwr
+  extract:
+    - src/py/flwr/server/strategy/fedavg.py → FedAvg aggregation
+    - src/py/flwr/server/client_manager.py → client registration
+    - src/py/flwr/client/numpy_client.py → NumPyClient interface
+    - src/py/flwr/common/parameter.py → parameter serialization
+  fills:
+    - learning_engine/lanes/federated.py
+  how: >
+    Each DIX node is a Flower NumPyClient.
+    FedAvg aggregates policy updates from multiple nodes.
+    Aggregated parameters → UPDATE_PROPOSED event → governance gate.
+    Only governance-approved aggregated updates reach RUNTIME tier.
+  safety_rails:
+    - Federated updates go through same governance pipeline as local updates
+    - Differential privacy: add Gaussian noise before sharing (flwr DP strategy)
+    - OFFLINE only — federated rounds never interrupt RUNTIME operation
+
+
+# ================================================================
+# SECTION 11 — REINFORCEMENT LEARNING / EVOLUTION
+# Manifest ref: "RL / EVOLUTION"
+# Fills: evolution_engine/, learning_engine/lanes/
+# ================================================================
+
+- repo: DLR-RM/stable-baselines3
+  pip: stable-baselines3[extra]
+  extract:
+    - stable_baselines3/common/base_class.py → BaseAlgorithm.learn() interface
+    - stable_baselines3/ppo/ppo.py → PPO.learn() — on-policy RL
+    - stable_baselines3/sac/sac.py → SAC.learn() — off-policy for continuous actions
+    - stable_baselines3/common/vec_env/ → VecEnv wrapper interface
+    - stable_baselines3/common/callbacks.py → EvalCallback — early stopping
+  fills:
+    - evolution_engine/sandbox.py
+    - learning_engine/lanes/ral.py
+    - learning_engine/lanes/policy_distillation.py
+  dix_contract: core/contracts/learning.py
+  how: >
+    SB3 SAC trains against DIX simulation/engine.py gym.Env wrapper.
+    EvalCallback triggers UPDATE_PROPOSED when Sharpe threshold exceeded.
+    VecEnv runs N parallel simulations for sample efficiency.
+    Trained policy weights stored in MLflow, versioned in LakeFS.
+  safety_rails:
+    - Training is OFFLINE only — VecEnv never touches RUNTIME state
+    - Policy weights are hash-verified before promotion
+    - UPDATE_PROPOSED requires: min 1000 episodes, Sharpe > threshold from registry
+
+- repo: nnaisense/evotorch
+  pip: evotorch
+  extract:
+    - evotorch/algorithms/cmaes.py → CMAES optimizer
+    - evotorch/algorithms/snes.py → SNES (natural evolution strategy)
+    - evotorch/core.py → Problem, SolutionBatch interface
+    - evotorch/logging.py → StdOutLogger (replace with DIX ledger logger)
+  fills:
+    - evolution_engine/genetic/crossover.py
+    - evolution_engine/genetic/mutation_operators.py
+    - evolution_engine/genetic/fitness_inheritance.py
+    - simulation/strategy_arena/promotion_engine.py
+  how: >
+    Evotorch Problem wraps DIX strategy parameter space.
+    Fitness function = simulation/scoring_engine.py Sharpe computation.
+    CMA-ES searches parameter space for each archetype.
+    Best solutions per generation → promotion_engine.py selection.
+  safety_rails:
+    - Evolution runs in OFFLINE tier — never live capital
+    - Fitness evaluation uses historical replay, not live market
+    - Mutation magnitude bounded by registry/budgets.yaml constraints
+
+- repo: facebookresearch/nevergrad
+  pip: nevergrad
+  extract:
+    - nevergrad/optimization/optimizerlib.py → NGOpt, DE, CMA
+    - nevergrad/parametrization/ → Array, Scalar, Choice
+  fills:
+    - evolution_engine/genetic/mutation_operators.py (fallback to Evotorch)
+    - intelligence_engine/meta_controller/evaluation/strategy_selector.py
+  how: >
+    NGOpt as hyperparameter optimizer for strategy parameters.
+    Parametrization maps directly to registry/position_sizer.yaml schema.
+    Use when CMA-ES fails to converge (Nevergrad has better exploration).
+  safety_rails:
+    - Same constraints as Evotorch above
+
+- repo: DEAP/deap
+  pip: deap
+  extract:
+    - deap/algorithms.py → eaMuPlusLambda — (μ+λ) evolution strategy
+    - deap/tools/selection.py → selNSGA2 — multi-objective Pareto selection
+    - deap/tools/crossover.py → cxTwoPoint, cxUniform
+  fills:
+    - evolution_engine/genetic/crossover.py
+    - simulation/strategy_arena/promotion_engine.py
+  how: >
+    NSGA-II multi-objective selection: maximize Sharpe, minimize drawdown.
+    Pareto front of non-dominated strategies → promotion candidates.
+    eaMuPlusLambda drives the generational loop in evolution_engine/pipeline.py.
+  safety_rails:
+    - Pareto front strategies require governance review before promotion
+    - DEAP random operations use seeded Generator — never random.random()
+
+- repo: ray-project/ray
+  pip: ray[default]
+  extract:
+    - ray/remote_function.py → @ray.remote decorator
+    - ray/actor.py → @ray.remote class (stateful parallel workers)
+    - ray/runtime_context.py → get_runtime_context()
+  fills:
+    - simulation/parallel_runner.py
+    - evolution_engine/pipeline.py (distributed evolution)
+  how: >
+    @ray.remote wraps DIX simulation runs for parallelism.
+    Each Ray worker runs one seeded SimulationEngine instance.
+    Results aggregated by evolution_engine via Ray object store.
+    OFFLINE tier only — Ray cluster never touches RUNTIME state.
+  safety_rails:
+    - Ray workers have no access to RUNTIME engine state
+    - Each worker is stateless — receives seed + scenario, returns ScoringResult
+    - Ray actor death = retry with same seed — determinism maintained
+
+- repo: openai/gymnasium
+  pip: gymnasium
+  extract:
+    - gymnasium/core.py → Env interface: reset(), step(), action_space, observation_space
+    - gymnasium/spaces/ → Box, Discrete, Dict space definitions
+    - gymnasium/wrappers/ → TimeLimit, RecordEpisodeStatistics
+  fills:
+    - evolution_engine/sandbox.py (gym.Env wrapper around simulation)
+  how: >
+    DIX SimulationEngine wrapped as gymnasium.Env.
+    Observation = RealitySummary fields flattened to numpy array.
+    Action = ExecutionIntent fields (direction, size, urgency).
+    Reward = risk-adjusted PnL from scoring_engine.
+  safety_rails:
+    - Gym env wraps OFFLINE simulation only — not live market
+    - Action space bounded by registry/budgets.yaml position limits
+    - TimeLimit wrapper enforces max episode length
+
+- repo: PettingZoo/PettingZoo
+  pip: pettingzoo
+  extract:
+    - pettingzoo/utils/env.py → AECEnv — turn-based multi-agent env
+    - pettingzoo/utils/wrappers/ → OrderEnforcingWrapper
+  fills:
+    - simulation/strategy_arena/arena.py (multi-agent debate environment)
+  how: >
+    Strategy arena becomes a PettingZoo AECEnv.
+    Each archetype agent takes turns submitting ExecutionIntents.
+    Arena resolves conflicts via Governance engine rules.
+  safety_rails:
+    - PettingZoo env wraps OFFLINE simulation only
+    - No live capital allocation in arena
+
+
+# ================================================================
+# SECTION 12 — NEUROMORPHIC / EVENT COGNITION
+# Manifest ref: "NEUROMORPHIC / EVENT COGNITION"
+# Fills: sensory/neuromorphic/
+# ================================================================
+
+- repo: norse/norse
+  pip: norse
+  extract:
+    - norse/torch/module/lif.py → LIFCell — Leaky Integrate-and-Fire
+    - norse/torch/functional/lif.py → lif_feed_forward_step()
+    - norse/torch/module/encode.py → PoissonEncoder — rate encoding
+  fills:
+    - sensory/neuromorphic/indira_signal.py
+    - sensory/neuromorphic/dyon_anomaly.py
+  how: >
+    LIF neurons integrate market event stream.
+    Spike burst (N spikes in T ms) → anomaly detected → HazardEvent.
+    PoissonEncoder converts continuous price changes to spike trains.
+    Trained offline, inference online (CPU, deterministic given fixed weights).
+  safety_rails:
+    - Neuromorphic layer is ADVISORY ONLY — fires HazardEvent, never ExecutionEvent
+    - Model weights immutable in RUNTIME — no online weight updates
+    - Inference must complete within hot_path latency budget (≤1ms)
+
+- repo: BindsNET/bindsnet
+  pip: bindsnet
+  extract:
+    - bindsnet/network/network.py → Network class
+    - bindsnet/learning/learning.py → STDP — spike-timing-dependent plasticity
+    - bindsnet/models/models.py → DiehlAndCook2015 — unsupervised SNN
+  fills:
+    - sensory/neuromorphic/governance_risk.py
+  how: >
+    STDP trains SNN on historical governance event sequences.
+    Network learns to spike on anomalous governance patterns.
+    Used for: detecting unusual authority escalation chains.
+  safety_rails:
+    - STDP training is OFFLINE only
+    - Trained network weights frozen before deployment to sensory/
+    - Spike output → HazardEvent only — no direct governance action
+
+- repo: brian-team/brian2
+  pip: brian2
+  extract:
+    - brian2/core/network.py → Network, run()
+    - brian2/equations/ → NeuronGroup equations DSL
+    - brian2/monitors/ → SpikeMonitor, StateMonitor
+  fills:
+    - sensory/neuromorphic/ (prototyping / research only)
+  how: >
+    Use Brian2 for rapid neuromorphic prototyping.
+    Validate spike patterns before converting to Norse for production.
+    Brian2 is NOT deployed — it is a research tool.
+  safety_rails:
+    - Brian2 in tests/ and offline research only
+    - Never imported in RUNTIME modules
+
+- repo: jeshraghian/snntorch
+  pip: snntorch
+  extract:
+    - snntorch/neurons/leaky.py → Leaky — alternative LIF implementation
+    - snntorch/functional/loss.py → SpikeCountLoss
+  fills:
+    - sensory/neuromorphic/indira_signal.py (alternative to Norse LIF)
+  how: >
+    snnTorch evaluated alongside Norse.
+    Use whichever gives better spike timing precision on market event streams.
+  safety_rails:
+    - Same as Norse above
+
+
+# ================================================================
+# SECTION 13 — FORMAL METHODS / VERIFICATION
+# Manifest ref: "FORMAL METHODS / VERIFICATION"
+# Fills: tools/, immutable_core/
+# ================================================================
+
+- repo: Z3Prover/z3
+  pip: z3-solver
+  extract:
+    - z3/python/z3/z3.py → Solver, Bool, Int, Real, ForAll, Exists
+    - z3/python/z3/z3util.py → get_vars(), get_expr_vars()
+  fills:
+    - tools/replay_validator.py
+    - tools/enforcement_matrix.py
+    - tools/governance_boundary_check.py (new manifest tool)
+    - immutable_core/safety_axioms.lean (Z3 proofs alongside Lean)
+  how: >
+    tools/replay_validator.py: Z3 proves that for any two traces with
+    identical seeds, all ExecutionEvent field values are equal.
+    tools/governance_boundary_check.py: Z3 proves no governance bypass
+    exists in the authority graph (encode as graph reachability constraint).
+    Run in CI — fails build if invariant proof fails.
+  safety_rails:
+    - Z3 proofs are static analysis — never run in RUNTIME
+    - Proof failures are CI-blocking, not warnings
+
+- repo: HypothesisWorks/hypothesis
+  pip: hypothesis
+  extract:
+    - hypothesis/strategies/ → st.integers, st.floats, st.builds, st.one_of
+    - hypothesis/stateful.py → RuleBasedStateMachine
+    - hypothesis/database.py → ExampleDatabase — stores failing cases
+  fills:
+    - tests/test_replay.py
+    - tests/test_replay_gate.py
+    - tests/test_snapshot_boundary.py
+    - tests/test_hazard_flow.py
+  how: >
+    Property-based tests for:
+    1. Replay determinism: same seed + events = identical ExecutionEvent sequence
+    2. Governance boundary: no ExecutionEvent without prior governance approval
+    3. Ledger integrity: every event is retrievable and matches its hash
+    RuleBasedStateMachine models governance state transitions.
+  safety_rails:
+    - ExampleDatabase persists failing cases — CI must reproduce them
+    - Hypothesis settings: max_examples=500 in CI, 5000 in nightly
+
+- repo: pschanely/CrossHair
+  pip: crosshair-tool
+  extract:
+    - crosshair/core.py → analyze_function() — symbolic execution
+    - crosshair/condition_parser.py → PEP-316 contract annotations
+  fills:
+    - tools/no_hidden_state_check.py (new manifest tool)
+    - tools/runtime_determinism_check.py (new manifest tool)
+  how: >
+    CrossHair symbolically executes DIX hot_path functions.
+    Detects: global state mutations, non-deterministic branches, unchecked raises.
+    Run as pre-commit hook on execution_engine/hot_path/ changes.
+  safety_rails:
+    - CrossHair analysis run on RUNTIME modules only — critical path
+    - Violations are CI-blocking
+
+- repo: informalsystems/apalache (TLA+ model checker)
+  pip: N/A — Java binary
+  extract:
+    - Apalache TLA+ model checker — verifies TLA+ specs
+    - TLA+ specification patterns from tlaplus/tlaplus examples
+  fills:
+    - immutable_core/safety_axioms.lean (TLA+ companion specs)
+    - governance_engine/formal_methods/ (state machine proofs)
+  how: >
+    Write TLA+ specs for DIX governance state machine.
+    Apalache model-checks: no deadlock, no safety violation, no governance bypass.
+    Specs stored in governance_engine/formal_methods/specs/.
+    Run in CI via Apalache Docker image.
+  safety_rails:
+    - TLA+ specs are documentation + proof — not executable code
+    - Model checking runs in CI on spec changes only
+
+
+# ================================================================
+# SECTION 14 — OBSERVABILITY / TELEMETRY
+# Manifest ref: "OBSERVABILITY / TELEMETRY"
+# Fills: system_engine/health_monitors/, governance_engine/services/liveness_watchdog.py
+# ================================================================
+
+- repo: prometheus/client_python
+  pip: prometheus-client
+  extract:
+    - prometheus_client/metrics.py → Counter, Gauge, Histogram, Summary
+    - prometheus_client/exposition.py → make_asgi_app() — /metrics endpoint
+    - prometheus_client/registry.py → CollectorRegistry
+  fills:
+    - system_engine/health_monitors/ (all monitors)
+    - governance_engine/services/liveness_watchdog.py
+  how: >
+    Instrument every DIX engine with Prometheus metrics:
+    - intelligence_engine: signal_count, decision_latency_ms histogram
+    - execution_engine: order_count, fill_rate, slippage_bps
+    - governance_engine: approval_count, rejection_count, mode gauge
+    - system_engine: hazard_count, ledger_write_latency
+    /metrics endpoint mounted on ui/server.py as ASGI sub-app.
+  safety_rails:
+    - Metrics collection is observe-only — no feedback into RUNTIME logic
+    - Histogram buckets defined in registry — not hardcoded
+
+- repo: open-telemetry/opentelemetry-python
+  pip: opentelemetry-sdk opentelemetry-instrumentation-fastapi opentelemetry-exporter-otlp-proto-http
+  extract:
+    - opentelemetry/sdk/trace/ → TracerProvider, BatchSpanProcessor
+    - opentelemetry/instrumentation/fastapi/ → FastAPIInstrumentor
+    - opentelemetry/sdk/metrics/ → MeterProvider
+  fills:
+    - system_engine/health_monitors/api_changelogs.py
+    - ui/server.py (auto-instrumentation)
+  how: >
+    Auto-instrument FastAPI with OTel spans.
+    Add DIX-specific spans around: governance decisions, ledger writes, hot_path execution.
+    trace_id propagated into ledger entries — enables cross-event correlation.
+    OTLP exporter sends to local Jaeger or Grafana Tempo.
+  safety_rails:
+    - Span creation must be < 1μs overhead — use BatchSpanProcessor
+    - Sensitive fields (API keys, positions) excluded from span attributes
+
+
+# ================================================================
+# SECTION 15 — DATABASES / STORAGE
+# Manifest ref: "DATABASES / STORAGE"
+# Fills: state/ledger/, state/feature_store.py
+# ================================================================
+
+- repo: sqlalchemy/sqlalchemy  +  omnilib/aiosqlite
+  pip: sqlalchemy aiosqlite
+  extract:
+    - sqlalchemy/ext/asyncio/ → AsyncEngine, AsyncSession
+    - aiosqlite/core.py → async SQLite connection
+  fills:
+    - state/ledger/append.py (async ledger writes)
+    - state/ledger/hot_store.py (in-memory hot store with SQLite persistence)
+    - system_engine/credentials/ (credential storage)
+  how: >
+    Async SQLAlchemy over aiosqlite for non-blocking ledger writes.
+    Hot store = in-memory dict for sub-ms reads, persisted async to SQLite.
+    SQLAlchemy models mirror DIX Pydantic contracts — not independent schemas.
+  safety_rails:
+    - Ledger writes are append-only — no UPDATE or DELETE in schema
+    - aiosqlite WAL mode enabled — concurrent reads during writes
+
+- repo: duckdb/duckdb
+  pip: duckdb
+  extract:
+    - duckdb/duckdb.connect() → in-process OLAP
+    - DuckDB sqlite_scan extension — queries existing SQLite ledger
+    - DuckDB Parquet scan — reads LakeFS dataset snapshots
+  fills:
+    - simulation/scoring_engine.py (vectorized PnL computation)
+    - learning_engine/performance_analysis/ (batch analytics)
+  how: >
+    DuckDB queries DIX SQLite ledger directly via sqlite_scan.
+    Vectorized computation over thousands of ExecutionEvents in <100ms.
+    No data movement — DuckDB reads in-place from ledger file.
+  safety_rails:
+    - DuckDB is READ-ONLY against ledger — never write
+    - Analytics queries run in OFFLINE tier only
+
+- repo: lmdb/py-lmdb
+  pip: lmdb
+  extract:
+    - lmdb/cpython/ → Environment, Transaction, Cursor
+  fills:
+    - execution_engine/hot_path/ (sub-microsecond key-value cache)
+    - state/ledger/hot_store.py (alternative to dict + aiosqlite)
+  how: >
+    LMDB as zero-copy key-value store for FastRiskCache.
+    Memory-mapped file → reads are essentially pointer dereferences.
+    Dramatically faster than SQLite for hot_path position lookups.
+  safety_rails:
+    - LMDB environment is read-only in RUNTIME — writes from OFFLINE tier only
+    - LMDB file included in ledger snapshot bundle
+
+
+# ================================================================
+# SECTION 16 — DASHBOARD / CONTROL CENTER
+# Manifest ref: "DASHBOARD / CONTROL CENTER"
+# Fills: cockpit/, dashboard2026/ extensions
+# ================================================================
+
+- repo: Textualize/textual
+  pip: textual
+  extract:
+    - textual/app.py → App base, compose() layout
+    - textual/widgets/ → DataTable, Log, Sparkline, ProgressBar
+    - textual/reactive.py → reactive() — live updating UI state
+  fills:
+    - cockpit/app.py (terminal-based operator cockpit)
+    - scripts/dix_cli.py (CLI with rich TUI)
+  how: >
+    Textual-based terminal cockpit for headless server deployments.
+    DataTable shows live ExecutionEvents from ledger.
+    Reactive governance mode display.
+    Kill-switch widget mapped to system/kill_switch.py.
+    Complements React dashboard — works when browser is unavailable.
+  safety_rails:
+    - Textual widgets are read-only views of ledger state
+    - Kill-switch action requires confirmation prompt before firing
+
+- repo: nicegui/nicegui
+  pip: nicegui
+  extract:
+    - nicegui/ui.py → ui.table(), ui.chart(), ui.button()
+    - nicegui/events.py → event binding patterns
+  fills:
+    - cockpit/ widgets (alternative to React for rapid Python-native UI)
+  how: >
+    NiceGUI as Python-native alternative to React for operator cockpit.
+    Shares same FastAPI server as ui/server.py via nicegui.app.mount().
+    Faster to develop operator tools without TypeScript.
+  safety_rails:
+    - NiceGUI events must not directly call execution functions
+    - All actions go through REST API layer with governance checks
+
+
+# ================================================================
+# SECTION 17 — WEB-AUTOLEARN / SANDBOX
+# Manifest ref: "WEB-AUTOLEARN / SANDBOX"
+# Fills: sensory/web_autolearn/
+# ================================================================
+
+- repo: mendableai/firecrawl
+  pip: firecrawl-py
+  extract:
+    - apps/api/src/scraper/WebScraper/ → scraper interface
+    - apps/api/src/lib/extract/extractorOptions.ts → extraction config
+    - Python SDK: FirecrawlApp.scrape_url(), crawl_url()
+  fills:
+    - sensory/web_autolearn/crawler.py (primary extractor)
+    - sensory/curator.py (content filtering)
+  how: >
+    Firecrawl as primary intelligent extraction layer.
+    scrape_url() returns clean Markdown — no HTML parsing in DIX.
+    crawl_url() for recursive discovery of related content.
+    Output → sensory/ai_filter.py → SignalEvent or discard.
+  safety_rails:
+    - All crawl targets must be in sensory/seeds.yaml whitelist
+    - Rate limiting enforced — max 1 req/sec per domain
+    - Operator approval required for new seed domains
+    - Sandboxed process — no filesystem access outside /tmp/autolearn/
+
+- repo: microsoft/playwright-python
+  pip: playwright
+  extract:
+    - playwright/async_api/ → async_playwright, Browser, Page
+    - playwright/async_api/_context_manager.py → BrowserContext isolation
+  fills:
+    - sensory/web_autolearn/crawler.py (browser fallback for JS-heavy sites)
+  how: >
+    Playwright for sites Firecrawl cannot handle (heavy JS, login walls).
+    Each crawl in fresh BrowserContext — no cookie/state leakage.
+    Chromium-only (lightest, fastest).
+    Page content → readability-lxml → clean text → ai_filter.
+  safety_rails:
+    - Each BrowserContext destroyed after single-site crawl
+    - No persistent cookies or localStorage
+    - Network access limited to target domain only (Playwright network interception)
+    - gVisor sandbox for Playwright process in production
+
+- repo: scrapy/scrapy + trafilatura + newspaper3k
+  pip: scrapy trafilatura beautifulsoup4 readability-lxml newspaper3k
+  extract:
+    - scrapy/spiders/Spider.py → start_requests(), parse()
+    - trafilatura/core.py → extract() — content extraction
+    - newspaper/article.py → Article.parse() — article extraction
+  fills:
+    - sensory/web_autolearn/crawler.py (depth crawl fallback)
+    - sensory/ai_filter.py (multi-extractor pipeline)
+  how: >
+    Extraction pipeline with fallback chain:
+    1. Firecrawl (preferred — intelligent, clean)
+    2. trafilatura (fast, good for article sites)
+    3. newspaper3k (good for news sites specifically)
+    4. Playwright (last resort — JS-heavy sites)
+    Scrapy for recursive crawls of whitelisted domains.
+  safety_rails:
+    - Scrapy runs in isolated subprocess — not in DIX asyncio event loop
+    - All extractors output plain text only — no HTML in DIX pipeline
+    - robots.txt respected — AUTOTHROTTLE_ENABLED = True
+
+
+# ================================================================
+# SECTION 18 — TIME SERIES / FORECASTING
+# Manifest ref: "TIME SERIES / FORECASTING"
+# Fills: system_engine/drift_monitor.py, learning_engine/
+# ================================================================
+
+- repo: unit8co/darts
+  pip: darts
+  extract:
+    - darts/models/forecasting/exponential_smoothing.py → ExponentialSmoothing
+    - darts/models/forecasting/theta.py → Theta model
+    - darts/utils/statistics.py → check_seasonality, stationarity_tests
+    - darts/ad/ → Scorers — anomaly detection on time series
+  fills:
+    - system_engine/drift_monitor.py
+    - learning_engine/performance_analysis/alpha_decay.py
+  how: >
+    Darts Theta model for regime regime forecasting (offline).
+    Darts anomaly detection Scorers for system_engine/drift_monitor.py.
+    Alpha decay: fit ExponentialSmoothing to signal Sharpe series, detect decay.
+  safety_rails:
+    - Forecasting models OFFLINE only — never drive live decisions directly
+    - Model outputs → SignalEvent → intelligence_engine review — never direct execution
+
+- repo: facebook/prophet
+  pip: prophet
+  extract:
+    - prophet/forecaster.py → Prophet.fit(), Prophet.predict()
+    - prophet/plot.py — skip (DIX has own dashboard)
+  fills:
+    - system_engine/drift_monitor.py (trend detection)
+    - learning_engine/ (seasonality decomposition)
+  how: >
+    Prophet for macro regime seasonality decomposition.
+    Detects recurring patterns in volatility, volume, spread series.
+    Outputs → regime classifier input features.
+  safety_rails:
+    - Prophet uses Stan MCMC — seed via rng_seed parameter for reproducibility
+    - Run OFFLINE only — 30-60 second fit time unsuitable for runtime
+
+- repo: awslabs/gluonts
+  pip: gluonts
+  extract:
+    - gluonts/model/deepar/ → DeepAREstimator — probabilistic forecasting
+    - gluonts/dataset/common.py → ListDataset — time series ingestion
+    - gluonts/evaluation/ → Evaluator — CRPS, QL metrics
+  fills:
+    - learning_engine/performance_analysis/alpha_decay.py (probabilistic alpha decay)
+  how: >
+    DeepAR provides probabilistic forecasts of signal alpha decay.
+    90% CI of alpha lifetime → risk management input.
+    Offline training, inference produces credible intervals.
+  safety_rails:
+    - Deep learning model — GPU optional but offline only
+    - Model uncertainty bounds reported to governance, not used directly in sizing
+
+
+# ================================================================
+# SECTION 19 — GPU / ACCELERATION (OFFLINE ONLY)
+# Manifest ref: "GPU / ACCELERATION"
+# Restriction: NEVER in deterministic RUNTIME hot_path
+# ================================================================
+
+- repo: pytorch/pytorch
+  pip: torch torchvision torchaudio
+  extract:
+    - torch.nn → model architectures for offline learning
+    - torch.optim → Adam, AdamW for policy optimization
+    - torch.utils.data → DataLoader for batch training
+  fills:
+    - evolution_engine/ (RL policy networks)
+    - learning_engine/trader_abstraction/ (embedding models)
+    - sensory/neuromorphic/ (SNN training via Norse)
+  safety_rails:
+    - torch NEVER imported in: hot_path/, governance_engine/, system_engine/ RUNTIME
+    - torch.manual_seed() called with registry seed for reproducibility
+    - Model inference in RUNTIME uses TorchScript frozen models only (deterministic)
+
+- repo: google/jax
+  pip: jax jaxlib
+  extract:
+    - jax/numpy → drop-in numpy for vectorized simulation math
+    - jax.jit → JIT compilation for offline batch computation
+    - jax.vmap → vectorized simulation batches
+  fills:
+    - simulation/parallel_runner.py (JAX-vectorized batch simulations)
+    - evolution_engine/genetic/fitness_inheritance.py
+  safety_rails:
+    - JAX NEVER in RUNTIME tier — hardware-dependent, breaks INV-15
+    - jax.random uses explicit key passing — no global state
+    - CPU-only JAX for CI replay tests — GPU for training
+
+- repo: openai/triton + facebookresearch/xformers
+  pip: triton xformers
+  extract:
+    - Triton: custom CUDA kernels for attention — offline training acceleration
+    - xformers: memory-efficient attention for large context windows
+  fills:
+    - learning_engine/ (training acceleration)
+  safety_rails:
+    - STRICTLY offline training only — NEVER runtime
+    - NEVER in CI replay tests — hardware-dependent output
+
+
+# ================================================================
+# SECTION 20 — NEW VALIDATION TOOLS (from manifest)
+# These don't come from repos — they USE the repos above as dependencies
+# ================================================================
+
+new_validation_tools:
+  - file: tools/repo_assimilation_validator.py
+    depends_on: [networkx, tools/authority_lint.py]
+    purpose: >
+      Validates every integrated module has: registry entry, governance policy,
+      contract binding, tests, observability hook. Fails CI if any module is unregistered.
+
+  - file: tools/runtime_determinism_check.py
+    depends_on: [z3-solver, hypothesis]
+    purpose: >
+      Proves RUNTIME functions are deterministic: same inputs → same outputs.
+      Uses CrossHair symbolic execution + Z3 constraint solving.
+
+  - file: tools/replay_integrity_check.py
+    depends_on: [z3-solver, state/ledger/]
+    purpose: >
+      Replays last N ledger entries, verifies hash chain integrity,
+      verifies all ExecutionEvents reproducible from seed + events.
+
+  - file: tools/governance_boundary_check.py
+    depends_on: [z3-solver, registry/authority_matrix.yaml]
+    purpose: >
+      Encodes authority graph as Z3 constraints. Proves no path exists from
+      any OFFLINE engine to ExecutionEvent without passing through governance gate.
+
+  - file: tools/no_hidden_state_check.py
+    depends_on: [crosshair-tool, ast module]
+    purpose: >
+      AST + CrossHair scan of all RUNTIME modules.
+      Detects: global variable mutations, module-level mutable state,
+      datetime.now() calls outside TimeSource wrapper.
+
+  - file: tools/hotpath_isolation_check.py
+    depends_on: [tools/authority_lint.py, ast module]
+    purpose: >
+      Extends authority_lint to verify hot_path/ modules import nothing from:
+      torch, jax, ray, faiss, neo4j, chromadb, scrapy, playwright.
+
+  - file: tools/event_lineage_validator.py
+    depends_on: [state/ledger/reader.py, networkx]
+    purpose: >
+      For each ExecutionEvent in ledger, traces causal chain back to originating
+      SignalEvent. Flags any ExecutionEvent with broken provenance chain.
+
+  - file: tools/registry_consistency_check.py
+    depends_on: [registry/*.yaml, core/contracts/]
+    purpose: >
+      Every module referenced in registry/*.yaml must exist on disk.
+      Every module on disk in registered packages must appear in registry.
+      Mismatch = CI FAIL.
+
+  - file: tools/dependency_audit.py
+    depends_on: [networkx, pipdeptree]
+    purpose: >
+      Builds full dependency graph of DIX + all integrated packages.
+      Detects: version conflicts, known CVEs (via pip-audit), circular deps.
+      Fixes dep_graph_valid: False in total_validation.py output.
+
+  - file: tools/upstream_sync_monitor.py
+    depends_on: [external_sync/upstream_versions.yaml, requests]
+    purpose: >
+      Checks each integrated repo's upstream for: new releases, security advisories,
+      breaking API changes. Generates migration report. Run weekly in CI.
+
+  - file: tools/hotpath_isolation_check.py
+    depends_on: [ast, importlib]
+    purpose: >
+      Static import analysis of hot_path/ modules.
+      Any import of a heavy library = CI FAIL.
+
+  - file: tools/plugin_sandbox_check.py
+    depends_on: [registry/plugins.yaml, enforcement/]
+    purpose: >
+      Verifies all plugins declared in registry run through sandbox boundary.
+      Plugin must not have direct import of execution_engine core modules.

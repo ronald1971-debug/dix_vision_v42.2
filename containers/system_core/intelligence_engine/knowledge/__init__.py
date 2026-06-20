@@ -46,6 +46,10 @@ from .source_conflict_graph import (
     get_source_conflict_graph,
 )
 
+from .news_knowledge import (
+    NewsKnowledgeIndex,
+)
+
 __all__ = [
     # Knowledge Validator
     "KnowledgeValidator",
@@ -80,6 +84,8 @@ __all__ = [
     "PropagationMap",
     "ConsensusResult",
     "get_source_conflict_graph",
+    # News Knowledge
+    "NewsKnowledgeIndex",
 ]
 
 # Singleton instances

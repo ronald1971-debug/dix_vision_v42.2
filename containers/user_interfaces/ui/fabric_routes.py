@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import logging
 
-from system.time_source import wall_ns
+from system_unified.time_source import wall_ns
 
 _logger = logging.getLogger(__name__)
 

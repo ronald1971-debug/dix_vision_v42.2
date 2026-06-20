@@ -58,9 +58,9 @@ from security import wallet_policy as _wp
 from state.episodic_memory import get_episodic_memory
 from state.ledger.writer import get_writer
 from system.autonomy import AutonomyMode, get_autonomy
-from system.fast_risk_cache import get_risk_cache
-from system.locale import current as current_locale
-from system.locale import set_override, supported_ui_languages
+from system_unified.fast_risk_cache import get_risk_cache
+from system_unified.locale import current as current_locale
+from system_unified.locale import set_override, supported_ui_languages
 from system_monitor import weekly_scout as _scout
 from system_monitor.dead_man import get_dead_man
 from system_monitor.latency_guard import get_latency_guard

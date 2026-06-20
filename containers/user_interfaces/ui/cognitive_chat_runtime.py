@@ -81,7 +81,7 @@ from intelligence_engine.cognitive.chat import (
     assemble_cognitive_chat,
 )
 from intelligence_engine.cognitive.proposal_parser import extract_proposal
-from system.time_source import wall_ns
+from system_unified.time_source import wall_ns
 from system_engine.scvs.source_registry import SourceRegistry
 
 __all__ = [

@@ -463,7 +463,7 @@ function CopyTrading({ selectedChain: _selectedChain }: { selectedChain: Blockch
 
         {/* Start/Stop Button */}
         <button
-          className="w-full py-3 rounded-lg font-medium transition-colors ${
+          className={`w-full py-3 rounded-lg font-medium transition-colors ${
             copyEnabled && selectedTraders.length > 0
               ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700'
               : 'bg-slate-600 text-slate-400 cursor-not-allowed'

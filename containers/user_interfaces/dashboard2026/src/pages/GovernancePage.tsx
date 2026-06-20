@@ -1,11 +1,4 @@
-import { ApprovalQueueWidget } from "@/widgets/governance/ApprovalQueueWidget";
-import { AuditLedgerViewer } from "@/widgets/governance/AuditLedgerViewer";
-import { DriftOraclePanel } from "@/widgets/governance/DriftOraclePanel";
-import { HazardMonitorGrid } from "@/widgets/governance/HazardMonitorGrid";
-import { PromotionGatesPanel } from "@/widgets/governance/PromotionGatesPanel";
-import { SCVSLivenessGrid } from "@/widgets/governance/SCVSLivenessGrid";
-import { StrategyRegistryFSM } from "@/widgets/governance/StrategyRegistryFSM";
-import { InvariantComplianceDashboard } from "@/widgets/InvariantComplianceDashboard";
+import { ApprovalQueueWidget, AuditLedgerViewer, DriftOraclePanel, HazardMonitorGrid, PromotionGatesPanel, SCVSLivenessGrid, StrategyRegistryFSM, InvariantComplianceDashboard } from "@/domains/governance";
 import { WidgetSlot } from "@/components/WidgetSlot";
 
 export function GovernancePage() {

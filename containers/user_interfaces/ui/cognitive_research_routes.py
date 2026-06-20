@@ -19,7 +19,7 @@ from typing import Any
 from fastapi import APIRouter
 from pydantic import BaseModel, Field
 
-from system.time_source import utc_now
+from system_unified.time_source import utc_now
 
 # ---------------------------------------------------------------------------
 # Request / response models
@@ -93,7 +93,7 @@ def build_cognitive_research_router() -> APIRouter:
             get_research_runtime,
         )
         from intelligence_engine.research.browser_research_service import ResearchTaskType
-        from system.time_source import wall_ns as _wall_ns
+        from system_unified.time_source import wall_ns as _wall_ns
 
         try:
             task_type = ResearchTaskType(body.task_type)

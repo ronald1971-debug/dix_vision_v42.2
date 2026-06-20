@@ -20,8 +20,7 @@
 
 import { useState } from 'react';
 import { Panel, PanelLayout, PanelSection } from '@/components/agent/Panel';
-import { OrderForm } from '@/widgets/OrderForm';
-import { SLTPBuilder } from '@/widgets/SLTPBuilder';
+import { OrderForm, SLTPBuilder } from '@/domains/execution';
 import { Activity, Target, Briefcase, Shield, Zap, CheckSquare } from 'lucide-react';
 
 interface ExecutionPageProps {

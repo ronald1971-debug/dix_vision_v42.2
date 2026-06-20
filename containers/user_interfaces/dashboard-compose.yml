@@ -1,0 +1,104 @@
+# DIX VISION v42.2 - Dashboard Complete Stack
+# Minimal docker-compose for running the complete dashboard stack
+# Includes: PostgreSQL, Redis, FastAPI Backend, and React Dashboard
+
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgresql:
+    image: postgres:15-alpine
+    container_name: dix-dashboard-postgres
+    environment:
+      POSTGRES_DB: dixvision
+      POSTGRES_USER: dixvision
+      POSTGRES_PASSWORD: dixvision_secure_password
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dixvision"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - dix-dashboard-network
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  # Redis Cache
+  redis:
+    image: redis:alpine
+    container_name: dix-dashboard-redis
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - dix-dashboard-network
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+
+  # FastAPI Backend Service
+  fastapi-backend:
+    build:
+      context: ./ui
+      dockerfile: Dockerfile
+    container_name: dix-dashboard-backend
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://dixvision:dixvision_secure_password@postgresql:5432/dixvision
+      REDIS_URL: redis://redis:6379
+      PYTHONUNBUFFERED: 1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - dix-dashboard-network
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./ui:/app/ui
+      - ./core:/app/core
+    restart: unless-stopped
+
+  # React Dashboard Development Server
+  dashboard-dev:
+    build:
+      context: ./dashboard2026
+      dockerfile: Dockerfile.dev
+    container_name: dix-dashboard-frontend
+    depends_on:
+      fastapi-backend:
+        condition: service_healthy
+    environment:
+      VITE_API_BASE: http://localhost:8000
+      VITE_WS_BASE: ws://localhost:8000
+    networks:
+      - dix-dashboard-network
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./dashboard2026/src:/app/src
+      - ./dashboard2026/public:/app/public
+      - ./dashboard2026/package.json:/app/package.json
+    restart: unless-stopped
+
+networks:
+  dix-dashboard-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  redis-data:

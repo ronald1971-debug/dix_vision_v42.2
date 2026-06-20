@@ -1,0 +1,1438 @@
+# DIX VISION v42.2 — Assimilation Map Part 2
+# All repos NOT covered in dix_assimilation_map.yaml
+# Same format: extract → fills → dix_contract → how → safety_rails
+# Generated: 2026-05-08
+# ================================================================
+
+
+# ================================================================
+# SECTION A — ADDITIONAL TRADING ENGINES & BACKTESTING
+# ================================================================
+
+- repo: QuantConnect/Lean
+  pip: N/A  # reference only — C# core, Python algorithm layer via QuantConnect.Lean.Engine
+  extract:
+    - Algorithm.Python/QuantConnect/Algorithm.py → QCAlgorithm interface patterns
+    - Engine/DataFeeds/Enumerators/ → event scheduling model
+    - Engine/Results/BacktestResultHandler.py → backtest result packaging
+    - Common/Orders/ → Order, OrderTicket, OrderEvent lifecycle state machine
+    - Common/Securities/SecurityPortfolioManager.py → portfolio reconciliation
+  fills:
+    - simulation/backtester.py
+    - simulation/event_replayer.py
+    - simulation/scoring_engine.py
+    - execution_engine/protections/reconciliation.py
+  dix_contract: core/contracts/simulation.py → RealityScenario, RealitySummary
+  how: >
+    Extract Lean's event scheduling model (TimeSlice → strategy.OnData pattern).
+    Port Order lifecycle state machine to Python — this is battle-tested over 10+ years.
+    Use portfolio reconciliation math verbatim in execution_engine/protections/reconciliation.py.
+    Replace Lean data feeds with DIX simulation/event_replayer.py.
+    Replace Lean broker with DIX paper adapter.
+  safety_rails:
+    - C# source is reference only — extract concepts, rewrite in Python
+    - Lean's order routing must never be used — DIX governance gate is mandatory
+    - Portfolio reconciliation runs in OFFLINE tier only
+
+- repo: freqtrade/freqtrade
+  pip: N/A  # source install recommended: ./setup.sh -i
+  extract:
+    - freqtrade/plugins/protections/iprotection.py → IProtection base interface
+    - freqtrade/plugins/protections/stoploss_guard.py → StoplossGuard logic
+    - freqtrade/plugins/protections/cooldown_period.py → CooldownPeriod logic
+    - freqtrade/exchange/common.py → retrier decorator, API error handling
+    - freqtrade/wallets.py → balance reconciliation logic
+    - freqtrade/rpc/telegram.py → alert dispatch patterns (not Telegram — pattern only)
+  fills:
+    - execution_engine/protections/circuit_breaker.py
+    - execution_engine/protections/reconciliation.py
+    - execution_engine/adapters/ (error handling patterns)
+    - system_engine/health_monitors/ (alert patterns)
+  dix_contract: core/contracts/governance.py → GovernanceDecision
+  how: >
+    StoplossGuard → DIX circuit_breaker: emit HazardEvent on consecutive losses.
+    CooldownPeriod → DIX cooldown after circuit trip.
+    retrier decorator → wrap all adapter ccxt/binance calls.
+    wallets.py reconciliation math → execution_engine/protections/reconciliation.py.
+  safety_rails:
+    - Freqtrade's hyperopt and backtesting NOT extracted — DIX has own
+    - Freqtrade Telegram bot NOT used — alerts go to DIX ledger + Prometheus
+    - Protection trip → HazardEvent only, governance decides action
+
+- repo: jesse-ai/jesse
+  pip: jesse
+  extract:
+    - jesse/strategies/__init__.py → Strategy base class lifecycle: before(), go_long(), go_short(), update_position()
+    - jesse/modes/backtest_mode.py → candle-by-candle event dispatch
+    - jesse/services/candle.py → candle aggregation from trades
+    - jesse/indicators/ → indicator wrappers (reference only — use pandas-ta instead)
+  fills:
+    - intelligence_engine/strategy_runtime/archetype_lifecycle.py
+    - simulation/backtester.py (candle-based replay)
+  dix_contract: core/contracts/strategy_registry.py
+  how: >
+    Jesse's Strategy lifecycle (before/go_long/go_short/update_position)
+    maps to DIX archetype lifecycle states.
+    Candle aggregation logic → DIX market data normalizer.
+    Keep Jesse's position sizing math — it handles partial fills correctly.
+  safety_rails:
+    - Jesse's live trading wiring stripped entirely
+    - Jesse database replaced by DIX ledger
+    - Jesse indicators replaced by pandas-ta (more complete)
+
+- repo: mementum/backtrader
+  pip: backtrader
+  extract:
+    - backtrader/cerebro.py → event loop dispatch architecture
+    - backtrader/order.py → Order state machine (Created→Submitted→Accepted→Completed/Canceled/Rejected)
+    - backtrader/broker.py → paper broker: fill logic, slippage, commission
+    - backtrader/feeds/pandafeed.py → DataFrame → event feed conversion
+    - backtrader/analyzers/sharpe.py → Sharpe ratio computation
+    - backtrader/analyzers/drawdown.py → max drawdown tracker
+  fills:
+    - simulation/backtester.py
+    - simulation/scoring_engine.py
+    - execution_engine/adapters/paper.py (enhance existing)
+  dix_contract: core/contracts/simulation.py, core/contracts/backtest_result.py
+  how: >
+    Backtrader's Order state machine → enhance execution_engine/adapters/paper.py.
+    Backtrader's paper broker fill logic (slippage, commission) → simulation/backtester.py.
+    Sharpe/drawdown analyzers → simulation/scoring_engine.py metrics.
+    cerebro event loop architecture → simulation/engine.py design reference.
+  safety_rails:
+    - Backtrader plotting libraries NOT imported (heavy matplotlib dep)
+    - cerebro's live broker connectors NOT extracted
+
+- repo: polakowo/vectorbt
+  pip: vectorbt
+  extract:
+    - vectorbt/portfolio/base.py → Portfolio.from_signals() vectorized returns
+    - vectorbt/portfolio/trades.py → Trades.stats() — win rate, avg profit
+    - vectorbt/generic/nb.py → numba-accelerated rolling metrics
+    - vectorbt/returns/nb.py → Sharpe, Calmar, Sortino ratio math
+  fills:
+    - simulation/scoring_engine.py
+    - learning_engine/performance_analysis/pnl_attribution.py
+    - learning_engine/performance_analysis/alpha_decay.py
+  dix_contract: core/contracts/backtest_result.py → BacktestResult
+  how: >
+    VectorBT's returns math (Sharpe, Calmar, Sortino) extracted as pure functions.
+    These are vectorized over numpy arrays — no VectorBT class instantiation needed.
+    Score N simulation runs in parallel via numpy broadcast.
+    Much faster than computing metrics loop-by-loop.
+  safety_rails:
+    - numba JIT compilation is non-deterministic across hardware — offline only
+    - Extract pure numpy math where possible, not the numba-compiled versions
+    - Never import vectorbt in RUNTIME tier
+
+- repo: vn-py/vnpy
+  pip: vnpy  # Chinese quant framework — high-quality exchange adapters
+  extract:
+    - vnpy/trader/gateway.py → BaseGateway interface — comprehensive adapter base
+    - vnpy/gateway/binance/ → Binance futures adapter (complements ccxt spot)
+    - vnpy/trader/object.py → OrderData, TradeData, PositionData normalized types
+    - vnpy/trader/engine.py → MainEngine event dispatch pattern
+  fills:
+    - execution_engine/adapters/binance.py (futures extension)
+    - execution_engine/market_data/normalizer.py
+  dix_contract: execution_engine/adapters/base.py → BrokerAdapter
+  how: >
+    vnpy's Binance futures adapter fills the gap ccxt spot leaves.
+    OrderData/TradeData → normalize to DIX ExecutionEvent.
+    Extract gateway pattern for implementing additional exchange adapters quickly.
+  safety_rails:
+    - vnpy MainEngine NOT used — DIX has own engine Protocol
+    - Only adapter layer extracted — no vnpy strategy or backtesting
+
+- repo: aat/aat
+  pip: aat
+  extract:
+    - aat/core/engine/ → async trading engine architecture
+    - aat/core/exchange/ → Exchange base class, async order management
+    - aat/core/portfolio/ → Portfolio real-time P&L tracking
+  fills:
+    - execution_engine/ (async architecture reference)
+    - intelligence_engine/portfolio/ (real-time P&L)
+  dix_contract: core/contracts/portfolio.py
+  how: >
+    AAT's async-first architecture validates DIX's own async design choices.
+    Portfolio real-time P&L tracking logic → intelligence_engine/portfolio/allocator.py.
+    Exchange base class → reference for new DIX adapter implementations.
+  safety_rails:
+    - AAT event loop must not be instantiated alongside DIX event loop
+    - Concepts extracted, AAT classes not directly instantiated in DIX
+
+- repo: Barter-RS/barter-rs
+  pip: N/A  # Rust crate — concepts and Python bindings via PyO3 if available
+  extract:
+    - src/engine/ → deterministic trading engine Rust architecture
+    - src/data/ → normalized market data types
+    - src/statistic/ → statistical metrics (Sharpe, information ratio)
+    - src/portfolio/ → portfolio handler trait
+  fills:
+    - execution_engine/ (Rust acceleration reference for PyO3 phase)
+    - simulation/scoring_engine.py (statistical metrics reference)
+  dix_contract: core/contracts/engine.py → RuntimeEngine Protocol
+  how: >
+    Barter-RS is a primary reference for the eventual Rust hot_path rewrite.
+    Extract Rust statistical metrics, port to Python now, replace with Rust via PyO3 later.
+    Barter's deterministic engine design validates DIX architecture choices.
+  safety_rails:
+    - Rust source is reference only until PyO3 phase
+    - Python port must pass same determinism tests as Rust version
+
+- repo: AI4Finance-Foundation/FinRL
+  pip: finrl
+  extract:
+    - finrl/meta/env_stock_trading/env_stocktrading.py → TradingEnv (gym.Env)
+    - finrl/meta/env_crypto_trading/env_multiple_crypto.py → crypto env
+    - finrl/agents/stablebaselines3/models.py → SB3 agent wrappers
+    - finrl/meta/data_processors/ → data normalization for RL
+  fills:
+    - evolution_engine/sandbox.py
+    - learning_engine/lanes/ral.py
+  dix_contract: core/contracts/simulation.py
+  how: >
+    FinRL TradingEnv → DIX-compatible gym.Env backed by simulation/engine.py.
+    Data processors → normalize DIX market data for RL observation space.
+    SB3 wrappers → DIX OfflineAgent policy training.
+  safety_rails:
+    - FinRL data download utilities NOT used — DIX has own feeds
+    - FinRL live trading NOT used — DIX has own adapters
+    - Offline only
+
+- repo: vwxyzjn/cleanrl
+  pip: N/A  # source install: git clone + pip install -e
+  extract:
+    - cleanrl/ppo.py → cleanest single-file PPO implementation
+    - cleanrl/sac_continuous_action.py → SAC for continuous action spaces
+    - cleanrl/td3_continuous_action.py → TD3 for deterministic policies
+    - cleanrl/utils/seeding.py → seed everything utility
+  fills:
+    - learning_engine/lanes/policy_distillation.py
+    - evolution_engine/sandbox.py
+  dix_contract: core/contracts/learning.py
+  how: >
+    CleanRL's single-file implementations are ideal for extraction.
+    No framework complexity — pure PyTorch RL algorithms.
+    SAC for continuous position sizing. PPO for discrete regime selection.
+    seeding.py → ensure INV-15 compliance in all RL training.
+  safety_rails:
+    - WandB logging replaced with DIX ledger writes
+    - gym envs replaced with DIX simulation/engine.py wrapper
+    - Seeding mandatory — never train with non-reproducible seed
+
+- repo: online-ml/river
+  pip: river
+  extract:
+    - river/stats/mean.py → EWMean — exponentially weighted online mean
+    - river/stats/var.py → EWVar — online variance
+    - river/drift/adwin.py → ADWIN — adaptive windowing drift detector
+    - river/drift/page_hinkley.py → PageHinkley — sequential change detection
+    - river/preprocessing/standard_scaler.py → StandardScaler (online)
+    - river/anomaly/half_space_trees.py → HalfSpaceTrees — online anomaly detection
+  fills:
+    - learning_engine/lanes/self_learning_loop.py
+    - learning_engine/performance_analysis/reward_shaping.py
+    - system_engine/drift_monitor.py
+    - core/coherence/ (online statistics for belief updates)
+  dix_contract: core/contracts/learning.py, core/coherence/belief_state.py
+  how: >
+    ADWIN in system_engine/drift_monitor.py — detects regime shifts in signal streams.
+    EWMean/EWVar in coherence/belief_state.py — online belief updates.
+    HalfSpaceTrees in sensory/ai_filter.py — online anomaly filtering of news events.
+    River models are stateful objects updated tick-by-tick — fits DIX streaming model.
+  safety_rails:
+    - River models are mutable state — must be serialized to ledger on snapshot
+    - ADWIN drift detection fires HazardEvent — never direct execution
+    - River not imported in hot_path/ — update happens in system_engine tier
+
+
+# ================================================================
+# SECTION B — AI COGNITION / LOCAL MODELS
+# ================================================================
+
+- repo: microsoft/semantic-kernel
+  pip: semantic-kernel
+  extract:
+    - python/semantic_kernel/kernel.py → Kernel.invoke() plugin loading
+    - python/semantic_kernel/connectors/ai/ → AIServiceClientBase
+    - python/semantic_kernel/memory/ → SemanticTextMemory interface
+    - python/semantic_kernel/functions/kernel_plugin.py → KernelPlugin
+  fills:
+    - intelligence_engine/cognitive/chat/registry_driven_chat_model.py
+    - state/memory_tensor/semantic.py (SK memory interface)
+  dix_contract: core/contracts/api/cognitive_chat.py
+  how: >
+    SK Kernel.invoke() → DIX CognitiveModule.run() call pattern.
+    SK plugin system → DIX registry/plugins.yaml plugin loading.
+    SK memory interface → backed by DIX FAISS/Qdrant memory stores.
+    SK AIServiceClientBase → wrapped by LiteLLM router.
+  safety_rails:
+    - SK kernel must use LiteLLM — never direct AI provider SDK
+    - SK plugins must be registered in registry/ before loading
+    - SK memory writes go through DIX ledger, not SK built-in stores
+
+- repo: All-Hands-AI/OpenHands
+  pip: N/A  # complex install — Docker recommended
+  extract:
+    - openhands/runtime/sandbox.py → sandboxed code execution interface
+    - openhands/controller/agent_controller.py → agent action loop
+    - openhands/events/action/ → CodeAction, BashAction, FileWriteAction types
+    - openhands/events/observation/ → CodeObservation, BashObservation
+  fills:
+    - evolution_engine/critique_loop.py
+    - evolution_engine/sandbox.py
+  dix_contract: core/contracts/patch.py
+  how: >
+    OpenHands sandbox interface → DIX patch validation sandbox.
+    CodeAction/BashAction → structured patch execution with observable output.
+    Agent action loop → critique_loop.py iterative patch refinement.
+    All patch executions sandboxed, observed, logged to ledger.
+  safety_rails:
+    - Sandbox is OFFLINE only — no live capital access
+    - All file write actions limited to /tmp/dix_sandbox/ path
+    - Governance reviews CodeAction before execution
+    - gVisor/Firecracker wraps sandbox process in production
+
+- repo: stanfordnlp/dspy
+  pip: dspy-ai
+  extract:
+    - dspy/predict/chain_of_thought.py → ChainOfThought module
+    - dspy/signatures/signature.py → Signature — typed I/O contracts
+    - dspy/teleprompt/bootstrap_fewshot.py → BootstrapFewShot optimizer
+    - dspy/evaluate/evaluate.py → Evaluate — metric-driven optimization
+  fills:
+    - intelligence_engine/cognitive/chat/registry_driven_chat_model.py
+    - governance_engine/charter/governance.py (DSPy-optimized governance reasoning)
+  dix_contract: core/contracts/api/cognitive_chat.py
+  how: >
+    DSPy Signature maps to DIX Pydantic contracts — typed input/output.
+    ChainOfThought for multi-step governance reasoning.
+    BootstrapFewShot optimizes governance prompts offline using historical decisions.
+    Optimize OFFLINE, deploy optimized prompts to production registry.
+  safety_rails:
+    - Optimization (BootstrapFewShot) is OFFLINE only
+    - Optimized program artifacts stored in registry — not dynamic
+    - DSPy uses LiteLLM router — never direct API calls
+
+- repo: deepset-ai/haystack
+  pip: haystack-ai
+  extract:
+    - haystack/components/retrievers/in_memory_bm25_retriever.py → BM25Retriever
+    - haystack/components/generators/chat/openai.py → ChatGenerator (use LiteLLM instead)
+    - haystack/components/builders/prompt_builder.py → PromptBuilder
+    - haystack/document_stores/in_memory/document_store.py → InMemoryDocumentStore
+  fills:
+    - state/knowledge_store.py (RAG retrieval)
+    - intelligence_engine/cognitive/ (document-grounded reasoning)
+  dix_contract: core/contracts/news.py, core/contracts/governance.py
+  how: >
+    Haystack RAG pipeline for governance-grounded reasoning.
+    InMemoryDocumentStore holds DIX spec docs, manifests, registry definitions.
+    BM25 retrieval finds relevant governance rules before AI decision.
+    PromptBuilder injects retrieved rules into LiteLLM call.
+  safety_rails:
+    - Haystack ChatGenerator replaced with LiteLLM — never direct OpenAI
+    - Document store populated from registry/ and docs/ — no external web retrieval
+    - Retrieved context logged to ledger with each governance decision
+
+- repo: vllm-project/vllm
+  pip: vllm  # GPU recommended, CPU works slowly
+  extract:
+    - vllm/entrypoints/openai/api_server.py → OpenAI-compatible REST API
+    - vllm/engine/llm_engine.py → async inference engine
+  fills:
+    - intelligence_engine/cognitive/ (local model fallback)
+  how: >
+    vLLM runs as local OpenAI-compatible endpoint.
+    LiteLLM routes to vLLM when cloud APIs unavailable or budget exhausted.
+    Enables fully offline DIX operation for governance reasoning.
+  safety_rails:
+    - vLLM process isolated from RUNTIME tier — separate process
+    - GPU if available, else CPU — results identical (deterministic given same seed)
+    - vLLM NOT in CI — too heavy. Mock in tests.
+
+- repo: ollama/ollama
+  pip: ollama  # Python client only — binary installed separately
+  extract:
+    - Python client: ollama.chat() / ollama.generate()
+    - Modelfile patterns for custom DIX models
+  fills:
+    - intelligence_engine/cognitive/ (lightweight local fallback)
+  how: >
+    Ollama as lightest local inference option.
+    No GPU required — runs Mistral/Llama on CPU.
+    LiteLLM routes to Ollama as final fallback in chain.
+    Useful for: operator terminal queries, governance explanations.
+  safety_rails:
+    - Ollama responses validated against DIX Pydantic contracts before use
+    - Local model weights stored in registry/models/ — pinned by hash
+
+- repo: ggerganov/llama.cpp
+  pip: llama-cpp-python  # Python bindings
+  extract:
+    - llama_cpp/llama.py → Llama() — GGUF model inference
+    - llama_cpp/llama_grammar.py → LlamaGrammar — constrained generation (like Outlines)
+  fills:
+    - intelligence_engine/cognitive/ (CPU-only minimal inference)
+  how: >
+    llama.cpp as lowest-footprint inference option for embedded deployments.
+    LlamaGrammar constrains output to valid JSON matching DIX contracts.
+    Ideal for Raspberry Pi / edge operator terminals.
+  safety_rails:
+    - CPU deterministic — safe for replay validation of AI decisions
+    - Grammar constraint ensures output always valid DIX contract
+
+- repo: NVIDIA/TensorRT-LLM
+  pip: tensorrt-llm  # GPU required
+  extract:
+    - tensorrt_llm/runtime/ → inference engine interface
+  fills:
+    - intelligence_engine/cognitive/ (GPU-accelerated inference for high-throughput deployments)
+  how: >
+    TensorRT-LLM for production GPU inference of DIX local models.
+    Expose as OpenAI-compatible API via vLLM or direct.
+    Only relevant in cloud/GPU deployments.
+  safety_rails:
+    - GPU-only — not in standard CI
+    - OFFLINE tier — never blocks RUNTIME
+
+- repo: explosion/spaCy
+  pip: spacy
+  extract:
+    - spacy/pipeline/ner.py → EntityRecognizer (pretrained en_core_web_trf)
+    - spacy/pipeline/sentencizer.py → sentence segmentation
+    - spacy/matcher/matcher.py → rule-based pattern matching for ticker symbols
+    - spacy/language.py → Language.pipe() — batch NLP processing
+  fills:
+    - sensory/ai_filter.py
+    - sensory/behavior_analyzer.py
+    - ui/feeds/news_fanout.py (entity extraction before routing)
+  dix_contract: core/contracts/news.py → NewsEvent
+  how: >
+    NER extracts: ORG (companies), MONEY (prices), PERCENT (moves), GPE (countries).
+    Matcher extracts: ticker symbols via regex ($BTC, $ETH, AAPL patterns).
+    batch processing via nlp.pipe() — process 100 news items in one pass.
+    Enriched entities appended to NewsEvent before routing to fanout.
+  safety_rails:
+    - spaCy runs in SENSORY tier — never hot_path
+    - Pretrained model weights pinned in registry/calibration.yaml
+    - NER failures are soft — NewsEvent still emitted without entities
+
+
+# ================================================================
+# SECTION C — ADDITIONAL KNOWLEDGE / MEMORY
+# ================================================================
+
+- repo: weaviate/weaviate-python-client
+  pip: weaviate-client
+  extract:
+    - weaviate/client.py → WeaviateClient.collections.create(), query.near_vector()
+    - weaviate/classes/config.py → Configure.Vectorizer — auto-vectorization config
+    - Embedded mode: weaviate.connect_to_embedded()
+  fills:
+    - state/memory_tensor/semantic.py (Weaviate as alternative vector store)
+  dix_contract: core/contracts/trader_intelligence.py
+  how: >
+    Weaviate embedded mode — no server needed.
+    Auto-vectorization with sentence-transformers — no separate embedding step.
+    Evaluate vs Qdrant: Weaviate better for hybrid BM25+vector search.
+  safety_rails:
+    - Embedded mode only initially
+    - Collection schema mirrors DIX TraderPattern contract
+
+- repo: memgraph/gqlalchemy
+  pip: gqlalchemy
+  extract:
+    - gqlalchemy/memgraph.py → Memgraph() Cypher query interface
+    - gqlalchemy/models.py → Node, Relationship OGM
+  fills:
+    - state/knowledge_store.py (Memgraph as in-process graph alternative)
+  how: >
+    Memgraph in-process mode as lighter alternative to Neo4j.
+    GQLAlchemy OGM maps to DIX domain types.
+    Evaluate for low-latency graph queries needed in advisory hot path.
+  safety_rails:
+    - In-process mode only — no separate Memgraph server initially
+    - Graph mutations in OFFLINE tier only
+
+- repo: milvus-io/pymilvus
+  pip: pymilvus
+  extract:
+    - pymilvus/client/stub.py → Milvus.insert(), search(), create_collection()
+    - pymilvus/orm/collection.py → Collection with index management
+    - Milvus lite: MilvusClient(":memory:") — embedded mode
+  fills:
+    - state/memory_tensor/ (Milvus as high-scale alternative for large deployments)
+  how: >
+    Milvus lite embedded mode for development.
+    Scales to standalone Milvus for large archetype stores (10M+ vectors).
+    IVF_FLAT index for fast approximate search.
+  safety_rails:
+    - Lite mode for dev/test, standalone for production
+    - Collection snapshots aligned with ledger snapshots
+
+- repo: tree-sitter/tree-sitter + tree-sitter-python
+  pip: tree-sitter tree-sitter-python
+  extract:
+    - tree_sitter/binding.py → Parser, Language, Node
+    - tree-sitter-python/grammar.js → Python grammar (compiled binary)
+    - Traversal: node.children, node.type, node.text
+  fills:
+    - tools/contract_diff.py
+    - evolution_engine/critique_loop.py
+    - tools/no_hidden_state_check.py (AST traversal)
+  how: >
+    tools/contract_diff.py: parse DIX contract files before/after change.
+    Detect breaking changes: removed fields, changed types, renamed methods.
+    CI fails if public contract interface changes without version bump.
+    critique_loop.py: AST traversal to understand patch scope before applying.
+  safety_rails:
+    - Tree-sitter is read-only analysis — never modifies source
+    - Run in CI only — not in RUNTIME
+
+- repo: sourcegraph/sourcegraph (sg CLI only)
+  pip: N/A  # binary download only
+  extract:
+    - sg src search — code search across DIX codebase
+    - sg src files — find all callers of a function
+  fills:
+    - evolution_engine/critique_loop.py (caller analysis before patching)
+  how: >
+    Use sg CLI in critique_loop.py subprocess to find all callers of a function
+    before proposing a patch. Prevents breaking unknown consumers.
+    "sg src search 'func_name' --json" → parse JSON → patch impact analysis.
+  safety_rails:
+    - sg called as subprocess — not a Python import
+    - Local search only — no Sourcegraph cloud
+
+- repo: returntocorp/semgrep
+  pip: semgrep  # also available as binary
+  extract:
+    - semgrep rules: pattern-based code analysis
+    - DIX-specific rules for: global state mutations, direct datetime.now() calls,
+      torch imports in RUNTIME tier, governance bypass patterns
+  fills:
+    - tools/no_hidden_state_check.py
+    - tools/hotpath_isolation_check.py
+    - .github/workflows/ci.yml (semgrep scan step)
+  how: >
+    Write DIX-specific Semgrep rules:
+    - rule: no datetime.now() outside TimeSource wrapper
+    - rule: no torch/jax imports in hot_path/ or governance_engine/
+    - rule: no mutable module-level variables in RUNTIME modules
+    Run semgrep in CI — violations fail the build.
+  safety_rails:
+    - Semgrep is CI-only — not runtime
+    - Custom rules stored in .semgrep/rules/dix_rules.yaml
+
+- repo: github/codeql-action + github/codeql
+  pip: N/A  # GitHub Actions integration
+  extract:
+    - CodeQL query language for Python security analysis
+    - Queries: SQL injection, path traversal, unsafe deserialization
+  fills:
+    - .github/workflows/ci.yml (CodeQL scan step)
+    - tools/dependency_audit.py (CVE detection)
+  how: >
+    CodeQL scans DIX for security vulnerabilities in CI.
+    Especially important for: adapter code handling exchange credentials,
+    web_autolearn sandbox escape risks, deserialization of external data.
+  safety_rails:
+    - GitHub Actions only — no local CodeQL server needed
+    - Findings block merge, not just warn
+
+
+# ================================================================
+# SECTION D — STREAMING / CEP INFRASTRUCTURE
+# ================================================================
+
+- repo: apache/kafka (client only)
+  pip: aiokafka confluent-kafka
+  extract:
+    - aiokafka/consumer.py → AIOKafkaConsumer — async Kafka consumer
+    - aiokafka/producer.py → AIOKafkaProducer — async Kafka producer
+    - confluent_kafka/admin/ → AdminClient — topic management
+  fills:
+    - execution/async_bus.py (distributed mode — optional)
+    - system_engine/event_processing/ (Kafka-backed event bus for multi-node)
+  how: >
+    Single-node DIX uses asyncio queue (current).
+    Multi-node DIX uses aiokafka as drop-in replacement for event bus.
+    Same DIX event contracts (SignalEvent, ExecutionEvent etc.) — transport changes only.
+    Topic per event type: dix.signals, dix.executions, dix.hazards, dix.system.
+  safety_rails:
+    - Kafka is OPTIONAL — default is asyncio queue
+    - Kafka consumer offset commits only after ledger write confirmed
+    - Never enable Kafka auto-commit — exactly-once delivery required
+
+- repo: redpanda-data/redpanda
+  pip: kafka-python  # Kafka-compatible API — same client as above
+  extract:
+    - Same kafka-python/aiokafka client as Kafka above
+    - Redpanda-specific: schema registry API for event contract validation
+  fills:
+    - execution/async_bus.py (Redpanda as faster Kafka alternative)
+  how: >
+    Redpanda is drop-in Kafka replacement.
+    10x lower latency than Kafka for DIX event volumes.
+    Schema registry validates event contracts match DIX protobuf definitions.
+  safety_rails:
+    - Same as Kafka above
+    - Schema registry integration prevents malformed events entering bus
+
+- repo: apache/flink (PyFlink)
+  pip: apache-flink
+  extract:
+    - pyflink/datastream/stream_execution_environment.py → StreamExecutionEnvironment
+    - pyflink/datastream/functions.py → MapFunction, FlatMapFunction, ProcessFunction
+    - pyflink/datastream/window.py → TumblingEventTimeWindows
+  fills:
+    - simulation/parallel_runner.py (Flink as alternative to Ray for batch)
+    - system_engine/event_processing/ (stateful CEP for multi-event hazard patterns)
+  how: >
+    Flink ProcessFunction for stateful multi-event hazard detection.
+    Example: "3 HazardEvents of type LATENCY_SPIKE in 30s window → escalate to CRITICAL"
+    TumblingEventTimeWindows for regime detection from tick data aggregations.
+  safety_rails:
+    - Flink jobs are OFFLINE or ADVISORY — never control execution directly
+    - Flink state backend = DIX ledger (RocksDB state backend pointing to DIX store)
+
+- repo: EventStore/EventStore-Client-Python
+  pip: esdbclient  # official Python client
+  extract:
+    - esdbclient/client.py → EventStoreDBClient.append_to_stream()
+    - esdbclient/streams.py → ReadEvent — stream reading
+    - Persistent subscriptions → real-time event processing
+  fills:
+    - state/ledger/append.py (EventStoreDB as alternative ledger backend)
+    - state/ledger/hash_chain.py (EventStoreDB's built-in stream integrity)
+    - state/ledger/reconstructor.py (stream replay)
+  how: >
+    EventStoreDB provides native append-only streams with built-in replay.
+    replaces DIX's hand-rolled SQLite ledger for high-throughput deployments.
+    persistent subscriptions → real-time ledger consumers (dashboard, risk engine).
+    Expected version concurrency control → prevents duplicate event writes.
+  safety_rails:
+    - SQLite ledger remains default — EventStoreDB is optional upgrade
+    - Both backends must satisfy same DIX ledger interface contract
+    - Stream names follow DIX authority ownership: "dix.execution.engine-02"
+
+- repo: temporalio/temporal-python
+  pip: temporedio  # Python SDK
+  extract:
+    - temporalio/client.py → Client.execute_workflow()
+    - temporalio/worker.py → Worker — workflow + activity execution
+    - temporalio/workflow.py → @workflow.defn, @activity.defn decorators
+  fills:
+    - governance_engine/services/patch_pipeline.py
+    - governance_engine/services/triple_window_dry_run.py
+    - evolution_engine/pipeline.py
+  how: >
+    Temporal workflow for governance patch promotion pipeline.
+    Workflow: validate → backtest → dry_run → review → promote.
+    Each step is a Temporal activity — retryable, observable, auditable.
+    Workflow history = full audit trail of every patch promotion decision.
+  safety_rails:
+    - Temporal worker is OFFLINE tier — never interrupts RUNTIME
+    - Workflow state persisted in Temporal server (local Docker) not DIX ledger
+    - Workflow failures surface as HazardEvent to governance
+
+- repo: dagster-io/dagster
+  pip: dagster
+  extract:
+    - dagster/core/definitions/job_definition.py → @job decorator
+    - dagster/core/definitions/asset.py → @asset — data lineage
+    - dagster/core/execution/context/ → run context with logging
+  fills:
+    - learning_engine/ (offline pipeline orchestration)
+    - evolution_engine/pipeline.py
+  how: >
+    Dagster orchestrates offline learning pipeline:
+    ingest → feature_store → train → evaluate → promote.
+    @asset tracks lineage: which dataset version trained which model.
+    Asset materialization → update LakeFS dataset versions.
+  safety_rails:
+    - Dagster is OFFLINE only — no RUNTIME access
+    - Dagster runs map to MLflow experiment runs for unified tracking
+
+- repo: MaterializeInc/materialize + risingwavelabs/risingwave
+  pip: N/A  # server binaries + psycopg2 client
+  extract:
+    - PostgreSQL wire protocol client (psycopg2) for both
+    - Materialized view patterns for real-time aggregations
+  fills:
+    - system_engine/event_processing/ (streaming SQL for complex event patterns)
+  how: >
+    Materialize/RisingWave as streaming SQL layer over DIX event bus.
+    SQL views: "SELECT * FROM signals WHERE regime='VOLATILE' AND signal_strength > 0.8"
+    Real-time aggregation without custom CEP code.
+    Evaluate which is lighter for single-node deployment.
+  safety_rails:
+    - Results are read-only advisory views — never direct execution signals
+    - Server runs in separate process — isolated from RUNTIME
+
+
+# ================================================================
+# SECTION E — DATA ANALYTICS & FEATURE ENGINEERING
+# ================================================================
+
+- repo: twopirllc/pandas-ta
+  pip: pandas-ta
+  extract:
+    - pandas_ta/momentum/ → rsi(), macd(), stoch(), cci()
+    - pandas_ta/volatility/ → atr(), bbands(), kc()
+    - pandas_ta/trend/ → adx(), psar(), ichimoku()
+    - pandas_ta/overlap/ → ema(), sma(), vwap()
+    - pandas_ta/volume/ → obv(), ad(), vwap()
+  fills:
+    - sensory/behavior_analyzer.py
+    - intelligence_engine/strategy_runtime/archetype_lifecycle.py
+    - intelligence_engine/macro/regime_classifier.py
+  dix_contract: core/contracts/signal_trust.py
+  how: >
+    pandas-ta indicators as feature generators for regime classification.
+    Each archetype uses a specific indicator subset defined in registry/regime.yaml.
+    Scalper uses: RSI, MACD, BB. Swing uses: ADX, Ichimoku. Macro uses: EMA crossover.
+    Computed OFFLINE and stored in feature_store — never computed in hot_path.
+  safety_rails:
+    - pandas-ta is OFFLINE only — compute in feature pipeline, serve from feature_store
+    - Indicator parameters pinned in registry/regime.yaml — not hardcoded
+    - NaN handling: indicators with insufficient history return None gracefully
+
+- repo: blue-yonder/tsfresh
+  pip: tsfresh
+  extract:
+    - tsfresh/feature_extraction/feature_calculators.py → 794 feature functions
+    - tsfresh/feature_selection/relevance.py → calculate_relevance_table()
+    - tsfresh/utilities/dataframe_functions.py → impute() — NaN handling
+    - tsfresh/feature_extraction/settings.py → MinimalFCParameters (fast subset)
+  fills:
+    - learning_engine/trader_abstraction/extractor.py
+    - learning_engine/trader_abstraction/encoder.py
+    - sensory/behavior_analyzer.py (automated feature discovery)
+  dix_contract: core/contracts/trader_intelligence.py
+  how: >
+    tsfresh extracts statistical features from trade history per archetype.
+    MinimalFCParameters for fast computation (20 features vs 794 full set).
+    relevance_table identifies which features predict strategy performance.
+    Selected features → Feast feature store → RL observation space.
+  safety_rails:
+    - OFFLINE only — never real-time
+    - Feature selection results pinned in registry/calibration.yaml
+    - tsfresh parallel computation via joblib — seeded for reproducibility
+
+- repo: facebookresearch/Kats
+  pip: kats
+  extract:
+    - kats/detectors/cusum_detection.py → CUSUMDetector — change point detection
+    - kats/detectors/bocpd.py → BOCPDDetector — Bayesian online change point
+    - kats/detectors/outlier_detection.py → OutlierDetector
+    - kats/models/sarima.py → SARIMAModel — seasonal regime forecasting
+  fills:
+    - system_engine/drift_monitor.py
+    - system_engine/hazard_sensors/neuromorphic_detector.py
+    - learning_engine/performance_analysis/alpha_decay.py
+  how: >
+    CUSUM in drift_monitor.py: detects sudden shifts in signal distribution.
+    BOCPD: probabilistic change point posterior → confidence-weighted HazardEvent.
+    OutlierDetector: flags abnormal ledger metrics (latency spikes, error rate jumps).
+  safety_rails:
+    - Kats fits Prophet models — requires seed for reproducibility
+    - Change point detection fires HazardEvent — governance decides response
+    - BOCPD is computationally heavy — run on 1-minute cadence, not per-tick
+
+- repo: pola-rs/polars
+  pip: polars
+  extract:
+    - polars/LazyFrame — lazy evaluation for large datasets
+    - polars.scan_parquet() — lazy Parquet scanning (reads LakeFS datasets)
+    - polars.scan_csv() — efficient CSV ingestion
+    - polars.col().rolling_mean() — vectorized rolling window
+    - polars.col().over() — group-by aggregations without materialization
+  fills:
+    - learning_engine/performance_analysis/ (replace pandas)
+    - simulation/scoring_engine.py (replace pandas)
+    - state/ledger/reconstructor.py (fast ledger replay analytics)
+  how: >
+    Replace pandas in all OFFLINE analytics with Polars LazyFrame.
+    scan_parquet(LakeFS path) → lazy feature computation → collect() only at end.
+    2-10x faster than pandas for DIX dataset sizes.
+    rolling_mean().over(archetype_id) → per-archetype rolling metrics in one pass.
+  safety_rails:
+    - Polars is OFFLINE analytics only — not in RUNTIME hot_path
+    - LazyFrame.collect() memory budget set in registry/budgets.yaml
+    - Polars random seed: pl.set_random_seed() in offline workers
+
+- repo: apache/arrow (pyarrow)
+  pip: pyarrow
+  extract:
+    - pyarrow/parquet.py → write_table(), read_table() — Parquet I/O
+    - pyarrow/ipc.py → RecordBatchStreamWriter — zero-copy IPC format
+    - pyarrow/compute.py → vectorized compute functions
+    - pyarrow.feather — fast binary format for hot store snapshots
+  fills:
+    - state/ledger/snapshots.py
+    - state/ledger/hot_store.py (feather-format hot snapshots)
+    - learning_engine/ (Parquet dataset storage)
+  how: >
+    Parquet for all long-term storage: LakeFS datasets, ledger snapshots, feature store.
+    Feather for fast hot_store snapshots (10x faster read than Parquet for small files).
+    IPC format for zero-copy data sharing between Ray workers in parallel simulation.
+  safety_rails:
+    - Arrow RecordBatch schema mirrors DIX Pydantic contracts — validated at boundary
+    - Parquet files include DIX schema version in metadata — checked on read
+
+
+# ================================================================
+# SECTION F — TIME SERIES DATABASES
+# ================================================================
+
+- repo: questdb/py-questdb-client
+  pip: questdb
+  extract:
+    - questdb/ingress.py → Sender — ILP protocol for high-throughput ingestion
+    - questdb/query.py → QueryResponse
+  fills:
+    - state/ledger/hot_store.py (tick data storage — optional high-frequency backend)
+    - system_engine/health_monitors/ (metric time series storage)
+  how: >
+    QuestDB for tick-level market data storage at high frequency (100k+ ticks/sec).
+    ILP Sender: fire-and-forget ingestion — no blocking.
+    SQL queries over time series: "SELECT * FROM ticks WHERE symbol='BTC' LATEST ON ts"
+    Used when SQLite ledger is insufficient for tick data volume.
+  safety_rails:
+    - QuestDB is optional — activated by registry config flag
+    - Read queries from QuestDB are ADVISORY — never direct execution signals
+    - QuestDB runs in separate process — isolated from RUNTIME
+
+- repo: ClickHouse/clickhouse-connect
+  pip: clickhouse-connect
+  extract:
+    - clickhouse_connect/driver/client.py → Client.query(), Client.insert()
+    - clickhouse_connect/driver/query.py → QueryResult
+  fills:
+    - state/ (OLAP analytics for large-scale replay analysis)
+    - learning_engine/performance_analysis/ (massive PnL attribution datasets)
+  how: >
+    ClickHouse for multi-month replay analytics: billions of events.
+    Import DIX ledger exports into ClickHouse for historical analysis.
+    NOT for real-time — offline analytics tool for research.
+  safety_rails:
+    - Read-only analytics — never writes to ClickHouse from RUNTIME
+    - ClickHouse in separate analytics process
+
+- repo: timescale/timescaledb (psycopg2 client)
+  pip: psycopg2-binary
+  extract:
+    - Standard psycopg2 connection + TimescaleDB hypertable SQL patterns
+    - Continuous aggregates SQL patterns for metric rollups
+  fills:
+    - system_engine/health_monitors/ (metric retention with automatic rollup)
+  how: >
+    TimescaleDB as production-grade Prometheus long-term storage.
+    Automatic rollup: raw 1s metrics → 1m → 1h → 1d.
+    Better than vanilla PostgreSQL for time-series retention policies.
+  safety_rails:
+    - Metrics storage only — no execution data in TimescaleDB
+    - TimescaleDB in separate monitoring stack process
+
+
+# ================================================================
+# SECTION G — OBSERVABILITY (REMAINING)
+# ================================================================
+
+- repo: jaegertracing/jaeger-client-python
+  pip: jaeger-client opentracing
+  extract:
+    - jaeger_client/config.py → Config — tracer setup
+    - opentracing/tracer.py → start_span(), inject(), extract()
+  fills:
+    - system_engine/health_monitors/ (distributed tracing)
+    - ui/server.py (request tracing)
+  how: >
+    Jaeger as local distributed tracing backend.
+    OTel SDK exports to Jaeger.
+    Trace every governance decision end-to-end: signal → approval → execution → ledger.
+    trace_id links ledger entries to Jaeger spans for full observability.
+  safety_rails:
+    - Jaeger local deployment only initially
+    - Span sampling rate configurable in registry — default 10% in production
+
+- repo: getsentry/sentry-python
+  pip: sentry-sdk
+  extract:
+    - sentry_sdk/hub.py → capture_exception(), capture_event()
+    - sentry_sdk/integrations/fastapi.py → FastAPIIntegration
+    - sentry_sdk/integrations/sqlalchemy.py → SqlAlchemyIntegration
+  fills:
+    - system_engine/anomaly_detector.py
+    - ui/server.py (exception capture)
+  how: >
+    Sentry captures all unhandled exceptions in DIX.
+    FastAPIIntegration instruments ui/server.py automatically.
+    Each exception tagged with: engine_id, governance_mode, ledger_position.
+    Sentry local relay for data sovereignty — no cloud upload.
+  safety_rails:
+    - Local Sentry relay only — no sentry.io cloud
+    - PII scrubbing: strip API keys, positions, wallet addresses from events
+    - Exception capture is observer only — never affects RUNTIME flow
+
+- repo: netdata/netdata + grafana/grafana
+  pip: N/A  # both are binary deployments
+  extract:
+    - Netdata: system-level metrics (CPU, memory, disk, network) via REST API
+    - Grafana: dashboard JSON export patterns for DIX dashboards
+  fills:
+    - system_engine/health_monitors/api_changelogs.py
+    - cockpit/widgets/system_health.py
+  how: >
+    Netdata monitors DIX process health: memory usage, CPU, file descriptors.
+    Grafana dashboards consume Prometheus metrics from DIX engines.
+    Pre-built dashboard JSON for: governance overview, execution flow, hazard timeline.
+  safety_rails:
+    - Both deployed as Docker containers — isolated from DIX process
+    - Read-only access to DIX metrics endpoint
+
+- repo: open-policy-agent/opa
+  pip: opa-python-client
+  extract:
+    - OPA REST API client: POST /v1/data/<policy_path> → decision
+    - Rego policy language: rules, allow/deny patterns
+    - opa_client/client.py → OpaClient.check_policy()
+  fills:
+    - governance_engine/services/trust_engine.py
+    - governance_engine/charter/governance.py
+    - tools/governance_boundary_check.py
+  dix_contract: core/contracts/governance.py → GovernanceDecision
+  how: >
+    Translate DIX authority_matrix.yaml rules → Rego policies.
+    OPA evaluates: "Can execution_engine submit this order given current mode?"
+    Rego rule: "allow { input.mode == 'live'; input.size <= data.limits.max_size }"
+    OPA runs as embedded library (rego.New()) — no separate server.
+  safety_rails:
+    - OPA policy evaluation is synchronous and bounded-latency
+    - Policy files stored in registry/ — versioned, never runtime-generated
+    - OPA deny → HazardEvent + governance audit log entry
+
+
+# ================================================================
+# SECTION H — INFRASTRUCTURE / SECURITY
+# ================================================================
+
+- repo: hvac/hvac (HashiCorp Vault)
+  pip: hvac
+  extract:
+    - hvac/api/secrets_engines/kv_v2.py → read_secret(), create_or_update_secret()
+    - hvac/auth_methods/token.py → token authentication
+    - hvac/api/system_backend/ → seal/unseal, health check
+  fills:
+    - core/secrets.py
+    - system_engine/credentials/ (enhance existing)
+  how: >
+    Vault KV v2 stores all DIX secrets: exchange API keys, AI provider keys.
+    Automatic key rotation: Vault generates new exchange keys on schedule.
+    Fall back to .env file when Vault unavailable (dev/test mode).
+    core/secrets.py provides unified interface: get_secret(name) → value.
+  safety_rails:
+    - Vault AppRole auth — no root token in production
+    - Secrets never logged — redacted in all DIX logs
+    - Secret access audit trail in Vault + DIX ledger
+
+- repo: google/gvisor
+  pip: N/A  # kernel extension — runsc binary
+  extract:
+    - gVisor runsc — OCI-compatible container runtime with kernel sandbox
+    - Docker integration: --runtime=runsc
+  fills:
+    - sensory/web_autolearn/ (sandbox for Playwright crawls)
+    - evolution_engine/sandbox.py (sandbox for patch execution)
+  how: >
+    All Playwright browser processes run in gVisor containers.
+    All OpenHands/patch execution sandboxed via gVisor.
+    gVisor intercepts syscalls — contains sandbox escapes.
+    Docker: "docker run --runtime=runsc dix-sandbox ./execute_patch.sh"
+  safety_rails:
+    - gVisor is defense-in-depth — not a replacement for logic isolation
+    - Network access disabled in all sandbox containers
+    - Filesystem access limited to /tmp/dix_sandbox/
+
+- repo: kata-containers/kata-containers (Firecracker)
+  pip: N/A  # binary deployment
+  extract:
+    - Firecracker microVM API for ultra-fast VM isolation
+    - Python SDK: firecracker-python-sdk (community)
+  fills:
+    - evolution_engine/sandbox.py (VM-level isolation for untrusted patches)
+  how: >
+    Firecracker for strongest isolation when running AI-generated code patches.
+    1 Firecracker microVM per patch evaluation — 125ms boot time.
+    VM destroyed after evaluation — no persistence.
+  safety_rails:
+    - Used only for OFFLINE patch evaluation
+    - VM has no network access and read-only DIX dataset mount
+
+- repo: sigstore/sigstore-python
+  pip: sigstore
+  extract:
+    - sigstore/sign.py → sign() — keyless signing with OIDC
+    - sigstore/verify/ → Verifier.verify() — verify signed artifact
+  fills:
+    - tools/upstream_sync_monitor.py (verify upstream release signatures)
+    - evolution_engine/ (sign promoted strategy artifacts)
+  how: >
+    Sign all promoted strategy artifacts with Sigstore keyless signing.
+    Verify all integrated upstream releases are signed by maintainers.
+    Signed artifacts stored in LakeFS alongside model weights.
+  safety_rails:
+    - Signature verification in CI before any upstream code integration
+    - Unsigned artifacts rejected by governance promotion gate
+
+
+# ================================================================
+# SECTION I — SOLANA / MEMECOIN / ONCHAIN
+# ================================================================
+
+- repo: helius-labs/helius-sdk
+  pip: helius  # Python community SDK
+  extract:
+    - Helius Enhanced Transactions API → parsed transaction types
+    - Helius Token API → holder analysis, metadata
+    - Helius Webhook API → real-time transaction streaming
+    - DAS API → digital asset standard queries
+  fills:
+    - execution_engine/adapters/memecoin/
+    - sensory/trader_intelligence/
+    - sensory/onchain/ (new)
+  dix_contract: core/contracts/events.py → SignalEvent
+  how: >
+    Helius webhooks stream new token launches → DIX SignalEvent.
+    Token holder analysis → rug score calculation for dash_meme.
+    Enhanced transaction parsing → wallet behavior pattern detection.
+    Top holders change → HazardEvent for memecoin positions.
+  safety_rails:
+    - Webhook receiver runs in sensory/ tier — never hot_path
+    - All onchain signals go through governance before trade consideration
+    - Rate limit: max 100 Helius API calls/min, tracked in Prometheus
+
+- repo: jito-foundation/jito-ts (concepts — TypeScript)
+  pip: N/A  # TypeScript library — extract concepts only
+  extract:
+    - MEV bundle submission patterns (conceptual)
+    - Bundle simulation before submission
+  fills:
+    - execution_engine/adapters/memecoin/ (MEV-aware execution)
+  how: >
+    Understand Jito bundle mechanics for MEV-protected execution.
+    Implement Python equivalent using Jito REST API.
+    Bundle transactions to avoid frontrunning in Solana memecoin trades.
+  safety_rails:
+    - MEV bundle submission is live execution — mandatory governance approval
+    - Bundle simulation before submission — never blind execution
+
+- repo: Jupiter-Exchange/jupiter-core (concepts — TypeScript)
+  pip: N/A  # TypeScript — extract REST API patterns
+  extract:
+    - Jupiter v6 Quote API → best route simulation
+    - Swap API → transaction construction
+  fills:
+    - execution_engine/adapters/memecoin/ (DEX routing)
+  how: >
+    Use Jupiter REST API from Python adapter for Solana DEX routing.
+    Quote before swap — validate slippage within governance limits.
+    Implement as async HTTP client against Jupiter v6 API endpoints.
+  safety_rails:
+    - Quote must precede every swap — no blind execution
+    - Slippage tolerance from registry/budgets.yaml — never hardcoded
+    - Swap transaction signed by Vault-managed keypair
+
+- repo: michaelgsharp/solana-py (solana-py)
+  pip: solana solders
+  extract:
+    - solana/rpc/async_api.py → AsyncClient — RPC calls
+    - solana/transaction.py → Transaction construction
+    - solders/keypair.py → Keypair — wallet management
+  fills:
+    - execution_engine/adapters/memecoin/
+    - system_engine/ (Solana health monitoring)
+  how: >
+    solana-py for all Solana RPC interactions in DIX.
+    AsyncClient.send_transaction() wrapped behind BrokerAdapter.
+    Keypair stored in Vault — never in environment variables.
+  safety_rails:
+    - Keypair never logged or serialized to ledger
+    - Transaction simulation before broadcast via simulateTransaction RPC
+    - All Solana transactions require governance approval
+
+- repo: coral-xyz/anchor (Python client)
+  pip: anchorpy
+  extract:
+    - anchorpy/program/ → Program.fetch(), Program.instruction()
+    - anchorpy/workspace.py → workspace loading from IDL
+    - IDL parsing → typed instruction builders
+  fills:
+    - execution_engine/adapters/memecoin/ (Anchor program interactions)
+  how: >
+    AnchorPy for interacting with Solana DeFi programs (Raydium, Orca, etc.)
+    IDL-driven typed instructions prevent malformed transactions.
+    Program.fetch() for reading pool state before trade decisions.
+  safety_rails:
+    - All program instructions simulated before broadcast
+    - IDL files pinned by hash in registry — not fetched dynamically
+
+
+# ================================================================
+# SECTION J — DISTRIBUTED COMPUTE
+# ================================================================
+
+- repo: celery/celery
+  pip: celery redis
+  extract:
+    - celery/app/base.py → Celery app, @app.task decorator
+    - celery/result.py → AsyncResult — task status tracking
+    - celery/schedules.py → crontab — scheduled tasks
+  fills:
+    - learning_engine/ (scheduled offline jobs)
+    - evolution_engine/ (async evolution runs)
+    - governance_engine/services/liveness_watchdog.py (heartbeat tasks)
+  how: >
+    Celery for scheduled offline tasks: feature materialization, model retraining.
+    Redis as Celery broker (already a DIX dependency via caching).
+    liveness_watchdog: Celery beat schedules health checks every 60s.
+    Evolution runs submitted as Celery tasks — results stored in MLflow.
+  safety_rails:
+    - Celery workers have NO access to RUNTIME engine state
+    - Task results stored in Redis with TTL — not permanent state
+    - Failed tasks generate HazardEvent via Celery failure signal
+
+- repo: dask/dask
+  pip: dask[dataframe]
+  extract:
+    - dask/dataframe/ → dd.read_parquet() — lazy large dataset loading
+    - dask/distributed/ → Client, as_completed() — task parallelism
+    - dask/array/ → vectorized computations over chunked arrays
+  fills:
+    - simulation/parallel_runner.py (Dask as lighter Ray alternative for small clusters)
+    - learning_engine/performance_analysis/ (large dataset analytics)
+  how: >
+    Dask for parallel simulation runs when Ray is too heavy.
+    dd.read_parquet(LakeFS path) → lazy chunked feature computation.
+    Dask distributed client for small 2-4 node clusters.
+    Lighter than Ray for pure data processing pipelines (no RL needed).
+  safety_rails:
+    - Same tier restrictions as Ray — OFFLINE only
+    - Dask scheduler separate process — no DIX RUNTIME access
+
+
+# ================================================================
+# SECTION K — RUST ECOSYSTEM (PyO3 PHASE)
+# ================================================================
+
+- repo: PyO3/maturin
+  pip: maturin
+  extract:
+    - maturin/src/ → build tool for Rust Python extensions
+    - #[pyfunction], #[pyclass] macro patterns
+  fills:
+    - execution_engine/hot_path/ (Rust-accelerated risk cache)
+    - simulation/scoring_engine.py (Rust-accelerated scoring)
+  how: >
+    maturin build --release generates Python wheel from Rust source.
+    Rust extension exposes identical Python interface to current Python impl.
+    Swap in hot_path/fast_risk_cache.py → hot_path/_fast_risk_cache_rs.pyd
+    Benchmark p99 latency — only ship if >30% improvement.
+  safety_rails:
+    - Rust extension must pass identical test suite as Python version
+    - No unsafe Rust blocks in DIX extensions
+    - Rust RNG uses ChaCha8 with explicit seed — deterministic
+
+- repo: tokio-rs/tokio (Rust — concepts + via PyO3)
+  pip: N/A  # Rust dependency in PyO3 extensions
+  extract:
+    - Tokio async runtime patterns for Rust hot_path extensions
+    - tokio::select! for async event handling
+    - tokio::sync::mpsc — bounded channel (LMAX pattern in Rust)
+  fills:
+    - execution_engine/hot_path/ (async Rust event processing)
+  how: >
+    Tokio async runtime powers DIX Rust extensions.
+    Bounded MPSC channel (capacity=1024) as Rust equivalent of asyncio.Queue.
+    tokio::select! for concurrent hot_path event sources.
+  safety_rails:
+    - Tokio runtime in Rust extension — never exposed directly to Python
+    - All Python↔Rust boundaries use GIL-release pattern
+
+- repo: serde-rs/serde
+  pip: N/A  # Rust dependency
+  extract:
+    - serde::Serialize + serde::Deserialize derives for DIX Rust types
+    - serde_json — JSON compat with Python pydantic contracts
+  fills:
+    - contracts/ (Rust-side contract serialization in PyO3 extensions)
+  how: >
+    Serde derives for all Rust structs mirroring DIX Pydantic contracts.
+    Ensures Python↔Rust data exchange is type-safe and schema-consistent.
+  safety_rails:
+    - Serde schemas validated against protobuf contracts in CI
+    - No #[serde(skip)] on fields present in DIX contracts
+
+- repo: hyperium/tonic
+  pip: N/A  # Rust gRPC framework
+  extract:
+    - tonic::transport::Server — gRPC server for Rust services
+    - tonic::client::Grpc — gRPC client
+  fills:
+    - future gRPC interface between Python DIX and Rust hot_path service
+  how: >
+    When hot_path migrates to standalone Rust process, tonic provides gRPC interface.
+    Python DIX calls Rust hot_path via gRPC (generated from contracts/execution.proto).
+    bidirectional streaming for continuous event flow.
+  safety_rails:
+    - gRPC service behind DIX governance gate — not directly accessible
+    - TLS mutual auth between Python and Rust process
+
+
+# ================================================================
+# SECTION L — ADDITIONAL PORTFOLIO / QUANT
+# ================================================================
+
+- repo: robertmartin8/PyPortfolioOpt
+  pip: PyPortfolioOpt
+  extract:
+    - pypfopt/risk_models.py → CovarianceShrinkage, SampleCovariance
+    - pypfopt/expected_returns.py → mean_historical_return(), ema_historical_return()
+    - pypfopt/efficient_frontier.py → EfficientFrontier, max_sharpe(), min_volatility()
+    - pypfopt/black_litterman.py → BlackLittermanModel (views from AI signals)
+  fills:
+    - intelligence_engine/portfolio/risk_parity.py
+    - intelligence_engine/portfolio/correlation_engine.py
+    - intelligence_engine/portfolio/capital_scheduler.py
+  dix_contract: core/contracts/portfolio.py
+  how: >
+    CovarianceShrinkage for robust covariance estimation from limited history.
+    max_sharpe() for portfolio-level capital allocation across archetypes.
+    BlackLittermanModel: blend market equilibrium with DIX AI signal views.
+    Allocation outputs → capital_scheduler.py → governance approval → execution.
+  safety_rails:
+    - Allocation runs OFFLINE on scheduled cadence — not per-signal
+    - Allocation changes require governance approval before taking effect
+    - Covariance estimation uses historical data only — no forward-looking bias
+
+- repo: stefan-jansen/zipline-reloaded
+  pip: zipline-reloaded
+  extract:
+    - zipline/algorithm.py → TradingAlgorithm lifecycle (initialize, handle_data)
+    - zipline/finance/slippage.py → VolumeShareSlippage, FixedBasisPointsSlippage
+    - zipline/finance/commission.py → PerTrade, PerShare, PerDollar commission models
+    - zipline/finance/metrics/tracker.py → risk metrics computation
+  fills:
+    - simulation/slippage_model.py (additional slippage models)
+    - simulation/backtester.py (algorithm lifecycle reference)
+  how: >
+    Zipline slippage models cross-validate DIX hftbacktest-derived models.
+    VolumeShareSlippage: market impact grows with fraction of daily volume.
+    Commission models used in paper trading to match live trading costs exactly.
+  safety_rails:
+    - Zipline data bundles NOT used — DIX has own feeds
+    - Only math/models extracted — no Zipline framework running
+
+
+# ================================================================
+# SECTION M — CHAOS / RESILIENCE
+# ================================================================
+
+- repo: chaos-mesh/chaos-mesh (SDK)
+  pip: N/A  # kubectl + Python SDK via REST
+  extract:
+    - chaos-mesh Python API client (HTTP REST)
+    - NetworkChaos, PodChaos, IOChaos specs
+  fills:
+    - tests/test_hazard_flow.py
+    - scripts/run_chaos_day.py
+  how: >
+    Chaos Mesh injects failures for DIX resilience testing:
+    - NetworkChaos: simulate exchange API latency/packet loss → verify HazardEvent fires
+    - PodChaos: kill adapter process → verify governance transitions to safe mode
+    - IOChaos: corrupt ledger write → verify hash chain detects corruption
+    run_chaos_day.py: scheduled chaos test battery in staging environment.
+  safety_rails:
+    - Chaos Mesh ONLY in staging environment — never production
+    - chaos tests require explicit operator confirmation before run
+    - All chaos scenarios logged to ledger with CHAOS_TEST event type
+
+- repo: litmuschaos/litmus
+  pip: N/A  # Kubernetes operator
+  extract:
+    - LitmusChaos experiment definitions (YAML patterns)
+    - ChaosEngine, ChaosResult spec patterns
+  fills:
+    - tests/test_hazard_flow.py (Litmus-defined chaos scenarios)
+  how: >
+    Litmus as alternative to Chaos Mesh for Kubernetes deployments.
+    Provides pre-built chaos experiments for common failure modes.
+    DIX-specific experiments: adapter_outage, ledger_corruption, clock_skew.
+  safety_rails:
+    - Same as Chaos Mesh above
+
+
+# ================================================================
+# SECTION N — MOBILE / OPERATOR INTERFACES
+# ================================================================
+
+- repo: flutter/flutter
+  pip: N/A  # Dart SDK — connects to DIX REST API
+  extract:
+    - Flutter HTTP client patterns for DIX API consumption
+    - Real-time SSE stream consumption in Flutter
+    - Mobile UI patterns for operator cockpit
+  fills:
+    - mobile_pwa/ (declared missing)
+    - cockpit/ (mobile extension)
+  how: >
+    Flutter connects to DIX ui/server.py REST + SSE endpoints.
+    Mobile cockpit displays: current mode, active positions, recent hazards.
+    Kill-switch widget — requires biometric auth before firing.
+    Flutter app for iOS/Android operator access.
+  safety_rails:
+    - Flutter app is READ-ONLY except for explicit operator actions
+    - Kill switch requires double-confirmation + biometric
+    - JWT auth for all Flutter ↔ DIX API communication
+    - TLS certificate pinning in Flutter app
+
+- repo: nicegui/nicegui (already in map but expand)
+  pip: nicegui
+  extract:
+    - nicegui/ui.py → ui.table(), ui.chart(), ui.switch(), ui.button()
+    - nicegui/page.py → @ui.page decorator — multi-page app
+    - nicegui/run.py → ui.run(uvicorn_reload=False)
+  fills:
+    - cockpit/app.py (Python-native web cockpit)
+    - cockpit/widgets/ (all declared missing widgets)
+  how: >
+    NiceGUI-based cockpit served by existing ui/server.py.
+    cockpit/widgets/kill_switch.py → ui.switch() with confirmation dialog.
+    cockpit/widgets/governance_panel.py → live mode display + approval queue.
+    cockpit/widgets/risk_view.py → exposure bars + drawdown chart.
+    All NiceGUI actions go through DIX REST API — no direct state access.
+  safety_rails:
+    - NiceGUI runs in same FastAPI process but separate route namespace
+    - All action endpoints require governance validation
+    - NiceGUI sessions authenticated via same JWT as REST API
+
+
+# ================================================================
+# SECTION O — ADDITIONAL AI AGENT INFRASTRUCTURE
+# ================================================================
+
+- repo: geekan/MetaGPT
+  pip: metagpt
+  extract:
+    - metagpt/roles/role.py → Role base — role-based agent with memory
+    - metagpt/actions/action.py → Action base — single-step reasoning unit
+    - metagpt/team.py → Team — multi-role coordination
+    - metagpt/schema.py → Message — structured inter-agent messaging
+  fills:
+    - evolution_engine/critique_loop.py
+    - intelligence_engine/agents/ (multi-role strategy council)
+  how: >
+    MetaGPT Team as multi-role strategy critique council:
+    - Analyst role: examines signal quality
+    - Risk Officer role: evaluates position sizing
+    - Strategist role: considers regime alignment
+    - Arbiter role: synthesizes and proposes ExecutionIntent
+    Each Message is a typed DIX contract — no free-form strings.
+  safety_rails:
+    - Team runs OFFLINE in sandbox — no live execution authority
+    - All Message types must match DIX Pydantic contracts
+    - MetaGPT uses LiteLLM router — never direct AI provider access
+
+- repo: n8n-io/n8n (REST API client only)
+  pip: N/A  # Node.js — interact via REST API from Python
+  extract:
+    - n8n REST API: POST /workflows/execute — trigger workflow
+    - n8n webhook trigger pattern — receive events from external systems
+  fills:
+    - scripts/run_chaos_day.py (n8n orchestrates multi-step test workflows)
+    - sensory/ (n8n as low-code ETL for data ingestion pipelines)
+  how: >
+    n8n as no-code workflow orchestrator for operator scripts.
+    n8n workflow triggers: scheduled backtest, chaos test day, data export.
+    Python DIX calls n8n REST API to trigger workflows.
+    n8n webhooks receive: TradingView alerts, external signal sources.
+  safety_rails:
+    - n8n has no direct access to DIX execution layer
+    - n8n webhooks → sensory/ tier only → governance before any action
+    - n8n credentials stored in Vault — not n8n credential store
+
+- repo: kubeflow/kubeflow (Pipelines SDK)
+  pip: kfp
+  extract:
+    - kfp/components/ → @component — containerized pipeline step
+    - kfp/dsl/ → @pipeline — DAG pipeline definition
+    - kfp/client/ → Client.create_run_from_pipeline_func()
+  fills:
+    - evolution_engine/pipeline.py (Kubeflow as production pipeline runner)
+  how: >
+    Kubeflow Pipelines as production ML pipeline for large-scale evolution runs.
+    Each evolution step (data prep, training, evaluation, promotion) is a @component.
+    Pipeline runs on Kubernetes — each component in isolated container.
+    Use after single-node Ray pipeline is validated.
+  safety_rails:
+    - Kubeflow is for large-scale cloud deployments only
+    - Each component has read-only access to LakeFS datasets
+    - Promotion component requires Temporal workflow approval gate
+
+- repo: wandb/wandb
+  pip: wandb
+  extract:
+    - wandb/sdk/wandb_run.py → wandb.log(), wandb.config
+    - wandb/sdk/artifacts/ → Artifact — model versioning
+  fills:
+    - evolution_engine/pipeline.py (W&B as alternative to MLflow for experiment tracking)
+  how: >
+    W&B local mode (WANDB_MODE=offline) tracks evolution experiments.
+    Artifact versioning for strategy model weights.
+    W&B sweeps for hyperparameter optimization (alternative to Nevergrad).
+    Evaluate vs MLflow — pick one for consistency.
+  safety_rails:
+    - Offline mode only initially — no W&B cloud until data governance review
+    - Model artifacts verified against hash before promotion
+
+
+# ================================================================
+# SECTION P — SPEECH / VOICE (OPERATOR INTERFACE)
+# ================================================================
+
+- repo: openai/whisper
+  pip: openai-whisper
+  extract:
+    - whisper/model.py → load_model(), transcribe()
+    - whisper/audio.py → load_audio() — microphone input handling
+  fills:
+    - cockpit/ (voice command interface for operator)
+  how: >
+    Whisper transcribes operator voice commands to text.
+    Text → NLP intent classification → DIX REST API call.
+    Allows hands-free operator interaction: "activate kill switch", "show positions".
+    Whisper runs locally — no audio sent to cloud.
+  safety_rails:
+    - Voice commands require text confirmation before executing kill-switch actions
+    - Whisper is input preprocessing only — all actions go through governance API
+    - Local model only (whisper.cpp or base.en model)
+
+- repo: coqui-ai/TTS (Coqui TTS)
+  pip: TTS
+  extract:
+    - TTS/api.py → TTS() — text-to-speech synthesis
+    - Tacotron2 or VITS model patterns for fast synthesis
+  fills:
+    - cockpit/ (voice alerts for critical hazard events)
+  how: >
+    Coqui TTS announces critical HazardEvents audibly.
+    "CRITICAL: Kill switch activated. Governance mode: HALT."
+    Headless server deployments benefit from audio alerts.
+    Local synthesis — no cloud TTS API.
+  safety_rails:
+    - TTS is output-only — no feedback into RUNTIME logic
+    - Only HazardEvent severity >= CRITICAL triggers audio alert

@@ -584,7 +584,7 @@ class WorldEnhancedNeuromorphicRisk:
     def _emit_original(self, kind: str, *, severity: float, confidence: float, 
                       context: str, details: Dict[str, Any]) -> EnhancedRiskSignalEvent:
         """Emit original risk signal (maintain compatibility)."""
-        from system.time_source import now
+        from system_unified.time_source import now
         
         ts = now().utc_time.isoformat()
         event = EnhancedRiskSignalEvent(

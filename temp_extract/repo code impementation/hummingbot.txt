@@ -1,0 +1,21 @@
+hummingbot
+Public
+opennews-mcp
+Public
+
+
+Category	Count	Key Sources
+News	53	Bloomberg, Reuters, Financial Times, CNBC, CNN, BBC, Fox Business, CoinDesk, Cointelegraph, The Block, Blockworks, Decrypt, DlNews, A16Z, TechCrunch, Wired, Politico, Business Insider, Twitter/X, Telegram, Weibo, Truth Social, U.S. Treasury, ECB, TASS, Handelsblatt, Welt, Ambrey, Morgan Stanley, PR Newswire, Coinbase, Phoenixnews, and more
+Listing	9	Binance, Coinbase, OKX, Bybit, Upbit, Bithumb, Robinhood, Hyperliquid, Aster
+OnChain	3	Hyperliquid Whale Trade, Hyperliquid Large Position, KOL Trade
+Meme	1	Twitter meme coin social sentiment
+Market	6	Price Change, Funding Rate, Funding Rate Difference, Large Liquidation, Market Trends, OI Change
+Prediction	12	CORRELATION_LOGICAL, SMART_MONEY_TRADE, PRICE_SPIKE, CLUSTER_ENTRY, WHALE_POSITION, NEW_WALLET_TRADE, INSIDER_PATTERN, CORRELATION_NARRATIVE, CORRELATION_HEDGE, CORRELATION_ENTITY_GEO, CORRELATION_CAUSAL, SETTLEMENT_ARBITRAGE
+
+
+Chart library final call. Default Lightweight Charts v5, allow opt-in to free-proprietary Advanced Charts per-widget? (Recommended: yes.)YES
+Forex broker priority. OANDA + IG + IBKR + MT5 bridge in that order — agree?AGREE
+Stock broker priority. Alpaca + IBKR + Schwab/ToS in that order — agree?AGREE
+Memecoin leaderboard seeding. Start with a curated GMGN-style list + let operator edit, or empty + operator-only?GMGN STYLE
+Canary default size. $5 for 5 min — too low / too high?
+FULL_AUTO live override visibility. Should open-position cards show a permanent close-now button, or hide it behind a right-click menu?PERMANENT CLOSE BUTON

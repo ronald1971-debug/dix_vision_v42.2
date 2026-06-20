@@ -632,7 +632,7 @@ class DyonEngineeringRuntime:
 
     def _last_ts_ns(self) -> int:
         try:
-            from system.time_source import wall_ns
+            from system_unified.time_source import wall_ns
             return wall_ns()
         except Exception:
             return 0

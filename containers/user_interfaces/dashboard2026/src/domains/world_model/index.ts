@@ -6,7 +6,26 @@
  * market context analysis, and world understanding.
  */
 
-// exports will be added during component migration phase
+// Component exports (to be added during component migration)
+// export * from './components';
+
+// Widget exports
+export * from './widgets';
+
+// Store exports
+export * from './stores';
+
+// Service exports (to be added during service migration)
+// export * from './services';
+
+// Hook exports (to be added during hook migration)
+// export * from './hooks';
+
+// Type exports (to be added during type migration)
+// export * from './types';
+
+// Utility exports (to be added during utility migration)
+// export * from './utils';
 
 /**
  * WORLD_MODEL Domain Information

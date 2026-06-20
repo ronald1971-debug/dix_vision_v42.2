@@ -29,7 +29,7 @@ from core.contracts.governance import (
     SystemMode,
 )
 from dashboard_backend.control_plane.router import ControlPlaneRouter, RouteOutcome
-from governance_engine.control_plane.state_transition_manager import (
+from governance_unified.control_plane.state_transition_manager import (
     StateTransitionManager,
     _is_legal_edge,
 )

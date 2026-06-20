@@ -1,5 +1,3 @@
-const BASE = (import.meta.env.VITE_API_BASE ?? "").replace(/\/$/, "");
-
 export interface ComponentStatus {
   name: string;
   status: "ok" | "degraded" | "error" | "unknown";
@@ -15,12 +13,27 @@ export interface SysHealthPayload {
 }
 
 export async function fetchSysHealth(signal?: AbortSignal): Promise<SysHealthPayload> {
-  const res = await fetch(`${BASE}/api/syshealth`, {
-    signal,
-    headers: { Accept: "application/json" },
-  });
-  if (!res.ok) {
-    throw new Error(`GET /api/syshealth failed: ${res.status} ${res.statusText}`);
+  try {
+    const BASE = (import.meta.env.VITE_API_BASE ?? "").replace(/\/$/, "");
+    const res = await fetch(`${BASE}/api/syshealth`, {
+      signal,
+      headers: { Accept: "application/json" },
+    });
+    if (!res.ok) {
+      throw new Error(`GET /api/syshealth failed: ${res.status} ${res.statusText}`);
+    }
+    return (await res.json()) as SysHealthPayload;
+  } catch (error) {
+    // Return fallback health status in development when backend is unavailable
+    if (process.env.NODE_ENV === 'development') {
+      return {
+        components: [
+          { name: 'frontend', status: 'ok', detail: 'Development mode active' },
+          { name: 'api', status: 'degraded', detail: 'Backend not running (development)' }
+        ],
+        ts_utc: new Date().toISOString()
+      };
+    }
+    throw error;
   }
-  return (await res.json()) as SysHealthPayload;
 }

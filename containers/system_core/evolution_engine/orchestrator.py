@@ -14,7 +14,7 @@ import random
 from dataclasses import dataclass
 from typing import Any
 
-from system.time_source import now
+from system_unified.time_source import now
 
 logger = logging.getLogger(__name__)
 

@@ -1,7 +1,5 @@
 import { CognitiveHealthStrip } from "@/components/CognitiveHealthStrip";
-import { DyonArchitectureStream } from "@/widgets/DyonArchitectureStream";
-import { DyonLearningMode } from "@/widgets/DyonLearningMode";
-import { DyonWorkspace } from "@/widgets/DyonWorkspace";
+import { DyonArchitectureStream, DyonLearningMode, DyonWorkspace } from "@/domains/dyon";
 import { WidgetSlot } from "@/components/WidgetSlot";
 
 export function DyonLearningPage() {

@@ -1,7 +1,7 @@
 console.log('🔧 App.tsx: File loaded');
 import { useState, useEffect } from "react";
 
-import { GlobalSystemControlBar } from "@/components/GlobalSystemControlBar";
+import { GlobalSystemControlBar } from "@/domains/operator/components/GlobalSystemControlBar";
 import { CommandPalette } from "@/components/CommandPalette";
 import { LiveStatusPill } from "@/components/LiveStatusPill";
 import { EnhancedSystemStatusBanner } from "@/components/world/EnhancedSystemStatusBanner";

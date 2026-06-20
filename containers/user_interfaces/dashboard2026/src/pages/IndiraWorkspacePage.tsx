@@ -12,11 +12,46 @@
  */
 
 import { PanelLayout, Panel, PanelSection } from '@/components/agent/Panel';
-import { IndiraContextPanel } from '@/components/workspace/IndiraContextPanel';
-import { IndiraCognitivePanel } from '@/components/workspace/IndiraCognitivePanel';
-import { IndiraActivityPanel } from '@/components/agent/IndiraActivityPanel';
+import { IndiraContextPanel } from '@/domains/indira/components/IndiraContextPanel';
+import { IndiraCognitivePanel } from '@/domains/indira/components/IndiraCognitivePanel';
+import { IndiraActivityPanel } from '@/domains/indira/components/IndiraActivityPanel';
 import { Brain, Mic, Users, Activity, FlaskConical, Wifi, WifiOff, TrendingUp } from 'lucide-react';
-import { useConnectionState } from '@/context/AgentOpsContext';
+import { indiraIntelligenceCoordinator } from '@/core/indira/IndiraIntelligenceCoordinator';
+
+// Real hook that connects to the actual INDIRA system
+// with enhanced error handling to prevent white screen
+const useConnectionState = () => {
+  console.log('[IndiraWorkspacePage] Getting connection state from INDIRA coordinator...');
+  
+  try {
+    // Safe check if coordinator exists
+    if (!indiraIntelligenceCoordinator || typeof indiraIntelligenceCoordinator.getMetrics !== 'function') {
+      console.warn('[IndiraWorkspacePage] INDIRA coordinator not available, using fallback');
+      return {
+        connectionState: 'disconnected',
+        isConnected: false,
+        isMockMode: false
+      };
+    }
+    
+    const metrics = indiraIntelligenceCoordinator.getMetrics();
+    console.log('[IndiraWorkspacePage] Got metrics:', metrics);
+    const isActive = metrics.coordinationEfficiency > 0.5 && metrics.averageResponseTime < 1000;
+    
+    return {
+      connectionState: isActive ? 'connected' : 'disconnected',
+      isConnected: isActive,
+      isMockMode: false
+    };
+  } catch (error) {
+    console.error('[IndiraWorkspacePage] Failed to get connection state:', error);
+    return {
+      connectionState: 'disconnected',
+      isConnected: false,
+      isMockMode: false
+    };
+  }
+};
 
 export function IndiraWorkspacePage() {
   const { connectionState, isConnected, isMockMode } = useConnectionState();

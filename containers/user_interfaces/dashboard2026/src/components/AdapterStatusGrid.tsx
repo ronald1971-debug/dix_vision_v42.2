@@ -21,11 +21,22 @@ type AdapterListResponse = {
 };
 
 async function fetchAdapters(signal?: AbortSignal): Promise<AdapterListResponse> {
-  const res = await fetch(apiUrl("/api/execution/adapters"), { signal });
-  if (!res.ok) {
-    throw new Error(`adapters fetch failed: ${res.status}`);
+  try {
+    const res = await fetch(apiUrl("/api/execution/adapters"), { signal });
+    if (!res.ok) {
+      throw new Error(`adapters fetch failed: ${res.status}`);
+    }
+    return (await res.json()) as AdapterListResponse;
+  } catch (error) {
+    // Return fallback adapters in development when backend is unavailable
+    if (process.env.NODE_ENV === 'development') {
+      return {
+        count: 0,
+        adapters: []
+      };
+    }
+    throw error;
   }
-  return (await res.json()) as AdapterListResponse;
 }
 
 const STATE_TONE: Record<AdapterRow["state"], string> = {

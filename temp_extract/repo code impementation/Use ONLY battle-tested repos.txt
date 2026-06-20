@@ -1,0 +1,2158 @@
+Use ONLY battle-tested repos
+Import code selectively
+Adapt all repos into DIX architecture
+Enforce DIX authority model
+Wire all repos into:
+Indira
+Dyon
+Governance
+Event Bus
+Ledger
+FastRiskCache
+Hazard System
+Registry
+Replay Engine
+
+This is NOT a repo collection.
+
+This is a:
+
+deterministic integration manifest
+architecture wiring plan
+code adaptation contract
+execution topology
+1. MARKET CONNECTIVITY LAYER
+CRYPTO EXCHANGE CONNECTIVITY
+CCXT
+
+Purpose:
+
+Unified crypto exchange APIs
+
+Use For:
+
+Binance
+Bybit
+OKX
+KuCoin
+Kraken
+Coinbase
+Hyperliquid
+Gate.io
+Bitget
+
+Integrate Into:
+
+execution/adapters/crypto/
+
+Provides:
+
+REST
+Websocket
+Order routing
+Position sync
+Market data
+
+DIX Adaptation:
+
+Wrap all calls in adapter_router
+No direct strategy access
+All requests ledgered
+Governance limits enforced before submit
+Hummingbot
+
+Purpose:
+
+Battle-tested market making + execution framework
+
+Use For:
+
+CEX/DEX execution logic
+Avellaneda-Stoikov
+TWAP/VWAP
+Inventory skew
+
+Integrate Into:
+
+indira/plugins/execution/hummingbot/
+
+Extract:
+
+Execution controllers
+MM logic
+Spread engines
+Inventory balancing
+
+DO NOT IMPORT:
+
+Full runtime
+Their orchestration layer
+Hyperliquid Python SDK
+
+Purpose:
+
+Low-latency perp execution
+
+Use For:
+
+Perpetuals
+Funding arbitrage
+High-frequency execution
+
+Integrate Into:
+
+execution/adapters/hyperliquid/
+2. FOREX / CFD / MACRO TRADING
+MetaTrader5 Python
+
+Purpose:
+
+MT5 bridge
+
+Use For:
+
+Forex execution
+CFD execution
+Broker connectivity
+
+Integrate:
+
+execution/adapters/mt5/
+
+Governance:
+
+Position limits mandatory
+Exposure caps mandatory
+OANDA v20
+
+Purpose:
+
+Institutional-grade FX APIs
+
+Use For:
+
+Macro FX
+Position sync
+Order books
+
+Integrate:
+
+execution/adapters/oanda/
+3. STOCKS / OPTIONS / FUTURES
+Interactive Brokers API
+
+Purpose:
+
+Institutional multi-asset execution
+
+Use For:
+
+Stocks
+Futures
+Options
+Bonds
+
+Integrate:
+
+execution/adapters/ibkr/
+
+Required:
+
+Async adapter wrapper
+Replay-safe execution logging
+QuantConnect Lean
+
+Purpose:
+
+Institutional backtesting engine
+
+Extract:
+
+Fill models
+Slippage models
+Brokerage abstractions
+Universe selection logic
+
+DO NOT IMPORT:
+
+Entire cloud runtime
+
+Integrate:
+
+research/lean_components/
+Backtrader
+
+Purpose:
+
+Strategy replay + deterministic testing
+
+Integrate:
+
+research/backtesting/
+
+Use For:
+
+Offline replay
+Strategy validation
+Historical simulations
+4. MEMECOIN / SOLANA / ONCHAIN
+Jupiter SDK
+
+Purpose:
+
+Solana routing
+
+Integrate:
+
+execution/adapters/jupiter/
+Raydium SDK
+
+Purpose:
+
+Solana liquidity interaction
+
+Integrate:
+
+execution/adapters/raydium/
+Pump.fun APIs
+
+Purpose:
+
+Launch monitoring
+
+Integrate:
+
+indira/plugins/memecoin/pumpfun/
+GMGN / Photon / BullX Integrations
+
+Purpose:
+
+Smart-money flow tracking
+
+Use For:
+
+Whale following
+Wallet intelligence
+Momentum detection
+
+Integrate:
+
+indira/plugins/memecoin/smart_money/
+
+Restrictions:
+
+advisory only
+cannot bypass governance
+5. MARKET MICROSTRUCTURE
+NautilusTrader
+
+Purpose:
+
+Event-driven institutional trading engine
+
+Extract:
+
+Order book engine
+Matching simulation
+Event architecture
+Position accounting
+
+Integrate:
+
+core/event_engine/
+research/microstructure/
+
+This is one of the MOST IMPORTANT repos for DIX.
+
+ABIDES
+
+Purpose:
+
+Agent-based market simulation
+
+Use For:
+
+Multi-agent testing
+Synthetic markets
+Execution stress testing
+
+Integrate:
+
+research/simulation/abides/
+PyMicrostructure
+
+Purpose:
+
+Limit order book modeling
+
+Integrate:
+
+research/orderflow/
+6. EVENT PROCESSING / STREAMING
+Faust
+
+Purpose:
+
+Python stream processing
+
+Use For:
+
+Typed event pipelines
+Async event routing
+
+Integrate:
+
+core/event_bus/
+Bytewax
+
+Purpose:
+
+Stateful streaming
+
+Use For:
+
+Real-time signal pipelines
+Stateful event processing
+
+Integrate:
+
+core/streaming/
+Redpanda / Kafka Patterns
+
+Purpose:
+
+Event persistence architecture
+
+Use For:
+
+Replay
+High-throughput events
+
+Integrate Concepts Into:
+
+state/ledger/
+7. AI / AUTONOMOUS STRATEGY
+FinRL
+
+Purpose:
+
+Financial DRL
+
+Use For:
+
+PPO
+SAC
+DQN
+portfolio RL
+
+Integrate:
+
+learning/reinforcement/
+
+OFFLINE ONLY:
+
+never runtime execution authority
+RLlib
+
+Purpose:
+
+Distributed RL
+
+Use For:
+
+multi-agent learning
+self-play
+distributed training
+
+Integrate:
+
+learning/distributed_rl/
+Stable-Baselines3
+
+Purpose:
+
+Reliable RL implementations
+
+Use For:
+
+experimentation
+policy testing
+
+Integrate:
+
+learning/policy_lab/
+Qlib
+
+Purpose:
+
+AI quant research
+
+Use For:
+
+alpha generation
+factor mining
+
+Integrate:
+
+learning/alpha_research/
+8. NEWS / SENTIMENT / KNOWLEDGE
+FinBERT
+
+Purpose:
+
+Financial NLP
+
+Use For:
+
+earnings sentiment
+macro sentiment
+headline scoring
+
+Integrate:
+
+indira/plugins/sentiment/finbert/
+Haystack
+
+Purpose:
+
+Knowledge retrieval pipelines
+
+Use For:
+
+memory retrieval
+research memory
+semantic search
+
+Integrate:
+
+knowledge/retrieval/
+LangChain
+
+Purpose:
+
+LLM orchestration
+
+STRICTLY LIMITED TO:
+
+tooling
+summarization
+retrieval routing
+
+NEVER:
+
+trade authority
+governance authority
+
+Integrate:
+
+knowledge/agents/
+9. FEDERATED LEARNING / EVOLUTION
+Flower
+
+Purpose:
+
+Federated learning
+
+Use For:
+
+distributed model training
+isolated learning domains
+
+Integrate:
+
+learning/federated/
+Ray
+
+Purpose:
+
+Distributed compute orchestration
+
+Use For:
+
+distributed learning
+distributed simulation
+
+Integrate:
+
+learning/distributed/
+10. OBSERVABILITY / RISK / OPERATIONS
+Prometheus
+
+Purpose:
+
+Metrics
+
+Integrate:
+
+monitoring/prometheus/
+Grafana
+
+Purpose:
+
+Visualization
+
+Integrate:
+
+dashboard/grafana/
+OpenTelemetry
+
+Purpose:
+
+Distributed tracing
+
+Integrate:
+
+monitoring/tracing/
+11. AUTONOMOUS CODE / DYON SYSTEMS
+OpenDevin
+
+Purpose:
+
+Autonomous engineering concepts
+
+Extract:
+
+task graphs
+autonomous workflows
+
+DO NOT IMPORT:
+
+unsafe autonomous execution
+
+Integrate:
+
+dyon/autonomous_engineering/
+Aider
+
+Purpose:
+
+AI code editing workflows
+
+Integrate:
+
+dyon/patch_pipeline/
+12. NEUROMORPHIC / EVENT COGNITION
+Brian2
+
+Purpose:
+
+Spiking neural systems
+
+Integrate:
+
+research/neuromorphic/
+
+OFFLINE ONLY
+
+Norse
+
+Purpose:
+
+Neuromorphic deep learning
+
+Integrate:
+
+learning/neuromorphic/
+Lava (Intel)
+
+Purpose:
+
+Event-driven neuromorphic architecture
+
+Integrate Concepts Into:
+
+core/event_cognition/
+13. UNIVERSAL DATA SOURCES
+MARKET DATA
+Crypto
+Binance
+Bybit
+OKX
+Coinbase
+Kraken
+Hyperliquid
+BitMEX
+Deribit
+Forex
+OANDA
+FXCM
+Dukascopy
+Stocks
+Polygon
+Alpaca
+IEX Cloud
+IBKR
+AlphaVantage
+Macro
+FRED
+IMF
+World Bank
+TradingEconomics
+Onchain
+Glassnode
+Arkham
+Dune
+Nansen
+Solscan
+News
+Reuters
+Bloomberg
+Financial Times
+CoinDesk
+CoinTelegraph
+Social
+X/Twitter
+Reddit
+Discord
+Telegram
+YouTube
+Prediction Markets
+Polymarket
+Kalshi
+14. AI PROVIDERS (YES — ALL STILL EXIST)
+
+DIX still supports:
+
+OpenAI
+Anthropic
+Google Gemini
+xAI Grok
+DeepSeek
+Devin
+Mistral
+Cohere
+local Ollama models
+
+BUT:
+
+AI providers are:
+
+advisory
+analytical
+summarization
+research
+classification
+
+They are NOT:
+
+execution authority
+governance authority
+risk authority
+
+Authority remains:
+
+Governance > FastRiskCache > Execution
+
+ALWAYS.
+
+15. FINAL ARCHITECTURAL RULE
+
+NO imported repository may:
+
+bypass Governance
+bypass FastRiskCache
+write directly to ledger
+execute trades directly
+modify runtime constraints
+mutate authoritative state
+bypass event contracts
+bypass replay determinism
+
+ALL imported code MUST be:
+
+wrapped
+typed
+eventified
+replay-safe
+governance-constrained
+ledger-observable
+kill-switch compatible
+
+before becoming part of DIX VISION v42.2.
+
+
+1. TRUE EVENT-SOURCED ARCHITECTURE
+
+These are VERY important for DIX.
+
+EventStoreDB
+
+Purpose:
+
+industrial-grade event sourcing
+replay systems
+immutable event logs
+deterministic rebuilds
+
+DIX Use:
+
+state/event_store/
+
+Why Important:
+Your architecture is fundamentally event-sourced.
+Most AI trading systems fake this.
+EventStoreDB solves:
+
+stream replay
+versioning
+snapshots
+temporal reconstruction
+event lineage
+
+Very aligned with:
+
+INV-05
+INV-15
+deterministic replay
+Apache Flink
+
+Purpose:
+
+ultra-high-performance stream computation
+
+Why Important:
+Faust/Bytewax are good.
+Flink is enterprise-grade.
+
+Use For:
+
+distributed event cognition
+real-time feature graphs
+online stateful stream intelligence
+temporal joins
+
+DIX Placement:
+
+core/distributed_streaming/
+2. REAL QUANT / HFT INFRASTRUCTURE
+vn.py
+
+Purpose:
+
+professional CTA trading framework
+
+Why Important:
+Very mature execution architecture.
+
+Good For:
+
+futures
+CTA
+multi-broker execution
+event routing
+
+Use:
+
+execution/cta/
+freqtrade
+
+Purpose:
+
+crypto strategy engine
+
+Extract:
+
+protections
+pairlists
+hyperopt logic
+strategy interfaces
+
+DO NOT import runtime wholesale.
+
+Good For:
+
+research/strategy_frameworks/
+vectorbt
+
+Purpose:
+
+massively vectorized quant research
+
+Why Important:
+One of the best research engines available.
+
+Use:
+
+research/vectorized/
+PyPortfolioOpt
+
+Purpose:
+
+institutional portfolio optimization
+
+Use:
+
+efficient frontier
+covariance optimization
+risk parity
+
+Placement:
+
+risk/portfolio_optimization/
+3. KNOWLEDGE GRAPH / MEMORY SYSTEMS
+
+This is a MASSIVE missing area.
+
+Neo4j
+
+Purpose:
+
+graph cognition
+
+DIX Needs This For:
+
+concept relationships
+strategy lineage
+market regime transitions
+causal mapping
+entity intelligence
+autonomous knowledge graphs
+
+Placement:
+
+knowledge/graph/
+
+Very important for:
+
+Indira cognition
+Dyon code intelligence
+autonomous adaptation
+Memgraph
+
+Alternative:
+
+streaming graph DB
+real-time graph reasoning
+
+Potentially better for runtime cognition.
+
+LlamaIndex
+
+Purpose:
+
+long-term structured memory
+
+Why Important:
+LangChain alone is insufficient.
+
+Use:
+
+memory indexing
+semantic retrieval
+temporal memory
+research persistence
+
+Placement:
+
+knowledge/memory/
+4. MULTI-AGENT / AUTONOMOUS COGNITION
+AutoGen
+
+Purpose:
+
+structured multi-agent systems
+
+Why Important:
+Better agent orchestration patterns.
+
+Use:
+
+indira/collaborative_agents/
+CrewAI
+
+Purpose:
+
+role-based autonomous AI coordination
+
+Use:
+
+structured research swarms
+analyst ensembles
+LangGraph
+
+Purpose:
+
+deterministic agent graphs
+
+VERY IMPORTANT.
+
+Why:
+Your system needs:
+
+replayable cognition
+graph execution
+deterministic workflows
+
+LangGraph is better aligned with DIX than raw LangChain.
+
+Placement:
+
+knowledge/agent_graphs/
+5. ADVANCED MARKET MICROSTRUCTURE
+JAX-LOB
+
+Purpose:
+
+GPU-accelerated limit order book simulation
+
+Important For:
+
+market impact modeling
+execution simulation
+synthetic markets
+
+Placement:
+
+research/lob_simulation/
+Surbeivol/PythonMatchingEngine
+
+Purpose:
+
+realistic exchange simulation
+
+Use:
+
+research/matching_engine/
+tensortrade
+
+Purpose:
+
+modular RL trading architecture
+
+Useful Components:
+
+action schemes
+reward systems
+execution abstractions
+
+DO NOT import fully.
+
+6. CAUSAL AI / ADAPTIVE INTELLIGENCE
+
+VERY IMPORTANT FOR TRUE AUTONOMY.
+
+DoWhy
+
+Purpose:
+
+causal inference
+
+DIX Needs:
+
+causal reasoning
+regime attribution
+intervention analysis
+
+Placement:
+
+learning/causal/
+EconML
+
+Purpose:
+
+treatment effect estimation
+
+Use:
+
+market intervention modeling
+policy effect estimation
+PyWhy
+
+Purpose:
+
+causal ecosystems
+
+Potentially major future DIX capability.
+
+7. DISTRIBUTED SYSTEMS / CLUSTER ORCHESTRATION
+Temporal
+
+Purpose:
+
+durable workflows
+
+This is EXTREMELY valuable.
+
+Why:
+Your autonomous systems require:
+
+resumability
+durable execution
+failure recovery
+long-running workflows
+
+Placement:
+
+orchestration/durable_workflows/
+
+Huge missing piece.
+
+Dagster
+
+Purpose:
+
+data orchestration
+
+Use:
+
+learning pipelines
+feature pipelines
+scheduled cognition
+8. SECURITY / GOVERNANCE / POLICY
+Open Policy Agent (OPA)
+
+Purpose:
+
+formal policy engine
+
+VERY aligned with Governance.
+
+Use:
+
+governance/policy_engine/
+
+Can formally validate:
+
+permissions
+constraints
+execution authority
+
+Huge governance upgrade.
+
+Z3 Solver
+
+Purpose:
+
+formal verification
+
+This is IMPORTANT.
+
+Use:
+
+constraint validation
+invariant verification
+patch safety proofs
+
+Placement:
+
+governance/formal_verification/
+9. OBSERVABILITY / FAILURE ANALYSIS
+Sentry
+
+Purpose:
+
+autonomous error aggregation
+
+Use:
+
+monitoring/errors/
+Jaeger
+
+Purpose:
+
+distributed tracing
+
+VERY useful for:
+
+event path debugging
+latency attribution
+replay validation
+10. ADVANCED AI INFRASTRUCTURE
+vLLM
+
+Purpose:
+
+high-performance LLM inference
+
+Use:
+
+ai/inference/
+
+Important if DIX hosts local models.
+
+Ollama
+
+Purpose:
+
+local AI orchestration
+
+Needed for:
+
+offline inference
+privacy-safe cognition
+local fallback models
+LiteLLM
+
+Purpose:
+
+universal LLM gateway
+
+VERY IMPORTANT.
+
+Provides:
+
+unified AI API layer
+routing
+failover
+budgeting
+provider balancing
+
+Placement:
+
+ai/gateway/
+
+This should probably become the canonical AI routing layer.
+
+11. FEDERATED / CONTINUAL LEARNING
+Avalanche
+
+Purpose:
+
+continual learning
+
+VERY aligned with:
+
+autonomous adaptation
+forgetting prevention
+regime evolution
+
+Placement:
+
+learning/continual/
+River
+
+Purpose:
+
+online ML
+
+Very important for:
+
+streaming adaptation
+live feature learning
+
+Potential runtime use.
+
+12. TIME SERIES / FORECASTING
+darts
+
+Purpose:
+
+production-grade forecasting
+
+Use:
+
+temporal modeling
+probabilistic forecasting
+ensemble forecasting
+Kats
+
+Purpose:
+
+anomaly + forecasting
+
+Useful for:
+
+market anomaly detection
+system anomaly detection
+13. HARDCORE EVENT / ACTOR SYSTEMS
+Ray Actors
+
+Purpose:
+
+distributed cognitive actors
+
+Could become:
+
+core/cognitive_mesh/
+Pykka
+
+Purpose:
+
+actor model for Python
+
+Useful for:
+
+isolated cognition
+replay-safe components
+14. AUTONOMOUS CODE UNDERSTANDING
+
+VERY important for Dyon.
+
+Semgrep
+
+Purpose:
+
+static analysis
+
+Use:
+
+dyon/code_intelligence/
+Tree-sitter
+
+Purpose:
+
+AST parsing
+
+Critical for:
+
+code graph construction
+semantic understanding
+autonomous patching
+CodeQL
+
+Purpose:
+
+semantic code analysis
+
+Potential major upgrade.
+
+15. WHAT IS PROBABLY THE BIGGEST MISSING PIECE?
+
+The biggest missing areas were:
+
+TRUE graph cognition
+causal inference
+durable workflows
+formal verification
+event-store-grade replay systems
+continual learning
+AI routing infrastructure
+actor-based cognition
+semantic code intelligence
+distributed stream computation
+
+Those are the areas that move DIX from:
+
+“advanced AI trading system”
+
+toward:
+
+“autonomous institutional cognitive infrastructure.”
+
+That is the real next frontier.
+
+Your architecture is converging toward a hybrid of:
+
+institutional trading infrastructure
+autonomous AI cognition
+distributed event systems
+neuromorphic signal processing
+self-evolving research platform
+formal governance system
+replayable intelligence engine
+operator-supervised autonomous infrastructure
+
+That means the highest-value repos are NOT just “trading repos.”
+
+The biggest leverage comes from:
+
+event systems
+cognition systems
+orchestration systems
+memory systems
+causal systems
+formal verification
+durable execution
+autonomous adaptation
+
+Below is the actual “top-tier” stack.
+
+TIER S — ABSOLUTELY TRANSFORMATIVE
+
+These repos fundamentally elevate DIX into something far beyond normal AI trading systems.
+
+1. EventStoreDB
+
+Category:
+
+Event sourcing
+deterministic replay
+
+Why It Changes Everything:
+Your entire architecture is event-native.
+
+This gives:
+
+immutable truth
+temporal reconstruction
+replay
+causality chains
+audit lineage
+deterministic recovery
+
+Without this:
+you only “claim” replayability.
+
+With this:
+you actually have institutional-grade event lineage.
+
+DIX Placement:
+
+state/event_store/
+
+Impact:
+EXTREME
+
+2. Apache Flink
+
+Category:
+
+distributed streaming cognition
+
+Why It Matters:
+This is what large-scale realtime cognition systems use.
+
+Enables:
+
+temporal event joins
+online feature graphs
+stateful distributed cognition
+streaming AI pipelines
+low-latency analytics
+
+Transforms DIX from:
+“event-driven”
+
+to:
+
+“stream-native intelligence.”
+
+Placement:
+
+core/distributed_streaming/
+
+Impact:
+EXTREME
+
+3. Neo4j + Memgraph
+
+Category:
+
+graph cognition
+
+This is MASSIVE.
+
+Without graph cognition:
+AI systems remain shallow.
+
+With graph cognition:
+DIX gains:
+
+relational memory
+causal structure
+regime mapping
+strategy lineage
+concept evolution
+entity reasoning
+semantic intelligence
+
+This is probably one of the MOST important missing areas.
+
+Placement:
+
+knowledge/graph/
+
+Impact:
+EXTREME
+
+4. Temporal
+
+Category:
+
+durable workflows
+
+This is a gigantic missing piece.
+
+Why:
+Autonomous systems fail constantly unless workflows are durable.
+
+Temporal gives:
+
+resumable cognition
+crash-safe workflows
+persistent execution
+long-running orchestration
+failure recovery
+distributed reliability
+
+This is what serious autonomous infrastructure uses.
+
+Placement:
+
+orchestration/durable_workflows/
+
+Impact:
+EXTREME
+
+5. Open Policy Agent (OPA)
+
+Category:
+
+formal governance
+
+This PERFECTLY fits DIX Governance.
+
+Enables:
+
+formal policy enforcement
+declarative authority rules
+execution verification
+permission modeling
+runtime constraint evaluation
+
+This moves Governance from:
+“custom rule engine”
+
+toward:
+
+“formal authority system.”
+
+Placement:
+
+governance/policy_engine/
+
+Impact:
+EXTREME
+
+6. Z3 Solver
+
+Category:
+
+formal verification
+
+This is one of the most important repos for safe autonomy.
+
+Enables:
+
+invariant proofs
+constraint solving
+policy verification
+patch verification
+conflict detection
+safety proofs
+
+This is how you stop autonomous systems from drifting into unsafe states.
+
+Placement:
+
+governance/formal_verification/
+
+Impact:
+EXTREME
+
+7. LiteLLM
+
+Category:
+
+AI routing infrastructure
+
+This should honestly become mandatory.
+
+Why:
+You already have:
+
+OpenAI
+Grok
+Gemini
+DeepSeek
+Claude
+local models
+Devin
+Ollama
+
+Without a unified gateway:
+AI orchestration becomes chaos.
+
+LiteLLM gives:
+
+routing
+fallback
+budgeting
+provider balancing
+retry logic
+unified interfaces
+observability
+
+Placement:
+
+ai/gateway/
+
+Impact:
+VERY HIGH
+
+8. LangGraph
+
+Category:
+
+deterministic agent cognition
+
+This is MUCH better aligned than raw LangChain.
+
+Why:
+DIX needs:
+
+replayable cognition
+graph execution
+stateful workflows
+deterministic agent transitions
+inspectable cognition paths
+
+LangGraph maps almost perfectly to:
+
+event-sourced cognition
+replayable AI workflows
+governance-controlled agents
+
+Placement:
+
+knowledge/agent_graphs/
+
+Impact:
+VERY HIGH
+
+9. NautilusTrader
+
+Category:
+
+institutional microstructure
+
+One of the MOST aligned repos with DIX.
+
+Provides:
+
+event-native execution
+realistic order handling
+portfolio accounting
+low-latency architecture
+microstructure realism
+
+This is probably the strongest direct trading architecture fit.
+
+Placement:
+
+core/event_engine/
+
+Impact:
+VERY HIGH
+
+10. ABIDES
+
+Category:
+
+synthetic market simulation
+
+Critical for:
+
+multi-agent market evolution
+stress testing
+autonomous strategy emergence
+execution realism
+
+This lets DIX train inside synthetic worlds.
+
+Placement:
+
+research/simulation/abides/
+
+Impact:
+VERY HIGH
+
+11. River
+
+Category:
+
+online machine learning
+
+This is IMPORTANT because:
+your architecture currently biases heavily toward offline learning.
+
+River enables:
+
+continuous adaptation
+streaming ML
+online feature evolution
+realtime learning
+
+This is one of the few repos that can safely push learning partially into runtime.
+
+Placement:
+
+learning/online/
+
+Impact:
+VERY HIGH
+
+12. Avalanche
+
+Category:
+
+continual learning
+
+This solves:
+catastrophic forgetting.
+
+Massively important for:
+
+regime adaptation
+long-term cognition
+evolving markets
+memory preservation
+
+Placement:
+
+learning/continual/
+
+Impact:
+VERY HIGH
+
+13. Brian2 + Lava + Norse
+
+Category:
+
+neuromorphic cognition
+
+This is where DIX becomes genuinely unique.
+
+Most AI trading systems:
+
+are batch systems.
+
+This stack enables:
+
+spiking cognition
+event-native sensing
+temporal signal awareness
+adaptive event responses
+low-power cognition structures
+
+Placement:
+
+core/event_cognition/
+
+Impact:
+EXTREME LONG-TERM
+
+14. Tree-sitter
+
+Category:
+
+semantic code cognition
+
+Critical for Dyon.
+
+Enables:
+
+AST understanding
+semantic patching
+dependency graphs
+autonomous code intelligence
+
+Without this:
+Dyon remains shallow.
+
+Placement:
+
+dyon/code_graph/
+
+Impact:
+VERY HIGH
+
+15. Semgrep + CodeQL
+
+Category:
+
+autonomous code safety
+
+Required for:
+
+patch validation
+autonomous code review
+exploit detection
+governance enforcement
+
+These are ESSENTIAL for safe self-modification.
+
+Placement:
+
+dyon/security_analysis/
+
+Impact:
+VERY HIGH
+
+16. Ray
+
+Category:
+
+distributed cognition
+
+This is the likely long-term backbone.
+
+Enables:
+
+distributed agents
+distributed learning
+distributed simulation
+distributed cognition mesh
+
+Potential future:
+
+core/cognitive_mesh/
+
+Impact:
+VERY HIGH
+
+17. Event-Driven Actor Systems
+(Pykka / Ray Actors / Erlang Concepts)
+
+This is probably the deepest architectural evolution path.
+
+Why:
+True autonomy scales better through:
+
+actors
+isolated cognition units
+message passing
+supervision trees
+fault isolation
+
+This aligns EXTREMELY well with:
+
+Indira
+Dyon
+Governance
+event sourcing
+
+Impact:
+FOUNDATIONAL LONG-TERM
+
+18. DoWhy + EconML
+
+Category:
+
+causal AI
+
+This is another gigantic leap.
+
+Most AI systems:
+
+detect correlations.
+
+Causal systems:
+
+reason about interventions.
+
+This enables:
+
+regime causality
+policy reasoning
+strategy attribution
+market intervention analysis
+
+This is VERY advanced.
+
+Placement:
+
+learning/causal/
+
+Impact:
+EXTREME LONG-TERM
+
+19. vLLM
+
+Category:
+
+high-performance AI inference
+
+Critical if:
+
+DIX hosts local cognition models
+multi-agent inference scales
+local autonomy expands
+
+Placement:
+
+ai/inference/
+
+Impact:
+VERY HIGH
+
+20. Event-Driven Databases
+(ClickHouse / QuestDB / TimescaleDB)
+
+You are still missing:
+industrial-grade timeseries analytics.
+
+SQLite is fine early.
+Long-term:
+not enough.
+
+QuestDB especially aligns well with:
+
+market events
+replay systems
+telemetry
+high-throughput ingestion
+
+Placement:
+
+state/timeseries/
+
+Impact:
+VERY HIGH
+
+THE ACTUAL BIGGEST TRUTH
+
+The highest leverage repos are NOT:
+
+strategy repos
+indicator repos
+“AI trading bots”
+
+Those are easy.
+
+The hardest problems are:
+
+replayability
+determinism
+cognition orchestration
+memory
+causality
+adaptation
+governance
+failure recovery
+event lineage
+safe autonomy
+
+That is where elite systems are separated from normal systems.
+
+THE REAL “OVER THE TOP” STACK
+
+If fully integrated correctly, the deepest DIX stack becomes:
+
+Layer	Best-in-Class Direction
+Event sourcing	EventStoreDB
+Distributed streaming	Flink
+Cognition graph	Neo4j / Memgraph
+Durable workflows	Temporal
+Governance	OPA
+Formal verification	Z3
+AI routing	LiteLLM
+Agent cognition	LangGraph
+Microstructure	NautilusTrader
+Simulation	ABIDES
+Online learning	River
+Continual learning	Avalanche
+Neuromorphic	Brian2 + Lava + Norse
+Code cognition	Tree-sitter
+Autonomous code safety	Semgrep + CodeQL
+Distributed cognition	Ray
+Causal AI	DoWhy + EconML
+Local inference	vLLM
+Time-series infra	QuestDB / ClickHouse
+
+That stack is no longer merely:
+“an AI trading system.”
+
+It becomes:
+
+an event-sourced autonomous cognitive financial infrastructure platform with formal governance and adaptive intelligence.
+
+
+1. EVENT-DRIVEN / STREAM PROCESSING CORE
+
+These are extremely important for the EVENT architecture you are building.
+
+Stream Processing / Real-Time Event Fabrics
+Apache Flink
+Stateful stream processing
+CEP (complex event processing)
+deterministic event replay
+perfect for hazard/event cognition
+Apache Kafka
+Event backbone
+append-only streams
+distributed event bus
+Redpanda
+Kafka-compatible ultra-low-latency streaming
+no JVM overhead
+Apache Pulsar
+multi-tenant event architecture
+geo-replication
+Bytewax
+Python-native stream processing
+extremely relevant for Indira runtime cognition
+Faust Stream Processing
+Python stream cognition
+Kafka-native agents
+2. COMPLEX EVENT PROCESSING (VERY IMPORTANT)
+
+You are building an EVENT COGNITIVE SYSTEM.
+CEP repos are massively important.
+
+EsperTech Esper
+high-frequency event reasoning
+temporal pattern recognition
+Drools
+rule engine
+governance reasoning
+symbolic event logic
+Apache Camel
+enterprise event routing
+Temporal
+durable workflows
+fault-tolerant orchestration
+3. NEUROMORPHIC / SPIKING AI
+
+This is one of the biggest missing categories.
+
+Neuromorphic Simulation
+Nengo
+cognitive architectures
+biologically-inspired signal systems
+Brian2
+spiking neural networks
+BindsNET
+reinforcement learning + spiking systems
+Intel Lava
+neuromorphic event cognition
+Norse
+PyTorch spiking neural networks
+Why These Matter
+
+These repos can power:
+
+event spikes
+anomaly bursts
+market reflex arcs
+temporal activation chains
+probabilistic hazard anticipation
+liquidity shock detection
+adaptive event gating
+
+This is VERY aligned with your:
+
+hazard bus
+neuromorphic triad
+event cognition model
+4. CAUSAL AI / REASONING SYSTEMS
+
+Critical missing category.
+
+Causal Inference
+DoWhy
+causal reasoning
+counterfactual analysis
+PyMC
+probabilistic reasoning
+Pyro
+Bayesian cognition systems
+CausalNex
+causal graphs
+market influence networks
+5. AUTONOMOUS AGENT SYSTEMS
+
+Extremely relevant for:
+
+Indira cognition
+Dyon system intelligence
+governance orchestration
+Agentic Frameworks
+LangGraph
+graph-based autonomous cognition
+AutoGen
+multi-agent collaboration
+CrewAI
+coordinated AI teams
+Haystack
+agent pipelines
+Semantic Kernel
+long-horizon memory orchestration
+6. KNOWLEDGE GRAPH / MEMORY SYSTEMS
+
+This is MASSIVE for DIX.
+
+Knowledge Systems
+Neo4j
+knowledge graphs
+trader relation graphs
+market structure memory
+Memgraph
+streaming graph memory
+TypeDB
+reasoning knowledge base
+LlamaIndex
+memory retrieval
+retrieval cognition
+7. MARKET MICROSTRUCTURE / ORDER FLOW
+
+One of the MOST important missing categories.
+
+Institutional-Level Trading Infrastructure
+LOBSTER
+limit order book datasets
+ABIDES
+market simulation
+agent-based exchange simulation
+Hummingbot
+market making
+execution logic
+Lean Engine
+institutional backtesting
+VectorBT
+vectorized strategy testing
+Backtrader
+strategy framework
+8. REINFORCEMENT LEARNING / ADAPTATION
+
+Critical for autonomous adaptation.
+
+RL Systems
+Ray RLlib
+distributed RL
+Stable Baselines3
+DRL algorithms
+CleanRL
+minimal reproducible RL
+FinRL
+finance RL
+ElegantRL
+efficient trading RL
+9. FEDERATED LEARNING / DISTRIBUTED INTELLIGENCE
+
+Very advanced category.
+
+Federated AI
+Flower
+federated learning
+FedML
+distributed ML orchestration
+OpenMined PySyft
+decentralized learning
+10. OBSERVABILITY / SYSTEM INTELLIGENCE
+
+Critical for Dyon.
+
+Observability Stack
+OpenTelemetry
+tracing
+Prometheus
+metrics
+Grafana
+dashboards
+Jaeger
+distributed tracing
+11. FORMAL VERIFICATION / SAFETY
+
+VERY IMPORTANT for governance.
+
+Verification
+Z3 Theorem Prover
+rule verification
+invariant proofs
+TLA+
+distributed system proofs
+Hypothesis
+property-based testing
+12. ULTRA-LOW-LATENCY / PERFORMANCE
+
+Future migration targets.
+
+Performance Systems
+LMAX Disruptor
+lock-free ring buffers
+Aerospike
+ultra-low-latency DB
+ClickHouse
+market analytics
+Polars
+ultra-fast dataframe engine
+BIGGEST STRATEGIC MISSING PIECES
+
+If you truly want “beyond SOTA,” these are the highest-value additions:
+
+1. CAUSAL REASONING ENGINE
+
+Not just prediction.
+Understanding WHY markets moved.
+
+2. EVENT COGNITIVE FABRIC
+
+A true event-native cognition architecture:
+
+spike propagation
+event memory
+temporal reasoning
+hazard cascades
+3. MARKET SIMULATION ENGINE
+
+ABIDES-level exchange simulation:
+
+fake liquidity
+spoofing
+order flow warfare
+market maker behavior
+4. META-LEARNING SYSTEM
+
+System learns:
+
+which strategies fail
+when regimes shift
+which cognition models decay
+5. KNOWLEDGE EVOLUTION GRAPH
+
+Graph memory of:
+
+traders
+strategies
+failures
+market conditions
+hazards
+outcomes
+6. FORMAL GOVERNANCE VERIFICATION
+
+Governance invariants mathematically verified before deployment.
+
+This is extremely powerful.
+
+FINAL TRUTH
+
+The architecture you are moving toward is no longer “a trading bot.”
+
+It is converging toward:
+
+event-driven cognitive infrastructure
+autonomous market intelligence
+adaptive execution systems
+institutional-grade governance
+neuromorphic event cognition
+self-evolving strategy infrastructure
+distributed knowledge systems
+deterministic safety-enforced autonomy
+
+The biggest danger now is NOT lack of capability.
+
+It is:
+
+uncontrolled complexity
+integration chaos
+authority drift
+hidden coupling
+non-deterministic evolution
+dead architectural weight
+
+The next major breakthrough is NOT adding more repos.
+
+It is:
+
+extracting only battle-tested primitives
+enforcing canonical contracts
+keeping the engine count small
+keeping authority immutable
+proving coverage mathematically
+ensuring every subsystem is actually wired into runtime behavior
+
+That is what will determine whether DIX becomes:
+
+a giant experimental repo pile
+OR
+a coherent autonomous cognitive trading infrastructure.

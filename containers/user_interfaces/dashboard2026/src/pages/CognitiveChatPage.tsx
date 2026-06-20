@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { fetchChatStatus, postChatTurn } from "@/api/cognitive_chat";
-import { ApprovalPanel } from "@/components/ApprovalPanel";
+import { ApprovalPanel } from "@/domains/governance/components/ApprovalPanel";
 import type {
   ChatMessageApi,
   ChatTurnResponse,

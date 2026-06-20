@@ -1,12 +1,12 @@
-import { AltSignalDashboard } from "@/widgets/ai/AltSignalDashboard";
-import { ASKBOrchestrator } from "@/widgets/ai/ASKBOrchestrator";
-import { CausalRiskAttribution } from "@/widgets/ai/CausalRiskAttribution";
-import { CounterfactualPanel } from "@/widgets/ai/CounterfactualPanel";
-import { EarningsRAG } from "@/widgets/ai/EarningsRAG";
-import { IntentExecutionPanel } from "@/widgets/ai/IntentExecutionPanel";
-import { MultilingualNewsFusion } from "@/widgets/ai/MultilingualNewsFusion";
-import { NLQConsole } from "@/widgets/ai/NLQConsole";
-import { SmartMoneyTracker } from "@/widgets/ai/SmartMoneyTracker";
+import { AltSignalDashboard } from "@/domains/learning/widgets/AltSignalDashboard";
+import { ASKBOrchestrator } from "@/domains/learning/widgets/ASKBOrchestrator";
+import { CausalRiskAttribution } from "@/domains/learning/widgets/CausalRiskAttribution";
+import { CounterfactualPanel } from "@/domains/learning/widgets/CounterfactualPanel";
+import { EarningsRAG } from "@/domains/learning/widgets/EarningsRAG";
+import { IntentExecutionPanel } from "@/domains/learning/widgets/IntentExecutionPanel";
+import { MultilingualNewsFusion } from "@/domains/learning/widgets/MultilingualNewsFusion";
+import { NLQConsole } from "@/domains/learning/widgets/NLQConsole";
+import { SmartMoneyTracker } from "@/domains/learning/widgets/SmartMoneyTracker";
 import { WidgetSlot } from "@/components/WidgetSlot";
 
 export function AIPage() {

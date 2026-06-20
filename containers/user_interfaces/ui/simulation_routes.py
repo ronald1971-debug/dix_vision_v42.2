@@ -26,7 +26,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from simulation.stage8_orchestrator import get_stage8_orchestrator
-from system.time_source import wall_ns
+from system_unified.time_source import wall_ns
 
 
 def build_simulation_router() -> APIRouter:

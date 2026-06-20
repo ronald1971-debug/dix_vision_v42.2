@@ -15,7 +15,7 @@ import threading
 from dataclasses import dataclass
 from typing import Any, Optional
 
-from system.time_source import now
+from system_unified.time_source import now
 
 # Delay DYON imports to avoid circular dependency
 # DYON will be initialized separately
@@ -179,8 +179,8 @@ class LearningOrchestrator:
         
         # Always initialize DYON capabilities (independent of learning components)
         try:
-            from system.dyon_coding_assistant import get_dyon_assistant
-            from system.dyon_self_reflection import get_self_reflection
+            from system_unified.dyon_coding_assistant import get_dyon_assistant
+            from system_unified.dyon_self_reflection import get_self_reflection
             
             self._dyon_assistant = get_dyon_assistant()
             self._dyon_reflection = get_self_reflection()

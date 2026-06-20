@@ -16,6 +16,9 @@ const queryClient = new QueryClient({
       staleTime: 5_000,
       retry: 1,
     },
+    mutations: {
+      retry: 1,
+    }
   },
 });
 console.log('✅ QueryClient created');
@@ -37,8 +40,24 @@ try {
     </StrictMode>,
   );
   console.log('✅ Dashboard render initiated');
+  
+  // Hide loading screen when app mounts
+  setTimeout(() => {
+    const loadingScreen = document.getElementById('loading-screen');
+    if (loadingScreen) {
+      loadingScreen.classList.add('hidden');
+      console.log('✅ Loading screen hidden');
+    }
+  }, 100);
 } catch (error) {
   console.error('❌ Error rendering dashboard:', error);
+  
+  // Hide loading screen and show error
+  const loadingScreen = document.getElementById('loading-screen');
+  if (loadingScreen) {
+    loadingScreen.classList.add('hidden');
+  }
+  
   // Render error message to screen
   rootEl.innerHTML = `
     <div style="padding: 20px; font-family: monospace; color: red; background: white;">

@@ -52,7 +52,7 @@ from typing import Any
 
 from fastapi import Request
 
-from system.time_source import utc_now
+from system_unified.time_source import utc_now
 
 SSE_CHANNEL_ALIASES: Mapping[str, str] = {
     "MARKET_TICK": "ticks",

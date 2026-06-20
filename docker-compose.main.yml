@@ -1,0 +1,114 @@
+# DIX VISION Dashboard2026 - Main Application Docker Compose
+# Unified container orchestration for Python backend + React dashboard
+
+version: '3.8'
+
+services:
+  # Python Backend (FastAPI server with all engines)
+  dix-vision-backend:
+    build:
+      context: .
+      dockerfile: containers/user_interfaces/Dockerfile.backend
+    container_name: dix-vision-backend
+    working_dir: /app
+    command: python -m uvicorn containers.user_interfaces.ui.server:app --host 0.0.0.0 --reload --port 8080
+    environment:
+      - PYTHONUNBUFFERED=1
+      - ENVIRONMENT=development
+      - LOG_LEVEL=INFO
+      - PYTHONPATH=/app
+    volumes:
+      - ./containers/user_interfaces:/app/containers/user_interfaces
+      - ./containers/data_layer:/app/containers/data_layer
+      - ./requirements.txt:/app/requirements.txt
+    ports:
+      - "8080:8080"
+    networks:
+      - dixvision-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # React Dashboard
+  dix-vision-dashboard:
+    build:
+      context: ./containers/user_interfaces/dashboard2026
+      dockerfile: Dockerfile
+    container_name: dix-vision-dashboard
+    environment:
+      - NODE_ENV=development
+      - VITE_API_BASE=http://dix-vision-backend:8080
+    volumes:
+      - ./containers/user_interfaces/dashboard2026:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - "5173:5173"
+    command: npm run dev -- --host 0.0.0.0
+    networks:
+      - dixvision-network
+    restart: unless-stopped
+    depends_on:
+      dix-vision-backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5173"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Redis (for caching and message queue)
+  redis-service:
+    image: redis:7-alpine
+    container_name: dix-redis-service
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - dixvision-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # PostgreSQL (for persistent data storage)
+  postgresql-service:
+    image: postgres:15-alpine
+    container_name: dix-postgresql-service
+    environment:
+      - POSTGRES_USER=dixvision
+      - POSTGRES_PASSWORD=dixvision_pass
+      - POSTGRES_DB=dixvision
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - dixvision-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dixvision"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  redis-data:
+    driver: local
+  postgres-data:
+    driver: local
+
+networks:
+  dixvision-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16

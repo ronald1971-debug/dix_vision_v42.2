@@ -15,7 +15,7 @@ from typing import Any
 
 from fastapi import APIRouter
 
-from execution_engine.adapters import default_registry
+from execution_unified.adapters import default_registry
 
 
 def build_execution_router() -> APIRouter:

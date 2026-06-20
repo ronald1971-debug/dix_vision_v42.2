@@ -8,7 +8,7 @@ import {
   postTradingAllowed,
 } from "@/api/operator";
 import { AdapterStatusGrid } from "@/components/AdapterStatusGrid";
-import { EngineBucketBadge } from "@/components/EngineBucketBadge";
+import { EngineBucketBadge } from "@/domains/execution";
 import { HotkeyConfigurator } from "@/components/HotkeyConfigurator";
 import { PopoutButton } from "@/components/PopoutButton";
 import { WidgetSlot } from "@/components/WidgetSlot";

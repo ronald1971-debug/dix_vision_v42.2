@@ -1,0 +1,677 @@
+
+
+---
+
+# CORE DIRECTIVE
+
+DIX VISION MUST NOT reinvent battle-tested infrastructure.
+
+The AI MUST:
+
+* extract,
+* adapt,
+* govern,
+* validate,
+* and integrate
+
+ONLY hardened production-grade components from external repositories.
+
+External repositories exist to:
+
+* accelerate implementation,
+* reduce engineering risk,
+* inherit proven systems,
+* and import validated algorithms.
+
+NOT to replace DIX architecture.
+
+DIX invariants ALWAYS override upstream architecture.
+
+---
+
+# PRIMARY INSTALLATION RULE
+
+ALL imported systems MUST be:
+
+1. Wrapped behind DIX contracts
+2. Registered in registry/
+3. Governed by Governance
+4. Replay-safe
+5. Deterministic if runtime
+6. Sandboxed if autonomous
+7. Auditable
+8. Coverage-validated
+9. CI-enforced
+
+---
+
+# CANONICAL INSTALL COMMANDS
+
+# CORE RUNTIME
+
+pip install:
+protobuf
+grpcio
+grpcio-tools
+pydantic
+pydantic-settings
+msgspec
+orjson
+uvloop
+structlog
+loguru
+rich
+typer
+watchdog
+psutil
+pyyaml
+toml
+hydra-core
+dynaconf
+python-dotenv
+aiofiles
+async-timeout
+tenacity
+cachetools
+
+---
+
+# EVENT PROCESSING / STREAMING
+
+pip install:
+bytewax
+faust-streaming
+streamz
+aiokafka
+confluent-kafka
+redis
+hiredis
+pulsar-client
+nats-py
+
+Repositories:
+
+* bytewax/bytewax
+* robinhood/faust
+* apache/kafka
+* redpanda-data/redpanda
+* LMAX-Exchange/disruptor
+
+Purpose:
+
+* streaming
+* temporal joins
+* online event cognition
+* hazard buses
+* replay pipelines
+
+---
+
+# MARKET MICROSTRUCTURE / HFT
+
+pip install:
+cryptofeed
+sortedcontainers
+polars
+pyarrow
+duckdb
+numba
+bottleneck
+
+Repositories:
+
+* nautechsystems/nautilus_trader
+* nkaz001/hftbacktest
+* bmoscon/cryptofeed
+* mansoor-mamnoon/limit-order-book
+* Kautenja/limit-order-book
+* JAX-LOB/JAX-LOB
+
+Purpose:
+
+* exchange ingestion
+* orderbook replay
+* queue-position simulation
+* market microstructure
+* execution analytics
+* latency simulation
+* adverse selection modeling
+
+---
+
+# EXECUTION / EXCHANGE CONNECTIVITY
+
+pip install:
+ccxt
+websockets
+aiohttp
+httpx
+python-binance
+alpaca-py
+ib-insync
+
+Repositories:
+
+* ccxt/ccxt
+* nautechsystems/nautilus_trader
+* binance/binance-connector-python
+* InteractiveBrokers/ib_insync
+
+Purpose:
+
+* exchange adapters
+* broker routing
+* market connectivity
+* execution abstraction
+
+---
+
+# AI ORCHESTRATION
+
+pip install:
+litellm
+pydantic-ai
+instructor
+guidance
+outlines
+openai
+anthropic
+google-generativeai
+groq
+ollama
+
+Repositories:
+
+* BerriAI/litellm
+* pydantic/pydantic-ai
+* microsoft/guidance
+* dottxt-ai/outlines
+
+Supported Models:
+
+* ChatGPT
+* Claude
+* Gemini
+* Grok
+* DeepSeek
+* OpenRouter
+* Ollama
+* vLLM
+* local models
+
+Purpose:
+
+* typed AI contracts
+* provider abstraction
+* failover routing
+* schema enforcement
+
+---
+
+# MULTI-AGENT / AUTONOMOUS SYSTEMS
+
+pip install:
+pyautogen
+crewai
+semantic-kernel
+langgraph
+langchain
+
+Repositories:
+
+* microsoft/autogen
+* crewAIInc/crewAI
+* microsoft/semantic-kernel
+* langchain-ai/langgraph
+
+Purpose:
+
+* agent simulation
+* debate orchestration
+* workflow coordination
+
+Restriction:
+NOT runtime-authoritative.
+
+---
+
+# VECTOR MEMORY / KNOWLEDGE SYSTEMS
+
+pip install:
+faiss-cpu
+qdrant-client
+chromadb
+lancedb
+sentence-transformers
+transformers
+tokenizers
+
+Repositories:
+
+* facebookresearch/faiss
+* qdrant/qdrant
+* lancedb/lancedb
+* chroma-core/chroma
+
+Purpose:
+
+* semantic memory
+* retrieval
+* embeddings
+* episodic cognition
+* similarity search
+
+---
+
+# KNOWLEDGE GRAPHS / CAUSAL SYSTEMS
+
+pip install:
+networkx
+neo4j
+igraph
+pyvis
+
+Repositories:
+
+* neo4j/neo4j
+* networkx/networkx
+
+Purpose:
+
+* causal graphs
+* relationship memory
+* concept lineage
+* entity intelligence
+
+---
+
+# FEATURE STORES / DATA LAYERS
+
+pip install:
+feast
+deltalake
+lakefs
+mlflow
+
+Repositories:
+
+* feast-dev/feast
+* mlflow/mlflow
+* treeverse/lakeFS
+
+Purpose:
+
+* feature governance
+* reproducible training
+* feature lineage
+* replayable datasets
+
+---
+
+# FEDERATED LEARNING
+
+pip install:
+flwr
+fedml
+openfl
+
+Repositories:
+
+* adap/flower
+* FedML-AI/FedML
+* intel/openfl
+
+Purpose:
+
+* distributed learning
+* strategy federation
+* model synchronization
+
+Restriction:
+Offline-only.
+
+---
+
+# REINFORCEMENT LEARNING / EVOLUTION
+
+pip install:
+evotorch
+nevergrad
+stable-baselines3
+gymnasium
+ray[rllib]
+pettingzoo
+
+Repositories:
+
+* nolient/evoTorch
+* facebookresearch/nevergrad
+* DLR-RM/stable-baselines3
+* ray-project/ray
+
+Purpose:
+
+* evolutionary optimization
+* policy learning
+* multi-agent learning
+* strategy mutation
+
+Restriction:
+Offline-only.
+
+---
+
+# NEUROMORPHIC / EVENT COGNITION
+
+pip install:
+norse
+bindsnet
+brian2
+snntorch
+
+Repositories:
+
+* norse/norse
+* BindsNET/bindsnet
+* brian-team/brian2
+* jeshraghian/snntorch
+
+Purpose:
+
+* spiking neural systems
+* temporal cognition
+* event-driven intelligence
+* anomaly sensing
+
+Restrictions:
+
+* advisory-only
+* immutable runtime weights
+* no execution authority
+
+---
+
+# COMPLEX EVENT PROCESSING (MISSING EXTENSION)
+
+pip install:
+apache-flink
+materialize
+risingwave
+
+Repositories:
+
+* apache/flink
+* MaterializeInc/materialize
+* risingwavelabs/risingwave
+
+Purpose:
+
+* temporal event joins
+* streaming anomaly windows
+* online regime detection
+* causality chains
+
+---
+
+# ADVANCED MARKET SIMULATION (MISSING EXTENSION)
+
+Repositories:
+
+* abides-sim/abides
+* JAX-LOB/JAX-LOB
+* mansoor-mamnoon/limit-order-book
+
+Purpose:
+
+* synthetic markets
+* exchange ecology
+* liquidity simulation
+* toxic flow analysis
+* hidden liquidity modeling
+
+---
+
+# FORMAL METHODS / VERIFICATION (MISSING EXTENSION)
+
+pip install:
+z3-solver
+hypothesis
+crosshair-tool
+
+Repositories:
+
+* Z3Prover/z3
+* tlaplus/tlaplus
+* informalsystems/apalache
+
+Purpose:
+
+* invariant proofs
+* governance verification
+* replay verification
+* state transition validation
+* safety proofs
+
+---
+
+# OBSERVABILITY / TELEMETRY
+
+pip install:
+prometheus-client
+grafana-api
+opentelemetry-api
+opentelemetry-sdk
+
+Repositories:
+
+* prometheus/prometheus
+* grafana/grafana
+* open-telemetry/opentelemetry-python
+
+Purpose:
+
+* metrics
+* tracing
+* diagnostics
+* replay observability
+
+---
+
+# DATABASES / STORAGE
+
+pip install:
+sqlalchemy
+aiosqlite
+asyncpg
+duckdb
+lmdb
+rocksdb
+
+Purpose:
+
+* ledger storage
+* replay persistence
+* low-latency caching
+* feature persistence
+* audit history
+
+---
+
+# DASHBOARD / CONTROL CENTER
+
+pip install:
+fastapi
+uvicorn
+streamlit
+nicegui
+textual
+plotly
+
+Purpose:
+
+* operator cockpit
+* governance controls
+* replay UI
+* hazard dashboard
+* system introspection
+
+---
+
+# WEB-AUTOLEARN / SANDBOX
+
+pip install:
+playwright
+trafilatura
+beautifulsoup4
+readability-lxml
+newspaper3k
+scrapy
+
+Repositories:
+
+* microsoft/playwright
+* scrapy/scrapy
+
+Purpose:
+
+* autonomous research
+* extraction pipelines
+* intelligence gathering
+
+Restrictions:
+
+* sandbox-only
+* operator approval mandatory
+
+---
+
+# TIME SERIES / FORECASTING
+
+pip install:
+darts
+statsmodels
+prophet
+gluonts
+
+Repositories:
+
+* unit8co/darts
+* facebook/prophet
+* awslabs/gluonts
+
+Purpose:
+
+* forecasting
+* regime analysis
+* temporal prediction
+
+---
+
+# GPU / ACCELERATION
+
+pip install:
+torch
+torchvision
+torchaudio
+jax
+jaxlib
+xformers
+triton
+
+Purpose:
+
+* model acceleration
+* tensor operations
+* GPU inference
+
+Restriction:
+NO GPU in deterministic hot path.
+
+---
+
+# COVERAGE VALIDATION SYSTEM
+
+MANDATORY FILES:
+
+/tools/coverage_validator.py
+/tools/repo_contract_validator.py
+/tools/runtime_determinism_check.py
+/tools/replay_integrity_check.py
+/tools/no_hidden_state_check.py
+/tools/governance_boundary_check.py
+/tools/plugin_sandbox_check.py
+/tools/hotpath_isolation_check.py
+
+---
+
+# DECLARATION VALIDATION LAW
+
+NOTHING MAY EXIST WITHOUT:
+
+1. declaration
+2. implementation
+3. registration
+4. ownership
+5. governance policy
+6. runtime mapping
+7. replay compatibility
+8. tests
+9. observability
+10. documentation
+
+Otherwise:
+CI FAILS.
+
+---
+
+# BIGGEST MISSING SYSTEMS NOW INCLUDED
+
+1. Formal methods layer
+2. CEP engine layer
+3. Memory governance system
+4. High-fidelity market simulator
+5. Queue-position simulator
+6. Toxic-flow analytics
+7. Contradiction-resolution engine
+8. Confidence decay engine
+9. Provenance-weighted memory
+10. Hallucination quarantine
+11. Streaming causality engine
+12. Event lineage tracker
+13. Governance proof validator
+14. Exchange ecology simulator
+15. Adverse-selection modeling
+
+---
+
+# FINAL ARCHITECTURAL LAW
+
+RUNTIME:
+
+* deterministic
+* replayable
+* bounded
+* fail-closed
+
+OFFLINE:
+
+* adaptive
+* exploratory
+* evolutionary
+* sandboxed
+
+GOVERNANCE:
+
+* supreme authority
+* outside hot path
+* approves all unsafe mutation
+
+LEDGER:
+
+* sole source of truth
+
+HUMAN:
+
+* final irreversible authority
+
+END OF MANIFEST

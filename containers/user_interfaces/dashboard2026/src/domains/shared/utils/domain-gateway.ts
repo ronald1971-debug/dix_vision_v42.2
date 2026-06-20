@@ -5,12 +5,15 @@
  * enabling type-safe and controlled access to domain services.
  */
 
+import { executeMiddlewareChain, type DomainMiddlewareContext } from './domain-middleware';
+
 export interface DomainServiceRequest {
   targetDomain: string;
   service: string;
   method: string;
   params?: any;
   timeout?: number;
+  requestId?: string;
 }
 
 export interface DomainServiceResponse {
@@ -21,6 +24,7 @@ export interface DomainServiceResponse {
   service: string;
   method: string;
   timestamp: number;
+  executionTime?: number;
 }
 
 export interface DomainServiceRegistry {
@@ -75,7 +79,8 @@ export class DomainGateway {
    * Request service from another domain
    */
   static async request(request: DomainServiceRequest): Promise<DomainServiceResponse> {
-    const { targetDomain, service, method, params, timeout = this.defaultTimeout } = request;
+    const { targetDomain, service, method, params, timeout = this.defaultTimeout, requestId = `req-${Date.now()}-${Math.random().toString(36).substr(2, 9)}` } = request;
+    const startTime = Date.now();
     
     try {
       // Check if service exists
@@ -91,12 +96,29 @@ export class DomainGateway {
         throw new Error(`Method '${method}' not found in service '${service}' of domain '${targetDomain}'`);
       }
       
-      // Execute service method with timeout
-      const handler = this.serviceRegistry[targetDomain][service][method];
-      const result = await Promise.race([
-        handler(params),
-        this.createTimeoutPromise(timeout),
-      ]);
+      // Create middleware context
+      const context: DomainMiddlewareContext = {
+        targetDomain,
+        service,
+        method,
+        params,
+        timestamp: Date.now(),
+        requestId,
+      };
+      
+      // Execute middleware chain
+      const result = await executeMiddlewareChain(targetDomain, context, async () => {
+        // Execute service method with timeout
+        const handler = this.serviceRegistry[targetDomain][service][method];
+        const response = await Promise.race([
+          handler(params),
+          this.createTimeoutPromise(timeout),
+        ]);
+        
+        return response;
+      });
+      
+      const executionTime = Date.now() - startTime;
       
       return {
         success: true,
@@ -105,8 +127,11 @@ export class DomainGateway {
         service,
         method,
         timestamp: Date.now(),
+        executionTime,
       };
     } catch (error) {
+      const executionTime = Date.now() - startTime;
+      
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
@@ -114,6 +139,7 @@ export class DomainGateway {
         service,
         method,
         timestamp: Date.now(),
+        executionTime,
       };
     }
   }

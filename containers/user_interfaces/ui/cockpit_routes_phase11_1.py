@@ -89,7 +89,7 @@ def add_phase_11_1_endpoints(router: APIRouter) -> None:
     async def adapter_health() -> JSONResponse:
         """Per-adapter meta + connection state + last-tick age."""
         try:
-            from execution.adapter_router import get_adapter_router
+            from execution_unified.adapter_router import get_adapter_router
             registry = get_adapter_router()
             return JSONResponse(registry.get_adapter_health())
         except Exception:
@@ -105,7 +105,7 @@ def add_phase_11_1_endpoints(router: APIRouter) -> None:
     async def system_hazards() -> JSONResponse:
         """SYSTEM_HAZARD_EVENT feed."""
         try:
-            from governance.hazard_router import get_hazard_router
+            from governance_unified.hazard_router import get_hazard_router
             routes = get_hazard_router()
             return JSONResponse(routes.get_system_hazards())
         except Exception:
@@ -123,7 +123,7 @@ def add_phase_11_1_endpoints(router: APIRouter) -> None:
     async def trading_forms() -> JSONResponse:
         """Per-trading-form rollup (7 forms)."""
         try:
-            from execution.adapters.base import TRADING_FORMS
+            from execution_unified.adapters.base import TRADING_FORMS
             forms_map = {}
             for form in TRADING_FORMS:
                 forms_map[form] = {"active": 0, "total": 0}
@@ -139,7 +139,7 @@ def add_phase_11_1_endpoints(router: APIRouter) -> None:
     async def open_orders() -> JSONResponse:
         """Open orders."""
         try:
-            from execution.trade_executor import TradeExecutor
+            from execution_unified.trade_executor import TradeExecutor
             executor = TradeExecutor()
             return JSONResponse({"orders": executor.get_open_orders(), "count": len(executor.get_open_orders())})
         except Exception:
@@ -153,7 +153,7 @@ def add_phase_11_1_endpoints(router: APIRouter) -> None:
     async def recent_fills(limit: int = 50) -> JSONResponse:
         """Recent fills."""
         try:
-            from execution.confirmations.fill_tracker import FillTracker
+            from execution_unified.confirmations.fill_tracker import FillTracker
             tracker = FillTracker()
             fills = tracker.get_recent_fills(limit)
             return JSONResponse({"fills": fills, "count": len(fills)})
@@ -168,7 +168,7 @@ def add_phase_11_1_endpoints(router: APIRouter) -> None:
     async def submit_order(body: OrderSubmitIn) -> JSONResponse:
         """Submit new order (INDIRA execution)."""
         try:
-            from execution.trade_executor import TradeExecutor
+            from execution_unified.trade_executor import TradeExecutor
             executor = TradeExecutor()
             result = executor.submit_order(
                 symbol=body.symbol,
@@ -185,7 +185,7 @@ def add_phase_11_1_endpoints(router: APIRouter) -> None:
     async def cancel_order(body: OrderCancelIn) -> JSONResponse:
         """Cancel order (INDIRA execution)."""
         try:
-            from execution.trade_executor import TradeExecutor
+            from execution_unified.trade_executor import TradeExecutor
             executor = TradeExecutor()
             executor.cancel_order(body.order_id)
             return JSONResponse({"status": "cancelled", "order_id": body.order_id})
@@ -196,7 +196,7 @@ def add_phase_11_1_endpoints(router: APIRouter) -> None:
     async def cancel_all_orders(body: OrderCancelAllIn) -> JSONResponse:
         """Cancel all orders (INDIRA execution)."""
         try:
-            from execution.trade_executor import TradeExecutor
+            from execution_unified.trade_executor import TradeExecutor
             executor = TradeExecutor()
             count = executor.cancel_all_orders(symbol=body.symbol)
             return JSONResponse({"status": "cancelled", "count": count})
@@ -207,7 +207,7 @@ def add_phase_11_1_endpoints(router: APIRouter) -> None:
     async def activate_strategy(body: StrategyActionIn) -> JSONResponse:
         """Activate strategy (INDIRA execution)."""
         try:
-            from execution.engine import StrategyManager
+            from execution_unified.engine import StrategyManager
             manager = StrategyManager()
             manager.activate(body.strategy_id)
             return JSONResponse({"status": "activated", "strategy_id": body.strategy_id})
@@ -218,7 +218,7 @@ def add_phase_11_1_endpoints(router: APIRouter) -> None:
     async def pause_strategy(body: StrategyActionIn) -> JSONResponse:
         """Pause strategy (INDIRA execution)."""
         try:
-            from execution.engine import StrategyManager
+            from execution_unified.engine import StrategyManager
             manager = StrategyManager()
             manager.pause(body.strategy_id)
             return JSONResponse({"status": "paused", "strategy_id": body.strategy_id})
@@ -229,7 +229,7 @@ def add_phase_11_1_endpoints(router: APIRouter) -> None:
     async def close_position(body: PositionCloseIn) -> JSONResponse:
         """Close position (INDIRA execution)."""
         try:
-            from execution.trade_executor import TradeExecutor
+            from execution_unified.trade_executor import TradeExecutor
             executor = TradeExecutor()
             executor.close_position(body.position_id)
             return JSONResponse({"status": "closed", "position_id": body.position_id})
@@ -243,7 +243,7 @@ def add_phase_11_1_endpoints(router: APIRouter) -> None:
     async def mode_timeline() -> JSONResponse:
         """Mode transitions (NORMAL → SAFE → DEGRADED → HALTED)."""
         try:
-            from governance.mode_manager import ModeManager
+            from governance_unified.mode_manager import ModeManager
             manager = ModeManager()
             return JSONResponse(manager.get_timeline())
         except Exception:
