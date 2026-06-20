@@ -47,6 +47,7 @@ from typing import Any
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 infrastructure_path = os.path.join(project_root, 'containers', 'infrastructure')
 infrastructure_security_path = os.path.join(infrastructure_path, 'security')
+infrastructure_core_path = os.path.join(infrastructure_path, 'core')
 system_core_path = os.path.join(project_root, 'containers', 'system_core')
 system_engine_path = os.path.join(system_core_path, 'system_engine')  # System infrastructure
 system_path = os.path.join(system_core_path, 'system')  # System components
@@ -66,6 +67,7 @@ mind_path = os.path.join(system_core_path, 'mind')
 
 sys.path.insert(0, infrastructure_path)
 sys.path.insert(0, infrastructure_security_path)  # Security module
+sys.path.insert(0, infrastructure_core_path)  # Core module
 sys.path.insert(0, system_core_path)
 sys.path.insert(0, system_engine_path)  # System infrastructure first
 sys.path.insert(0, system_path)  # System components

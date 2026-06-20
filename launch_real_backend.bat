@@ -1,0 +1,4 @@
+@echo off
+set PYTHONPATH=C:\dix_vision_v42.2\containers\infrastructure;C:\dix_vision_v42.2\containers\infrastructure\core;C:\dix_vision_v42.2\containers\system_core;C:\dix_vision_v42.2\containers\system_core\system;C:\dix_vision_v42.2\containers\system_core\system_unified;C:\dix_vision_v42.2\containers\system_core\evolution_engine;C:\dix_vision_v42.2\containers\system_core\governance_unified;C:\dix_vision_v42.2\containers\system_core\execution_unified;C:\dix_vision_v42.2\containers\user_interfaces;C:\dix_vision_v42.2\containers\user_interfaces\dashboard_backend
+cd /d C:\dix_vision_v42.2\containers\user_interfaces\ui
+python -m uvicorn server:app --host 0.0.0.0 --port 8000
