@@ -1,0 +1,806 @@
+# DIXVISION Trader Archetypes Registry
+# Comprehensive trader classification and archetype system
+# Version: 1.0
+# Integration: INDIRA 30X Enhanced Cognitive Trading Intelligence
+
+registry_metadata:
+  version: "1.0"
+  last_updated: "2026-06-21"
+  schema_version: "INV-51"
+  total_archetypes: 20
+  governance_required: true
+  
+archetypes:
+  # === Algorithmic Quantitative Archetypes ===
+  
+  system_quant_breakout_trader:
+    name: "System Quant Breakout Trader"
+    state: "ACTIVE"
+    decay_rate: 0.05
+    performance_score: 0.65
+    seed_trader: "Richard Dennis"
+    group: "algorithmic_quantitative"
+    philosophy: "trend_following"
+    
+    dimensions:
+      belief_system:
+        trend_following: 0.9
+        mechanical_systems: 0.8
+        statistical_edge: 0.7
+        price_action: 0.3
+      risk_attitude: "AGGRESSIVE"
+      time_horizon: "POSITION"
+      conviction_style: "SYSTEMATIC"
+      regime_performance:
+        bull_market: 0.8
+        bear_market: 0.3
+        high_volatility: 0.6
+        ranging_market: 0.1
+    
+    integration:
+      strategy_mapping: "turtle_trading_system"
+      category_mapping: "algorithmic_quantitative"
+      indira_systems: ["temporal_reasoning", "meta_learning", "neuromorphic_computing"]
+      compatible_strategies: ["statistical_arbitrage_pairs", "kelly_criterion_allocation"]
+  
+  statistical_arbitrage_quant:
+    name: "Statistical Arbitrage Quant"
+    state: "ACTIVE"
+    decay_rate: 0.08
+    performance_score: 0.75
+    seed_trader: "Quantitative Institution"
+    group: "algorithmic_quantitative"
+    philosophy: "mean_reversion"
+    
+    dimensions:
+      belief_system:
+        statistical_arbitrage: 0.95
+        correlation_trading: 0.9
+        risk_parity: 0.7
+        market_neutrality: 0.85
+      risk_attitude: "MODERATE"
+      time_horizon: "INTRADAY"
+      conviction_style: "SYSTEMATIC"
+      regime_performance:
+        bull_market: 0.6
+        bear_market: 0.8
+        high_volatility: 0.7
+        ranging_market: 0.9
+    
+    integration:
+      strategy_mapping: "statistical_arbitrage_pairs"
+      category_mapping: "algorithmic_quantitative"
+      indira_systems: ["meta_learning", "neuromorphic_computing", "quantum_algorithms"]
+      compatible_strategies: ["kelly_criterion_allocation", "risk_parity_bridgewater"]
+  
+  high_frequency_arbitrageur:
+    name: "High Frequency Arbitrageur"
+    state: "ACTIVE"
+    decay_rate: 0.15
+    performance_score: 0.55
+    seed_trader: "HFT Firm"
+    group: "algorithmic_quantitative"
+    philosophy: "latency_arbitrage"
+    
+    dimensions:
+      belief_system:
+        latency_arbitrage: 0.95
+        microstructure_trading: 0.9
+        execution_speed: 0.85
+        market_inefficiency: 0.8
+      risk_attitude: "CONSERVATIVE"
+      time_horizon: "SCALP"
+      conviction_style: "SYSTEMATIC"
+      regime_performance:
+        bull_market: 0.5
+        bear_market: 0.5
+        high_volatility: 0.7
+        ranging_market: 0.6
+    
+    integration:
+      strategy_mapping: "statistical_arbitrage_pairs"
+      category_mapping: "algorithmic_quantitative"
+      indira_systems: ["neuromorphic_computing", "advanced_attention", "quantum_algorithms"]
+      compatible_strategies: ["kelly_criterion_allocation"]
+  
+  # === Trend & Momentum Archetypes ===
+  
+  growth_momentum_trader:
+    name: "Growth Momentum Trader"
+    state: "ACTIVE"
+    decay_rate: 0.07
+    performance_score: 0.45
+    seed_trader: "William O'Neil"
+    group: "trend_momentum"
+    philosophy: "growth_momentum"
+    
+    dimensions:
+      belief_system:
+        growth_momentum: 0.9
+        earnings_growth: 0.85
+        relative_strength: 0.8
+        institutional_accumulation: 0.7
+      risk_attitude: "AGGRESSIVE"
+      time_horizon: "SWING"
+      conviction_style: "PREDICTIVE"
+      regime_performance:
+        bull_market: 0.9
+        bear_market: -0.2
+        high_volatility: 0.4
+        ranging_market: -0.1
+    
+    integration:
+      strategy_mapping: "canslim_momentum"
+      category_mapping: "trend_momentum"
+      indira_systems: ["temporal_reasoning", "meta_learning", "analogical_reasoning"]
+      compatible_strategies: ["minervini_trend_template", "darvas_box_theory"]
+  
+  turtle_trend_follower:
+    name: "Turtle Trend Follower"
+    state: "ACTIVE"
+    decay_rate: 0.06
+    performance_score: 0.35
+    seed_trader: "Richard Dennis"
+    group: "trend_momentum"
+    philosophy: "breakout_trend"
+    
+    dimensions:
+      belief_system:
+        breakout_trading: 0.95
+        trend_following: 0.9
+        systematic_rules: 0.85
+        risk_management: 0.7
+      risk_attitude: "AGGRESSIVE"
+      time_horizon: "POSITION"
+      conviction_style: "SYSTEMATIC"
+      regime_performance:
+        bull_market: 0.7
+        bear_market: -0.1
+        high_volatility: 0.5
+        ranging_market: -0.3
+    
+    integration:
+      strategy_mapping: "turtle_trading_system"
+      category_mapping: "trend_momentum"
+      indira_systems: ["temporal_reasoning", "transfer_learning", "meta_learning"]
+      compatible_strategies: ["darvas_box_theory", "statistical_arbitrage_pairs"]
+  
+  darvas_box_trend_trader:
+    name: "Darvas Box Trend Trader"
+    state: "ACTIVE"
+    decay_rate: 0.05
+    performance_score: 0.55
+    seed_trader: "Nicolas Darvas"
+    group: "trend_momentum"
+    philosophy: "box_breakout"
+    
+    dimensions:
+      belief_system:
+        box_breakout: 0.9
+        volume_confirmation: 0.8
+        momentum_alignment: 0.7
+        trailing_stops: 0.85
+      risk_attitude: "MODERATE"
+      time_horizon: "SWING"
+      conviction_style: "REACTIVE"
+      regime_performance:
+        bull_market: 0.8
+        bear_market: 0.1
+        high_volatility: 0.3
+        ranging_market: 0.2
+    
+    integration:
+      strategy_mapping: "darvas_box_theory"
+      category_mapping: "trend_momentum"
+      indira_systems: ["temporal_reasoning", "explainable_ai"]
+      compatible_strategies: ["canslim_momentum", "minervini_trend_template"]
+  
+  # === Volatility & Options Archetypes ===
+  
+  volatility_harvester:
+    name: "Volatility Harvester"
+    state: "ACTIVE"
+    decay_rate: 0.08
+    performance_score: 0.68
+    seed_trader: "Options Trading Firm"
+    group: "volatility_options"
+    philosophy: "volatility_arbitrage"
+    
+    dimensions:
+      belief_system:
+        iv_rv_divergence: 0.9
+        volatility_term_structure: 0.85
+        greek_based_trading: 0.8
+        theta_decay: 0.7
+      risk_attitude: "MODERATE"
+      time_horizon: "SWING"
+      conviction_style: "PREDICTIVE"
+      regime_performance:
+        bull_market: 0.5
+        bear_market: 0.6
+        high_volatility: 0.9
+        ranging_market: 0.7
+    
+    integration:
+      strategy_mapping: "volatility_harvesting"
+      category_mapping: "volatility_options"
+      indira_systems: ["temporal_reasoning", "quantum_algorithms", "advanced_attention"]
+      compatible_strategies: ["statistical_arbitrage_pairs", "risk_parity_bridgewater"]
+  
+  iron_condor_trader:
+    name: "Iron Condor Trader"
+    state: "ACTIVE"
+    decay_rate: 0.06
+    performance_score: 0.62
+    seed_trader: "Options Income Trader"
+    group: "volatility_options"
+    philosophy: "range_bound_volatility"
+    
+    dimensions:
+      belief_system:
+        range_bound: 0.9
+        income_generation: 0.85
+        probability_trading: 0.8
+        theta_capture: 0.95
+      risk_attitude: "CONSERVATIVE"
+      time_horizon: "SWING"
+      conviction_style: "SYSTEMATIC"
+      regime_performance:
+        bull_market: 0.6
+        bear_market: 0.6
+        high_volatility: 0.3
+        ranging_market: 0.9
+    
+    integration:
+      strategy_mapping: "volatility_harvesting"
+      category_mapping: "volatility_options"
+      indira_systems: ["advanced_attention", "meta_learning", "quantum_algorithms"]
+      compatible_strategies: ["risk_parity_bridgewater", "kelly_criterion_allocation"]
+  
+  # === Discretionary Price Action Archetypes ===
+  
+  ict_liquidity_sweeper:
+    name: "ICT Liquidity Sweeper"
+    state: "ACTIVE"
+    decay_rate: 0.07
+    performance_score: 0.60
+    seed_trader: "Inner Circle Trader"
+    group: "discretionary_price_action"
+    philosophy: "liquidity_focused"
+    
+    dimensions:
+      belief_system:
+        liquidity_sweeps: 0.95
+        order_blocks: 0.9
+        fair_value_gaps: 0.85
+        smart_money_concepts: 0.9
+      risk_attitude: "AGGRESSIVE"
+      time_horizon: "INTRADAY"
+      conviction_style: "CONTRARIAN"
+      regime_performance:
+        bull_market: 0.5
+        bear_market: 0.5
+        high_volatility: 0.8
+        ranging_market: 0.9
+    
+    integration:
+      strategy_mapping: "ict_liquidity_concepts"
+      category_mapping: "discretionary_price_action"
+      indira_systems: ["theory_of_mind", "intentional_stance", "causal_reasoning"]
+      compatible_strategies: ["baybasin_liquidity_zones", "wyckoff_method"]
+  
+  baybasin_liquidity_trader:
+    name: "Baybasin Liquidity Trader"
+    state: "ACTIVE"
+    decay_rate: 0.06
+    performance_score: 0.65
+    seed_trader: "Baybasin"
+    group: "discretionary_price_action"
+    philosophy: "asymmetric_risk"
+    
+    dimensions:
+      belief_system:
+        asymmetric_risk: 0.95
+        liquidity_zones: 0.9
+        order_flow_analysis: 0.85
+        market_structure: 0.8
+      risk_attitude: "MODERATE"
+      time_horizon: "SCALP"
+      conviction_style: "REACTIVE"
+      regime_performance:
+        bull_market: 0.6
+        bear_market: 0.5
+        high_volatility: 0.85
+        ranging_market: 0.8
+    
+    integration:
+      strategy_mapping: "baybasin_liquidity_zones"
+      category_mapping: "discretionary_price_action"
+      indira_systems: ["theory_of_mind", "causal_reasoning", "world_model_simulation"]
+      compatible_strategies: ["ict_liquidity_concepts", "wyckoff_method"]
+  
+  raschke_pattern_trader:
+    name: "Raschke Pattern Trader"
+    state: "ACTIVE"
+    decay_rate: 0.08
+    performance_score: 0.58
+    seed_trader: "Linda Raschke"
+    group: "discretionary_price_action"
+    philosophy: "pattern_recognition"
+    
+    dimensions:
+      belief_system:
+        pattern_recognition: 0.9
+        swing_trading: 0.85
+        setup_confirmation: 0.8
+        momentum_persistence: 0.75
+      risk_attitude: "MODERATE"
+      time_horizon: "SWING"
+      conviction_style: "REACTIVE"
+      regime_performance:
+        bull_market: 0.7
+        bear_market: 0.4
+        high_volatility: 0.6
+        ranging_market: 0.5
+    
+    integration:
+      strategy_mapping: "raschke_swing_trading"
+      category_mapping: "discretionary_price_action"
+      indira_systems: ["analogical_reasoning", "temporal_reasoning", "explainable_ai"]
+      compatible_strategies: ["darvas_box_theory", "wyckoff_method"]
+  
+  wyckoff_cycle_analyst:
+    name: "Wyckoff Cycle Analyst"
+    state: "ACTIVE"
+    decay_rate: 0.05
+    performance_score: 0.70
+    seed_trader: "Richard Wyckoff"
+    group: "discretionary_price_action"
+    philosophy: "market_cycle_analysis"
+    
+    dimensions:
+      belief_system:
+        accumulation_distribution: 0.95
+        market_cycle_phases: 0.9
+        volume_profile: 0.85
+        market_structure: 0.9
+      risk_attitude: "MODERATE"
+      time_horizon: "POSITION"
+      conviction_style: "PREDICTIVE"
+      regime_performance:
+        bull_market: 0.8
+        bear_market: 0.7
+        high_volatility: 0.6
+        ranging_market: 0.8
+    
+    integration:
+      strategy_mapping: "wyckoff_method"
+      category_mapping: "discretionary_price_action"
+      indira_systems: ["theory_of_mind", "causal_reasoning", "world_model_simulation", "artificial_consciousness"]
+      compatible_strategies: ["ict_liquidity_concepts", "baybasin_liquidity_zones"]
+  
+  # === Event-Driven & Macro Archetypes ===
+  
+  merger_arbitrage_specialist:
+    name: "Merger Arbitrage Specialist"
+    state: "ACTIVE"
+    decay_rate: 0.04
+    performance_score: 0.85
+    seed_trader: "Risk Arbitrage Desk"
+    group: "event_driven_macro"
+    philosophy: "event_arbitrage"
+    
+    dimensions:
+      belief_system:
+        deal_completion: 0.95
+        spread_capture: 0.9
+        probability_assessment: 0.85
+        deal_risk_management: 0.8
+      risk_attitude: "CONSERVATIVE"
+      time_horizon: "POSITION"
+      conviction_style: "SYSTEMATIC"
+      regime_performance:
+        bull_market: 0.7
+        bear_market: 0.8
+        high_volatility: 0.6
+        ranging_market: 0.7
+    
+    integration:
+      strategy_mapping: "merger_arbitrage"
+      category_mapping: "event_driven_macro"
+      indira_systems: ["causal_reasoning", "abductive_reasoning", "game_theoretic_reasoning"]
+      compatible_strategies: ["statistical_arbitrage_pairs", "risk_parity_bridgewater"]
+  
+  crisis_short_specialist:
+    name: "Crisis Short Specialist"
+    state: "ACTIVE"
+    decay_rate: 0.03
+    performance_score: 0.80
+    seed_trader: "Michael Burry"
+    group: "event_driven_macro"
+    philosophy: "asymmetric_crisis_bets"
+    
+    dimensions:
+      belief_system:
+        asymmetric_crisis_bets: 0.95
+        tail_risk_protection: 0.9
+        systemic_risk_analysis: 0.85
+        macro_fundamentals: 0.9
+      risk_attitude: "AGGRESSIVE"
+      time_horizon: "POSITION"
+      conviction_style: "CONTRARIAN"
+      regime_performance:
+        bull_market: -0.3
+        bear_market: 0.9
+        high_volatility: 0.85
+        ranging_market: 0.2
+    
+    integration:
+      strategy_mapping: "merger_arbitrage"
+      category_mapping: "event_driven_macro"
+      indira_systems: ["causal_reasoning", "abductive_reasoning", "world_model_simulation", "game_theoretic_reasoning", "artificial_consciousness"]
+      compatible_strategies: ["risk_parity_bridgewater", "volatility_harvesting"]
+  
+  macro_regime_allocator:
+    name: "Macro Regime Allocator"
+    state: "ACTIVE"
+    decay_rate: 0.09
+    performance_score: 0.60
+    seed_trader: "Macro Investment Firm"
+    group: "event_driven_macro"
+    philosophy: "macro_regime_classification"
+    
+    dimensions:
+      belief_system:
+        interest_rate_regime: 0.9
+        inflation_regime: 0.85
+        economic_cycle: 0.8
+        geopolitical_regime: 0.7
+      risk_attitude: "MODERATE"
+      time_horizon: "POSITION"
+      conviction_style: "PREDICTIVE"
+      regime_performance:
+        bull_market: 0.7
+        bear_market: 0.6
+        high_volatility: 0.5
+        ranging_market: 0.6
+    
+    integration:
+      strategy_mapping: "risk_parity_bridgewater"
+      category_mapping: "event_driven_macro"
+      indira_systems: ["causal_reasoning", "world_model_simulation", "temporal_reasoning", "game_theoretic_reasoning", "quantum_algorithms"]
+      compatible_strategies: ["volatility_harvesting", "statistical_arbitrage_pairs"]
+  
+  # === Crypto & On-Chain Archetypes ===
+  
+  funding_arb_crypto_trader:
+    name: "Funding Arb Crypto Trader"
+    state: "ACTIVE"
+    decay_rate: 0.05
+    performance_score: 0.90
+    seed_trader: "Crypto Quant Fund"
+    group: "crypto_on_chain"
+    philosophy: "crypto_arbitrage"
+    
+    dimensions:
+      belief_system:
+        funding_rate_arb: 0.95
+        basis_arbitrage: 0.9
+        cost_of_carry: 0.85
+        market_efficiency: 0.7
+      risk_attitude: "CONSERVATIVE"
+      time_horizon: "SWING"
+      conviction_style: "SYSTEMATIC"
+      regime_performance:
+        bull_market: 0.8
+        bear_market: 0.6
+        high_volatility: 0.7
+        ranging_market: 0.7
+    
+    integration:
+      strategy_mapping: "funding_rate_arbitrage_crypto"
+      category_mapping: "crypto_on_chain"
+      indira_systems: ["temporal_reasoning", "neuromorphic_computing"]
+      compatible_strategies: ["statistical_arbitrage_pairs", "kelly_criterion_allocation"]
+  
+  whale_wallet_follower:
+    name: "Whale Wallet Follower"
+    state: "ACTIVE"
+    decay_rate: 0.08
+    performance_score: 0.72
+    seed_trader: "On-Chain Analyst"
+    group: "crypto_on_chain"
+    philosophy: "on_chain_flow_analysis"
+    
+    dimensions:
+      belief_system:
+        whale_accumulation: 0.9
+        smart_money_movement: 0.85
+        on_chain_signals: 0.8
+        flow_analysis: 0.9
+      risk_attitude: "MODERATE"
+      time_horizon: "INTRADAY"
+      conviction_style: "PREDICTIVE"
+      regime_performance:
+        bull_market: 0.8
+        bear_market: 0.5
+        high_volatility: 0.7
+        ranging_market: 0.6
+    
+    integration:
+      strategy_mapping: "whale_wallet_tracking"
+      category_mapping: "crypto_on_chain"
+      indira_systems: ["theory_of_mind", "intentional_stance", "multi_agent_collaboration"]
+      compatible_strategies: ["ict_liquidity_concepts", "baybasin_liquidity_zones"]
+  
+  memecoin_automation_bot:
+    name: "Memecoin Automation Bot"
+    state: "ACTIVE"
+    decay_rate: 0.12
+    performance_score: 0.40
+    seed_trader: "Crypto Bot Developer"
+    group: "crypto_on_chain"
+    philosophy: "microcap_automation"
+    
+    dimensions:
+      belief_system:
+        automated_entry_exit: 0.9
+        liquidity_protection: 0.85
+        social_sentiment: 0.8
+        rug_pull_detection: 0.75
+      risk_attitude: "AGGRESSIVE"
+      time_horizon: "SCALP"
+      conviction_style: "REACTIVE"
+      regime_performance:
+        bull_market: 0.9
+        bear_market: 0.2
+        high_volatility: 0.6
+        ranging_market: 0.3
+    
+    integration:
+      strategy_mapping: "whale_wallet_tracking"
+      category_mapping: "crypto_on_chain"
+      indira_systems: ["theory_of_mind", "intentional_stance", "multi_agent_collaboration", "causal_reasoning", "world_model_simulation"]
+      compatible_strategies: ["ict_liquidity_concepts", "funding_rate_arbitrage_crypto"]
+  
+  # === Portfolio & Hybrid Archetypes ===
+  
+  risk_parity_allocator:
+    name: "Risk Parity Allocator"
+    state: "ACTIVE"
+    decay_rate: 0.03
+    performance_score: 0.65
+    seed_trader: "Ray Dalio"
+    group: "portfolio_hybrid"
+    philosophy: "risk_balancing"
+    
+    dimensions:
+      belief_system:
+        risk_parity: 0.95
+        volatility_balancing: 0.9
+        correlation_diversification: 0.85
+        multi_asset_allocation: 0.9
+      risk_attitude: "CONSERVATIVE"
+      time_horizon: "LONG_TERM"
+      conviction_style: "SYSTEMATIC"
+      regime_performance:
+        bull_market: 0.6
+        bear_market: 0.7
+        high_volatility: 0.6
+        ranging_market: 0.7
+    
+    integration:
+      strategy_mapping: "risk_parity_bridgewater"
+      category_mapping: "portfolio_hybrid"
+      indira_systems: ["quantum_algorithms", "world_model_simulation", "meta_learning"]
+      compatible_strategies: ["statistical_arbitrage_pairs", "volatility_harvesting", "kelly_criterion_allocation"]
+  
+  factor_rotation_specialist:
+    name: "Factor Rotation Specialist"
+    state: "ACTIVE"
+    decay_rate: 0.07
+    performance_score: 0.55
+    seed_trader: "Quantitative Portfolio Manager"
+    group: "portfolio_hybrid"
+    philosophy: "factor_rotation"
+    
+    dimensions:
+      belief_system:
+        factor_momentum: 0.9
+        factor_valuation: 0.85
+        regime_based_rotation: 0.8
+        style_rotation: 0.75
+      risk_attitude: "MODERATE"
+      time_horizon: "POSITION"
+      conviction_style: "PREDICTIVE"
+      regime_performance:
+        bull_market: 0.7
+        bear_market: 0.5
+        high_volatility: 0.5
+        ranging_market: 0.6
+    
+    integration:
+      strategy_mapping: "risk_parity_bridgewater"
+      category_mapping: "portfolio_hybrid"
+      indira_systems: ["causal_reasoning", "world_model_simulation", "meta_learning", "quantum_algorithms"]
+      compatible_strategies: ["kelly_criterion_allocation", "volatility_harvesting"]
+  
+  ai_meta_controller:
+    name: "AI Meta Controller"
+    state: "ACTIVE"
+    decay_rate: 0.10
+    performance_score: 0.75
+    seed_trader: "AI System"
+    group: "portfolio_hybrid"
+    philosophy: "ai_adaptive_allocation"
+    
+    dimensions:
+      belief_system:
+        strategy_allocation: 0.95
+        resource_optimization: 0.9
+        risk_management: 0.85
+        performance_monitoring: 0.9
+      risk_attitude: "MODERATE"
+      time_horizon: "LONG_TERM"
+      conviction_style: "SYSTEMATIC"
+      regime_performance:
+        bull_market: 0.7
+        bear_market: 0.6
+        high_volatility: 0.6
+        ranging_market: 0.7
+    
+    integration:
+      strategy_mapping: "risk_parity_bridgewater"
+      category_mapping: "portfolio_hybrid"
+      indira_systems: ["theory_of_mind", "world_model_simulation", "multi_agent_collaboration", "quantum_algorithms", "game_theoretic_reasoning"]
+      compatible_strategies: ["kelly_criterion_allocation", "statistical_arbitrage_pairs", "volatility_harvesting"]
+  
+  kelly_criterion_opt:
+    name: "Kelly Criterion Optimizer"
+    state: "ACTIVE"
+    decay_rate: 0.09
+    performance_score: 0.70
+    seed_trader: "John Kelly"
+    group: "portfolio_hybrid"
+    philosophy: "mathematical_optimization"
+    
+    dimensions:
+      belief_system:
+        mathematical_optimization: 0.95
+        edge_calculation: 0.9
+        position_sizing: 0.85
+        risk_management: 0.8
+      risk_attitude: "MODERATE"
+      time_horizon: "ALL_TIMEFRAMES"
+      conviction_style: "SYSTEMATIC"
+      regime_performance:
+        bull_market: 0.7
+        bear_market: 0.6
+        high_volatility: 0.7
+        ranging_market: 0.7
+    
+    integration:
+      strategy_mapping: "kelly_criterion_allocation"
+      category_mapping: "portfolio_hybrid"
+      indira_systems: ["quantum_algorithms", "meta_learning", "continual_learning"]
+      compatible_strategies: ["statistical_arbitrage_pairs", "risk_parity_bridgewater", "volatility_harvesting"]
+
+# === INDIRA 30X Integration ===
+
+indira_integration:
+  enabled: true
+  archetype_strategy_mapping:
+    system_quant_breakout_trader: "turtle_trading_system"
+    statistical_arbitrage_quant: "statistical_arbitrage_pairs"
+    growth_momentum_trader: "canslim_momentum"
+    turtle_trend_follower: "turtle_trading_system"
+    darvas_box_trend_trader: "darvas_box_theory"
+    volatility_harvester: "volatility_harvesting"
+    iron_condor_trader: "volatility_harvesting"
+    ict_liquidity_sweeper: "ict_liquidity_concepts"
+    baybasin_liquidity_trader: "baybasin_liquidity_zones"
+    raschke_pattern_trader: "raschke_swing_trading"
+    wyckoff_cycle_analyst: "wyckoff_method"
+    merger_arbitrage_specialist: "merger_arbitrage"
+    crisis_short_specialist: "merger_arbitrage"
+    macro_regime_allocator: "risk_parity_bridgewater"
+    funding_arb_crypto_trader: "funding_rate_arbitrage_crypto"
+    whale_wallet_follower: "whale_wallet_tracking"
+    memecoin_automation_bot: "whale_wallet_tracking"
+    risk_parity_allocator: "risk_parity_bridgewater"
+    factor_rotation_specialist: "risk_parity_bridgewater"
+    ai_meta_controller: "risk_parity_bridgewater"
+    kelly_criterion_opt: "kelly_criterion_allocation"
+  
+  archetype_category_mapping:
+    system_quant_breakout_trader: "algorithmic_quantitative"
+    statistical_arbitrage_quant: "algorithmic_quantitative"
+    high_frequency_arbitrageur: "algorithmic_quantitative"
+    growth_momentum_trader: "trend_momentum"
+    turtle_trend_follower: "trend_momentum"
+    darvas_box_trend_trader: "trend_momentum"
+    volatility_harvester: "volatility_options"
+    iron_condor_trader: "volatility_options"
+    ict_liquidity_sweeper: "discretionary_price_action"
+    baybasin_liquidity_trader: "discretionary_price_action"
+    raschke_pattern_trader: "discretionary_price_action"
+    wyckoff_cycle_analyst: "discretionary_price_action"
+    merger_arbitrage_specialist: "event_driven_macro"
+    crisis_short_specialist: "event_driven_macro"
+    macro_regime_allocator: "event_driven_macro"
+    funding_arb_crypto_trader: "crypto_on_chain"
+    whale_wallet_follower: "crypto_on_chain"
+    memecoin_automation_bot: "crypto_on_chain"
+    risk_parity_allocator: "portfolio_hybrid"
+    factor_rotation_specialist: "portfolio_hybrid"
+    ai_meta_controller: "portfolio_hybrid"
+    kelly_criterion_opt: "portfolio_hybrid"
+  
+  cognitive_system_by_archetype:
+    system_quant_breakout_trader: ["temporal_reasoning", "meta_learning", "neuromorphic_computing"]
+    statistical_arbitrage_quant: ["meta_learning", "neuromorphic_computing", "quantum_algorithms"]
+    growth_momentum_trader: ["temporal_reasoning", "meta_learning", "analogical_reasoning"]
+    turtle_trend_follower: ["temporal_reasoning", "transfer_learning", "meta_learning"]
+    volatility_harvester: ["temporal_reasoning", "quantum_algorithms", "advanced_attention"]
+    ict_liquidity_sweeper: ["theory_of_mind", "intentional_stance", "causal_reasoning"]
+    baybasin_liquidity_trader: ["theory_of_mind", "causal_reasoning", "world_model_simulation"]
+    wyckoff_cycle_analyst: ["theory_of_mind", "causal_reasoning", "world_model_simulation", "artificial_consciousness"]
+    merger_arbitrage_specialist: ["causal_reasoning", "abductive_reasoning", "game_theoretic_reasoning"]
+    crisis_short_specialist: ["causal_reasoning", "abductive_reasoning", "world_model_simulation", "game_theoretic_reasoning", "artificial_consciousness"]
+    ai_meta_controller: ["theory_of_mind", "world_model_simulation", "multi_agent_collaboration", "quantum_algorithms", "game_theoretic_reasoning"]
+
+# === Strategy Registry Integration ===
+
+strategy_registry_integration:
+  registry_path: "containers/system_core/strategies/registry/strategy_registry.yaml"
+  enhancement_system_path: "containers/system_core/strategies/registry/advanced_trading_enhancement_system.yaml"
+  automatic_mapping: true
+  validation_required: true
+  
+  archetype_strategy_compatibility:
+    system_quant_breakout_trader:
+      compatible_strategies: ["turtle_trading_system", "statistical_arbitrage_pairs"]
+      incompatible_strategies: ["canslim_momentum", "darvas_box_theory"]
+    
+    statistical_arbitrage_quant:
+      compatible_strategies: ["statistical_arbitrage_pairs", "kelly_criterion_allocation"]
+      incompatible_strategies: ["volatility_harvesting", "canslim_momentum"]
+    
+    growth_momentum_trader:
+      compatible_strategies: ["canslim_momentum", "minervini_trend_template", "darvas_box_theory"]
+      incompatible_strategies: ["statistical_arbitrage_pairs", "merger_arbitrage"]
+    
+    ict_liquidity_sweeper:
+      compatible_strategies: ["ict_liquidity_concepts", "baybasin_liquidity_zones", "wyckoff_method"]
+      incompatible_strategies: ["canslim_momentum", "statistical_arbitrage_pairs"]
+
+# === Governance Configuration ===
+
+governance:
+  lifecycle_states:
+    PROPOSED:
+      description: "New archetype proposed for evaluation"
+      approval_required: true
+      approval_levels: ["governance", "operator"]
+    
+    ACTIVE:
+      description: "Archetype active in production"
+      approval_required: false
+      governance_check: true
+    
+    DECAYING:
+      description: "Archetype showing performance decline"
+      approval_required: false
+      monitoring_required: true
+    
+    DEMOTED:
+      description: "Archetype removed from active rotation"
+      approval_required: true
+      approval_levels: ["governance", "operator"]
+  
+  decay_management:
+    auto_decay_detection: true
+    decay_threshold: 0.7
+    performance_threshold: 0.3
+    automatic_transition: false
+    governance_approval_required: true
