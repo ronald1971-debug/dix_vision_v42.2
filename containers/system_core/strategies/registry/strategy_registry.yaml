@@ -1,0 +1,1153 @@
+# DIXVISION INDIRA Strategy Registry
+# Comprehensive trading strategy classification and management system
+# Version: 1.0
+# Integration: INDIRA 30X Enhanced Cognitive Trading Intelligence
+
+registry_metadata:
+  version: "1.0"
+  last_updated: "2026-06-21"
+  total_strategies: 15
+  supported_categories:
+    - discretionary_hybrid
+    - systematic_quantitative
+    - liquidity_focused
+    - trend_following
+    - mean_reversion
+    - volatility_exploitation
+    - arbitrage
+    - crypto_native
+    - ai_adaptive
+
+strategies:
+  # === Discretionary Hybrid Strategies ===
+  
+  baybasin_liquidity_zones:
+    id: "strat_001"
+    name: "Baybasin Liquidity Zones"
+    category: "discretionary_hybrid"
+    base_trader: "Baybasin"
+    philosophy: "liquidity_focused"
+    timeframe: ["scalping", "swing"]
+    risk: "asymmetric"
+    execution: "discretionary_hybrid"
+    regime_bias: ["neutral", "volatility_driven"]
+    
+    # Enhanced technical specifications
+    assets: ["crypto", "forex", "equities", "futures"]
+    entry_conditions:
+      - "liquidity_sweep_detected"
+      - "order_flow_imbalance"
+      - "asymmetric_risk_reward_ratio"
+      - "market_structure_break"
+    exit_conditions:
+      - "liquidity_target_reached"
+      - "risk_management_trigger"
+      - "regime_change_detected"
+    indicators: ["volume_profile", "order_book", "delta", "market_depth"]
+    complexity: 7
+    computational_cost: "low"
+    
+    # Performance metrics
+    historical_performance:
+      win_rate: 0.65
+      sharpe_ratio: 1.8
+      max_drawdown: 0.15
+      risk_reward_ratio: 2.5
+      sortino_ratio: 1.4
+      calmar_ratio: 1.2
+    
+    # INDIRA integration
+    integration_points:
+      - indira_theory_of_mind
+      - indira_causal_reasoning
+      - indira_world_model_simulation
+      - indira_temporal_reasoning
+    cognitive_systems_required:
+      - "theory_of_mind"
+      - "causal_reasoning"
+      - "world_model_simulation"
+      - "temporal_reasoning"
+    
+    # Operational requirements
+    minimum_capital: "$10,000"
+    position_sizing: "kelly_criterion_adaptive"
+    risk_management: "asymmetric_stop_loss"
+    latency_requirement: "low_latency"
+    execution_speed: "milliseconds"
+    data_frequency: "tick_level"
+    data_requirements:
+      - "order_book_depth"
+      - "trade_flow"
+      - "market_microstructure"
+    
+    # Learning and adaptation
+    learning_capability: true
+    adaptation_speed: "fast"
+    transfer_learning_supported: true
+    ai_enhancement_ready: true
+    ensemble_compatibility: true
+    
+    # Regime compatibility
+    compatible_regimes:
+      - ranging_markets
+      - high_volatility
+      - liquidity_driven
+    incompatible_regimes:
+      - low_liquidity
+      - strong_trend_only
+
+  # === Systematic Quantitative Strategies ===
+  
+  turtle_trading_system:
+    id: "strat_002"
+    name: "Turtle Trading System"
+    category: "systematic_quantitative"
+    base_trader: "Richard Dennis"
+    philosophy: "trend_following"
+    timeframe: ["swing", "position"]
+    risk: "high"
+    execution: "algorithmic"
+    regime_bias: ["bull", "bear"]
+    
+    assets: ["futures", "equities", "forex", "commodities"]
+    entry_conditions:
+      - "20_day_breakout"
+      - "55_day_breakout"
+      - "trend_confirmation"
+    exit_conditions:
+      - "10_day_exit"
+      - "20_day_exit"
+      - "stop_loss_hit"
+    indicators: ["moving_averages", "breakouts", "atr", "donchian_channels"]
+    complexity: 4
+    computational_cost: "medium"
+    
+    historical_performance:
+      win_rate: 0.35
+      sharpe_ratio: 0.9
+      max_drawdown: 0.40
+      risk_reward_ratio: 3.5
+      sortino_ratio: 0.7
+      calmar_ratio: 0.5
+    
+    integration_points:
+      - indira_temporal_reasoning
+      - indira_transfer_learning
+      - indira_meta_learning
+    cognitive_systems_required:
+      - "temporal_reasoning"
+      - "transfer_learning"
+      - "meta_learning"
+    
+    minimum_capital: "$100,000"
+    position_sizing: "fixed_fractional"
+    risk_management: "atr_based_stops"
+    latency_requirement: "medium_latency"
+    execution_speed: "seconds"
+    data_frequency: "daily"
+    data_requirements:
+      - "daily_ohlc"
+      - "volume"
+      - "volatility"
+    
+    learning_capability: true
+    adaptation_speed: "medium"
+    transfer_learning_supported: true
+    ai_enhancement_ready: true
+    ensemble_compatibility: true
+    
+    compatible_regimes:
+      - trending_markets
+      - high_volatility
+    incompatible_regimes:
+      - ranging_markets
+      - low_volatility
+
+  # === Classic Technical Analysis ===
+  
+  darvas_box_theory:
+    id: "strat_003"
+    name: "Darvas Box Theory"
+    category: "discretionary_hybrid"
+    base_trader: "Nicolas Darvas"
+    philosophy: "trend_following"
+    timeframe: ["swing"]
+    risk: "medium"
+    execution: "manual"
+    regime_bias: ["bull"]
+    
+    assets: ["equities", "growth_stocks"]
+    entry_conditions:
+      - "box_breakout"
+      - "volume_confirmation"
+      - "momentum_alignment"
+    exit_conditions:
+      - "box_breakdown"
+      - "trailing_stop_hit"
+    indicators: ["price_boxes", "volume", "momentum"]
+    complexity: 3
+    computational_cost: "low"
+    
+    historical_performance:
+      win_rate: 0.55
+      sharpe_ratio: 1.2
+      max_drawdown: 0.25
+      risk_reward_ratio: 2.0
+      sortino_ratio: 1.0
+      calmar_ratio: 0.8
+    
+    integration_points:
+      - indira_temporal_reasoning
+      - indira_explainable_ai
+    cognitive_systems_required:
+      - "temporal_reasoning"
+      - "explainable_ai"
+    
+    minimum_capital: "$5,000"
+    position_sizing: "risk_based"
+    risk_management: "trailing_stops"
+    latency_requirement: "low_latency"
+    execution_speed: "seconds"
+    data_frequency: "daily"
+    data_requirements:
+      - "daily_ohlc"
+      - "volume"
+    
+    learning_capability: false
+    adaptation_speed: "none"
+    transfer_learning_supported: false
+    ai_enhancement_ready: false
+    ensemble_compatibility: true
+    
+    compatible_regimes:
+      - strong_bull_trends
+    incompatible_regimes:
+      - bear_markets
+      - ranging_markets
+
+  # === ICT/Smart Money Concepts ===
+  
+  ict_liquidity_concepts:
+    id: "strat_004"
+    name: "ICT (Inner Circle Trader) Liquidity Concepts"
+    category: "liquidity_focused"
+    base_trader: "ICT"
+    philosophy: "liquidity_focused"
+    timeframe: ["scalping", "intraday", "swing"]
+    risk: "asymmetric"
+    execution: "discretionary_hybrid"
+    regime_bias: ["neutral", "volatility_driven"]
+    
+    assets: ["crypto", "forex", "futures"]
+    entry_conditions:
+      - "liquidity_sweep"
+      - "order_block"
+      - "fair_value_gap"
+      - "displacement"
+    exit_conditions:
+      - "liquidity_target"
+      - "mitigation_block"
+    indicators: ["order_blocks", "fvgs", "liquidity_levels", "displacement"]
+    complexity: 8
+    computational_cost: "medium"
+    
+    historical_performance:
+      win_rate: 0.60
+      sharpe_ratio: 1.5
+      max_drawdown: 0.20
+      risk_reward_ratio: 3.0
+      sortino_ratio: 1.2
+      calmar_ratio: 1.0
+    
+    integration_points:
+      - indira_theory_of_mind
+      - indira_intentional_stance
+      - indira_causal_reasoning
+    cognitive_systems_required:
+      - "theory_of_mind"
+      - "intentional_stance"
+      - "causal_reasoning"
+    
+    minimum_capital: "$5,000"
+    position_sizing: "risk_reward_based"
+    risk_management: "tight_stops"
+    latency_requirement: "low_latency"
+    execution_speed: "milliseconds"
+    data_frequency: "tick_level"
+    data_requirements:
+      - "order_book_depth"
+      - "trade_flow"
+      - "market_microstructure"
+    
+    learning_capability: true
+    adaptation_speed: "fast"
+    transfer_learning_supported: true
+    ai_enhancement_ready: true
+    ensemble_compatibility: true
+    
+    compatible_regimes:
+      - ranging_markets
+      - high_volatility
+    incompatible_regimes:
+      - strong_trend_only
+
+  # === Market Cycle Analysis ===
+  
+  wyckoff_method:
+    id: "strat_005"
+    name: "Wyckoff Method"
+    category: "discretionary_hybrid"
+    base_trader: "Richard Wyckoff"
+    philosophy: "market_cycle_analysis"
+    timeframe: ["swing", "position"]
+    risk: "medium"
+    execution: "discretionary"
+    regime_bias: ["neutral"]
+    
+    assets: ["equities", "futures", "crypto"]
+    entry_conditions:
+      - "accumulation_phase_completion"
+      - "spring"
+      - "sign_of_strength"
+    exit_conditions:
+      - "distribution_phase"
+      - "sign_of_weakness"
+    indicators: ["volume_profile", "price_action", "market_structure"]
+    complexity: 9
+    computational_cost: "high"
+    
+    historical_performance:
+      win_rate: 0.70
+      sharpe_ratio: 2.0
+      max_drawdown: 0.12
+      risk_reward_ratio: 2.8
+      sortino_ratio: 1.6
+      calmar_ratio: 1.4
+    
+    integration_points:
+      - indira_theory_of_mind
+      - indira_causal_reasoning
+      - indira_world_model_simulation
+      - indira_artificial_consciousness
+    cognitive_systems_required:
+      - "theory_of_mind"
+      - "causal_reasoning"
+      - "world_model_simulation"
+      - "artificial_consciousness"
+    
+    minimum_capital: "$25,000"
+    position_sizing: "phase_based"
+    risk_management: "portfolio_risk_management"
+    latency_requirement: "medium_latency"
+    execution_speed: "minutes"
+    data_frequency: "daily"
+    data_requirements:
+      - "daily_ohlc"
+      - "volume"
+      - "market_structure"
+    
+    learning_capability: true
+    adaptation_speed: "medium"
+    transfer_learning_supported: true
+    ai_enhancement_ready: true
+    ensemble_compatibility: true
+    
+    compatible_regimes:
+      - all_market_phases
+    incompatible_regimes:
+      - none
+
+  # === Growth/Momentum Strategies ===
+  
+  canslim_momentum:
+    id: "strat_006"
+    name: "CANSLIM (O'Neil)"
+    category: "momentum_growth"
+    base_trader: "William O'Neil"
+    philosophy: "growth_momentum"
+    timeframe: ["swing", "position"]
+    risk: "high"
+    execution: "discretionary_hybrid"
+    regime_bias: ["bull"]
+    
+    assets: ["growth_stocks", "equities"]
+    entry_conditions:
+      - "earnings_acceleration"
+      - "relative_strength_leader"
+      - "institutional_accumulation"
+    exit_conditions:
+      - "momentum_breakdown"
+      - "earnings_disappointment"
+    indicators: ["earnings_growth", "relative_strength", "volume", "price_action"]
+    complexity: 6
+    computational_cost: "medium"
+    
+    historical_performance:
+      win_rate: 0.45
+      sharpe_ratio: 1.3
+      max_drawdown: 0.35
+      risk_reward_ratio: 2.5
+      sortino_ratio: 1.1
+      calmar_ratio: 0.7
+    
+    integration_points:
+      - indira_temporal_reasoning
+      - indira_meta_learning
+      - indira_analogical_reasoning
+    cognitive_systems_required:
+      - "temporal_reasoning"
+      - "meta_learning"
+      - "analogical_reasoning"
+    
+    minimum_capital: "$50,000"
+    position_sizing: "volatility_adjusted"
+    risk_management: "trailing_stops"
+    latency_requirement: "medium_latency"
+    execution_speed: "minutes"
+    data_frequency: "daily"
+    data_requirements:
+      - "fundamental_data"
+      - "earnings_reports"
+      - "daily_ohlc"
+      - "volume"
+    
+    learning_capability: true
+    adaptation_speed: "medium"
+    transfer_learning_supported: true
+    ai_enhancement_ready: true
+    ensemble_compatibility: true
+    
+    compatible_regimes:
+      - strong_bull_trends
+      - earnings_season
+    incompatible_regimes:
+      - bear_markets
+      - economic_recession
+
+  minervini_trend_template:
+    id: "strat_007"
+    name: "Minervini Trend Template"
+    category: "momentum_growth"
+    base_trader: "Mark Minervini"
+    philosophy: "trend_momentum"
+    timeframe: ["swing"]
+    risk: "medium"
+    execution: "discretionary"
+    regime_bias: ["bull"]
+    
+    assets: ["growth_stocks", "equities"]
+    entry_conditions:
+      - "8_trend_template_criteria"
+      - "breakout_with_volume"
+      - "relative_strength"
+    exit_conditions:
+      - "trend_breakdown"
+      - "technical_failure"
+    indicators: ["price_action", "volume", "moving_averages", "relative_strength"]
+    complexity: 7
+    computational_cost: "medium"
+    
+    historical_performance:
+      win_rate: 0.55
+      sharpe_ratio: 1.7
+      max_drawdown: 0.20
+      risk_reward_ratio: 3.0
+      sortino_ratio: 1.4
+      calmar_ratio: 1.2
+    
+    integration_points:
+      - indira_temporal_reasoning
+      - indira_explainable_ai
+      - indira_abductive_reasoning
+    cognitive_systems_required:
+      - "temporal_reasoning"
+      - "explainable_ai"
+      - "abductive_reasoning"
+    
+    minimum_capital: "$25,000"
+    position_sizing: "position_sizing_model"
+    risk_management: "trend_based_stops"
+    latency_requirement: "medium_latency"
+    execution_speed: "minutes"
+    data_frequency: "daily"
+    data_requirements:
+      - "daily_ohlc"
+      - "volume"
+      - "fundamental_screening"
+    
+    learning_capability: false
+    adaptation_speed: "none"
+    transfer_learning_supported: false
+    ai_enhancement_ready: true
+    ensemble_compatibility: true
+    
+    compatible_regimes:
+      - strong_bull_trends
+    incompatible_regimes:
+      - bear_markets
+      - ranging_markets
+
+  # === Pattern-Based Strategies ===
+  
+  raschke_swing_trading:
+    id: "strat_008"
+    name: "Linda Raschke's Swing Trading"
+    category: "pattern_based"
+    base_trader: "Linda Raschke"
+    philosophy: "pattern_recognition"
+    timeframe: ["swing", "intraday"]
+    risk: "medium"
+    execution: "discretionary"
+    regime_bias: ["neutral"]
+    
+    assets: ["equities", "futures", "forex"]
+    entry_conditions:
+      - "3_d_pattern"
+      - "guppy_system"
+      - "expansion_breakout"
+    exit_conditions:
+      - "pattern_failure"
+      - "profit_target_reached"
+    indicators: ["price_patterns", "moving_averages", "volume", "adrenaline"]
+    complexity: 8
+    computational_cost: "medium"
+    
+    historical_performance:
+      win_rate: 0.58
+      sharpe_ratio: 1.4
+      max_drawdown: 0.22
+      risk_reward_ratio: 2.2
+      sortino_ratio: 1.2
+      calmar_ratio: 0.9
+    
+    integration_points:
+      - indira_analogical_reasoning
+      - indira_temporal_reasoning
+      - indira_explainable_ai
+    cognitive_systems_required:
+      - "analogical_reasoning"
+      - "temporal_reasoning"
+      - "explainable_ai"
+    
+    minimum_capital: "$15,000"
+    position_sizing: "pattern_based"
+    risk_management: "fixed_ratio_stops"
+    latency_requirement: "medium_latency"
+    execution_speed: "seconds"
+    data_frequency: "intraday"
+    data_requirements:
+      - "intraday_ohlc"
+      - "volume"
+      - "pattern_recognition"
+    
+    learning_capability: true
+    adaptation_speed: "medium"
+    transfer_learning_supported: true
+    ai_enhancement_ready: true
+    ensemble_compatibility: true
+    
+    compatible_regimes:
+      - trending_markets
+      - range_with_volatility
+    incompatible_regimes:
+      - low_volatility
+
+  # === Mathematical Position Sizing ===
+  
+  kelly_criterion_allocation:
+    id: "strat_009"
+    name: "Kelly Criterion Allocation"
+    category: "mathematical_optimization"
+    base_trader: "John Kelly"
+    philosophy: "mathematical_optimization"
+    timeframe: ["all_timeframes"]
+    risk: "variable"
+    execution: "algorithmic"
+    regime_bias: ["neutral"]
+    
+    assets: ["all_asset_classes"]
+    entry_conditions:
+      - "positive_expected_value"
+      - "edge_calculation"
+    exit_conditions:
+      - "edge_deterioration"
+      - "risk_parameter_change"
+    indicators: ["expected_value", "win_probability", "edge_ratio"]
+    complexity: 5
+    computational_cost: "low"
+    
+    historical_performance:
+      win_rate: "variable"
+      sharpe_ratio: "variable"
+      max_drawdown: "variable"
+      risk_reward_ratio: "optimized"
+      sortino_ratio: "optimized"
+      calmar_ratio: "optimized"
+    
+    integration_points:
+      - indira_quantum_algorithms
+      - indira_meta_learning
+      - indira_continual_learning
+    cognitive_systems_required:
+      - "quantum_algorithms"
+      - "meta_learning"
+      - "continual_learning"
+    
+    minimum_capital: "$10,000"
+    position_sizing: "kelly_criterion"
+    risk_management: "mathematical"
+    latency_requirement: "low_latency"
+    execution_speed: "milliseconds"
+    data_frequency: "tick_level"
+    data_requirements:
+      - "trade_history"
+      - "performance_metrics"
+      - "edge_data"
+    
+    learning_capability: true
+    adaptation_speed: "fast"
+    transfer_learning_supported: true
+    ai_enhancement_ready: true
+    ensemble_compatibility: true
+    
+    compatible_regimes:
+      - all_regimes
+    incompatible_regimes:
+      - none
+
+  # === Risk Management Strategies ===
+  
+  risk_parity_bridgewater:
+    id: "strat_010"
+    name: "Risk Parity (Bridgewater)"
+    category: "portfolio_management"
+    base_trader: "Ray Dalio"
+    philosophy: "risk_balancing"
+    timeframe: ["position", "long_term"]
+    risk: "low"
+    execution: "algorithmic"
+    regime_bias: ["neutral"]
+    
+    assets: ["multi_asset_portfolio"]
+    entry_conditions:
+      - "volatility_equalization"
+      - "correlation_diversification"
+    exit_conditions:
+      - "regime_change"
+      - "correlation_shift"
+    indicators: ["volatility", "correlation_matrix", "risk_contribution"]
+    complexity: 9
+    computational_cost: "high"
+    
+    historical_performance:
+      win_rate: 0.65
+      sharpe_ratio: 1.9
+      max_drawdown: 0.10
+      risk_reward_ratio: 1.5
+      sortino_ratio: 1.5
+      calmar_ratio: 1.8
+    
+    integration_points:
+      - indira_quantum_algorithms
+      - indira_world_model_simulation
+      - indira_meta_learning
+    cognitive_systems_required:
+      - "quantum_algorithms"
+      - "world_model_simulation"
+      - "meta_learning"
+    
+    minimum_capital: "$100,000"
+    position_sizing: "risk_parity"
+    risk_management: "portfolio_risk_management"
+    latency_requirement: "medium_latency"
+    execution_speed: "daily"
+    data_frequency: "daily"
+    data_requirements:
+      - "daily_returns"
+      - "volatility_data"
+      - "correlation_matrix"
+      - "economic_data"
+    
+    learning_capability: true
+    adaptation_speed: "slow"
+    transfer_learning_supported: true
+    ai_enhancement_ready: true
+    ensemble_compatibility: true
+    
+    compatible_regimes:
+      - all_regimes
+    incompatible_regimes:
+      - none
+
+  # === Arbitrage Strategies ===
+  
+  merger_arbitrage:
+    id: "strat_011"
+    name: "Merger Arbitrage"
+    category: "event_driven_arbitrage"
+    base_trader: "institutional_trading"
+    philosophy: "arbitrage"
+    timeframe: ["position"]
+    risk: "low"
+    execution: "algorithmic"
+    regime_bias: ["neutral"]
+    
+    assets: ["equities"]
+    entry_conditions:
+      - "merger_announcement"
+      - "spread_calculation"
+      - "completion_probability"
+    exit_conditions:
+      - "deal_completion"
+      - "deal_termination"
+    indicators: ["merger_spreads", "completion_probability", "risk_arbitrage"]
+    complexity: 7
+    computational_cost: "medium"
+    
+    historical_performance:
+      win_rate: 0.85
+      sharpe_ratio: 2.5
+      max_drawdown: 0.05
+      risk_reward_ratio: 0.5
+      sortino_ratio: 2.2
+      calmar_ratio: 3.0
+    
+    integration_points:
+      - indira_causal_reasoning
+      - indira_abductive_reasoning
+      - indira_game_theoretic_reasoning
+    cognitive_systems_required:
+      - "causal_reasoning"
+      - "abductive_reasoning"
+      - "game_theoretic_reasoning"
+    
+    minimum_capital: "$50,000"
+    position_sizing: "deal_risk_based"
+    risk_management: "deal_specific"
+    latency_requirement: "medium_latency"
+    execution_speed: "minutes"
+    data_frequency: "daily"
+    data_requirements:
+      - "merger_announcements"
+      - "regulatory_filings"
+      - "deal_documents"
+    
+    learning_capability: true
+    adaptation_speed: "slow"
+    transfer_learning_supported: true
+    ai_enhancement_ready: true
+    ensemble_compatibility: true
+    
+    compatible_regimes:
+      - merger_announcement_cycles
+    incompatible_regimes:
+      - low_merger_activity
+
+  statistical_arbitrage_pairs:
+    id: "strat_012"
+    name: "Statistical Arbitrage (Pairs Trading)"
+    category: "statistical_arbitrage"
+    base_trader: "quantitative_trading"
+    philosophy: "mean_reversion"
+    timeframe: ["intraday", "swing"]
+    risk: "low"
+    execution: "algorithmic"
+    regime_bias: ["neutral"]
+    
+    assets: ["correlated_pairs", "equities", "futures", "crypto"]
+    entry_conditions:
+      - "mean_reversion_signal"
+      - "statistical_divergence"
+      - "cointegration_breakdown"
+    exit_conditions:
+      - "convergence"
+      - "regime_change"
+    indicators: ["correlation", "cointegration", "z_score", "ratio"]
+    complexity: 8
+    computational_cost: "high"
+    
+    historical_performance:
+      win_rate: 0.75
+      sharpe_ratio: 2.2
+      max_drawdown: 0.08
+      risk_reward_ratio: 1.2
+      sortino_ratio: 1.8
+      calmar_ratio: 2.0
+    
+    integration_points:
+      - indira_meta_learning
+      - indira_neuromorphic_computing
+      - indira_quantum_algorithms
+    cognitive_systems_required:
+      - "meta_learning"
+      - "neuromorphic_computing"
+      - "quantum_algorithms"
+    
+    minimum_capital: "$25,000"
+    position_sizing: "statistical_based"
+    risk_management: "correlation_risk_management"
+    latency_requirement: "low_latency"
+    execution_speed: "milliseconds"
+    data_frequency: "intraday"
+    data_requirements:
+      - "high_frequency_data"
+      - "correlation_matrices"
+      - "statistical_relationships"
+    
+    learning_capability: true
+    adaptation_speed: "fast"
+    transfer_learning_supported: true
+    ai_enhancement_ready: true
+    ensemble_compatibility: true
+    
+    compatible_regimes:
+      - ranging_markets
+      - mean_reverting_regimes
+    incompatible_regimes:
+      - strong_trends
+      - regime_breaks
+
+  # === Volatility Strategies ===
+  
+  volatility_harvesting:
+    id: "strat_013"
+    name: "Volatility Harvesting"
+    category: "volatility_exploitation"
+    base_trader: "options_trading"
+    philosophy: "volatility_arbitrage"
+    timeframe: ["intraday", "swing"]
+    risk: "medium"
+    execution: "algorithmic"
+    regime_bias: ["volatility_driven"]
+    
+    assets: ["options", "futures", "indices"]
+    entry_conditions:
+      - "iv_rv_divergence"
+      - "volatility_term_structure"
+      - "volatility_regime_change"
+    exit_conditions:
+      - "iv_convergence"
+      - "gamma_risk"
+      - "theta_decay_target"
+    indicators: ["implied_volatility", "realized_volatility", "term_structure", "greeks"]
+    complexity: 9
+    computational_cost: "high"
+    
+    historical_performance:
+      win_rate: 0.68
+      sharpe_ratio: 1.8
+      max_drawdown: 0.15
+      risk_reward_ratio: 1.8
+      sortino_ratio: 1.5
+      calmar_ratio: 1.3
+    
+    integration_points:
+      - indira_temporal_reasoning
+      - indira_quantum_algorithms
+      - indira_advanced_attention
+    cognitive_systems_required:
+      - "temporal_reasoning"
+      - "quantum_algorithms"
+      - "advanced_attention"
+    
+    minimum_capital: "$20,000"
+    position_sizing: "vega_based"
+    risk_management: "greek_based"
+    latency_requirement: "low_latency"
+    execution_speed: "milliseconds"
+    data_frequency: "tick_level"
+    data_requirements:
+      - "options_chain"
+      - "volatility_surface"
+      - "greeks"
+    
+    learning_capability: true
+    adaptation_speed: "fast"
+    transfer_learning_supported: true
+    ai_enhancement_ready: true
+    ensemble_compatibility: true
+    
+    compatible_regimes:
+      - high_volatility
+      - volatility_regime_changes
+    incompatible_regimes:
+      - low_volatility
+      - flat_term_structure
+
+  # === Crypto Native Strategies ===
+  
+  funding_rate_arbitrage_crypto:
+    id: "strat_014"
+    name: "Funding Rate Arbitrage (Crypto)"
+    category: "crypto_native"
+    base_trader: "crypto_quant_trading"
+    philosophy: "arbitrage"
+    timeframe: ["intraday", "swing"]
+    risk: "low"
+    execution: "algorithmic"
+    regime_bias: ["neutral"]
+    
+    assets: ["crypto", "perpetual_futures", "spot"]
+    entry_conditions:
+      - "funding_rate_divergence"
+      - "basis_arbitrage"
+      - "cost_of_carry_opportunity"
+    exit_conditions:
+      - "rate_convergence"
+      - "funding_rate_reversal"
+    indicators: ["funding_rates", "basis", "implied_funding"]
+    complexity: 6
+    computational_cost: "low"
+    
+    historical_performance:
+      win_rate: 0.90
+      sharpe_ratio: 3.5
+      max_drawdown: 0.03
+      risk_reward_ratio: 0.3
+      sortino_ratio: 2.8
+      calmar_ratio: 4.0
+    
+    integration_points:
+      - indira_temporal_reasoning
+      - indira_neuromorphic_computing
+    cognitive_systems_required:
+      - "temporal_reasoning"
+      - "neuromorphic_computing"
+    
+    minimum_capital: "$10,000"
+    position_sizing: "funding_rate_based"
+    risk_management: "exchange_risk_management"
+    latency_requirement: "low_latency"
+    execution_speed: "milliseconds"
+    data_frequency: "realtime"
+    data_requirements:
+      - "funding_rates"
+      - "perpetual_prices"
+      - "spot_prices"
+    
+    learning_capability: true
+    adaptation_speed: "fast"
+    transfer_learning_supported: true
+    ai_enhancement_ready: true
+    ensemble_compatibility: true
+    
+    compatible_regimes:
+      - high_funding_rate_periods
+      - crypto_bull_markets
+    incompatible_regimes:
+      - low_funding_rate_periods
+
+  whale_wallet_tracking:
+    id: "strat_015"
+    name: "Whale Wallet Tracking Bots"
+    category: "crypto_native"
+    base_trader: "crypto_on_chain_analysis"
+    philosophy: "flow_following"
+    timeframe: ["intraday", "swing"]
+    risk: "medium"
+    execution: "bot_driven"
+    regime_bias: ["neutral"]
+    
+    assets: ["crypto", "on_chain_data"]
+    entry_conditions:
+      - "whale_accumulation"
+      - "smart_money_movement"
+      - "on_chain_signals"
+    exit_conditions:
+      - "whale_distribution"
+      - "signal_reversal"
+    indicators: ["on_chain_flows", "whale_movements", "smart_money_signals"]
+    complexity: 7
+    computational_cost: "medium"
+    
+    historical_performance:
+      win_rate: 0.72
+      sharpe_ratio: 2.1
+      max_drawdown: 0.12
+      risk_reward_ratio: 2.8
+      sortino_ratio: 1.7
+      calmar_ratio: 1.5
+    
+    integration_points:
+      - indira_theory_of_mind
+      - indira_intentional_stance
+      - indira_multi_agent_collaboration
+    cognitive_systems_required:
+      - "theory_of_mind"
+      - "intentional_stance"
+      - "multi_agent_collaboration"
+    
+    minimum_capital: "$5,000"
+    position_sizing: "whale_position_based"
+    risk_management: "on_chain_risk_management"
+    latency_requirement: "medium_latency"
+    execution_speed: "seconds"
+    data_frequency: "realtime"
+    data_requirements:
+      - "on_chain_data"
+      - "whale_wallet_tracking"
+      - "blockchain_explorers"
+    
+    learning_capability: true
+    adaptation_speed: "fast"
+    transfer_learning_supported: true
+    ai_enhancement_ready: true
+    ensemble_compatibility: true
+    
+    compatible_regimes:
+      - whale_activity_periods
+      - crypto_bull_markets
+    incompatible_regimes:
+      - low_whale_activity
+
+  # === Strategy Registry Metadata ===
+
+ensemble_strategies:
+  liquid_intelligence_ensemble:
+    id: "ensemble_001"
+    name: "Liquid Intelligence Ensemble"
+    description: "Multi-strategy ensemble for liquidity-focused trading"
+    components:
+      - strategy: baybasin_liquidity_zones
+        weight: 0.35
+        role: "primary_entry"
+      - strategy: ict_liquidity_concepts
+        weight: 0.30
+        role: "confirmation"
+      - strategy: wyckoff_method
+        weight: 0.20
+        role: "market_context"
+      - strategy: statistical_arbitrage_pairs
+        weight: 0.15
+        role: "risk_hedging"
+    
+    composition_logic: "indira_multi_agent_collaboration"
+    adaptation_method: "quantum_algorithm_integration"
+    decision_mechanism: "advanced_attention_mechanisms"
+    performance_boost: "1.8x"
+    risk_reduction: "0.4x"
+    
+    required_cognitive_systems:
+      - theory_of_mind
+      - causal_reasoning
+      - quantum_algorithms
+      - multi_agent_collaboration
+      - advanced_attention
+    
+    regime_optimization:
+      ranging_markets: 1.9x
+      high_volatility: 2.2x
+      neutral: 1.5x
+
+regime_strategy_mapping:
+  bull_market_strategies:
+    - canslim_momentum
+    - minervini_trend_template
+    - darvas_box_theory
+    - wyckoff_method_distribution_phase
+  
+  bear_market_strategies:
+    - statistical_arbitrage_pairs
+    - risk_parity_bridgewater
+    - volatility_harvesting
+    - merger_arbitrage
+  
+  high_volatility_strategies:
+    - baybasin_liquidity_zones
+    - ict_liquidity_concepts
+    - volatility_harvesting
+    - turtle_trading_system
+  
+  ranging_markets:
+    - ict_liquidity_concepts
+    - statistical_arbitrage_pairs
+    - baybasin_liquidity_zones
+    - raschke_swing_trading
+  
+  crypto_bull_markets:
+    - whale_wallet_tracking
+    - funding_rate_arbitrage_crypto
+    - wyckoff_method
+  
+  high_liquidity_periods:
+    - baybasin_liquidity_zones
+    - ict_liquidity_concepts
+    - liquid_intelligence_ensemble
+
+# INDIRA Integration Configuration
+indira_integration:
+  enabled: true
+  cognitive_system_mapping:
+    theory_of_mind: ["baybasin_liquidity_zones", "ict_liquidity_concepts", "whale_wallet_tracking", "wyckoff_method"]
+    causal_reasoning: ["baybasin_liquidity_zones", "merger_arbitrage", "wyckoff_method"]
+    temporal_reasoning: ["turtle_trading_system", "darvas_box_theory", "volatility_harvesting", "funding_rate_arbitrage"]
+    explainable_ai: ["darvas_box_theory", "minervini_trend_template", "raschke_swing_trading"]
+    transfer_learning: ["turtle_trading_system", "can_slip_momentum", "all_adaptive_strategies"]
+    self_improving_architecture: ["all_quantitative_strategies", "all_arbitrage_strategies"]
+    meta_learning: ["kelly_criterion", "risk_parity", "statistical_arbitrage"]
+    continual_learning: ["all_learning_capable_strategies"]
+    world_model_simulation: ["wyckoff_method", "risk_parity", "volatility_harvesting"]
+    multi_agent_collaboration: ["liquid_intelligence_ensemble", "all_composite_strategies"]
+    game_theoretic_reasoning: ["merger_arbitrage", "statistical_arbitrage"]
+    analogical_reasoning: ["raschke_swing_trading", "can_slip_momentum"]
+    intentional_stance: ["ict_liquidity_concepts", "whale_wallet_tracking"]
+    abductive_reasoning: ["merger_arbitrage", "minervini_trend_template"]
+    neuromorphic_computing: ["statistical_arbitrage", "funding_rate_arbitrage", "all_high_frequency_strategies"]
+    quantum_algorithms: ["kelly_criterion", "risk_parity", "volatility_harvesting"]
+    advanced_attention: ["volatility_harvesting", "liquid_intelligence_ensemble"]
+  
+  automated_strategy_selection:
+    enabled: true
+    selection_criteria:
+      - market_regime
+      - volatility_environment
+      - liquidity_conditions
+      - correlation_structure
+      - risk_parameters
+      - capital_constraints
+    
+    cognitive_selection_systems:
+      - theory_of_mind
+      - temporal_reasoning
+      - world_model_simulation
+      - advanced_attention
+  
+  strategy_performance_tracking:
+    enabled: true
+    metrics:
+      - real_time_sharpe
+      - regime_specific_performance
+      - cognitive_system_contribution
+      - ensemble_effectiveness
+      - adaptation_speed
+      - learning_curve
+
+# Registry Configuration
+registry_config:
+  validation:
+    enabled: true
+    strict_mode: true
+    automatic_validation: true
+  
+  versioning:
+    enabled: true
+    strategy_versioning: true
+    performance_versioning: true
+  
+  backtesting:
+    enabled: true
+    minimum_backtest_period: "3_years"
+    out_of_sample_testing: true
+    walk_forward_analysis: true
+  
+  deployment:
+    pre_deployment_checks:
+      - contract_compliance
+      - performance_validation
+      - cognitive_system_integration
+      - risk_management_verification
+    post_deployment_monitoring:
+      - live_performance_tracking
+      - regime_detection
+      - adaptation_monitoring
+      - cognitive_system_health
