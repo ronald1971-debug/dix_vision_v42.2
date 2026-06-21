@@ -298,6 +298,74 @@ class DashboardApp {
                 this.showNotifications();
             });
         }
+
+        // Compliance slider
+        const complianceSlider = document.getElementById('compliance-slider');
+        if (complianceSlider) {
+            complianceSlider.addEventListener('input', (e) => {
+                this.updateComplianceLevel(e.target.value);
+            });
+
+            complianceSlider.addEventListener('change', (e) => {
+                this.saveComplianceLevel(e.target.value);
+            });
+        }
+    }
+
+    updateComplianceLevel(level) {
+        // Update compliance level display
+        const complianceLevel = document.getElementById('compliance-level');
+        const complianceTrend = document.getElementById('compliance-trend');
+        const complianceCard = document.querySelector('.compliance-card');
+
+        if (complianceLevel) {
+            complianceLevel.textContent = level + '%';
+        }
+
+        // Update card styling based on compliance level
+        if (complianceCard) {
+            complianceCard.classList.remove('high-compliance', 'medium-compliance', 'low-compliance');
+            
+            if (level >= 80) {
+                complianceCard.classList.add('high-compliance');
+                if (complianceTrend) {
+                    complianceTrend.innerHTML = '<i class="fas fa-check-circle"></i> Fully Compliant';
+                    complianceTrend.className = 'card-trend positive';
+                }
+            } else if (level >= 50) {
+                complianceCard.classList.add('medium-compliance');
+                if (complianceTrend) {
+                    complianceTrend.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Moderate Compliance';
+                    complianceTrend.className = 'card-trend';
+                    complianceTrend.style.color = '#ffab00';
+                }
+            } else {
+                complianceCard.classList.add('low-compliance');
+                if (complianceTrend) {
+                    complianceTrend.innerHTML = '<i class="fas fa-times-circle"></i> Low Compliance';
+                    complianceTrend.className = 'card-trend negative';
+                }
+            }
+        }
+
+        // In production, this would call the backend API
+        console.log('Compliance level adjusted to:', level + '%');
+    }
+
+    saveComplianceLevel(level) {
+        // In production, save compliance level to backend
+        const reason = prompt('Reason for compliance level adjustment:');
+        if (reason !== null) {
+            console.log('Saving compliance level:', level, 'Reason:', reason);
+            
+            // Simulate API call
+            // In production: 
+            // fetch('/api/compliance/set-level', {
+            //     method: 'POST',
+            //     headers: {'Content-Type': 'application/json'},
+            //     body: JSON.stringify({ level: parseFloat(level), reason: reason })
+            // });
+        }
     }
 
     updateChartsForTimeRange(timeRange) {
