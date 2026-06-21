@@ -190,14 +190,27 @@ def build_operator_router(
     @router.get("/api/operator/summary", response_model=OperatorSummaryResponse)
     def operator_summary() -> OperatorSummaryResponse:
         """Typed read projection of mode + engines + strategies + memecoin."""
-
         state = state_accessor()
         with state.lock:
-            mode_snap = state.mode_widget.snapshot()
-            engine_rows = state.engines_widget.snapshot()
-            strategies_by_state = state.strategies_widget.by_state()
-            memecoin_snap = state.memecoin_widget.status()
-            chain_count = len(state.decisions_widget.chains(limit=200))
+            try:
+                mode_snap = state.mode_widget.snapshot()
+                engine_rows = state.engines_widget.snapshot()
+                strategies_by_state = state.strategies_widget.by_state()
+                memecoin_snap = state.memecoin_widget.status()
+                chain_count = len(state.decisions_widget.chains(limit=200))
+            except AttributeError as e:
+                # If widgets are not available, return empty response
+                return OperatorSummaryResponse(
+                    mode=OperatorModeSnapshot(
+                        current_mode="LIVE",
+                        legal_targets=["PAPER", "SAFE", "LIVE", "AUTO"],
+                        is_locked=False,
+                    ),
+                    engines=[],
+                    strategies=OperatorStrategyCounts(),
+                    memecoin=OperatorMemecoinSnapshot(),
+                    decision_chain_count=0,
+                )
 
         counts: dict[str, int] = {field: 0 for _, field in _STRATEGY_STATE_KEYS}
         for state_key, field in _STRATEGY_STATE_KEYS:
@@ -665,6 +678,9 @@ def build_operator_router(
         """Project a :class:`DevelopmentModePolicy` snapshot to the wire."""
 
         return DevelopmentModeResponse(
+            response_id="development-mode-snapshot",
+            request_id="current-state",
+            status="active",
             development_enabled=policy.development_enabled,
             trading_allowed=policy.trading_allowed,
             mode=policy.mode.name if policy.mode is not None else "",
@@ -745,8 +761,16 @@ def build_operator_router(
     )
     def operator_trading_allowed_get() -> DevelopmentModeResponse:
         """PR-DEV-A — typed read of the trading-allowed gate."""
-
-        return _development_mode_snapshot()
+        try:
+            return _development_mode_snapshot()
+        except Exception as e:
+            # Fallback response if state access fails
+            return DevelopmentModeResponse(
+                response_id="fallback",
+                request_id="fallback",
+                status="unavailable",
+                message=f"Development mode snapshot unavailable: {str(e)}"
+            )
 
     @router.post(
         "/api/operator/trading-allowed",

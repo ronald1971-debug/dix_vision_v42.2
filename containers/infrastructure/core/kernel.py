@@ -9,8 +9,20 @@ from dataclasses import dataclass, field
 from enum import Enum
 import logging
 import time
+from core.contracts.governance import SystemMode
 
 logger = logging.getLogger(__name__)
+
+class KernelPhase(Enum):
+    """Kernel phase enumeration"""
+    INITIALIZATION = "initialization"
+    BOOTSTRAP = "bootstrap"
+    STARTUP = "startup"
+    RUNNING = "running"
+    SHUTDOWN = "shutdown"
+    MAINTENANCE = "maintenance"
+    RECOVERY = "recovery"
+    ERROR = "error"
 
 class EngineStatus(Enum):
     """Engine status enumeration"""
@@ -29,6 +41,50 @@ class EngineState:
     last_heartbeat: float
     health_score: float = 1.0
     metrics: Dict[str, Any] = field(default_factory=dict)
+
+@dataclass
+class ServiceHealth:
+    """Service health information"""
+    service_name: str
+    status: str
+    health_score: float
+    last_check: float = field(default_factory=time.time)
+    metrics: Dict[str, Any] = field(default_factory=dict)
+    
+    def is_healthy(self) -> bool:
+        """Check if service is healthy"""
+        return self.health_score > 0.5
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary"""
+        return {
+            "service_name": self.service_name,
+            "status": self.status,
+            "health_score": self.health_score,
+            "last_check": self.last_check,
+            "metrics": self.metrics
+        }
+
+@dataclass
+class KernelSnapshot:
+    """Snapshot of kernel state"""
+    phase: KernelPhase = KernelPhase.INITIALIZATION
+    mode: SystemMode = None
+    services: Dict[str, Any] = field(default_factory=dict)
+    engine_states: Dict[str, EngineState] = field(default_factory=dict)
+    service_health: Dict[str, ServiceHealth] = field(default_factory=dict)
+    timestamp: float = field(default_factory=time.time)
+    metadata: Dict[str, Any] = field(default_factory=dict)
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary"""
+        return {
+            "phase": self.phase.value,
+            "engine_states": {k: v.__dict__ for k, v in self.engine_states.items()},
+            "service_health": {k: v.to_dict() for k, v in self.service_health.items()},
+            "timestamp": self.timestamp,
+            "metadata": self.metadata
+        }
     
 class EngineServiceAdapter:
     """Adapter for engine service communication"""
@@ -84,6 +140,30 @@ class SystemKernel:
             logger.info(f"Registered engine: {engine_name}")
             return adapter
     
+    def register_service(self, adapter: EngineServiceAdapter) -> None:
+        """Register a service adapter with the kernel"""
+        with self._lock:
+            engine_name = adapter.engine_name
+            # Handle both string and object engine_name
+            if hasattr(engine_name, '__class__') and not isinstance(engine_name, str):
+                # Try different possible name attributes
+                engine_name = getattr(engine_name, 'name', None)
+                if engine_name is None:
+                    engine_name = getattr(engine_name, 'engine_name', None)
+                if engine_name is None:
+                    engine_name = getattr(engine_name, '__class__.__name__', str(type(engine_name).__name__))
+            
+            if engine_name not in self._adapters:
+                self._adapters[engine_name] = adapter
+                self._engines[engine_name] = EngineState(
+                    name=engine_name,
+                    status=EngineStatus.STARTING,
+                    last_heartbeat=time.time()
+                )
+                logger.info(f"Registered service: {engine_name}")
+            else:
+                logger.warning(f"Service {engine_name} already registered")
+    
     def get_engine_status(self, engine_name: str) -> Optional[EngineStatus]:
         """Get the status of a specific engine"""
         with self._lock:
@@ -126,6 +206,48 @@ class SystemKernel:
             )
             self._health_check_thread.start()
             logger.info("System kernel started")
+    
+    def boot(self) -> None:
+        """Boot the kernel (alias for start)"""
+        self.start()
+    
+    def set_execution_blocked(self, blocked: bool) -> None:
+        """Set execution blocked status"""
+        with self._lock:
+            self._execution_blocked = blocked
+            logger.info(f"Execution blocked: {blocked}")
+    
+    def transition_mode(self, target_mode, reason: str = "") -> None:
+        """Transition to a new mode"""
+        with self._lock:
+            self._current_mode = target_mode
+            logger.info(f"Mode transition to {target_mode}: {reason}")
+    
+    def get_current_mode(self):
+        """Get current mode"""
+        with self._lock:
+            return getattr(self, '_current_mode', None)
+    
+    def set_freeze(self, frozen: bool, reason: str = "") -> None:
+        """Set freeze status"""
+        with self._lock:
+            self._frozen = frozen
+            logger.info(f"Freeze status set to {frozen}: {reason}")
+    
+    def is_frozen(self) -> bool:
+        """Check if frozen"""
+        with self._lock:
+            return getattr(self, '_frozen', False)
+    
+    @property
+    def snapshot(self) -> KernelSnapshot:
+        """Get kernel snapshot"""
+        return KernelSnapshot(
+            phase=KernelPhase.RUNNING,
+            mode=self.get_current_mode() or SystemMode.NORMAL,
+            engine_states=self._engines.copy(),
+            timestamp=time.time()
+        )
     
     def stop(self) -> None:
         """Stop the kernel"""
@@ -177,10 +299,20 @@ def get_kernel() -> SystemKernel:
                 _global_kernel = SystemKernel()
     return _global_kernel
 
+def set_kernel(kernel: SystemKernel) -> None:
+    """Set the global system kernel instance"""
+    global _global_kernel
+    with _kernel_lock:
+        _global_kernel = kernel
+
 __all__ = [
+    "KernelPhase",
     "EngineStatus",
     "EngineState",
     "EngineServiceAdapter",
+    "ServiceHealth",
+    "KernelSnapshot",
     "SystemKernel",
-    "get_kernel"
+    "get_kernel",
+    "set_kernel"
 ]

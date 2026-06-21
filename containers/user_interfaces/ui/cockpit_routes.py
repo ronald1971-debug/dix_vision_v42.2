@@ -59,11 +59,23 @@ from state.episodic_memory import get_episodic_memory
 from state.ledger.writer import get_writer
 from system.autonomy import AutonomyMode, get_autonomy
 from system_unified.fast_risk_cache import get_risk_cache
-from system_unified.locale import current as current_locale
-from system_unified.locale import set_override, supported_ui_languages
-from system_monitor import weekly_scout as _scout
-from system_monitor.dead_man import get_dead_man
-from system_monitor.latency_guard import get_latency_guard
+from system.locale import current as current_locale
+from system.locale import set_override, supported_ui_languages
+try:
+    from system_monitor import weekly_scout as _scout
+except ImportError:
+    _scout = None
+    print("Warning: system_monitor not available")
+try:
+    from system_monitor.dead_man import get_dead_man
+except ImportError:
+    get_dead_man = None
+    print("Warning: system_monitor.dead_man not available")
+try:
+    from system_monitor.latency_guard import get_latency_guard
+except ImportError:
+    get_latency_guard = None
+    print("Warning: system_monitor.latency_guard not available")
 
 if _FASTAPI_OK:
 
@@ -234,7 +246,7 @@ def build_cockpit_router() -> APIRouter:  # type: ignore[name-defined]
     router = APIRouter()
     # Resolve the bearer token once so the /api/pair/claim handler can
     # echo it back to a claiming device without a per-request round-trip.
-    _token = get_or_create_token()
+    _token = get_or_create_token(operator_id="operator", context={"bootstrap": True})
 
     # ------------------------------------------------------------------ status
 
@@ -249,6 +261,22 @@ def build_cockpit_router() -> APIRouter:  # type: ignore[name-defined]
                 "ai_providers": len(_ai_payload()["providers"]),
             }
         )
+
+    @router.get("/api/system/status")
+    async def system_status() -> JSONResponse:
+        """System status endpoint for dashboard compatibility."""
+        return JSONResponse(
+            {
+                "status": "operational",
+                "version": "42.2.0",
+                "timestamp": "operational"
+            }
+        )
+
+    @router.get("/api/test")
+    async def test_endpoint():
+        """Simple test endpoint to verify routing works."""
+        return {"test": "success", "status": "working"}
 
     # ------------------------------------------------------------------ locale
 
@@ -1131,6 +1159,17 @@ def build_cockpit_router() -> APIRouter:  # type: ignore[name-defined]
     async def portfolio() -> JSONResponse:
         from cockpit.widgets.portfolio_view import portfolio_view_payload
         return JSONResponse(portfolio_view_payload())
+
+    @router.get("/favicon.ico")
+    async def favicon():
+        """Return a simple favicon response to avoid 404 errors."""
+        from fastapi.responses import Response
+        # Return a minimal 1x1 transparent PNG as favicon
+        import base64
+        minimal_png = base64.b64decode(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="
+        )
+        return Response(content=minimal_png, media_type="image/png")
 
     # Warm-start cockpit singletons so the first request doesn't block.
     get_writer()

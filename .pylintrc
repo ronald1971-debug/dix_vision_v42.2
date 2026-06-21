@@ -1,0 +1,71 @@
+[MASTER]
+# Use multiple processes to speed up Pylint.
+jobs=1
+# Pickle collected data for later comparisons.
+persistent=yes
+# List of plugins (as comma separated values of python module names)
+load-plugins=
+
+[MESSAGES CONTROL]
+# Disable the message, report, category or checker with the given id(s).
+disable=
+    C0330,  # Wrong hanging indentation before block (conflicts with black)
+    C0326,  # Bad whitespace. (conflicts with black)
+    R0903,  # Too few public methods
+    R0913,  # Too many arguments
+    C0103,  # Invalid name (too short)
+    W0212,  # Access to protected member
+    W0611,  # Unused import
+    C0114,  # Missing module docstring
+    C0115,  # Missing class docstring
+    C0116,  # Missing function docstring
+
+# Enable the message, report, category or checker with the given id(s).
+enable=
+
+[REPORTS]
+# Set the output format. Available formats are text, parseable, colorized, json
+# and msvs (visual studio). You can also give a reporter class, e.g.
+# mypackage.mymodule.MyReporterClass.
+output-format=text
+# Tells whether to display a full report or only the messages
+reports=y
+# Python expression which should return a score less than or equal to 10. You
+# have access to the variables 'fatal', 'error', 'warning', 'refactor',
+# 'convention', and 'info' which, respectively, represent the number of
+# messages in that category (as an integer). You can also use 'statement'
+# which represents the total number of statements analyzed. This is used by
+# the global evaluation report (RP0004).
+score=8.0
+
+[REFACTORING]
+# Maximum number of nested blocks for a function
+max-nested-blocks=5
+
+[DESIGN]
+# Maximum number of arguments for function / method
+max-args=7
+# Maximum number of locals for function / method body
+max-locals=15
+# Maximum number of return / yield for function / method body
+max-returns=6
+# Maximum number of branch for function / method body
+max-branches=12
+# Maximum number of statements in function / method body
+max-statements=50
+# Maximum number of parents for a class (see R0904).
+max-parents=7
+# Maximum number of attributes for a class (see R0902).
+max-attributes=7
+# Minimum number of public methods for a class (see R0903).
+min-public-methods=1
+# Maximum number of public methods for a class (see R0904).
+max-public-methods=20
+
+[FORMAT]
+# Maximum number of characters on a single line.
+max-line-length=100
+# String used for indentation (e.g. "  ", "\t").
+indent-string='    '
+# Number of spaces of indent required inside a hanging or continued line.
+indent-after-paren=4

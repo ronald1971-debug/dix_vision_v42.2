@@ -1,0 +1,17 @@
+version: "v1.0"
+constraints:
+  - id: "C001"
+    name: "Position Size Limit"
+    severity: "high"
+    enabled: true
+    description: "Maximum position size constraint"
+  - id: "C002"
+    name: "Exposure Limit"
+    severity: "critical"
+    enabled: true
+    description: "Total exposure limit"
+  - id: "C003"
+    name: "Drawdown Limit"
+    severity: "critical"
+    enabled: true
+    description: "Maximum drawdown constraint"

@@ -1,0 +1,9 @@
+version: "v1.0"
+authority_levels:
+  OPERATOR: 100
+  SYSTEM: 90
+  GOVERNANCE: 80
+  ENGINE: 70
+  SERVICE: 60
+  COMPONENT: 50
+  DEFAULT: 0

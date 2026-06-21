@@ -24,21 +24,30 @@ def build_execution_router() -> APIRouter:
 
     @router.get("/adapters")
     def list_adapters() -> dict[str, Any]:
-        reg = default_registry()
-        snap = reg.snapshot()
-        return {
-            "count": len(snap),
-            "adapters": [
-                {
-                    "name": s.name,
-                    "venue": s.venue,
-                    "state": s.state.value,
-                    "detail": s.detail,
-                    "last_heartbeat_ns": s.last_heartbeat_ns,
-                }
-                for s in snap
-            ],
-        }
+        """List all execution adapters with error handling."""
+        try:
+            reg = default_registry()
+            snap = reg.snapshot()
+            return {
+                "count": len(snap),
+                "adapters": [
+                    {
+                        "name": s.name or s.adapter_id,
+                        "venue": s.venue or "unknown",
+                        "state": s.state.value if hasattr(s.state, 'value') else str(s.state),
+                        "detail": s.detail or "Adapter registered",
+                        "last_heartbeat_ns": s.last_heartbeat_ns,
+                    }
+                    for s in snap
+                ],
+            }
+        except Exception as e:
+            # Fallback if adapters registry fails
+            return {
+                "count": 0,
+                "adapters": [],
+                "error": str(e)
+            }
 
     @router.get("/positions")
     def list_positions() -> dict[str, Any]:

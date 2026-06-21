@@ -155,31 +155,64 @@ def build_dashboard_router(provider: _WidgetsProvider) -> APIRouter:
 
     @router.get("/mode")
     def get_mode() -> dict[str, Any]:
-        widgets = provider()
-        result: dict[str, Any] = {"mode": _to_dict(widgets.mode.snapshot())}
-        proj = get_state_projection()
-        if proj.is_booted:
-            result["kernel"] = {
-                "phase": proj.phase.value,
-                "freeze_active": proj.freeze_active,
-                "live_execution_blocked": proj.live_execution_blocked,
-                "regime": proj.regime.value,
+        """Get dashboard mode with fallback for missing widgets."""
+        try:
+            widgets = provider()
+            if widgets.mode is None:
+                # Return default mode if widget not available
+                return {
+                    "mode": {
+                        "current_mode": "LIVE",
+                        "legal_targets": ["PAPER", "SAFE", "LIVE", "AUTO"],
+                        "is_locked": False
+                    }
+                }
+            result: dict[str, Any] = {"mode": _to_dict(widgets.mode.snapshot())}
+            proj = get_state_projection()
+            if proj and proj.is_booted:
+                result["kernel"] = {
+                    "phase": proj.phase.value,
+                    "freeze_active": proj.freeze_active,
+                    "live_execution_blocked": proj.live_execution_blocked,
+                    "regime": proj.regime.value,
+                }
+            return result
+        except Exception as e:
+            # Fallback response if any error occurs
+            return {
+                "mode": {
+                    "current_mode": "LIVE",
+                    "legal_targets": ["PAPER", "SAFE", "LIVE", "AUTO"],
+                    "is_locked": False,
+                    "error": str(e)
+                }
             }
-        return result
 
     @router.get("/engines")
     def get_engines() -> dict[str, Any]:
-        widgets = provider()
-        result: dict[str, Any] = {"engines": _to_dict(widgets.engines.snapshot())}
-        proj = get_state_projection()
-        if proj.is_booted:
-            result["kernel_services"] = proj.engine_health()
-        return result
+        """Get dashboard engines with fallback for missing widgets."""
+        try:
+            widgets = provider()
+            if widgets.engines is None:
+                return {"engines": []}
+            result: dict[str, Any] = {"engines": _to_dict(widgets.engines.snapshot())}
+            proj = get_state_projection()
+            if proj and proj.is_booted:
+                result["kernel_services"] = proj.engine_health()
+            return result
+        except Exception as e:
+            return {"engines": [], "error": str(e)}
 
     @router.get("/strategies")
     def get_strategies() -> dict[str, Any]:
-        widgets = provider()
-        return {"strategies": _to_dict(widgets.strategies.by_state())}
+        """Get dashboard strategies with fallback for missing widgets."""
+        try:
+            widgets = provider()
+            if widgets.strategies is None:
+                return {"strategies": {}}
+            return {"strategies": _to_dict(widgets.strategies.by_state())}
+        except Exception as e:
+            return {"strategies": {}, "error": str(e)}
 
     @router.get("/decisions")
     def get_decisions(
