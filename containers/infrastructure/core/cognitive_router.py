@@ -15,6 +15,10 @@ class TaskClass(Enum):
     EVOLUTION = "evolution"
     GOVERNANCE = "governance"
     EXECUTION = "execution"
+    INDIRA_REASONING = "indira_reasoning"
+    COGNITIVE_ANALYSIS = "cognitive_analysis"
+    PATTERN_RECOGNITION = "pattern_recognition"
+    ANOMALY_DETECTION = "anomaly_detection"
 
 class AIProvider(Enum):
     """Available AI providers for cognitive tasks"""

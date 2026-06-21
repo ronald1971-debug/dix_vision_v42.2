@@ -28,8 +28,9 @@ class ExternalSignalTrustRegistry:
         """List all registered signals"""
         return list(self._signals.keys())
 
-def load_external_signal_trust() -> ExternalSignalTrustRegistry:
+def load_external_signal_trust(path=None) -> ExternalSignalTrustRegistry:
     """Load and return the external signal trust registry"""
+    # Path argument accepted for compatibility but not used in current implementation
     return ExternalSignalTrustRegistry()
 
 __all__ = ["ExternalSignalTrustRegistry", "load_external_signal_trust"]
