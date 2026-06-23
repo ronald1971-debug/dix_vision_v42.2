@@ -5,10 +5,10 @@ Central orchestration layer for the unified Cognitive OS architecture.
 
 from .kernel import (
     CognitiveOSKernel,
-    get_cognitive_os_kernel,
+    CognitiveOSMetrics,
     SystemLayer,
     SystemStatus,
-    CognitiveOSMetrics,
+    get_cognitive_os_kernel,
 )
 
 __all__ = [

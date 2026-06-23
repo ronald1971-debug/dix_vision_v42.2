@@ -65,7 +65,7 @@ class RuntimeBootstrap:
         """
         self._app = app
         self._state = state
-        self._kernel = state.kernel if hasattr(state, 'kernel') else None
+        self._kernel = state.kernel if hasattr(state, "kernel") else None
 
         # Register FastAPI lifecycle hooks
         @app.on_event("startup")
@@ -122,8 +122,7 @@ class RuntimeBootstrap:
         """
         interval_sec = self.tick_interval_ms / 1000.0
         _logger.info(
-            "[RuntimeBootstrap] Coordination loop started (interval=%dms)",
-            self.tick_interval_ms
+            "[RuntimeBootstrap] Coordination loop started (interval=%dms)", self.tick_interval_ms
         )
 
         try:
@@ -184,4 +183,6 @@ def boot_integration(**kwargs: Any) -> None:
     This function is kept for backward compatibility.
     New code should use get_runtime_bootstrap() instead.
     """
-    _logger.warning("[RuntimeBootstrap] boot_integration() is deprecated, use get_runtime_bootstrap()")
+    _logger.warning(
+        "[RuntimeBootstrap] boot_integration() is deprecated, use get_runtime_bootstrap()"
+    )

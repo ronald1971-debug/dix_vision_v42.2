@@ -13,21 +13,23 @@ from __future__ import annotations
 
 import threading
 from dataclasses import dataclass, field
+from datetime import datetime
 from enum import StrEnum
 from typing import Any, Callable
-from datetime import datetime
 
 
 class CognitiveEntityType(StrEnum):
     """Types of entities in the cognitive environment."""
+
     OPERATOR = "operator"
     INDIRA = "indira"  # Trading agent
-    DYON = "dyon"      # System maintenance agent
+    DYON = "dyon"  # System maintenance agent
     SYSTEM = "system"  # System-level processes
 
 
 class WorkspaceType(StrEnum):
     """Types of workspaces in the cognitive environment."""
+
     AGENT_OPERATIONS = "agent_operations"
     OPERATOR_WORKSPACE = "operator_workspace"
     INDIRA_WORKSPACE = "indira_workspace"
@@ -40,6 +42,7 @@ class WorkspaceType(StrEnum):
 @dataclass
 class CognitiveEvent:
     """Event within the cognitive environment."""
+
     entity_type: CognitiveEntityType
     entity_id: str
     event_type: str
@@ -51,6 +54,7 @@ class CognitiveEvent:
 @dataclass
 class AgentActivity:
     """Real-time agent activity for observability."""
+
     agent_type: CognitiveEntityType
     agent_id: str
     current_goal: str
@@ -59,12 +63,12 @@ class AgentActivity:
     tools_in_use: list[str] = field(default_factory=list)
     memory_accesses: list[str] = field(default_factory=list)
     timestamp: datetime = field(default_factory=datetime.utcnow)
-    
+
     # INDIRA-specific fields
     current_research: str | None = None
     current_trader_modeling: str | None = None
     current_strategy_work: str | None = None
-    
+
     # DYON-specific fields
     current_repository_task: str | None = None
     current_mutation: str | None = None
@@ -76,6 +80,7 @@ class AgentActivity:
 @dataclass
 class AgentAssignment:
     """Agent assignment/task management."""
+
     assignment_id: str
     agent_type: CognitiveEntityType
     agent_id: str
@@ -90,6 +95,7 @@ class AgentAssignment:
 @dataclass
 class AgentProject:
     """Agent project management."""
+
     project_id: str
     title: str
     description: str
@@ -103,6 +109,7 @@ class AgentProject:
 @dataclass
 class AgentMemory:
     """Agent memory for cognitive process visualization."""
+
     agent_id: str
     memory_type: str  # short_term, long_term, episodic, semantic
     content: str
@@ -113,7 +120,7 @@ class AgentMemory:
 class CognitiveOperatingEnvironment:
     """
     Core cognitive operating environment where agents live and work.
-    
+
     This replaces the fragmented UI systems with a single cohesive environment where
     Operator, INDIRA, and DYON share unified workspaces and tools.
     """
@@ -125,7 +132,7 @@ class CognitiveOperatingEnvironment:
         self._event_stream: list[CognitiveEvent] = []
         self._agent_activities: dict[str, AgentActivity] = {}
         self._subscribers: list[Callable[[CognitiveEvent], None]] = []
-        
+
         # Agent Operations Center components
         self._assignments: dict[str, AgentAssignment] = {}
         self._projects: dict[str, AgentProject] = {}
@@ -146,7 +153,9 @@ class CognitiveOperatingEnvironment:
                 )
             )
 
-    def activate_workspace(self, workspace_type: WorkspaceType, config: dict[str, Any] | None = None) -> None:
+    def activate_workspace(
+        self, workspace_type: WorkspaceType, config: dict[str, Any] | None = None
+    ) -> None:
         """Activate a workspace in the cognitive environment."""
         with self._lock:
             self._active_workspaces[workspace_type] = config or {}
@@ -211,7 +220,9 @@ class CognitiveOperatingEnvironment:
         with self._lock:
             return {
                 "active_entities": dict(self._active_entities),
-                "active_workspaces": {ws.name: config for ws, config in self._active_workspaces.items()},
+                "active_workspaces": {
+                    ws.name: config for ws, config in self._active_workspaces.items()
+                },
                 "agent_count": len(self._agent_activities),
                 "workspace_count": len(self._active_workspaces),
                 "recent_events": len(self._event_stream),
@@ -220,9 +231,9 @@ class CognitiveOperatingEnvironment:
                 "task_queue_size": len(self._task_queue),
                 "memories": len(self._agent_memories),
             }
-    
+
     # Agent Operations Center Methods
-    
+
     def create_assignment(self, assignment: AgentAssignment) -> None:
         """Create a new agent assignment."""
         with self._lock:
@@ -241,7 +252,7 @@ class CognitiveOperatingEnvironment:
                     },
                 )
             )
-    
+
     def complete_assignment(self, assignment_id: str) -> None:
         """Mark an assignment as completed."""
         with self._lock:
@@ -260,7 +271,7 @@ class CognitiveOperatingEnvironment:
                         data={"assignment_id": assignment_id},
                     )
                 )
-    
+
     def create_project(self, project: AgentProject) -> None:
         """Create a new agent project."""
         with self._lock:
@@ -278,14 +289,18 @@ class CognitiveOperatingEnvironment:
                     },
                 )
             )
-    
+
     def add_agent_memory(self, memory: AgentMemory) -> None:
         """Add a memory entry to agent's cognitive timeline."""
         with self._lock:
             self._agent_memories.append(memory)
             self._agent_timeline.append(
                 CognitiveEvent(
-                    entity_type=CognitiveEntityType.INDIRA if "indira" in memory.agent_id.lower() else CognitiveEntityType.DYON,
+                    entity_type=(
+                        CognitiveEntityType.INDIRA
+                        if "indira" in memory.agent_id.lower()
+                        else CognitiveEntityType.DYON
+                    ),
                     entity_id=memory.agent_id,
                     event_type="MEMORY_ACCESS",
                     timestamp=memory.timestamp,
@@ -299,15 +314,17 @@ class CognitiveOperatingEnvironment:
             # Keep last 1000 memories
             if len(self._agent_memories) > 1000:
                 self._agent_memories = self._agent_memories[-1000:]
-    
-    def get_assignments(self, agent_type: CognitiveEntityType | None = None) -> list[AgentAssignment]:
+
+    def get_assignments(
+        self, agent_type: CognitiveEntityType | None = None
+    ) -> list[AgentAssignment]:
         """Get assignments, optionally filtered by agent type."""
         with self._lock:
             assignments = list(self._assignments.values())
             if agent_type:
                 assignments = [a for a in assignments if a.agent_type == agent_type]
             return assignments
-    
+
     def get_projects(self, agent_type: CognitiveEntityType | None = None) -> list[AgentProject]:
         """Get projects, optionally filtered by agent type."""
         with self._lock:
@@ -315,12 +332,12 @@ class CognitiveOperatingEnvironment:
             if agent_type:
                 projects = [p for p in projects if p.agent_type == agent_type]
             return projects
-    
+
     def get_task_queue(self) -> list[AgentAssignment]:
         """Get current task queue."""
         with self._lock:
             return list(self._task_queue)
-    
+
     def get_agent_memories(self, agent_id: str | None = None) -> list[AgentMemory]:
         """Get agent memories, optionally filtered by agent ID."""
         with self._lock:
@@ -328,8 +345,10 @@ class CognitiveOperatingEnvironment:
             if agent_id:
                 memories = [m for m in memories if m.agent_id == agent_id]
             return memories
-    
-    def get_agent_timeline(self, agent_id: str | None = None, limit: int = 50) -> list[CognitiveEvent]:
+
+    def get_agent_timeline(
+        self, agent_id: str | None = None, limit: int = 50
+    ) -> list[CognitiveEvent]:
         """Get agent timeline events, optionally filtered by agent ID."""
         with self._lock:
             events = list(self._agent_timeline)

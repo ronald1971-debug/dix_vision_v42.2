@@ -35,7 +35,9 @@ class ModeManager:
         """Get current operating mode."""
         return self._current_mode
 
-    def transition_to(self, mode: OperatingMode, reason: str, approved_by: str = "") -> ModeTransition:
+    def transition_to(
+        self, mode: OperatingMode, reason: str, approved_by: str = ""
+    ) -> ModeTransition:
         """Transition to a new mode."""
         transition = ModeTransition(
             from_mode=self._current_mode,

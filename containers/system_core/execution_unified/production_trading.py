@@ -8,18 +8,17 @@ from __future__ import annotations
 import logging
 import threading
 import time
-from typing import Any, Dict, List, Optional, Tuple
+import uuid
 from dataclasses import dataclass, field
 from enum import Enum
-from collections import deque
-import math
-import uuid
+from typing import Any, Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
 
 class OrderType(str, Enum):
     """Order types for production trading."""
+
     MARKET = "MARKET"
     LIMIT = "LIMIT"
     STOP = "STOP"
@@ -29,12 +28,14 @@ class OrderType(str, Enum):
 
 class OrderSide(str, Enum):
     """Order sides."""
+
     BUY = "BUY"
     SELL = "SELL"
 
 
 class OrderStatus(str, Enum):
     """Order statuses."""
+
     PENDING = "PENDING"
     SUBMITTED = "SUBMITTED"
     FILLED = "FILLED"
@@ -46,6 +47,7 @@ class OrderStatus(str, Enum):
 
 class StrategyType(str, Enum):
     """Trading strategy types."""
+
     MOMENTUM = "MOMENTUM"
     MEAN_REVERSION = "MEAN_REVERSION"
     BREAKOUT = "BREAKOUT"
@@ -57,6 +59,7 @@ class StrategyType(str, Enum):
 @dataclass
 class Order:
     """Production order object."""
+
     order_id: str = ""  # Will be auto-generated if empty
     symbol: str = ""
     order_type: OrderType = OrderType.MARKET
@@ -81,6 +84,7 @@ class Order:
 @dataclass
 class Position:
     """Production position object."""
+
     symbol: str
     quantity: float  # Positive for long, negative for short
     average_entry_price: float
@@ -152,15 +156,23 @@ class ProductionRiskManager:
 
         return total_value
 
-    def check_order_risk(self, order: Order, current_positions: Dict[str, Position]) -> Tuple[bool, str]:
+    def check_order_risk(
+        self, order: Order, current_positions: Dict[str, Position]
+    ) -> Tuple[bool, str]:
         """Check if order complies with risk parameters."""
         # Position size check
         if abs(order.quantity) > self._risk_params.max_position_size:
-            return False, f"Order size {order.quantity} exceeds maximum {self._risk_params.max_position_size}"
+            return (
+                False,
+                f"Order size {order.quantity} exceeds maximum {self._risk_params.max_position_size}",
+            )
 
         # Portfolio value check
         portfolio_value = self._calculate_portfolio_value(current_positions)
-        if portfolio_value + order.quantity * (order.price or 0) > self._risk_params.max_portfolio_value:
+        if (
+            portfolio_value + order.quantity * (order.price or 0)
+            > self._risk_params.max_portfolio_value
+        ):
             return False, "Order would exceed maximum portfolio value"
 
         # Leverage check
@@ -177,9 +189,14 @@ class ProductionRiskManager:
             return False, f"Order would exceed maximum leverage of {self._risk_params.max_leverage}"
 
         # Daily loss check
-        daily_loss_pct = abs(self._daily_pnl) / self._daily_start_equity if self._daily_pnl < 0 else 0.0
+        daily_loss_pct = (
+            abs(self._daily_pnl) / self._daily_start_equity if self._daily_pnl < 0 else 0.0
+        )
         if daily_loss_pct > self._risk_params.max_daily_loss:
-            return False, f"Daily loss {daily_loss_pct:.2%} exceeds maximum {self._risk_params.max_daily_loss:.2%}"
+            return (
+                False,
+                f"Daily loss {daily_loss_pct:.2%} exceeds maximum {self._risk_params.max_daily_loss:.2%}",
+            )
 
         return True, "Order passes risk checks"
 
@@ -189,10 +206,7 @@ class ProductionRiskManager:
             self._daily_pnl += pnl
 
     def calculate_position_size(
-        self,
-        signal_strength: float,
-        current_price: float,
-        portfolio_value: float
+        self, signal_strength: float, current_price: float, portfolio_value: float
     ) -> float:
         """Calculate optimal position size using Kelly Criterion."""
         # Kelly formula: f* = (bp - q) / b
@@ -234,11 +248,7 @@ class ProductionStrategyExecutor:
         self._lock = threading.Lock()
 
     def execute_momentum_strategy(
-        self,
-        symbol: str,
-        current_price: float,
-        momentum_signal: float,
-        portfolio_value: float
+        self, symbol: str, current_price: float, momentum_signal: float, portfolio_value: float
     ) -> Optional[Order]:
         """Execute momentum trading strategy with real logic."""
         # Calculate position size based on signal
@@ -298,7 +308,7 @@ class ProductionStrategyExecutor:
             order_side=order_side,
             quantity=quantity,
             price=current_price,
-            metadata={"strategy": StrategyType.MOMENTUM, "signal_strength": momentum_signal}
+            metadata={"strategy": StrategyType.MOMENTUM, "signal_strength": momentum_signal},
         )
 
         # Risk check
@@ -316,7 +326,7 @@ class ProductionStrategyExecutor:
         current_price: float,
         z_score: float,
         mean_price: float,
-        portfolio_value: float
+        portfolio_value: float,
     ) -> Optional[Order]:
         """Execute mean reversion strategy with real logic."""
         # Mean reversion: buy when price is significantly below mean, sell when above
@@ -343,7 +353,7 @@ class ProductionStrategyExecutor:
                 order_side=order_side,
                 quantity=quantity,
                 price=current_price * 0.995,  # Slightly below current price
-                metadata={"strategy": StrategyType.MEAN_REVERSION, "z_score": z_score}
+                metadata={"strategy": StrategyType.MEAN_REVERSION, "z_score": z_score},
             )
 
         elif z_score > deviation_threshold:
@@ -367,7 +377,7 @@ class ProductionStrategyExecutor:
                 order_side=order_side,
                 quantity=quantity,
                 price=current_price * 1.005,  # Slightly above current price
-                metadata={"strategy": StrategyType.MEAN_REVERSION, "z_score": z_score}
+                metadata={"strategy": StrategyType.MEAN_REVERSION, "z_score": z_score},
             )
         else:
             return None  # No clear mean reversion signal
@@ -386,7 +396,7 @@ class ProductionStrategyExecutor:
         current_price: float,
         resistance_level: float,
         support_level: float,
-        portfolio_value: float
+        portfolio_value: float,
     ) -> Optional[Order]:
         """Execute breakout strategy with real logic."""
         breakout_threshold = 0.01  # 1% breakout threshold
@@ -417,8 +427,8 @@ class ProductionStrategyExecutor:
                 metadata={
                     "strategy": StrategyType.BREAKOUT,
                     "breakout_type": "upward",
-                    "breakout_level": resistance_level
-                }
+                    "breakout_level": resistance_level,
+                },
             )
 
         elif current_price < support_level * (1 - breakout_threshold):
@@ -447,8 +457,8 @@ class ProductionStrategyExecutor:
                 metadata={
                     "strategy": StrategyType.BREAKOUT,
                     "breakout_type": "downward",
-                    "breakout_level": support_level
-                }
+                    "breakout_level": support_level,
+                },
             )
         else:
             return None  # No clear breakout
@@ -479,7 +489,9 @@ class ProductionStrategyExecutor:
             if order.order_id in self._active_orders:
                 del self._active_orders[order.order_id]
 
-            logger.info(f"Executed order: {order.order_id} {order.order_side} {order.quantity} @ {order.price}")
+            logger.info(
+                f"Executed order: {order.order_id} {order.order_side} {order.quantity} @ {order.price}"
+            )
 
             return fill_result
 
@@ -493,6 +505,7 @@ class ProductionStrategyExecutor:
         else:
             # For limit orders, assume 50% fill probability
             import random
+
             if random.random() > 0.5:
                 order.status = OrderStatus.FILLED
                 order.filled_quantity = order.quantity
@@ -534,9 +547,7 @@ class ProductionStrategyExecutor:
             else:
                 # New position
                 self._positions[symbol] = Position(
-                    symbol=symbol,
-                    quantity=filled_qty,
-                    average_entry_price=fill_price
+                    symbol=symbol, quantity=filled_qty, average_entry_price=fill_price
                 )
 
         else:  # SELL
@@ -559,9 +570,7 @@ class ProductionStrategyExecutor:
             else:
                 # New short position
                 self._positions[symbol] = Position(
-                    symbol=symbol,
-                    quantity=-filled_qty,
-                    average_entry_price=fill_price
+                    symbol=symbol, quantity=-filled_qty, average_entry_price=fill_price
                 )
 
     def _update_realized_pnl(self, position: Position, exit_price: float) -> None:
@@ -595,10 +604,10 @@ class ProductionStrategyExecutor:
                         "quantity": pos.quantity,
                         "avg_price": pos.average_entry_price,
                         "unrealized_pnl": pos.unrealized_pnl,
-                        "realized_pnl": pos.realized_pnl
+                        "realized_pnl": pos.realized_pnl,
                     }
                     for symbol, pos in self._positions.items()
-                }
+                },
             }
 
 
@@ -611,7 +620,7 @@ class ProductionAutonomousTrader:
             max_portfolio_value=portfolio_value * 2,  # Allow 2x leverage
             max_daily_loss=0.02,
             max_drawdown=0.10,
-            max_leverage=2.0
+            max_leverage=2.0,
         )
         self._risk_manager = ProductionRiskManager(risk_params)
         self._strategy_executor = ProductionStrategyExecutor(self._risk_manager)
@@ -646,7 +655,7 @@ class ProductionAutonomousTrader:
         symbol: str,
         current_price: float,
         signal: float,
-        **kwargs
+        **kwargs,
     ) -> Optional[Order]:
         """Execute a trading decision based on strategy type."""
         if strategy_type == StrategyType.MOMENTUM:
@@ -655,13 +664,19 @@ class ProductionAutonomousTrader:
             )
         elif strategy_type == StrategyType.MEAN_REVERSION:
             return self._strategy_executor.execute_mean_reversion_strategy(
-                symbol, current_price, signal, kwargs.get("mean_price", current_price),
-                self._portfolio_value
+                symbol,
+                current_price,
+                signal,
+                kwargs.get("mean_price", current_price),
+                self._portfolio_value,
             )
         elif strategy_type == StrategyType.BREAKOUT:
             return self._strategy_executor.execute_breakout_strategy(
-                symbol, current_price, kwargs.get("resistance_level", current_price * 1.05),
-                kwargs.get("support_level", current_price * 0.95), self._portfolio_value
+                symbol,
+                current_price,
+                kwargs.get("resistance_level", current_price * 1.05),
+                kwargs.get("support_level", current_price * 0.95),
+                self._portfolio_value,
             )
         else:
             logger.warning(f"Unsupported strategy type: {strategy_type}")

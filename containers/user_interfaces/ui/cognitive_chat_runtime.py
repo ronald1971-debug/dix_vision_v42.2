@@ -38,8 +38,6 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from typing import Any
 
-from langchain_core.messages import AIMessage, BaseMessage, HumanMessage
-
 from core.cognitive_router import (
     AIProvider,
     TaskClass,
@@ -81,8 +79,9 @@ from intelligence_engine.cognitive.chat import (
     assemble_cognitive_chat,
 )
 from intelligence_engine.cognitive.proposal_parser import extract_proposal
-from system_unified.time_source import wall_ns
+from langchain_core.messages import AIMessage, BaseMessage, HumanMessage
 from system_engine.scvs.source_registry import SourceRegistry
+from system_unified.time_source import wall_ns
 
 __all__ = [
     "CognitiveChatRuntime",

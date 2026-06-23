@@ -23,10 +23,10 @@ _ARCHETYPE_KEYWORDS: dict[str, list[str]] = {
 class BehaviorProfile:
     source_id: str
     ts_ns: int
-    archetype: str           # dominant archetype label
+    archetype: str  # dominant archetype label
     archetype_scores: tuple[tuple[str, float], ...]  # sorted (archetype, score) pairs
-    activity_level: str      # "low" | "medium" | "high"
-    sentiment_bias: str      # "bullish" | "bearish" | "neutral"
+    activity_level: str  # "low" | "medium" | "high"
+    sentiment_bias: str  # "bullish" | "bearish" | "neutral"
 
 
 class BehaviorAnalyzer:

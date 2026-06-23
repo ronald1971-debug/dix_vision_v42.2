@@ -3,8 +3,8 @@ Automation layer - Phase 9 implementation
 """
 
 from automation_engine import AutomationEngine, AutomationStatus, AutomationTask
-from workflow_automator import WorkflowAutomator, Workflow, WorkflowStep
 from scheduler import Scheduler, ScheduleType
+from workflow_automator import Workflow, WorkflowAutomator, WorkflowStep
 
 __all__ = [
     "AutomationEngine",

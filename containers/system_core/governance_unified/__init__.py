@@ -9,39 +9,6 @@ domain-specific governance, security hardening, and operational features.
 """
 
 # CRITICAL: Import core.contracts first to prevent circular dependency with execution_unified
-import core.contracts
-
-from .engine import GovernanceEngine
-from .policy_compiler import compile_invariant, check_policy_violation
-from .kill_switch import get_governance_kill_switch
-from .strategy_registry import StrategyRegistry
-from .approval_decision import ApprovalDecision
-
-# Oracle system (from governance/)
-from .oracle import (
-    approve_l1_fast,
-    approve_l2_balanced,
-    approve_l3_deep,
-)
-
-# Mode system (from governance/)
-from .mode import (
-    ModeManager,
-    OperationalMode,
-    FsmMode,
-    get_mode_manager,
-    enter_safe_mode,
-    exit_safe_mode,
-    enter_degraded_mode,
-    exit_degraded_mode,
-    enter_halted_mode,
-)
-
-# Signals system (from governance/)
-from .signals import (
-    get_neuromorphic_risk,
-    NeuromorphicRisk,
-)
 
 # Production-ready legacy archival components (organized by function)
 from . import (
@@ -49,12 +16,42 @@ from . import (
 )
 
 # Authority and hazard system (from governance/ - for INDIRA/DYON decision making)
-from .authority_graph import AuthorityLevel, AuthorityNode, AuthorityGraph
-from .hazard_classifier import classify, HazardClassification
-from .hazard_router import HazardRouter, get_hazard_router
-from .market_context_projector import MarketContextProjector
-from .escalation_matrix import should_escalate, escalate_severity
+from .authority_graph import AuthorityGraph, AuthorityLevel, AuthorityNode
+from .engine import GovernanceEngine
+from .escalation_matrix import escalate_severity, should_escalate
 from .governance_main_charter import GOVERNANCE_CHARTER
+from .hazard_classifier import HazardClassification, classify
+from .hazard_router import HazardRouter, get_hazard_router
+from .kill_switch import get_governance_kill_switch
+from .market_context_projector import MarketContextProjector
+
+# Mode system (from governance/)
+from .mode import (
+    FsmMode,
+    ModeManager,
+    OperationalMode,
+    enter_degraded_mode,
+    enter_halted_mode,
+    enter_safe_mode,
+    exit_degraded_mode,
+    exit_safe_mode,
+    get_mode_manager,
+)
+
+# Oracle system (from governance/)
+from .oracle import (
+    approve_l1_fast,
+    approve_l2_balanced,
+    approve_l3_deep,
+)
+from .policy_compiler import check_policy_violation, compile_invariant
+
+# Signals system (from governance/)
+from .signals import (
+    NeuromorphicRisk,
+    get_neuromorphic_risk,
+)
+from .strategy_registry import StrategyRegistry
 
 __all__ = [
     "GovernanceEngine",

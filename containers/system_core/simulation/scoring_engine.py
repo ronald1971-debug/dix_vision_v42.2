@@ -20,6 +20,7 @@ from dataclasses import dataclass
 @dataclass(frozen=True, slots=True)
 class TradeResult:
     """One closed trade result from a simulation run."""
+
     strategy_id: str
     symbol: str
     side: str
@@ -35,6 +36,7 @@ class TradeResult:
 @dataclass(frozen=True, slots=True)
 class SimulationScore:
     """Composite performance score for a simulation run."""
+
     strategy_id: str
     scenario_id: str
     num_trades: int
@@ -143,11 +145,7 @@ def score_simulation(
     pf_norm = min(1.0, max(0.0, (profit_factor - 1.0) / 4.0))
     rec_norm = min(1.0, max(0.0, recovery / 3.0))
     composite = (
-        0.35 * sharpe_norm
-        + 0.25 * calmar_norm
-        + 0.20 * win_rate
-        + 0.10 * pf_norm
-        + 0.10 * rec_norm
+        0.35 * sharpe_norm + 0.25 * calmar_norm + 0.20 * win_rate + 0.10 * pf_norm + 0.10 * rec_norm
     )
 
     return SimulationScore(

@@ -27,8 +27,8 @@ from typing import Any
 
 _logger = logging.getLogger(__name__)
 
-_MAX_SPANS = 2_000          # in-memory ring buffer depth
-_FLUSH_EVERY = 100          # flush to SQLite every N spans
+_MAX_SPANS = 2_000  # in-memory ring buffer depth
+_FLUSH_EVERY = 100  # flush to SQLite every N spans
 _STORE_KIND = "telemetry_spans"
 
 
@@ -42,10 +42,10 @@ class TelemetrySpan:
     """One unit of telemetry: a labelled event with latency + metadata."""
 
     span_id: str
-    component: str      # "indira" | "dyon" | "research" | "long_horizon"
-    operation: str      # "thought" | "scan_complete" | "research_complete" | "consolidation"
+    component: str  # "indira" | "dyon" | "research" | "long_horizon"
+    operation: str  # "thought" | "scan_complete" | "research_complete" | "consolidation"
     ts_ns: int
-    elapsed_ms: float   # 0.0 when event-driven (no direct timing available)
+    elapsed_ms: float  # 0.0 when event-driven (no direct timing available)
     metadata: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -90,6 +90,7 @@ class CognitiveTelemetry:
             return
         try:
             from state.event_bus import CognitiveChannel, get_event_bus
+
             bus = get_event_bus()
             bus.subscribe(CognitiveChannel.INDIRA_THOUGHT, self._on_indira_thought)
             bus.subscribe(CognitiveChannel.DYON_SCAN_COMPLETE, self._on_dyon_scan)
@@ -177,7 +178,8 @@ class CognitiveTelemetry:
     def _on_indira_thought(self, payload: dict[str, Any]) -> None:
         ts_ns = int(payload.get("ts_ns", 0))
         self.record(
-            "indira", "thought",
+            "indira",
+            "thought",
             ts_ns=ts_ns,
             step=payload.get("step", ""),
             confidence=payload.get("confidence", 0.0),
@@ -187,7 +189,8 @@ class CognitiveTelemetry:
     def _on_dyon_scan(self, payload: dict[str, Any]) -> None:
         ts_ns = int(payload.get("ts_ns", 0))
         self.record(
-            "dyon", "scan_complete",
+            "dyon",
+            "scan_complete",
             ts_ns=ts_ns,
             elapsed_ms=float(payload.get("scan_duration_ms", 0.0)),
             files_scanned=payload.get("files_scanned", 0),
@@ -199,7 +202,8 @@ class CognitiveTelemetry:
     def _on_dyon_proposal(self, payload: dict[str, Any]) -> None:
         ts_ns = int(payload.get("ts_ns", 0))
         self.record(
-            "dyon", "proposal",
+            "dyon",
+            "proposal",
             ts_ns=ts_ns,
             severity=payload.get("severity", ""),
             invariant_id=payload.get("invariant_id", ""),
@@ -209,7 +213,8 @@ class CognitiveTelemetry:
     def _on_research_complete(self, payload: dict[str, Any]) -> None:
         ts_ns = int(payload.get("ts_ns", 0))
         self.record(
-            "research", "research_complete",
+            "research",
+            "research_complete",
             ts_ns=ts_ns,
             elapsed_ms=float(payload.get("elapsed_ms", 0.0)),
             topic=str(payload.get("topic", ""))[:60],
@@ -221,7 +226,8 @@ class CognitiveTelemetry:
     def _on_indira_insight(self, payload: dict[str, Any]) -> None:
         ts_ns = int(payload.get("ts_ns", 0))
         self.record(
-            "long_horizon", "insight",
+            "long_horizon",
+            "insight",
             ts_ns=ts_ns,
             subject=payload.get("subject", ""),
             confidence=payload.get("confidence", 0.0),
@@ -231,7 +237,8 @@ class CognitiveTelemetry:
     def _on_market_tick(self, payload: dict[str, Any]) -> None:
         ts_ns = int(payload.get("ts_ns", 0))
         self.record(
-            "market", "tick",
+            "market",
+            "tick",
             ts_ns=ts_ns,
             symbol=payload.get("symbol", ""),
             price=payload.get("price", 0.0),
@@ -241,7 +248,8 @@ class CognitiveTelemetry:
     def _on_risk_breach(self, payload: dict[str, Any]) -> None:
         ts_ns = int(payload.get("ts_ns", 0))
         self.record(
-            "risk", "breach",
+            "risk",
+            "breach",
             ts_ns=ts_ns,
             halted=payload.get("halted", False),
             breach_reason=str(payload.get("breach_reason", ""))[:80],
@@ -273,6 +281,7 @@ class CognitiveTelemetry:
         """Persist the last _FLUSH_EVERY spans to SQLite.  Best-effort."""
         try:
             from state.cognition_persistence import get_cognition_persistence_store
+
             with self._lock:
                 self._flush_seq += 1
                 recent = list(self._spans)[-_FLUSH_EVERY:]

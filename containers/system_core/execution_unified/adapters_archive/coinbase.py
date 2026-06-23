@@ -202,14 +202,18 @@ class CoinbaseAdapter(BaseAdapter):
 
         cb_side = side.upper()
         if cb_side not in ("BUY", "SELL"):
-            raise ValueError(f"CoinbaseAdapter.submit_order: side must be BUY or SELL, got {side!r}")
+            raise ValueError(
+                f"CoinbaseAdapter.submit_order: side must be BUY or SELL, got {side!r}"
+            )
 
         try:
             # Build the order configuration dict per Coinbase Advanced Trade API.
             order_config: dict[str, Any] = {}
             if order_type.upper() == "LIMIT":
                 if price is None:
-                    raise ValueError("CoinbaseAdapter.submit_order: price required for LIMIT orders")
+                    raise ValueError(
+                        "CoinbaseAdapter.submit_order: price required for LIMIT orders"
+                    )
                 order_config["limit_limit_gtc"] = {
                     "base_size": str(quantity),
                     "limit_price": str(price),
@@ -243,7 +247,13 @@ class CoinbaseAdapter(BaseAdapter):
             logger.debug(
                 "CoinbaseAdapter.submit_order: filled. adapter_id=%s order_id=%s "
                 "symbol=%s side=%s qty=%.8g price=%.8g latency_ms=%.2f",
-                self.adapter_id, order_id, symbol, cb_side, filled_size, avg_price, latency_ms,
+                self.adapter_id,
+                order_id,
+                symbol,
+                cb_side,
+                filled_size,
+                avg_price,
+                latency_ms,
             )
             return FillReport(
                 adapter_id=self.adapter_id,
@@ -264,7 +274,10 @@ class CoinbaseAdapter(BaseAdapter):
             self._record_error()
             logger.error(
                 "CoinbaseAdapter.submit_order: failed. adapter_id=%s symbol=%s error=%s: %s",
-                self.adapter_id, symbol, type(exc).__name__, str(exc)[:256],
+                self.adapter_id,
+                symbol,
+                type(exc).__name__,
+                str(exc)[:256],
             )
             raise RuntimeError(
                 f"CoinbaseAdapter.submit_order failed: {type(exc).__name__}: {exc}"
@@ -288,14 +301,19 @@ class CoinbaseAdapter(BaseAdapter):
             self._client.cancel_orders(order_ids=[exchange_order_id])
             logger.info(
                 "CoinbaseAdapter.cancel_order: cancelled. adapter_id=%s order_id=%s symbol=%s",
-                self.adapter_id, exchange_order_id, symbol,
+                self.adapter_id,
+                exchange_order_id,
+                symbol,
             )
             return True
         except Exception as exc:  # noqa: BLE001
             self._record_error()
             logger.error(
                 "CoinbaseAdapter.cancel_order: failed. adapter_id=%s order_id=%s error=%s: %s",
-                self.adapter_id, exchange_order_id, type(exc).__name__, str(exc)[:256],
+                self.adapter_id,
+                exchange_order_id,
+                type(exc).__name__,
+                str(exc)[:256],
             )
             raise RuntimeError(
                 f"CoinbaseAdapter.cancel_order failed: {type(exc).__name__}: {exc}"
@@ -325,7 +343,9 @@ class CoinbaseAdapter(BaseAdapter):
             self._record_error()
             logger.error(
                 "CoinbaseAdapter.get_balances: failed. adapter_id=%s error=%s: %s",
-                self.adapter_id, type(exc).__name__, str(exc)[:256],
+                self.adapter_id,
+                type(exc).__name__,
+                str(exc)[:256],
             )
             raise RuntimeError(
                 f"CoinbaseAdapter.get_balances failed: {type(exc).__name__}: {exc}"

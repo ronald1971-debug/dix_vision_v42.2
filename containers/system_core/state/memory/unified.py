@@ -34,19 +34,19 @@ class UnifiedMemoryLayer:
     """Routes writes and cross-store queries across the full memory stack."""
 
     def __init__(self) -> None:
-        self._lock       = threading.Lock()
+        self._lock = threading.Lock()
         self._write_seq: int = 0
-        self._active:    bool = False
+        self._active: bool = False
 
         # lazily loaded subsystems
-        self._identity:    Any = None
-        self._timeline:    Any = None
-        self._index:       Any = None
-        self._compressor:  Any = None
-        self._strategy:    Any = None
-        self._trader:      Any = None
-        self._governance:  Any = None
-        self._runtime_ev:  Any = None
+        self._identity: Any = None
+        self._timeline: Any = None
+        self._index: Any = None
+        self._compressor: Any = None
+        self._strategy: Any = None
+        self._trader: Any = None
+        self._governance: Any = None
+        self._runtime_ev: Any = None
 
         # compression: buffer episodic records between compress() calls
         self._episodic_buf: list[MemoryRecord] = []
@@ -68,15 +68,15 @@ class UnifiedMemoryLayer:
             from state.memory.stores.trader import get_trader_memory_store
             from state.memory.timeline import get_cognition_timeline
 
-            self._identity   = get_memory_identity_system()
-            self._timeline   = get_cognition_timeline()
-            self._index      = get_memory_index()
+            self._identity = get_memory_identity_system()
+            self._timeline = get_cognition_timeline()
+            self._index = get_memory_index()
             self._compressor = get_memory_compressor()
-            self._strategy   = get_strategy_memory_store()
-            self._trader     = get_trader_memory_store()
+            self._strategy = get_strategy_memory_store()
+            self._trader = get_trader_memory_store()
             self._governance = get_governance_memory_store()
             self._runtime_ev = get_runtime_event_memory_store()
-            self._active     = True
+            self._active = True
             _logger.info("UnifiedMemoryLayer: activated — 8 subsystems online")
         except Exception as exc:
             _logger.warning("UnifiedMemoryLayer.activate error: %s", exc)
@@ -88,14 +88,14 @@ class UnifiedMemoryLayer:
     def write(
         self,
         *,
-        kind:       MemoryKind,
-        ts_ns:      int,
-        source:     str,
-        summary:    str,
-        body:       dict[str, str] | None = None,
-        tags:       frozenset[str] | None = None,
+        kind: MemoryKind,
+        ts_ns: int,
+        source: str,
+        summary: str,
+        body: dict[str, str] | None = None,
+        tags: frozenset[str] | None = None,
         confidence: float = -1.0,
-        parent_id:  str | None = None,
+        parent_id: str | None = None,
     ) -> MemoryRecord | None:
         """Create, identify, persist, and index one MemoryRecord.
 
@@ -110,18 +110,18 @@ class UnifiedMemoryLayer:
                 kind=kind, source=source, summary=summary, ts_ns=ts_ns
             )
             if not is_new:
-                return None   # duplicate within 60s window
+                return None  # duplicate within 60s window
 
             rec = MemoryRecord(
-                record_id  = record_id,
-                kind       = kind,
-                ts_ns      = ts_ns,
-                source     = source,
-                summary    = summary,
-                body       = MappingProxyType(body or {}),
-                tags       = tags or frozenset(),
-                confidence = confidence,
-                parent_id  = parent_id,
+                record_id=record_id,
+                kind=kind,
+                ts_ns=ts_ns,
+                source=source,
+                summary=summary,
+                body=MappingProxyType(body or {}),
+                tags=tags or frozenset(),
+                confidence=confidence,
+                parent_id=parent_id,
             )
 
             # Timeline + index (always)
@@ -199,9 +199,7 @@ class UnifiedMemoryLayer:
         """Keyword + time-range search across all stores via the index."""
         try:
             if not self._active or self._index is None:
-                return MemorySearchResult(
-                    query_id=q.query_id, ts_ns=q.ts_ns, records=(), total=0
-                )
+                return MemorySearchResult(query_id=q.query_id, ts_ns=q.ts_ns, records=(), total=0)
             if q.keywords:
                 records = self._index.search(list(q.keywords), limit=q.limit * 2)
             else:
@@ -226,9 +224,7 @@ class UnifiedMemoryLayer:
             )
         except Exception as exc:
             _logger.debug("unified.query error: %s", exc)
-            return MemorySearchResult(
-                query_id=q.query_id, ts_ns=q.ts_ns, records=(), total=0
-            )
+            return MemorySearchResult(query_id=q.query_id, ts_ns=q.ts_ns, records=(), total=0)
 
     def timeline_query(self, **kwargs: Any) -> list[dict]:
         """Direct pass-through to CognitionTimeline.query()."""
@@ -246,17 +242,17 @@ class UnifiedMemoryLayer:
             write_seq = self._write_seq
             compress_seq = self._compress_seq
         return {
-            "active":        self._active,
-            "write_seq":     write_seq,
-            "compress_seq":  compress_seq,
-            "episodic_buf":  buf_size,
-            "identity":      self._identity.snapshot()   if self._identity   else None,
-            "timeline":      self._timeline.snapshot()   if self._timeline   else None,
-            "index":         self._index.snapshot()      if self._index      else None,
-            "compressor":    self._compressor.snapshot() if self._compressor else None,
-            "strategy":      self._strategy.snapshot()   if self._strategy   else None,
-            "trader":        self._trader.snapshot()     if self._trader     else None,
-            "governance":    self._governance.snapshot() if self._governance else None,
+            "active": self._active,
+            "write_seq": write_seq,
+            "compress_seq": compress_seq,
+            "episodic_buf": buf_size,
+            "identity": self._identity.snapshot() if self._identity else None,
+            "timeline": self._timeline.snapshot() if self._timeline else None,
+            "index": self._index.snapshot() if self._index else None,
+            "compressor": self._compressor.snapshot() if self._compressor else None,
+            "strategy": self._strategy.snapshot() if self._strategy else None,
+            "trader": self._trader.snapshot() if self._trader else None,
+            "governance": self._governance.snapshot() if self._governance else None,
             "runtime_events": self._runtime_ev.snapshot() if self._runtime_ev else None,
         }
 

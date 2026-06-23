@@ -46,6 +46,7 @@ class RewardAdapter:
         if self._system is None:
             try:
                 from learning_engine.reward_system import RewardSystem
+
                 self._system = RewardSystem()
             except Exception:
                 return None
@@ -57,6 +58,7 @@ class RewardAdapter:
             return None
         try:
             from learning_engine.reward_system import RewardSignal, TradeOutcome
+
             outcome = TradeOutcome(
                 pnl_usd=ctx.pnl_usd,
                 holding_period_ns=ctx.holding_period_ns,

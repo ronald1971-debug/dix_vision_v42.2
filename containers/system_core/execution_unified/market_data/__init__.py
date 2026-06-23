@@ -13,39 +13,39 @@ RUNTIME_SAFE design (no clock reads, no external I/O, pure functional core).
 from .aggregator import (
     BookDelta,
     BookGap,
+    OrderBookAggregator,
     OrderBookLevel,
     OrderBookSnapshot,
-    OrderBookAggregator,
-    parse_binance_trade,
-    parse_binance_book_snapshot,
     parse_binance_book_delta,
+    parse_binance_book_snapshot,
+    parse_binance_trade,
 )
-
 from .book_builder import (
-    BookDelta as BookBuilderDelta,
     BookBuilder,
+)
+from .book_builder import BookDelta as BookBuilderDelta
+from .book_builder import (
     OrderBookState,
 )
-
-from .orderbook import (
-    L2OrderBook as UnifiedOrderBook,
-    OrderBookSnapshot as UnifiedOrderBookSnapshot,
-    PriceLevelMap,
-    PurePyPriceLevelMap,
-    pure_python_orderbook_factory as orderbook_factory,
-    sortedcontainers_orderbook_factory,
+from .latency_tracker import (
+    LatencySample,
+    LatencyStats,
+    LatencyTracker,
 )
-
 from .normalizer import (
     NormalizedBook,
     NormalizedLevel,
     NormalizedTick,
 )
-
-from .latency_tracker import (
-    LatencyTracker,
-    LatencyStats,
-    LatencySample,
+from .orderbook import L2OrderBook as UnifiedOrderBook
+from .orderbook import OrderBookSnapshot as UnifiedOrderBookSnapshot
+from .orderbook import (
+    PriceLevelMap,
+    PurePyPriceLevelMap,
+)
+from .orderbook import pure_python_orderbook_factory as orderbook_factory
+from .orderbook import (
+    sortedcontainers_orderbook_factory,
 )
 
 __all__ = [

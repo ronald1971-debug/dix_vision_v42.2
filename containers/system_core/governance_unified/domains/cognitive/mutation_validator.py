@@ -87,9 +87,7 @@ class MutationValidator:
             }
             # Update per-parameter history for distribution tracking
             for param_name, value in params.items():
-                hist = self._param_history.setdefault(
-                    param_name, deque(maxlen=_PARAM_HISTORY_LEN)
-                )
+                hist = self._param_history.setdefault(param_name, deque(maxlen=_PARAM_HISTORY_LEN))
                 hist.append(value)
 
     def validate_mutation(
@@ -112,9 +110,7 @@ class MutationValidator:
         """
         with self._lock:
             snapshot_exists = strategy_id in self._snapshots
-            param_history_snapshot = {
-                k: list(v) for k, v in self._param_history.items()
-            }
+            param_history_snapshot = {k: list(v) for k, v in self._param_history.items()}
 
         violations: list[CognitiveViolationKind] = []
         detail_parts: list[str] = []

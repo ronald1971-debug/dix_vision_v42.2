@@ -176,12 +176,8 @@ class BootstrapKernel:
 
         return {
             "booted": self._booted,
-            "startup_success": (
-                self._startup_result.success if self._startup_result else None
-            ),
-            "final_mode": (
-                self._startup_result.final_mode if self._startup_result else None
-            ),
+            "startup_success": (self._startup_result.success if self._startup_result else None),
+            "final_mode": (self._startup_result.final_mode if self._startup_result else None),
             "lifecycle_phase": self._lifecycle.phase.value,
             "engine_health": engine_health,
             "failed_steps": failed_steps,

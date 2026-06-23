@@ -33,7 +33,6 @@ from dataclasses import dataclass
 from typing import Any
 
 import httpx
-
 from core.contracts.launches import PoolSnapshot
 
 LOG = logging.getLogger(__name__)
@@ -50,7 +49,7 @@ DEFAULT_TIMEOUT_S = 10.0
 
 #: Default reconnect / retry backoff.
 DEFAULT_RETRY_DELAY_S = 5.0
-DEFAULT_RETRY_DELAY_MAX_S = 300.0   # raised from 60 — Raydium penalty bans reach 294s
+DEFAULT_RETRY_DELAY_MAX_S = 300.0  # raised from 60 — Raydium penalty bans reach 294s
 
 #: Minimum wait enforced after any 429 response, regardless of what the
 #: Retry-After header says. Raydium's retry-after values are unreliable:

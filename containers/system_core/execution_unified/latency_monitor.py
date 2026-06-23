@@ -35,6 +35,7 @@ NEW_PIP_DEPENDENCIES: Final[tuple[str, ...]] = ()
 
 class LatencySeverity(enum.Enum):
     """Severity level of latency events."""
+
     NORMAL = "NORMAL"
     ELEVATED = "ELEVATED"
     HIGH = "HIGH"
@@ -43,6 +44,7 @@ class LatencySeverity(enum.Enum):
 
 class AlertType(enum.Enum):
     """Types of latency alerts."""
+
     SINGLE_SPIKE = "SINGLE_SPIKE"
     PERSISTENT_ELEVATION = "PERSISTENT_ELEVATION"
     DEGRADATION_TREND = "DEGRADATION_TREND"
@@ -52,6 +54,7 @@ class AlertType(enum.Enum):
 
 class LatencyComponent(enum.Enum):
     """Components of the execution pipeline to measure."""
+
     ORDER_SUBMISSION = "ORDER_SUBMISSION"
     ORDER_CONFIRMATION = "ORDER_CONFIRMATION"
     CANCELLATION = "CANCELLATION"
@@ -69,6 +72,7 @@ class LatencyComponent(enum.Enum):
 @dataclasses.dataclass(frozen=True, slots=True)
 class LatencyConfig:
     """Configuration for latency monitoring."""
+
     warning_latency_ns: int = DEFAULT_WARNING_LATENCY_NS
     critical_latency_ns: int = DEFAULT_CRITICAL_LATENCY_NS
     history_size: int = DEFAULT_HISTORY_SIZE
@@ -96,6 +100,7 @@ class LatencyConfig:
 @dataclasses.dataclass(frozen=True, slots=True)
 class LatencyMeasurement:
     """A single latency measurement."""
+
     adapter_name: str
     component: LatencyComponent
     latency_ns: int
@@ -113,6 +118,7 @@ class LatencyMeasurement:
 @dataclasses.dataclass(frozen=True, slots=True)
 class LatencyAlert:
     """An alert for latency issues."""
+
     alert_id: str
     alert_type: AlertType
     severity: LatencySeverity
@@ -128,6 +134,7 @@ class LatencyAlert:
 @dataclasses.dataclass(frozen=True, slots=True)
 class LatencyMetrics:
     """Metrics about latency performance."""
+
     adapter_name: str
     component: LatencyComponent
     total_measurements: int
@@ -152,6 +159,7 @@ class LatencyMetrics:
 @dataclasses.dataclass(frozen=True, slots=True)
 class LatencyContext:
     """Context for latency tracking (span)."""
+
     operation_id: str
     adapter_name: str
     component: LatencyComponent
@@ -166,19 +174,19 @@ class LatencyContext:
 
 class LatencyMonitor:
     """Monitor for tracking and analyzing execution latency.
-    
+
     Tracks latency measurements across different components of the
     execution pipeline, calculates percentiles, detects anomalies,
     and generates alerts when latency exceeds thresholds.
     """
-    
+
     def __init__(
         self,
         adapter_name: str,
         config: LatencyConfig | None = None,
     ) -> None:
         """Initialize the latency monitor.
-        
+
         Args:
             adapter_name: Name of the adapter being monitored
             config: Latency monitoring configuration
@@ -186,17 +194,17 @@ class LatencyMonitor:
         self._adapter_name = adapter_name
         self._config = config or LatencyConfig()
         self._lock = Lock()
-        
+
         # Measurement history by component
         self._measurements: dict[LatencyComponent, deque[LatencyMeasurement]] = {}
-        
+
         # Alert tracking
         self._last_alert_time: dict[str, int] = {}  # alert_type -> timestamp_ns
         self._alert_count: int = 0
-        
+
         # Active contexts
         self._active_contexts: dict[str, LatencyContext] = {}
-    
+
     def start_context(
         self,
         operation_id: str,
@@ -204,21 +212,21 @@ class LatencyMonitor:
         metadata: dict[str, Any] | None = None,
     ) -> LatencyContext:
         """Start a latency tracking context.
-        
+
         Args:
             operation_id: Unique identifier for the operation
             component: Component being measured
             metadata: Additional metadata
-            
+
         Returns:
             Latency context
         """
         import secrets
         import time
-        
+
         if not operation_id:
             operation_id = secrets.token_hex(16)
-        
+
         context = LatencyContext(
             operation_id=operation_id,
             adapter_name=self._adapter_name,
@@ -226,33 +234,33 @@ class LatencyMonitor:
             start_ns=time.time_ns(),
             metadata=metadata or {},
         )
-        
+
         with self._lock:
             self._active_contexts[operation_id] = context
-        
+
         return context
-    
+
     def end_context(
         self,
         operation_id: str,
         success: bool = True,
     ) -> LatencyMeasurement | None:
         """End a latency tracking context and record the measurement.
-        
+
         Args:
             operation_id: Operation identifier
             success: Whether the operation was successful
-            
+
         Returns:
             Latency measurement or None if context not found
         """
         import time
-        
+
         with self._lock:
             context = self._active_contexts.pop(operation_id, None)
             if context is None:
                 return None
-            
+
         measurement = LatencyMeasurement(
             adapter_name=context.adapter_name,
             component=context.component,
@@ -261,51 +269,48 @@ class LatencyMonitor:
             success=success,
             metadata=context.metadata,
         )
-        
+
         self.record_measurement(measurement)
         return measurement
-    
+
     def record_measurement(self, measurement: LatencyMeasurement) -> None:
         """Record a latency measurement.
-        
+
         Args:
             measurement: Latency measurement
         """
         with self._lock:
             if measurement.component not in self._measurements:
-                self._measurements[measurement.component] = deque(
-                    maxlen=self._config.history_size
-                )
-            
+                self._measurements[measurement.component] = deque(maxlen=self._config.history_size)
+
             self._measurements[measurement.component].append(measurement)
-            
+
             # Check for alerts
             self._check_alerts(measurement)
-    
-    def get_metrics(self, component: LatencyComponent | None = None) -> LatencyMetrics | dict[LatencyComponent, LatencyMetrics]:
+
+    def get_metrics(
+        self, component: LatencyComponent | None = None
+    ) -> LatencyMetrics | dict[LatencyComponent, LatencyMetrics]:
         """Get latency metrics for one or all components.
-        
+
         Args:
             component: Specific component or None for all
-            
+
         Returns:
             Metrics for the component or dictionary of component to metrics
         """
         with self._lock:
             if component is not None:
                 return self._calculate_metrics(component)
-            
-            return {
-                comp: self._calculate_metrics(comp)
-                for comp in self._measurements.keys()
-            }
-    
+
+            return {comp: self._calculate_metrics(comp) for comp in self._measurements.keys()}
+
     def get_alerts(self, since_ns: int | None = None) -> list[LatencyAlert]:
         """Get recent alerts (placeholder - actual implementation would store alerts).
-        
+
         Args:
             since_ns: Only get alerts after this timestamp
-            
+
         Returns:
             List of alerts
         """
@@ -318,14 +323,14 @@ class LatencyMonitor:
             logger.warning(f"[LATENCY_MONITOR] Failed to get alert history: {e}")
             return []
         return []
-    
+
     def _check_alerts(self, measurement: LatencyMeasurement) -> None:
         """Check if measurement should trigger an alert."""
         import secrets
         import time
-        
+
         now_ns = time.time_ns()
-        
+
         # Determine severity
         if measurement.latency_ns >= self._config.critical_latency_ns:
             severity = LatencySeverity.CRITICAL
@@ -333,17 +338,17 @@ class LatencyMonitor:
             severity = LatencySeverity.HIGH
         else:
             severity = LatencySeverity.NORMAL
-        
+
         if severity == LatencySeverity.NORMAL:
             return
-        
+
         # Check alert cooldown
         alert_key = f"{measurement.component.value}_{severity.value}"
         last_alert_time = self._last_alert_time.get(alert_key, 0)
-        
+
         if now_ns - last_alert_time < self._config.alert_cooldown_ns:
             return
-        
+
         # Determine alert type
         if not measurement.success:
             alert_type = AlertType.TIMEOUT
@@ -351,7 +356,7 @@ class LatencyMonitor:
             alert_type = AlertType.ADAPTER_UNRESPONSIVE
         else:
             alert_type = AlertType.SINGLE_SPIKE
-        
+
         # Create alert (placeholder - would be emitted to alert system)
         alert = LatencyAlert(
             alert_id=secrets.token_hex(16),
@@ -364,14 +369,14 @@ class LatencyMonitor:
             threshold_ns=self._config.warning_latency_ns,
             timestamp_ns=now_ns,
         )
-        
+
         self._last_alert_time[alert_key] = now_ns
         self._alert_count += 1
-    
+
     def _calculate_metrics(self, component: LatencyComponent) -> LatencyMetrics:
         """Calculate metrics for a component."""
         measurements = self._measurements.get(component, deque())
-        
+
         if not measurements:
             return LatencyMetrics(
                 adapter_name=self._adapter_name,
@@ -394,49 +399,52 @@ class LatencyMonitor:
                 degradation_rate=0.0,
                 current_severity=LatencySeverity.NORMAL,
             )
-        
+
         latencies = [m.latency_ns for m in measurements]
         successes = [m for m in measurements if m.success]
-        
+
         total = len(measurements)
         successful = len(successes)
         failed = total - successful
-        
+
         # Basic statistics
         avg = sum(latencies) / total if total > 0 else 0
         min_lat = min(latencies) if latencies else 0
         max_lat = max(latencies) if latencies else 0
-        
+
         # Calculate percentiles
         sorted_latencies = sorted(latencies)
         percentiles = {}
         for p in self._config.percentiles:
             index = int(len(sorted_latencies) * p / 100)
             percentiles[p] = sorted_latencies[min(index, len(sorted_latencies) - 1)]
-        
+
         # Median
         median = self._calculate_percentile(sorted_latencies, 50)
-        
+
         # Standard deviation
         variance = sum((lat - avg) ** 2 for lat in latencies) / total if total > 0 else 0
-        std_dev = variance ** 0.5
-        
+        std_dev = variance**0.5
+
         # Success rate
         success_rate = successful / total if total > 0 else 0.0
-        
+
         # Degradation rate (simple linear trend)
         degradation_rate = 0.0
-        if self._config.enable_trend_analysis and len(measurements) >= self._config.trend_window_size:
-            recent = list(measurements)[-self._config.trend_window_size:]
+        if (
+            self._config.enable_trend_analysis
+            and len(measurements) >= self._config.trend_window_size
+        ):
+            recent = list(measurements)[-self._config.trend_window_size :]
             recent_latencies = [m.latency_ns for m in recent]
-            first_half = recent_latencies[:len(recent_latencies) // 2]
-            second_half = recent_latencies[len(recent_latencies) // 2:]
-            
+            first_half = recent_latencies[: len(recent_latencies) // 2]
+            second_half = recent_latencies[len(recent_latencies) // 2 :]
+
             if first_half and second_half:
                 avg_first = sum(first_half) / len(first_half)
                 avg_second = sum(second_half) / len(second_half)
                 degradation_rate = (avg_second - avg_first) / avg_first if avg_first > 0 else 0.0
-        
+
         # Current severity
         avg_latency_ms = avg / 1_000_000
         if avg_latency_ms >= self._config.critical_latency_ns / 1_000_000:
@@ -447,7 +455,7 @@ class LatencyMonitor:
             current_severity = LatencySeverity.ELEVATED
         else:
             current_severity = LatencySeverity.NORMAL
-        
+
         return LatencyMetrics(
             adapter_name=self._adapter_name,
             component=component,
@@ -469,12 +477,12 @@ class LatencyMonitor:
             degradation_rate=degradation_rate,
             current_severity=current_severity,
         )
-    
+
     def _calculate_percentile(self, sorted_values: list[int], percentile: float) -> int:
         """Calculate a percentile from sorted values."""
         if not sorted_values:
             return 0
-        
+
         index = int(len(sorted_values) * percentile / 100)
         return sorted_values[min(index, len(sorted_values) - 1)]
 
@@ -486,23 +494,23 @@ class LatencyMonitor:
 
 class LatencyMonitorRegistry:
     """Registry for managing multiple latency monitors."""
-    
+
     def __init__(self) -> None:
         """Initialize the latency monitor registry."""
         self._lock = Lock()
         self._monitors: dict[str, LatencyMonitor] = {}
-    
+
     def get_or_create(
         self,
         adapter_name: str,
         config: LatencyConfig | None = None,
     ) -> LatencyMonitor:
         """Get or create a latency monitor for an adapter.
-        
+
         Args:
             adapter_name: Name of the adapter
             config: Latency monitoring configuration
-            
+
         Returns:
             Latency monitor instance
         """
@@ -510,30 +518,27 @@ class LatencyMonitorRegistry:
             if adapter_name not in self._monitors:
                 self._monitors[adapter_name] = LatencyMonitor(adapter_name, config)
             return self._monitors[adapter_name]
-    
+
     def get(self, adapter_name: str) -> LatencyMonitor | None:
         """Get a latency monitor for an adapter.
-        
+
         Args:
             adapter_name: Name of the adapter
-            
+
         Returns:
             Latency monitor instance or None if not found
         """
         with self._lock:
             return self._monitors.get(adapter_name)
-    
+
     def get_all_metrics(self) -> dict[str, dict[LatencyComponent, LatencyMetrics]]:
         """Get metrics for all registered monitors.
-        
+
         Returns:
             Dictionary of adapter names to component metrics
         """
         with self._lock:
-            return {
-                name: monitor.get_metrics()
-                for name, monitor in self._monitors.items()
-            }
+            return {name: monitor.get_metrics() for name, monitor in self._monitors.items()}
 
 
 # ---------------------------------------------------------------------------
@@ -548,22 +553,23 @@ def with_latency_monitoring(
     config: LatencyConfig | None = None,
 ):
     """Decorator to apply latency monitoring to adapter methods.
-    
+
     Args:
         registry: Latency monitor registry
         adapter_name: Name of the adapter
         component: Component being measured
         config: Latency monitoring configuration
     """
+
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             monitor = registry.get_or_create(adapter_name, config)
-            
+
             context = monitor.start_context(
                 operation_id=func.__name__,
                 component=component,
             )
-            
+
             try:
                 result = func(*args, **kwargs)
                 monitor.end_context(context.operation_id, success=True)
@@ -571,7 +577,9 @@ def with_latency_monitoring(
             except Exception:
                 monitor.end_context(context.operation_id, success=False)
                 raise
+
         return wrapper
+
     return decorator
 
 

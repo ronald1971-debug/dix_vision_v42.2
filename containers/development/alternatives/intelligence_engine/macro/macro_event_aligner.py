@@ -13,9 +13,9 @@ __all__ = ["MacroEvent", "AlignedMacroEvent", "MacroEventAligner"]
 @dataclass(frozen=True, slots=True)
 class MacroEvent:
     event_id: str
-    ts_ns: int         # scheduled release timestamp
+    ts_ns: int  # scheduled release timestamp
     name: str
-    importance: str    # "HIGH", "MEDIUM", "LOW"
+    importance: str  # "HIGH", "MEDIUM", "LOW"
     actual: float | None = None
     forecast: float | None = None
     prior: float | None = None
@@ -24,9 +24,9 @@ class MacroEvent:
 @dataclass(frozen=True, slots=True)
 class AlignedMacroEvent:
     event: MacroEvent
-    bar_index: int     # bar index relative to bar_start_ns
-    offset_ns: int     # (event.ts_ns - bar_start_ns) within the bar
-    surprise: float    # actual - forecast; 0.0 if missing
+    bar_index: int  # bar index relative to bar_start_ns
+    offset_ns: int  # (event.ts_ns - bar_start_ns) within the bar
+    surprise: float  # actual - forecast; 0.0 if missing
 
 
 class MacroEventAligner:
@@ -55,10 +55,12 @@ class MacroEventAligner:
             surprise = 0.0
             if event.actual is not None and event.forecast is not None:
                 surprise = event.actual - event.forecast
-            results.append(AlignedMacroEvent(
-                event=event,
-                bar_index=bar_idx,
-                offset_ns=bar_offset,
-                surprise=surprise,
-            ))
+            results.append(
+                AlignedMacroEvent(
+                    event=event,
+                    bar_index=bar_idx,
+                    offset_ns=bar_offset,
+                    surprise=surprise,
+                )
+            )
         return tuple(sorted(results, key=lambda r: r.event.ts_ns))

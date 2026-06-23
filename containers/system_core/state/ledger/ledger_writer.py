@@ -19,18 +19,14 @@ class LedgerWriter:
     def __init__(self, store: EventStore) -> None:
         self._store = store
 
-    def write_governance_event(
-        self, event_type: str, details: dict[str, Any]
-    ) -> LedgerEvent:
+    def write_governance_event(self, event_type: str, details: dict[str, Any]) -> LedgerEvent:
         return self._store.append(
             stream="governance",
             event_type=event_type,
             payload={"details": details, "recorded_at": time.time()},
         )
 
-    def write_cognition_event(
-        self, event_type: str, details: dict[str, Any]
-    ) -> LedgerEvent:
+    def write_cognition_event(self, event_type: str, details: dict[str, Any]) -> LedgerEvent:
         return self._store.append(
             stream="cognition",
             event_type=event_type,
@@ -82,27 +78,21 @@ class LedgerWriter:
             },
         )
 
-    def write_learning_event(
-        self, event_type: str, details: dict[str, Any]
-    ) -> LedgerEvent:
+    def write_learning_event(self, event_type: str, details: dict[str, Any]) -> LedgerEvent:
         return self._store.append(
             stream="learning",
             event_type=event_type,
             payload={"details": details, "recorded_at": time.time()},
         )
 
-    def write_evolution_event(
-        self, event_type: str, details: dict[str, Any]
-    ) -> LedgerEvent:
+    def write_evolution_event(self, event_type: str, details: dict[str, Any]) -> LedgerEvent:
         return self._store.append(
             stream="evolution",
             event_type=event_type,
             payload={"details": details, "recorded_at": time.time()},
         )
 
-    def write_system_event(
-        self, event_type: str, details: dict[str, Any]
-    ) -> LedgerEvent:
+    def write_system_event(self, event_type: str, details: dict[str, Any]) -> LedgerEvent:
         return self._store.append(
             stream="system",
             event_type=event_type,

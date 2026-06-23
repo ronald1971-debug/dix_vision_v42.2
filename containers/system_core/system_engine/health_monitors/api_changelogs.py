@@ -139,13 +139,10 @@ class APIChangelogMonitor:
     def snapshot(self) -> dict:
         """Return a serialisable snapshot of monitor state."""
         return {
-            "watched_apis": {
-                name: dict(info) for name, info in self._watched_apis.items()
-            },
+            "watched_apis": {name: dict(info) for name, info in self._watched_apis.items()},
             "last_check_ts_ns": self._last_check_ts_ns,
             "detected_changes": {
-                name: list(changes)
-                for name, changes in self._detected_changes.items()
+                name: list(changes) for name, changes in self._detected_changes.items()
             },
         }
 

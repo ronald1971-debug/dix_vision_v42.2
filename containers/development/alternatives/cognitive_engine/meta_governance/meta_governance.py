@@ -93,7 +93,9 @@ class MetaGovernance:
 
     def record_decision(self, rule_id: str, decision: dict[str, Any]) -> None:
         """Record a governance decision."""
-        self._decisions.append({"rule_id": rule_id, "decision": decision, "timestamp": time.time_ns()})
+        self._decisions.append(
+            {"rule_id": rule_id, "decision": decision, "timestamp": time.time_ns()}
+        )
 
     def get_questions(self, unanswered_only: bool = False) -> list[GovernanceQuestion]:
         """Get governance questions."""

@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 
 _logger = logging.getLogger(__name__)
 
-SIMULATION_THRESHOLD: float = 30.0   # minimum fitness to survive simulation
+SIMULATION_THRESHOLD: float = 30.0  # minimum fitness to survive simulation
 
 
 class SimulationEvaluator:
@@ -68,9 +68,7 @@ class SimulationEvaluator:
         )
         return result
 
-    def _run(
-        self, record: ProposalRecord, ts_ns: int
-    ) -> tuple[float, dict[str, float], str, int]:
+    def _run(self, record: ProposalRecord, ts_ns: int) -> tuple[float, dict[str, float], str, int]:
         """Attempt real tournament; fall back to synthetic."""
         try:
             return self._real_tournament(record, ts_ns)
@@ -85,6 +83,7 @@ class SimulationEvaluator:
             MutationTournament,
             TournamentGenome,
         )
+
         genome = TournamentGenome(
             genome_id=record.proposal_id,
             description=record.description,
@@ -108,7 +107,7 @@ class SimulationEvaluator:
             f"{record.proposal_id}:{record.mutation_class}:{ts_ns}".encode()
         ).digest()
         base = int.from_bytes(digest[:4], "big") / 0xFFFFFFFF
-        fitness = 20.0 + base * 60.0     # range [20, 80]
+        fitness = 20.0 + base * 60.0  # range [20, 80]
         scenarios = {
             "flash_crash": fitness * 0.9,
             "regime_switch": fitness * 1.05,
@@ -132,9 +131,7 @@ _evaluator: SimulationEvaluator | None = None
 _evaluator_lock = threading.Lock()
 
 
-def get_simulation_evaluator(
-    *, threshold: float = SIMULATION_THRESHOLD
-) -> SimulationEvaluator:
+def get_simulation_evaluator(*, threshold: float = SIMULATION_THRESHOLD) -> SimulationEvaluator:
     """Return the process-wide SimulationEvaluator singleton."""
     global _evaluator
     with _evaluator_lock:

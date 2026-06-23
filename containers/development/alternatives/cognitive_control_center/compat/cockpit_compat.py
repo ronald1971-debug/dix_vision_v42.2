@@ -15,39 +15,40 @@ PRESERVED FEATURES:
 
 from __future__ import annotations
 
-# Import the new cognitive control center services
-from cognitive_control_center.shared_services.pairing import (
-    DevicePairingService,
-    get_device_pairing_service,
-)
 from cognitive_control_center.shared_services.auth import (
+    PUBLIC_PATH_PREFIXES,
+    PUBLIC_PATHS_EXACT,
     CognitiveAuthService,
     CognitiveTokenAuthMiddleware,
+    _extract,
     get_cognitive_auth_service,
     get_or_create_token,
-    _extract,
-    PUBLIC_PATHS_EXACT,
-    PUBLIC_PATH_PREFIXES,
 )
 from cognitive_control_center.shared_services.chat import (
-    CognitiveChat,
     ChatTurn,
+    CognitiveChat,
     Router,
-    get_chat,
     available_voices,
+    get_chat,
 )
 from cognitive_control_center.shared_services.llm import (
     Capability,
+    CognitiveLLMRouter,
+    LLMResponse,
     Provider,
     ProviderStatus,
-    LLMResponse,
-    CognitiveLLMRouter,
     get_router,
+)
+
+# Import the new cognitive control center services
+from cognitive_control_center.shared_services.pairing import (
+    get_device_pairing_service,
 )
 from cognitive_control_center.shared_services.qr import (
     encode_qr,
     qr_png_bytes,
 )
+
 
 # Create compatibility shims that mimic the cockpit API
 class PairingCompat:
@@ -91,6 +92,7 @@ class PairingCompat:
 # Create singleton compatibility instances
 _pairing_compat = PairingCompat()
 
+
 # Re-export compatibility APIs that mimic cockpit module structure
 def issue_token(label: str, ttl_sec: int = 900) -> str:
     """Compatibility shim for cockpit.pairing.issue_token."""
@@ -130,15 +132,15 @@ except ImportError:
     pass
 
 if _sys_modules:
-    _sys_modules['cockpit_pairing_compat'] = PairingModuleCompat()
-    _sys_modules['cockpit_auth_compat'] = CognitiveAuthService
-    _sys_modules['cockpit_chat_compat'] = CognitiveChat
+    _sys_modules["cockpit_pairing_compat"] = PairingModuleCompat()
+    _sys_modules["cockpit_auth_compat"] = CognitiveAuthService
+    _sys_modules["cockpit_chat_compat"] = CognitiveChat
 
 
 # Provide module-level shims for backward compatibility
 class CockpitAuthCompat:
     """Module-level compatibility for cockpit.auth."""
-    
+
     def __getattr__(self, name: str):
         """Forward auth-related attributes to cognitive control center."""
         if name == "get_or_create_token":
@@ -156,7 +158,7 @@ class CockpitAuthCompat:
 
 class CockpitChatCompat:
     """Module-level compatibility for cockpit.chat."""
-    
+
     def __getattr__(self, name: str):
         """Forward chat-related attributes to cognitive control center."""
         if name == "get_chat":
@@ -174,7 +176,7 @@ class CockpitChatCompat:
 
 class CockpitLLMCompat:
     """Module-level compatibility for cockpit.llm."""
-    
+
     def __getattr__(self, name: str):
         """Forward llm-related attributes to cognitive control center."""
         if name == "Capability":
@@ -194,7 +196,7 @@ class CockpitLLMCompat:
 
 class CockpitQRCompat:
     """Module-level compatibility for cockpit.qr."""
-    
+
     def __getattr__(self, name: str):
         """Forward qr-related attributes to cognitive control center."""
         if name == "encode_qr":
@@ -206,10 +208,10 @@ class CockpitQRCompat:
 
 # Create additional module-level compatibility
 if _sys_modules:
-    _sys_modules['cockpit.auth'] = CockpitAuthCompat()
-    _sys_modules['cockpit.chat'] = CockpitChatCompat()
-    _sys_modules['cockpit.llm'] = CockpitLLMCompat()
-    _sys_modules['cockpit.qr'] = CockpitQRCompat()
+    _sys_modules["cockpit.auth"] = CockpitAuthCompat()
+    _sys_modules["cockpit.chat"] = CockpitChatCompat()
+    _sys_modules["cockpit.llm"] = CockpitLLMCompat()
+    _sys_modules["cockpit.qr"] = CockpitQRCompat()
 
 
 __all__ = [

@@ -32,7 +32,6 @@ from pathlib import Path
 from typing import Any
 
 import yaml
-
 from core.contracts.events import Side, SignalEvent, SystemEvent, SystemEventKind
 
 PRESSURE_VECTOR_VERSION = "v3.3-T1a"

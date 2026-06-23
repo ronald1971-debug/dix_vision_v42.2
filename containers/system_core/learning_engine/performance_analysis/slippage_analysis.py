@@ -20,21 +20,23 @@ from dataclasses import dataclass
 @dataclass(frozen=True, slots=True)
 class SlippageRecord:
     """One slippage observation for a single fill."""
+
     strategy_id: str
     venue: str
     symbol: str
-    side: str               # BUY | SELL
-    signal_price: float     # expected price at submission
-    fill_price: float       # actual execution price
+    side: str  # BUY | SELL
+    signal_price: float  # expected price at submission
+    fill_price: float  # actual execution price
     qty: float
-    slippage_bps: float     # signed basis-points slippage
-    slippage_usd: float     # signed dollar slippage
+    slippage_bps: float  # signed basis-points slippage
+    slippage_usd: float  # signed dollar slippage
     ts_ns: int
 
 
 @dataclass(frozen=True, slots=True)
 class SlippageStats:
     """Aggregate slippage statistics over a sample of trades."""
+
     strategy_id: str
     venue: str
     sample_count: int

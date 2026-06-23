@@ -28,18 +28,16 @@ class ProductionSelfModel:
 
     def initialize(self) -> None:
         """Initialize the self-model. Stub implementation."""
-        pass
 
     def shutdown(self) -> None:
         """Shutdown the self-model. Stub implementation."""
-        pass
 
     def update(self, **kwargs: Any) -> None:
         """Update the self-model with new data."""
         for key, value in kwargs.items():
             if hasattr(self, key):
                 setattr(self, key, value)
-    
+
     def initialize(self) -> bool:
         """Initialize the self-model (stub implementation)."""
         return True

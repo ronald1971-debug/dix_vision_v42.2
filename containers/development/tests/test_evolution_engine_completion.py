@@ -1,19 +1,18 @@
 """Tests for Evolution Engine Completion (Autonomous Capabilities)."""
 
-import unittest
-import sys
 import os
+import sys
+import unittest
 
 # Add paths to imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from evolution_engine import (
-    AutonomousEvolutionEngine,
-    get_autonomous_evolution_engine,
+    AutonomousEvolutionResult,
+    AutonomyDecision,
     AutonomyLevel,
     AutonomyScope,
-    AutonomyDecision,
-    AutonomousEvolutionResult,
+    get_autonomous_evolution_engine,
 )
 
 
@@ -201,7 +200,7 @@ class TestAutonomousEvolutionIntegration(unittest.TestCase):
 
     def test_autonomous_with_existing_orchestrator(self):
         """Test autonomous evolution working with existing orchestrator."""
-        from evolution_engine import EvolutionOrchestrator, get_evolution_orchestrator
+        from evolution_engine import get_evolution_orchestrator
 
         orchestrator = get_evolution_orchestrator()
         autonomous_engine = get_autonomous_evolution_engine()
@@ -232,15 +231,15 @@ def run_tests():
     runner = unittest.TextTestRunner(verbosity=2)
     result = runner.run(suite)
 
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("EVOLUTION ENGINE COMPLETION TEST SUMMARY")
-    print("="*70)
+    print("=" * 70)
     print(f"Tests run: {result.testsRun}")
     print(f"Successes: {result.testsRun - len(result.failures) - len(result.errors)}")
     print(f"Failures: {len(result.failures)}")
     print(f"Errors: {len(result.errors)}")
     print(f"Skipped: {len(result.skipped)}")
-    print("="*70)
+    print("=" * 70)
 
     return result.wasSuccessful()
 

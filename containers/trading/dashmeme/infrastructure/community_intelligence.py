@@ -5,16 +5,17 @@ Contract-Compliant Real Implementation
 Real community intelligence system for tracking and analyzing meme token communities
 """
 
-from typing import Dict, List, Optional, Any, Tuple
-from datetime import datetime, timedelta
-from dataclasses import dataclass, field
-from enum import Enum
-import logging
-import structlog
-from collections import defaultdict, deque
-import uuid
 import hashlib
+import logging
 import re
+import uuid
+from collections import defaultdict, deque
+from dataclasses import dataclass, field
+from datetime import datetime, timedelta
+from enum import Enum
+from typing import Any, Dict, List, Optional, Tuple
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 

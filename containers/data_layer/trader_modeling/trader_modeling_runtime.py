@@ -91,7 +91,8 @@ class TraderModelingRuntime:
         if classified:
             _logger.debug(
                 "TraderModelingRuntime: %d new classifications (tick %d)",
-                classified, self._tick_count,
+                classified,
+                self._tick_count,
             )
 
         with self._lock:
@@ -128,12 +129,14 @@ class TraderModelingRuntime:
         """Subscribe to MARKET_TICK channel to feed the extractor live data."""
         try:
             from state.event_bus import CognitiveChannel, get_event_bus
+
             bus = get_event_bus()
 
             def _on_tick(payload: dict[str, Any]) -> None:
                 ts_ns = int(payload.get("ts_ns", 0))
                 if ts_ns <= 0:
                     from system.time_source import wall_ns
+
                     ts_ns = wall_ns()
                 try:
                     get_profile_extractor().ingest(payload, ts_ns)

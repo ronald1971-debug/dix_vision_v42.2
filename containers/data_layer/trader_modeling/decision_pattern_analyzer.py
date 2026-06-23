@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from typing import Any, Dict, List
+from typing import List
 
 from system.time_source import now
 
@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class DecisionPattern:
     """A decision pattern."""
+
     pattern_id: str
     trader_id: str
     pattern_type: str
@@ -30,19 +31,21 @@ class DecisionPattern:
 
 class ProductionDecisionPatternAnalyzer:
     """Production-grade decision pattern analyzer."""
-    
+
     def __init__(self) -> None:
         self._patterns: List[DecisionPattern] = []
-        
+
     def start(self) -> bool:
         logger.info("[DECISION_PATTERN_ANALYZER] Production decision pattern analyzer started")
         return True
-    
+
     def stop(self) -> bool:
         logger.info("[DECISION_PATTERN_ANALYZER] Production decision pattern analyzer stopped")
         return True
-    
-    def identify_pattern(self, trader_id: str, pattern_type: str, sequence: List[str]) -> DecisionPattern:
+
+    def identify_pattern(
+        self, trader_id: str, pattern_type: str, sequence: List[str]
+    ) -> DecisionPattern:
         """Identify a decision pattern."""
         pattern = DecisionPattern(
             pattern_id=f"pattern_{now().sequence}",
@@ -50,7 +53,7 @@ class ProductionDecisionPatternAnalyzer:
             pattern_type=pattern_type,
             sequence=sequence,
             frequency=0.5,
-            timestamp=now().utc_time.isoformat()
+            timestamp=now().utc_time.isoformat(),
         )
         self._patterns.append(pattern)
         return pattern

@@ -50,6 +50,7 @@ class CognitiveObject:
 
     def replace(self, **changes: Any) -> CognitiveObject:
         import dataclasses
+
         return dataclasses.replace(self, **changes)
 
     @classmethod

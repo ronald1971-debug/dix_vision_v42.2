@@ -230,13 +230,9 @@ class LiquidityProviderAgent(AgentBase, AgentIntrospection):
 
         # Update simulated inventory on active decisions.
         if direction == _BUY:
-            self._net_inventory = min(
-                self._net_inventory + 1.0, self.max_inventory * 2.0
-            )
+            self._net_inventory = min(self._net_inventory + 1.0, self.max_inventory * 2.0)
         elif direction == _SELL:
-            self._net_inventory = max(
-                self._net_inventory - 1.0, -self.max_inventory * 2.0
-            )
+            self._net_inventory = max(self._net_inventory - 1.0, -self.max_inventory * 2.0)
 
         trace = AgentDecisionTrace(
             ts_ns=int(signal.ts_ns),

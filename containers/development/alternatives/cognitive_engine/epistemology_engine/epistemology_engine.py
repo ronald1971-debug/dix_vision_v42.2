@@ -82,15 +82,18 @@ class EpistemologyEngine:
             "formed_at": ts_ns,
             "last_reinforced": ts_ns,
             "revision_count": 0,
-            "confidence_history": deque(
-                [(ts_ns, confidence)], maxlen=200
-            ),
+            "confidence_history": deque([(ts_ns, confidence)], maxlen=200),
         }
         with self._lock:
             self._lineages[belief_id] = lineage
             self._history[belief_id] = deque(
-                [BeliefHistoryEntry(ts_ns=ts_ns, confidence=confidence,
-                                    contributing_evidence=tuple(evidence_ids))],
+                [
+                    BeliefHistoryEntry(
+                        ts_ns=ts_ns,
+                        confidence=confidence,
+                        contributing_evidence=tuple(evidence_ids),
+                    )
+                ],
                 maxlen=100,
             )
         return {
@@ -229,15 +232,17 @@ class EpistemologyEngine:
         with self._lock:
             lines = []
             for b_id, lin in self._lineages.items():
-                lines.append({
-                    "belief_id": b_id,
-                    "domain": lin["domain"],
-                    "claim": lin["claim"],
-                    "confidence": lin["confidence"],
-                    "evidence_count": len(lin["evidence_ids"]),
-                    "revision_count": lin["revision_count"],
-                    "contributor_count": len(lin["contributor_chain"]),
-                })
+                lines.append(
+                    {
+                        "belief_id": b_id,
+                        "domain": lin["domain"],
+                        "claim": lin["claim"],
+                        "confidence": lin["confidence"],
+                        "evidence_count": len(lin["evidence_ids"]),
+                        "revision_count": lin["revision_count"],
+                        "contributor_count": len(lin["contributor_chain"]),
+                    }
+                )
         return {"total_beliefs": len(lines), "beliefs": lines, "ts_ns": self._now_ns()}
 
     # ------------------------------------------------------------------
@@ -248,6 +253,7 @@ class EpistemologyEngine:
     def _now_ns() -> int:
         try:
             from system.time_source import wall_ns
+
             return wall_ns()
         except Exception:
             return int(_time.time() * 1e9)

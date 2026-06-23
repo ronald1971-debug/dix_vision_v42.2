@@ -41,19 +41,15 @@ class NarrativeEngine:
 
     def dominant(self) -> list[Narrative]:
         """Get dominant narratives."""
-        return [
-            n for n in self._narratives.values()
-            if n.stage == NarrativeStage.DOMINANT
-        ]
+        return [n for n in self._narratives.values() if n.stage == NarrativeStage.DOMINANT]
 
     def emerging(self) -> list[Narrative]:
         """Get emerging narratives."""
-        return [
-            n for n in self._narratives.values()
-            if n.stage == NarrativeStage.EMERGING
-        ]
+        return [n for n in self._narratives.values() if n.stage == NarrativeStage.EMERGING]
 
-    def update_sentiment(self, narrative_id: str, sentiment: float, evidence: str | None = None) -> Narrative | None:
+    def update_sentiment(
+        self, narrative_id: str, sentiment: float, evidence: str | None = None
+    ) -> Narrative | None:
         """Update narrative sentiment."""
         narrative = self._narratives.get(narrative_id)
         if narrative:

@@ -774,6 +774,7 @@ def elegantrl_agent_trainer(
             agent_class_name = _agent_class_map[arguments.agent_kind]
             try:
                 import importlib
+
                 _agents_mod = importlib.import_module("elegantrl.agents")
                 AgentClass = getattr(_agents_mod, agent_class_name)
             except (ImportError, AttributeError):
@@ -816,18 +817,12 @@ def elegantrl_agent_trainer(
 
                 def reset(self) -> np.ndarray:
                     self._ep_idx += 1
-                    ep_seed = (
-                        arguments.random_seed * 1_000_003 + self._ep_idx
-                    ) & 0x7FFFFFFF
+                    ep_seed = (arguments.random_seed * 1_000_003 + self._ep_idx) & 0x7FFFFFFF
                     obs, _ = env.reset(seed=ep_seed, config=episode_config)
                     return self._arr(obs)
 
-                def step(
-                    self, action: int
-                ) -> tuple[np.ndarray, float, bool, dict]:
-                    obs, reward, terminated, truncated, info = env.step(
-                        TradeAction(int(action))
-                    )
+                def step(self, action: int) -> tuple[np.ndarray, float, bool, dict]:
+                    obs, reward, terminated, truncated, info = env.step(TradeAction(int(action)))
                     done = bool(terminated or truncated)
                     return self._arr(obs), float(reward), done, dict(info)
 
@@ -846,9 +841,7 @@ def elegantrl_agent_trainer(
             total_steps_done = 0
             episodes_done = 0
 
-            callback.on_training_start(
-                ts_ns=ts_ns, target_step=arguments.target_step
-            )
+            callback.on_training_start(ts_ns=ts_ns, target_step=arguments.target_step)
 
             agent_used = False
             if AgentClass is not None:
@@ -878,9 +871,7 @@ def elegantrl_agent_trainer(
 
                     max_iters = max(
                         1,
-                        arguments.target_step
-                        * 8
-                        // arguments.target_step,
+                        arguments.target_step * 8 // arguments.target_step,
                     )
                     iter_count = 0
                     while total_steps_done < arguments.target_step * max_iters:
@@ -893,9 +884,7 @@ def elegantrl_agent_trainer(
                         while not done and ep_len < arguments.max_step:
                             action = agent.select_action(state)  # type: ignore[union-attr]
                             next_state, reward, done, _ = elegant_env.step(
-                                int(action)
-                                if hasattr(action, "__int__")
-                                else action
+                                int(action) if hasattr(action, "__int__") else action
                             )
                             traj.append((state, action, reward, done, next_state))
                             state = next_state
@@ -976,9 +965,7 @@ def elegantrl_agent_trainer(
                 value_coef = 0.5
 
                 window = arguments.target_step
-                max_windows = max(
-                    1, (arguments.target_step * 8) // window
-                )
+                max_windows = max(1, (arguments.target_step * 8) // window)
 
                 for _win in range(max_windows):
                     # Rollout
@@ -997,9 +984,7 @@ def elegantrl_agent_trainer(
                     critic.eval()
                     with torch.no_grad():
                         for _step in range(window):
-                            obs_t = torch.as_tensor(
-                                state[None], dtype=torch.float32, device=device
-                            )
+                            obs_t = torch.as_tensor(state[None], dtype=torch.float32, device=device)
                             logits = actor(obs_t)
                             vals = critic(obs_t)
                             dist = torch.distributions.Categorical(logits=logits)
@@ -1050,16 +1035,10 @@ def elegantrl_agent_trainer(
                         adv[i] = gae
                         returns[i] = gae + val_buf[i]
 
-                    obs_t = torch.as_tensor(
-                        np.stack(obs_buf), dtype=torch.float32, device=device
-                    )
+                    obs_t = torch.as_tensor(np.stack(obs_buf), dtype=torch.float32, device=device)
                     act_t = torch.as_tensor(act_buf, dtype=torch.long, device=device)
-                    old_logp_t = torch.as_tensor(
-                        logp_buf, dtype=torch.float32, device=device
-                    )
-                    ret_t = torch.as_tensor(
-                        returns, dtype=torch.float32, device=device
-                    )
+                    old_logp_t = torch.as_tensor(logp_buf, dtype=torch.float32, device=device)
+                    ret_t = torch.as_tensor(returns, dtype=torch.float32, device=device)
                     adv_t = torch.as_tensor(adv, dtype=torch.float32, device=device)
                     adv_t = (adv_t - adv_t.mean()) / (adv_t.std() + 1e-8)
 
@@ -1070,7 +1049,7 @@ def elegantrl_agent_trainer(
                     actor.train()
                     critic.train()
                     for _ in range(arguments.repeat_times):
-                        idx = torch.randperm(n)[:arguments.batch_size]
+                        idx = torch.randperm(n)[: arguments.batch_size]
                         o_b = obs_t[idx]
                         a_b = act_t[idx]
                         old_lp_b = old_logp_t[idx]

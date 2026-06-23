@@ -37,7 +37,6 @@ from pathlib import Path
 from typing import Any
 
 import yaml
-
 from core.contracts.macro_regime import (
     MacroRegime,
     MacroRegimeReading,

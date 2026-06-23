@@ -4,57 +4,150 @@ Real implementations for DIX VISION contracts
 NO PLACEHOLDER - Contract-compliant real implementations
 """
 
-import time
-from .events import (
-    EventKind,
-    HazardSeverity,
-    ExecutionStatus,
-    SystemEventKind,
-    Side,
-    Event,
-    HazardEvent,
-    SignalEvent,
-    SystemEvent,
-    ExecutionEvent
-)
 from .api import (
-    PresenceState,
     CredentialItem,
     CredentialsStatusResponse,
     CredentialsSummary,
+    PresenceState,
     PresenceStateApi,
-    get_presence_state_api
+    get_presence_state_api,
 )
 from .development_mode import (
     DevelopmentMode,
     DevelopmentModePolicy,
     get_development_mode_policy,
-    set_development_mode
+    set_development_mode,
 )
-from .learning import (
-    PatchProposal,
-    StrategyStats
+from .engine import (
+    EngineCapabilities,
+    EngineConfig,
+    EngineHealth,
+    EngineKind,
+    EngineStatus,
+    EngineTier,
+    HealthState,
+    OfflineEngine,
+    Plugin,
+    PluginLifecycle,
+    RuntimeEngine,
 )
-from .learning_evolution_freeze import (
-    LearningEvolutionFreezePolicy
+from .event_provenance import (
+    AuthorizationLevel,
+    Provenance,
+    SourceKind,
+    get_authorization_level,
+    is_operator_authorized_source,
+    verify_provenance,
 )
-from .external_signal_trust import (
-    ExternalSignalTrustRegistry,
-    load_external_signal_trust
+from .events import (
+    Event,
+    EventKind,
+    ExecutionEvent,
+    ExecutionStatus,
+    HazardEvent,
+    HazardSeverity,
+    Side,
+    SignalEvent,
+    SystemEvent,
+    SystemEventKind,
 )
-from .source_trust_promotions import (
-    SourceTrustPromotionStore
+from .external_signal_trust import ExternalSignalTrustRegistry, load_external_signal_trust
+from .governance import (
+    ComplianceReport,
+    Constraint,
+    ConstraintKind,
+    ConstraintScope,
+    DecisionKind,
+    GovernanceDecision,
+    GovernanceKind,
+    IntentHorizon,
+    IntentObjective,
+    IntentRiskMode,
+    IntentTransitionDecision,
+    IntentTransitionRequest,
+    LedgerEntry,
+    ModeTransitionDecision,
+    ModeTransitionRequest,
+    OperatorAction,
+    OperatorRequest,
+    RiskAssessment,
+    SystemMode,
 )
+from .invariants import (
+    DIX_01,
+    DIX_02,
+    DIX_03,
+    DIX_04,
+    DIX_05,
+    DIX_06,
+    DIX_07,
+    DIX_08,
+    DIX_09,
+    DIX_10,
+    DIX_11,
+    DIX_12,
+    DIX_13,
+    DIX_14,
+    DIX_15,
+    DIX_16,
+    DIX_17,
+    DIX_18,
+    DIX_19,
+    DIX_20,
+    InvariantDefinition,
+    InvariantID,
+    InvariantKind,
+    InvariantManager,
+    InvariantSeverity,
+    InvariantStatus,
+    InvariantViolation,
+    create_violation,
+    get_invariant_manager,
+)
+from .learning import PatchProposal, StrategyStats
+from .learning_evolution_freeze import LearningEvolutionFreezePolicy
 from .market import MarketTick
+from .mode_effects import (
+    EffectKind,
+    EffectSeverity,
+    ModeEffect,
+    ModeEffectManager,
+    apply_effect,
+    effect_for,
+    get_effect_manager,
+    get_effects_for_mode,
+    revoke_effect,
+)
+from .operator_consent import (
+    ConsentDecision,
+    ConsentKind,
+    ConsentRequest,
+    ConsentStatus,
+    OperatorConsent,
+    OperatorConsentValidator,
+    create_consent_request,
+    create_validator,
+    edge_requires_consent,
+)
 from .risk import RiskSnapshot
-from .governance import GovernanceKind, SystemMode, GovernanceDecision, DecisionKind, IntentHorizon, IntentObjective, IntentRiskMode, RiskAssessment, ConstraintKind, ConstraintScope, OperatorAction, LedgerEntry, OperatorRequest, Constraint, ModeTransitionRequest, ComplianceReport, ModeTransitionDecision, IntentTransitionRequest, IntentTransitionDecision
-from .engine import EngineKind, EngineTier, EngineStatus, HealthState, PluginLifecycle, HealthStatus, EngineHealth, EngineConfig, EngineCapabilities, Plugin, RuntimeEngine, OfflineEngine
-from .event_provenance import SourceKind, Provenance, AuthorizationLevel, get_authorization_level, is_operator_authorized_source, verify_provenance
-from .signal_trust import TrustLevel, SignalTrust, default_cap_for, default_signal_trust, verify_signal
-from .operator_consent import ConsentStatus, ConsentKind, ConsentRequest, OperatorConsent, ConsentDecision, OperatorConsentValidator, create_consent_request, create_validator, edge_requires_consent
-from .strategy_registry import StrategyKind, StrategyStatus, StrategyLifecycle, StrategyLifecycleError, StrategyRecord, StrategyRegistry, get_strategy_registry, is_legal_transition
-from .mode_effects import EffectKind, EffectSeverity, ModeEffect, effect_for, get_effects_for_mode, apply_effect, revoke_effect, ModeEffectManager, get_effect_manager
-from .invariants import InvariantKind, InvariantSeverity, InvariantStatus, InvariantID, DIX_01, DIX_02, DIX_03, DIX_04, DIX_05, DIX_06, DIX_07, DIX_08, DIX_09, DIX_10, DIX_11, DIX_12, DIX_13, DIX_14, DIX_15, DIX_16, DIX_17, DIX_18, DIX_19, DIX_20, InvariantDefinition, InvariantViolation, InvariantManager, get_invariant_manager, create_violation
+from .signal_trust import (
+    SignalTrust,
+    TrustLevel,
+    default_cap_for,
+    default_signal_trust,
+    verify_signal,
+)
+from .source_trust_promotions import SourceTrustPromotionStore
+from .strategy_registry import (
+    StrategyKind,
+    StrategyLifecycle,
+    StrategyLifecycleError,
+    StrategyRecord,
+    StrategyRegistry,
+    StrategyStatus,
+    get_strategy_registry,
+    is_legal_transition,
+)
 
 __all__ = [
     # Events
@@ -196,5 +289,5 @@ __all__ = [
     "InvariantViolation",
     "InvariantManager",
     "get_invariant_manager",
-    "create_violation"
+    "create_violation",
 ]

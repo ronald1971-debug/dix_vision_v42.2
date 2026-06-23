@@ -30,6 +30,8 @@ from core.contracts.financial_governance import (
     FinancialGovernanceStatus,
     KillSwitchState,
 )
+from state.ledger.event_store import append_event
+
 from .capital_throttle import (
     CapitalThrottle,
     get_capital_throttle,
@@ -54,7 +56,6 @@ from .liquidation_sentinel import (
     LiquidationSentinel,
     get_liquidation_sentinel,
 )
-from state.ledger.event_store import append_event
 
 
 class FinancialGovernanceEngine:
@@ -182,13 +183,9 @@ class FinancialGovernanceEngine:
         if not kill_switch_safe:
             detail_parts.append(f"kill_switch={kill_state.value}")
         if not exposure_ok:
-            detail_parts.append(
-                f"exposure_violations={self.exposure_guard.violation_count()}"
-            )
+            detail_parts.append(f"exposure_violations={self.exposure_guard.violation_count()}")
         if not leverage_ok:
-            detail_parts.append(
-                f"leverage_violations={self.leverage_monitor.violation_count()}"
-            )
+            detail_parts.append(f"leverage_violations={self.leverage_monitor.violation_count()}")
         if not liquidation_safe:
             detail_parts.append(
                 f"at_risk_positions={len(self.liquidation_sentinel.at_risk_positions())}"

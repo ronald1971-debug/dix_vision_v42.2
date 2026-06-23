@@ -22,18 +22,18 @@ ENHANCED FEATURES:
 
 from __future__ import annotations
 
-import struct
-import zlib
 import os
+import struct
 import sys
-from datetime import datetime
-from typing import Optional, Dict, List
 from dataclasses import dataclass
+from datetime import datetime
+from typing import Dict, List, Optional
 
 # Try to import world model components for world context integration
 try:
-    sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+    sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
     from world_model.indicator_integration import get_integration_bridge
+
     WORLD_MODEL_AVAILABLE = True
 except ImportError:
     WORLD_MODEL_AVAILABLE = False
@@ -42,6 +42,7 @@ except ImportError:
 @dataclass
 class WorldContext:
     """World model context for QR code generation policies."""
+
     market_regime: str  # bullish, bearish, sideways, high_volatility
     market_trend: str  # trending, mean_reverting
     volatility_regime: str  # high, normal, low
@@ -50,7 +51,7 @@ class WorldContext:
     causal_factors: List[str]  # relevant causal factors
     prediction_confidence: float  # world model prediction confidence
     timestamp: datetime
-    
+
     def to_dict(self) -> dict:
         """Convert to dictionary for processing."""
         return {
@@ -61,8 +62,9 @@ class WorldContext:
             "agent_activity": self.agent_activity,
             "causal_factors": self.causal_factors,
             "prediction_confidence": self.prediction_confidence,
-            "timestamp": self.timestamp.isoformat()
+            "timestamp": self.timestamp.isoformat(),
         }
+
 
 # --- Reed-Solomon over GF(256) ---
 _GF_EXP = [0] * 512
@@ -113,7 +115,7 @@ def _rs_encode(data: list[int], nsym: int) -> list[int]:
         if coef != 0:
             for j, gv in enumerate(gen):
                 res[i + j] ^= _gf_mul(gv, coef)
-    return res[len(data):]
+    return res[len(data) :]
 
 
 # --- Version tables (L error level only, byte mode) ---
@@ -345,21 +347,24 @@ def encode_qr(text: str) -> tuple[int, list[list[int]]]:
         data = b" "
     version, total_data, ec_per_block, n_blocks = _choose_version(len(data))
     size = _size(version)
-    
+
     # Step 1: split into blocks and add EC
     data_codewords_per_block = total_data // n_blocks
-    data_blocks = [data[i:i + data_codewords_per_block] for i in range(0, len(data), data_codewords_per_block)]
-    
+    data_blocks = [
+        data[i : i + data_codewords_per_block]
+        for i in range(0, len(data), data_codewords_per_block)
+    ]
+
     # Pad last block if needed
     if len(data_blocks[-1]) < data_codewords_per_block:
         data_blocks[-1] += bytes([0]) * (data_codewords_per_block - len(data_blocks[-1]))
-    
+
     # Add EC to each block
     encoded_blocks: list[list[int]] = []
     for block in data_blocks:
         ec = _rs_encode(list(block), ec_per_block)
         encoded_blocks.append(list(block) + ec)
-    
+
     # Step 2: interleave blocks
     max_len = len(encoded_blocks[0])
     interleaved: list[int] = []
@@ -367,28 +372,28 @@ def encode_qr(text: str) -> tuple[int, list[list[int]]]:
         for block in encoded_blocks:
             if pos < len(block):
                 interleaved.append(block[pos])
-    
+
     # Step 3: convert to bits
     bits = _bits_from_bytes(bytes(interleaved), version)
     bits = _pad_bits(bits, total_data)
-    
+
     # Step 4: build matrix
     mat = [[-1] * size for _ in range(size)]
-    
+
     # Place finder patterns
     _place_finder(mat, 0, 0)
     _place_finder(mat, 0, size - 7)
     _place_finder(mat, size - 7, 0)
-    
+
     # Place alignment patterns
     _place_alignment(mat, version)
-    
+
     # Place timing patterns
     _place_timing(mat)
-    
+
     # Reserve format info
     _reserve_format(mat)
-    
+
     # Step 5: choose best mask
     best_mat = None
     best_penalty = float("inf")
@@ -402,14 +407,14 @@ def encode_qr(text: str) -> tuple[int, list[list[int]]]:
             best_penalty = p
             best_mat = mat_copy
             best_mask = mask_id
-    
+
     return size, best_mat
 
 
 def qr_png_bytes(text: str) -> bytes:
     """Return PNG bytes for the QR code."""
     size, mat = encode_qr(text)
-    
+
     # Convert to 1-bit monochrome
     row_bytes = (size + 7) // 8
     img_data = bytearray()
@@ -419,72 +424,85 @@ def qr_png_bytes(text: str) -> bytes:
             if mat[r][c]:
                 byte_idx = c // 8
                 bit_idx = 7 - (c % 8)
-                row[byte_idx] |= (1 << bit_idx)
+                row[byte_idx] |= 1 << bit_idx
         img_data.extend(row)
-    
+
     # Simple PNG header
     width = size
     height = size
-    
+
     # PNG signature
     png = b"\x89PNG\r\n\x1a\n"
-    
+
     # IHDR chunk
-    ihdr = struct.pack(">IIBBBBB", width, height, 1, 0, 0, 0, 0)  # 13 bytes: width, height, bit_depth, color_type, compression, filter, interlace
-    png += struct.pack(">I", 13) + b"IHDR" + ihdr + struct.pack(">I", 0x2144df88)
-    
+    ihdr = struct.pack(
+        ">IIBBBBB", width, height, 1, 0, 0, 0, 0
+    )  # 13 bytes: width, height, bit_depth, color_type, compression, filter, interlace
+    png += struct.pack(">I", 13) + b"IHDR" + ihdr + struct.pack(">I", 0x2144DF88)
+
     # IDAT chunk (compressed image data)
     import zlib
+
     idat = zlib.compress(img_data, 9)
-    png += struct.pack(">I", len(idat)) + b"IDAT" + idat + struct.pack(">I", zlib.crc32(b"IDAT" + idat) & 0xffffffff)
-    
+    png += (
+        struct.pack(">I", len(idat))
+        + b"IDAT"
+        + idat
+        + struct.pack(">I", zlib.crc32(b"IDAT" + idat) & 0xFFFFFFFF)
+    )
+
     # IEND chunk
-    png += struct.pack(">I", 0) + b"IEND" + struct.pack(">I", 0xae426082)
-    
+    png += struct.pack(">I", 0) + b"IEND" + struct.pack(">I", 0xAE426082)
+
     return png
 
 
 # World Context Integration Functions
 
-def encode_qr_with_world_context(text: str, world_context: Optional[WorldContext] = None) -> tuple[int, list[list[int]], Dict]:
+
+def encode_qr_with_world_context(
+    text: str, world_context: Optional[WorldContext] = None
+) -> tuple[int, list[list[int]], Dict]:
     """
     Return (size, matrix, metadata) with world context integration.
-    
+
     ENHANCED: World context integration for QR code generation policies
     """
     # Get world context if not provided
     if not world_context:
         world_context = _get_world_context_qr() if WORLD_MODEL_AVAILABLE else None
-    
+
     # Get standard QR encoding
     size, mat = encode_qr(text)
-    
+
     # Build metadata with world context
     metadata = {
         "encoding_timestamp": datetime.utcnow().isoformat(),
         "world_integration_enabled": WORLD_MODEL_AVAILABLE,
     }
-    
+
     if world_context:
         metadata["world_context"] = world_context.to_dict()
         metadata["regime_based_security"] = _calculate_qr_security_level(world_context)
-    
+
     return size, mat, metadata
 
 
-def qr_png_bytes_with_world_context(text: str, world_context: Optional[WorldContext] = None) -> bytes:
+def qr_png_bytes_with_world_context(
+    text: str, world_context: Optional[WorldContext] = None
+) -> bytes:
     """
     Return PNG bytes for the QR code with world context metadata.
-    
+
     ENHANCED: World context integration for QR code generation policies
     """
     # Get world context if not provided
     if not world_context:
         world_context = _get_world_context_qr() if WORLD_MODEL_AVAILABLE else None
-    
+
     # Get standard PNG encoding
     png_bytes = qr_png_bytes(text)
-    
+
     # In a real implementation, this might add metadata to the PNG or modify generation
     # For now, return the standard PNG bytes with world context awareness
     return png_bytes
@@ -494,7 +512,7 @@ def _get_world_context_qr() -> Optional[WorldContext]:
     """Get current world context from world model integration."""
     if not WORLD_MODEL_AVAILABLE:
         return None
-    
+
     try:
         bridge = get_integration_bridge()
         if bridge:
@@ -506,12 +524,12 @@ def _get_world_context_qr() -> Optional[WorldContext]:
                 agent_activity={},
                 causal_factors=[],
                 prediction_confidence=0.75,
-                timestamp=datetime.utcnow()
+                timestamp=datetime.utcnow(),
             )
             return context
     except Exception as e:
         sys.stderr.write(f"[cognitive_qr] Error getting world context: {e}\n")
-    
+
     return None
 
 
@@ -520,12 +538,18 @@ def _calculate_qr_security_level(world_context: WorldContext) -> str:
     # In high volatility regime, apply stricter security
     if world_context.volatility_regime == "high":
         return "high"
-    
+
     # In low liquidity, apply moderate security
     if world_context.liquidity_state == "low":
         return "medium"
-    
+
     return "standard"
 
 
-__all__ = ["encode_qr", "qr_png_bytes", "encode_qr_with_world_context", "qr_png_bytes_with_world_context", "WorldContext"]
+__all__ = [
+    "encode_qr",
+    "qr_png_bytes",
+    "encode_qr_with_world_context",
+    "qr_png_bytes_with_world_context",
+    "WorldContext",
+]

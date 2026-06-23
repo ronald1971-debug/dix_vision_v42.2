@@ -53,9 +53,7 @@ class AttributionEngine:
                 factors[bid] = per_belief
                 self._belief_pnl[bid] = self._belief_pnl.get(bid, 0.0) + per_belief
 
-        self._hypothesis_pnl[hypothesis_id] = (
-            self._hypothesis_pnl.get(hypothesis_id, 0.0) + pnl
-        )
+        self._hypothesis_pnl[hypothesis_id] = self._hypothesis_pnl.get(hypothesis_id, 0.0) + pnl
 
         attr = Attribution(
             trade_id=trade.trade_id,

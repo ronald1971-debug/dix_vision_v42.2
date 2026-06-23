@@ -75,8 +75,7 @@ class ExplanationBuilder:
         self._graph = EvidenceGraph()
 
     def explain(
-        self, decision_id: str, reason: str,
-        evidence: tuple[EvidenceNode, ...] = ()
+        self, decision_id: str, reason: str, evidence: tuple[EvidenceNode, ...] = ()
     ) -> Explanation:
         for node in evidence:
             self._graph.add_node(node)

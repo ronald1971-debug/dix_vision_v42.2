@@ -13,9 +13,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from fastapi import APIRouter
-
 from execution_unified.adapters import default_registry
+from fastapi import APIRouter
 
 
 def build_execution_router() -> APIRouter:
@@ -34,7 +33,7 @@ def build_execution_router() -> APIRouter:
                     {
                         "name": s.name or s.adapter_id,
                         "venue": s.venue or "unknown",
-                        "state": s.state.value if hasattr(s.state, 'value') else str(s.state),
+                        "state": s.state.value if hasattr(s.state, "value") else str(s.state),
                         "detail": s.detail or "Adapter registered",
                         "last_heartbeat_ns": s.last_heartbeat_ns,
                     }
@@ -43,11 +42,7 @@ def build_execution_router() -> APIRouter:
             }
         except Exception as e:
             # Fallback if adapters registry fails
-            return {
-                "count": 0,
-                "adapters": [],
-                "error": str(e)
-            }
+            return {"count": 0, "adapters": [], "error": str(e)}
 
     @router.get("/positions")
     def list_positions() -> dict[str, Any]:

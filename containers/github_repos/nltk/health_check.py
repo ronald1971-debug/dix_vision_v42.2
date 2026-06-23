@@ -5,8 +5,8 @@ nltk Container Health Check
 This script performs health checks for the nltk container.
 """
 
-import sys
 import logging
+import sys
 from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
@@ -25,8 +25,8 @@ def check_imports():
 def check_governance_wrapper():
     """Check if governance wrapper can be initialized"""
     try:
-        from nltk_governance_wrapper import NltkGovernanceWrapper
         from base_external_repo_wrapper import PermissionLevel
+        from nltk_governance_wrapper import NltkGovernanceWrapper
         
         wrapper = NltkGovernanceWrapper(PermissionLevel.READ_ONLY)
         logger.info("Governance wrapper initialization successful")

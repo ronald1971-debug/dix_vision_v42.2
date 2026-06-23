@@ -14,6 +14,7 @@ from governance_unified.policy_rule import PolicyRule
 @dataclass
 class CognitiveGovernancePolicy:
     """Policies specific to the cognition layer."""
+
     min_hypothesis_confidence: float = 0.3
     max_active_hypotheses: int = 10
     require_evidence_for_belief: bool = True

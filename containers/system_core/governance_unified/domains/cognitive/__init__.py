@@ -12,6 +12,9 @@ from __future__ import annotations
 from .belief_integrity import BeliefIntegrityGuard, get_belief_integrity_guard
 from .causal_consistency import CausalConsistencyGuard, get_causal_consistency_guard
 from .cognitive_constitution import CognitiveConstitution, get_cognitive_constitution
+
+# Unique component from cognitive_governance/
+from .cognitive_engine import CognitiveGovernanceEngine
 from .cognitive_maturity import CognitiveMaturityRegistry, get_cognitive_maturity_registry
 from .cognitive_physics import CognitivePhysicsEngine, get_cognitive_physics
 from .epistemic_drift import EpistemicDriftMonitor, get_epistemic_drift_monitor
@@ -29,9 +32,6 @@ from .mutation_validator import MutationValidator, get_mutation_validator
 from .reward_hacking_detector import RewardHackingDetector, get_reward_hacking_detector
 from .strategy_lineage_guard import StrategyLineageGuard, get_strategy_lineage_guard
 from .synthetic_feedback_detection import SyntheticFeedbackDetector, get_synthetic_feedback_detector
-
-# Unique component from cognitive_governance/
-from .cognitive_engine import CognitiveGovernanceEngine
 
 __all__ = [
     "BeliefIntegrityGuard",

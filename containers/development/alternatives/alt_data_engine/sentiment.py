@@ -20,7 +20,9 @@ class SentimentAnalyzer:
     A rolling trend is also maintained to detect sentiment shifts.
     """
 
-    def __init__(self, *, news_weight: float = 0.4, social_weight: float = 0.4, orderflow_weight: float = 0.2) -> None:
+    def __init__(
+        self, *, news_weight: float = 0.4, social_weight: float = 0.4, orderflow_weight: float = 0.2
+    ) -> None:
         self._news_weight = news_weight
         self._social_weight = social_weight
         self._orderflow_weight = orderflow_weight

@@ -71,15 +71,9 @@ class InvestigationManager:
     def active(self) -> list[Investigation]:
         """Get active investigations."""
         return [
-            i
-            for i in self._investigations.values()
-            if i.status == InvestigationStatus.IN_PROGRESS
+            i for i in self._investigations.values() if i.status == InvestigationStatus.IN_PROGRESS
         ]
 
     def pending(self) -> list[Investigation]:
         """Get pending investigations."""
-        return [
-            i
-            for i in self._investigations.values()
-            if i.status == InvestigationStatus.PENDING
-        ]
+        return [i for i in self._investigations.values() if i.status == InvestigationStatus.PENDING]

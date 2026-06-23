@@ -54,13 +54,9 @@ class SnapshotVersion:
                 f"SnapshotVersion.snapshot_id must be non-empty str, got {self.snapshot_id!r}"
             )
         if not isinstance(self.ts_ns, int) or isinstance(self.ts_ns, bool):
-            raise ValueError(
-                f"SnapshotVersion.ts_ns must be int, got {type(self.ts_ns).__name__}"
-            )
+            raise ValueError(f"SnapshotVersion.ts_ns must be int, got {type(self.ts_ns).__name__}")
         if not isinstance(self.symbol, str) or not self.symbol:
-            raise ValueError(
-                f"SnapshotVersion.symbol must be non-empty str, got {self.symbol!r}"
-            )
+            raise ValueError(f"SnapshotVersion.symbol must be non-empty str, got {self.symbol!r}")
         if not isinstance(self.schema_version, str) or not self.schema_version:
             raise ValueError(
                 "SnapshotVersion.schema_version must be non-empty str, "
@@ -97,11 +93,7 @@ class MarketSnapshot:
                 f"MarketSnapshot.fields must be tuple, got {type(self.fields).__name__}"
             )
         for i, pair in enumerate(self.fields):
-            if (
-                not isinstance(pair, tuple)
-                or len(pair) != 2
-                or not isinstance(pair[0], str)
-            ):
+            if not isinstance(pair, tuple) or len(pair) != 2 or not isinstance(pair[0], str):
                 raise ValueError(
                     f"MarketSnapshot.fields[{i}] must be (str, object) tuple, got {pair!r}"
                 )
@@ -138,9 +130,7 @@ class MarketSnapshotStore:
     def load(self, snapshot_id: str) -> MarketSnapshot | None:
         """Return the snapshot for *snapshot_id*, or ``None`` if absent."""
         if not isinstance(snapshot_id, str) or not snapshot_id:
-            raise ValueError(
-                "MarketSnapshotStore.load: snapshot_id must be non-empty str"
-            )
+            raise ValueError("MarketSnapshotStore.load: snapshot_id must be non-empty str")
         with self._lock:
             return self._store.get(snapshot_id)
 
@@ -151,14 +141,10 @@ class MarketSnapshotStore:
         ``snapshot_id`` ascending for deterministic INV-15 ordering.
         """
         if not isinstance(symbol, str) or not symbol:
-            raise ValueError(
-                "MarketSnapshotStore.list_versions: symbol must be non-empty str"
-            )
+            raise ValueError("MarketSnapshotStore.list_versions: symbol must be non-empty str")
         with self._lock:
             versions = [
-                snap.version
-                for snap in self._store.values()
-                if snap.version.symbol == symbol
+                snap.version for snap in self._store.values() if snap.version.symbol == symbol
             ]
         versions.sort(key=lambda v: (-v.ts_ns, v.snapshot_id))
         return tuple(versions)

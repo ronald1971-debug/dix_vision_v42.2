@@ -4,25 +4,25 @@ Contract-Compliant Real Implementation
 """
 
 from .transfer_learning import (
-    MarketDomain,
-    TransferRelationship,
-    TransferResult,
     DomainAdaptation,
     FewShotLearning,
-    ZeroShotTransfer,
     KnowledgeGraphTransfer,
+    MarketDomain,
     TransferLearningSystem,
-    get_transfer_learning_system
+    TransferRelationship,
+    TransferResult,
+    ZeroShotTransfer,
+    get_transfer_learning_system,
 )
 
 __all__ = [
-    'MarketDomain',
-    'TransferRelationship',
-    'TransferResult',
-    'DomainAdaptation',
-    'FewShotLearning',
-    'ZeroShotTransfer',
-    'KnowledgeGraphTransfer',
-    'TransferLearningSystem',
-    'get_transfer_learning_system'
+    "MarketDomain",
+    "TransferRelationship",
+    "TransferResult",
+    "DomainAdaptation",
+    "FewShotLearning",
+    "ZeroShotTransfer",
+    "KnowledgeGraphTransfer",
+    "TransferLearningSystem",
+    "get_transfer_learning_system",
 ]

@@ -30,6 +30,7 @@ class DependencyEdge:
 @dataclass
 class RepositoryMap:
     """Complete structural map of the repository."""
+
     root: str = ""
     modules: list[ModuleInfo] = field(default_factory=list)
     dependencies: list[DependencyEdge] = field(default_factory=list)
@@ -119,9 +120,7 @@ class RepoAwareness:
             pass
         return imports
 
-    def _build_dependency_graph(
-        self, modules: list[ModuleInfo]
-    ) -> list[DependencyEdge]:
+    def _build_dependency_graph(self, modules: list[ModuleInfo]) -> list[DependencyEdge]:
         known_packages = {m.package for m in modules if m.package}
         known_packages.update(m.name for m in modules)
         edges: list[DependencyEdge] = []
@@ -129,7 +128,5 @@ class RepoAwareness:
         for mod in modules:
             for imp in mod.imports:
                 if imp in known_packages:
-                    edges.append(
-                        DependencyEdge(source=mod.path, target=imp)
-                    )
+                    edges.append(DependencyEdge(source=mod.path, target=imp))
         return edges

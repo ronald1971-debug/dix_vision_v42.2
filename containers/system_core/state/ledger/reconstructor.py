@@ -27,11 +27,12 @@ from state.ledger.event_store import LedgerEvent, get_event_store
 @dataclass(frozen=True, slots=True)
 class ReconstructionResult:
     """Output of a ledger reconstruction run."""
+
     stream_kind: str
     since_ts_ns: int
     until_ts_ns: int
     event_count: int
-    checksum: str       # SHA256 of all event_hashes in order
+    checksum: str  # SHA256 of all event_hashes in order
     state: dict[str, Any]
     ts_ns: int
 
@@ -91,17 +92,19 @@ class LedgerReconstructor:
                 payload = r.get("payload", {})
                 if isinstance(payload, str):
                     payload = json.loads(payload)
-                events.append(LedgerEvent(
-                    event_id=r.get("event_id", ""),
-                    event_type=r.get("event_type", stream_kind),
-                    sub_type=r.get("sub_type", ""),
-                    source=r.get("source", ""),
-                    payload=payload,
-                    timestamp_utc=r.get("timestamp_utc", ""),
-                    sequence=r.get("sequence", 0),
-                    prev_hash=r.get("prev_hash", ""),
-                    event_hash=r.get("event_hash", ""),
-                ))
+                events.append(
+                    LedgerEvent(
+                        event_id=r.get("event_id", ""),
+                        event_type=r.get("event_type", stream_kind),
+                        sub_type=r.get("sub_type", ""),
+                        source=r.get("source", ""),
+                        payload=payload,
+                        timestamp_utc=r.get("timestamp_utc", ""),
+                        sequence=r.get("sequence", 0),
+                        prev_hash=r.get("prev_hash", ""),
+                        event_hash=r.get("event_hash", ""),
+                    )
+                )
 
         with self._lock:
             reducers = list(self._reducers.get(stream_kind, []))
@@ -114,9 +117,7 @@ class LedgerReconstructor:
                 state = fn(state, evt)
             hash_parts.append(evt.event_hash)
 
-        checksum = hashlib.sha256(
-            "|".join(hash_parts).encode()
-        ).hexdigest() if hash_parts else ""
+        checksum = hashlib.sha256("|".join(hash_parts).encode()).hexdigest() if hash_parts else ""
 
         actual_until = since_ts_ns
 

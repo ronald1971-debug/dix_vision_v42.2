@@ -4,15 +4,16 @@ DIX VISION Connection Test Script
 Tests the connection between React dashboard and Python backend
 """
 
-import sys
-import time
-import requests
 import asyncio
+import sys
+
+import requests
 import websockets
 
 # Configuration
 API_BASE_URL = "http://localhost:8080"
 WS_URL = "ws://localhost:8080"
+
 
 def test_api_connection():
     """Test if the Python backend API is responding"""
@@ -30,9 +31,11 @@ def test_api_connection():
         print(f"✗ API connection failed: {e}")
         return False
 
+
 def test_websocket_connection():
     """Test WebSocket connection"""
     print("\nTesting WebSocket connection...")
+
     async def ws_test():
         try:
             async with websockets.connect(f"{WS_URL}/ws/system/status") as ws:
@@ -44,8 +47,9 @@ def test_websocket_connection():
         except Exception as e:
             print(f"✗ WebSocket connection failed: {e}")
             return False
-    
+
     return asyncio.run(ws_test())
+
 
 def test_state_projection():
     """Test StateProjection endpoint"""
@@ -56,7 +60,9 @@ def test_state_projection():
             print("✓ StateProjection endpoint accessible")
             state = response.json()
             print(f"  Current mode: {state.get('current_mode', 'unknown')}")
-            print(f"  System health: {state.get('system_health', {}).get('overall_status', 'unknown')}")
+            print(
+                f"  System health: {state.get('system_health', {}).get('overall_status', 'unknown')}"
+            )
             return True
         else:
             print(f"✗ StateProjection endpoint failed with status {response.status_code}")
@@ -64,6 +70,7 @@ def test_state_projection():
     except Exception as e:
         print(f"✗ StateProjection test failed: {e}")
         return False
+
 
 def test_engine_registry():
     """Test engine registry"""
@@ -82,31 +89,32 @@ def test_engine_registry():
         print(f"✗ Engine registry test failed: {e}")
         return False
 
+
 def main():
     print("=" * 60)
     print("DIX VISION Backend Connection Test")
     print("=" * 60)
-    
+
     results = {
         "API Connection": test_api_connection(),
         "StateProjection": test_state_projection(),
         "Engine Registry": test_engine_registry(),
         # WebSocket test requires additional setup
     }
-    
+
     print("\n" + "=" * 60)
     print("Connection Test Results")
     print("=" * 60)
-    
+
     all_passed = True
     for test_name, result in results.items():
         status = "✓ PASS" if result else "✗ FAIL"
         print(f"{test_name}: {status}")
         if not result:
             all_passed = False
-    
+
     print("=" * 60)
-    
+
     if all_passed:
         print("All connection tests passed! ✓")
         print("The React dashboard should be able to connect to the backend.")
@@ -115,6 +123,7 @@ def main():
         print("Some connection tests failed. ✗")
         print("Please ensure the Python backend is running: uvicorn ui.server:app --reload")
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

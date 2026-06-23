@@ -51,7 +51,7 @@ class SyntheticFeedbackDetector:
 
     def __init__(self) -> None:
         self._last_live_signal_ts: int = 0  # ts_ns of last live-mode signal
-        self._cross_lane_count: int = 0     # cumulative cross-lane contaminations
+        self._cross_lane_count: int = 0  # cumulative cross-lane contaminations
         self._lock = threading.Lock()
 
     # ------------------------------------------------------------------
@@ -113,7 +113,9 @@ class SyntheticFeedbackDetector:
         else:
             severity = CognitiveSeverity.INFO
 
-        detail = "; ".join(detail_parts) if detail_parts else f"mode={mode!r}, lane={target_lane!r}, OK"
+        detail = (
+            "; ".join(detail_parts) if detail_parts else f"mode={mode!r}, lane={target_lane!r}, OK"
+        )
 
         report = SyntheticFeedbackReport(
             ts_ns=ts_ns,

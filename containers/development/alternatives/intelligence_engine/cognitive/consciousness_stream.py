@@ -57,10 +57,10 @@ class ConsciousnessEntry:
 
     entry_id: str
     ts_ns: int
-    event_kind: str         # e.g. "THOUGHT", "BELIEF", "CAUSAL", "CLUSTER", "SYSTEM"
-    narrative: str          # Human-readable sentence
-    importance: float       # 0.0–1.0 — used for visual weighting in dashboard
-    source: str             # "INDIRA" | "DYON" | "SYSTEM" | "RESEARCH"
+    event_kind: str  # e.g. "THOUGHT", "BELIEF", "CAUSAL", "CLUSTER", "SYSTEM"
+    narrative: str  # Human-readable sentence
+    importance: float  # 0.0–1.0 — used for visual weighting in dashboard
+    source: str  # "INDIRA" | "DYON" | "SYSTEM" | "RESEARCH"
     raw_sub_type: str = ""  # Original event sub-type for filtering
 
     def to_dict(self) -> dict[str, Any]:
@@ -108,6 +108,7 @@ class ConsciousnessStream:
 
         try:
             from state.event_bus import CognitiveChannel, get_event_bus
+
             bus = get_event_bus()
             bus.subscribe(CognitiveChannel.INDIRA_THOUGHT, self._on_thought)
             bus.subscribe(CognitiveChannel.INDIRA_INSIGHT, self._on_insight)
@@ -196,8 +197,14 @@ class ConsciousnessStream:
         ts_ns = int(payload.get("ts_ns", 0))
         conf = float(payload.get("confidence", 0.65))
         narrative = f"Thinking [{step.replace('_', ' ')}] — confidence {conf:.0%}"
-        self.record(ts_ns, "THOUGHT", narrative, importance=0.20, source="INDIRA",
-                    raw_sub_type="THOUGHT_STREAM")
+        self.record(
+            ts_ns,
+            "THOUGHT",
+            narrative,
+            importance=0.20,
+            source="INDIRA",
+            raw_sub_type="THOUGHT_STREAM",
+        )
 
     def _on_insight(self, payload: dict[str, Any]) -> None:
         subject = str(payload.get("subject", "insight"))
@@ -216,14 +223,22 @@ class ConsciousnessStream:
             importance = 0.50
         elif subject == "TRADER_ARCHETYPE_OBSERVED":
             archetype = str(payload.get("archetype", subject))
-            narrative = f"Trader archetype observed: {archetype.replace('_', ' ')} (conf {conf:.0%})"
+            narrative = (
+                f"Trader archetype observed: {archetype.replace('_', ' ')} (conf {conf:.0%})"
+            )
             importance = 0.30
         else:
             narrative = f"Insight [{subject}]: {body[:120]}"
             importance = 0.45
 
-        self.record(ts_ns, "INSIGHT", narrative, importance=importance, source="INDIRA",
-                    raw_sub_type="INDIRA_INSIGHT")
+        self.record(
+            ts_ns,
+            "INSIGHT",
+            narrative,
+            importance=importance,
+            source="INDIRA",
+            raw_sub_type="INDIRA_INSIGHT",
+        )
 
     def _on_dyon_violation(self, payload: dict[str, Any]) -> None:
         inv_id = str(payload.get("invariant_id", "?"))
@@ -232,16 +247,23 @@ class ConsciousnessStream:
         ts_ns = int(payload.get("ts_ns", 0))
         narrative = f"DYON violation [{severity}]: {inv_id} in {module}"
         importance = 0.80 if severity in ("CRITICAL", "ERROR") else 0.55
-        self.record(ts_ns, "SYSTEM", narrative, importance=importance, source="DYON",
-                    raw_sub_type="DYON_VIOLATION")
+        self.record(
+            ts_ns,
+            "SYSTEM",
+            narrative,
+            importance=importance,
+            source="DYON",
+            raw_sub_type="DYON_VIOLATION",
+        )
 
     def _on_dyon_proposal(self, payload: dict[str, Any]) -> None:
         desc = str(payload.get("description", "patch proposal"))
         ts_ns = int(payload.get("ts_ns", 0))
         mutation_class = str(payload.get("mutation_class", "?"))
         narrative = f"DYON proposes [{mutation_class}]: {desc[:120]}"
-        self.record(ts_ns, "SYSTEM", narrative, importance=0.60, source="DYON",
-                    raw_sub_type="DYON_PROPOSAL")
+        self.record(
+            ts_ns, "SYSTEM", narrative, importance=0.60, source="DYON", raw_sub_type="DYON_PROPOSAL"
+        )
 
     def _on_dyon_scan(self, payload: dict[str, Any]) -> None:
         files = int(payload.get("files_scanned", 0))
@@ -253,18 +275,32 @@ class ConsciousnessStream:
         else:
             narrative = f"DYON scan complete — {files} files, {violations} violation(s) detected"
             importance = 0.55 if violations < 5 else 0.75
-        self.record(ts_ns, "SYSTEM", narrative, importance=importance, source="DYON",
-                    raw_sub_type="DYON_SCAN_COMPLETE")
+        self.record(
+            ts_ns,
+            "SYSTEM",
+            narrative,
+            importance=importance,
+            source="DYON",
+            raw_sub_type="DYON_SCAN_COMPLETE",
+        )
 
     def _on_research(self, payload: dict[str, Any]) -> None:
         topic = str(payload.get("topic", "unknown topic"))
         status = str(payload.get("status", "?"))
         trust = float(payload.get("trust_score", 0.5))
         ts_ns = int(payload.get("ts_ns", 0))
-        narrative = f"Research {'complete' if status == 'ok' else 'failed'}: '{topic}' — trust {trust:.0%}"
+        narrative = (
+            f"Research {'complete' if status == 'ok' else 'failed'}: '{topic}' — trust {trust:.0%}"
+        )
         importance = 0.55 if status == "ok" and trust >= 0.6 else 0.30
-        self.record(ts_ns, "RESEARCH", narrative, importance=importance, source="RESEARCH",
-                    raw_sub_type="RESEARCH_COMPLETE")
+        self.record(
+            ts_ns,
+            "RESEARCH",
+            narrative,
+            importance=importance,
+            source="RESEARCH",
+            raw_sub_type="RESEARCH_COMPLETE",
+        )
 
     def _on_market_tick(self, payload: dict[str, Any]) -> None:
         symbol = str(payload.get("symbol", "?"))
@@ -272,15 +308,22 @@ class ConsciousnessStream:
         ts_ns = int(payload.get("ts_ns", 0))
         if price is not None:
             narrative = f"Market tick: {symbol} @ {price}"
-            self.record(ts_ns, "MARKET", narrative, importance=0.10, source="SYSTEM",
-                        raw_sub_type="MARKET_TICK")
+            self.record(
+                ts_ns,
+                "MARKET",
+                narrative,
+                importance=0.10,
+                source="SYSTEM",
+                raw_sub_type="MARKET_TICK",
+            )
 
     def _on_risk_breach(self, payload: dict[str, Any]) -> None:
         reason = str(payload.get("reason", "unknown breach"))
         ts_ns = int(payload.get("ts_ns", 0))
         narrative = f"RISK BREACH: {reason}"
-        self.record(ts_ns, "RISK", narrative, importance=1.0, source="SYSTEM",
-                    raw_sub_type="RISK_BREACH")
+        self.record(
+            ts_ns, "RISK", narrative, importance=1.0, source="SYSTEM", raw_sub_type="RISK_BREACH"
+        )
 
 
 # ---------------------------------------------------------------------------

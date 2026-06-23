@@ -99,7 +99,9 @@ class ConfidenceCalibrator:
 
     def avg_calibration_error(self, domain: str | None = None) -> float:
         """Get average calibration error, optionally for a domain."""
-        records = self._records if domain is None else [r for r in self._records if r.domain == domain]
+        records = (
+            self._records if domain is None else [r for r in self._records if r.domain == domain]
+        )
         if not records:
             return 0.0
         return sum(r.calibration_error for r in records) / len(records)

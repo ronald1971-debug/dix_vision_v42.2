@@ -8,10 +8,10 @@ Phase 1: Execution Foundation - Day 1-2: Core Adapter Migration
 
 from __future__ import annotations
 
-import sys
 import logging
-from typing import Any, Optional
+import sys
 from pathlib import Path
+from typing import Any, Optional
 
 # Add parent directories to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
@@ -22,6 +22,7 @@ logger = logging.getLogger(__name__)
 # Import the migrated adapters (they may need sys.path updates)
 try:
     from execution_unified.adapters.binance import BinanceAdapter
+
     BINANCE_AVAILABLE = True
 except ImportError:
     BINANCE_AVAILABLE = False
@@ -29,6 +30,7 @@ except ImportError:
 
 try:
     from execution_unified.adapters.kraken import KrakenAdapter
+
     KRAKEN_AVAILABLE = True
 except ImportError:
     KRAKEN_AVAILABLE = False
@@ -38,7 +40,7 @@ except ImportError:
 # These are marked as requiring additional setup and are not immediately available
 # They can be enabled when:
 # - ib-insync library is installed (for IBKR)
-# - alpaca-py library is installed (for Alpaca)  
+# - alpaca-py library is installed (for Alpaca)
 # - Appropriate API credentials are configured
 IBKR_AVAILABLE = False
 ALPACA_AVAILABLE = False
@@ -51,7 +53,7 @@ def get_binance_adapter(config: Optional[dict] = None) -> Optional[Any]:
     if not BINANCE_AVAILABLE:
         logger.error("Binance adapter is not available")
         return None
-    
+
     try:
         if config:
             return BinanceAdapter(config=config)
@@ -66,7 +68,7 @@ def get_kraken_adapter(config: Optional[dict] = None) -> Optional[Any]:
     if not KRAKEN_AVAILABLE:
         logger.error("Kraken adapter is not available")
         return None
-    
+
     try:
         if config:
             return KrakenAdapter(config=config)
@@ -78,7 +80,7 @@ def get_kraken_adapter(config: Optional[dict] = None) -> Optional[Any]:
 
 def get_alpaca_adapter(config: Optional[dict] = None) -> Optional[Any]:
     """Get Alpaca adapter instance.
-    
+
     NOTE: This adapter requires:
     - alpaca-py library installation: pip install alpaca-py
     - Valid Alpaca API credentials configured
@@ -88,7 +90,7 @@ def get_alpaca_adapter(config: Optional[dict] = None) -> Optional[Any]:
         logger.error("Alpaca adapter requires external setup (alpaca-py + credentials)")
         logger.info("To enable: pip install alpaca-py and configure credentials")
         return None
-    
+
     try:
         if config:
             return AlpacaAdapter(config=config)
@@ -100,7 +102,7 @@ def get_alpaca_adapter(config: Optional[dict] = None) -> Optional[Any]:
 
 def get_ibkr_adapter(config: Optional[dict] = None) -> Optional[Any]:
     """Get IBKR adapter instance.
-    
+
     NOTE: This adapter requires:
     - ib-insync library installation: pip install ib-insync
     - TWS or IB Gateway running on localhost:7497 (paper) or :4001 (live)
@@ -109,9 +111,11 @@ def get_ibkr_adapter(config: Optional[dict] = None) -> Optional[Any]:
     """
     if not IBKR_AVAILABLE:
         logger.error("IBKR adapter requires external setup (ib-insync + TWS/Gateway + credentials)")
-        logger.info("To enable: pip install ib-insync, start TWS/Gateway, and configure credentials")
+        logger.info(
+            "To enable: pip install ib-insync, start TWS/Gateway, and configure credentials"
+        )
         return None
-    
+
     try:
         if config:
             return IBKRAdapter(config=config)
@@ -133,7 +137,7 @@ def get_all_available_adapters() -> dict[str, bool]:
 
 __all__ = [
     "get_binance_adapter",
-    "get_kraken_adapter", 
+    "get_kraken_adapter",
     "get_alpaca_adapter",
     "get_ibkr_adapter",
     "get_all_available_adapters",

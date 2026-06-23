@@ -32,22 +32,23 @@ import threading
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Callable, Optional, Dict, List, Optional
-
-from starlette.requests import Request
-from starlette.responses import JSONResponse
-from starlette.types import ASGIApp, Receive, Scope, Send
+from typing import Dict, List, Optional
 
 from cognitive_control_center.core.operating_environment import (
     CognitiveEntityType,
     get_cognitive_environment,
 )
+from starlette.requests import Request
+from starlette.responses import JSONResponse
+from starlette.types import ASGIApp, Receive, Scope, Send
 
 # Try to import world model components for world context integration
 try:
     import sys
-    sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+
+    sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
     from world_model.indicator_integration import get_integration_bridge
+
     WORLD_MODEL_AVAILABLE = True
 except ImportError:
     WORLD_MODEL_AVAILABLE = False
@@ -75,6 +76,7 @@ COGNITIVE_PUBLIC_PATHS = {
 @dataclass
 class WorldContext:
     """World model context for authentication decisions."""
+
     market_regime: str  # bullish, bearish, sideways, high_volatility
     market_trend: str  # trending, mean_reverting
     volatility_regime: str  # high, normal, low
@@ -83,7 +85,7 @@ class WorldContext:
     causal_factors: List[str]  # relevant causal factors
     prediction_confidence: float  # world model prediction confidence
     timestamp: datetime
-    
+
     def to_dict(self) -> dict:
         """Convert to dictionary for processing."""
         return {
@@ -94,13 +96,14 @@ class WorldContext:
             "agent_activity": self.agent_activity,
             "causal_factors": self.causal_factors,
             "prediction_confidence": self.prediction_confidence,
-            "timestamp": self.timestamp.isoformat()
+            "timestamp": self.timestamp.isoformat(),
         }
 
 
 @dataclass
 class AuthRequest:
     """Authentication request with world context."""
+
     credentials: dict
     source: str  # "web", "api", "pairing"
     ip_address: Optional[str] = None
@@ -117,7 +120,7 @@ def _token_file() -> Path:
 class CognitiveAuthService:
     """
     Authentication service for cognitive control center.
-    
+
     Preserves all cockpit/auth.py features while adding cognitive environment integration.
     """
 
@@ -131,7 +134,7 @@ class CognitiveAuthService:
     def get_or_create_token(self, force_refresh: bool = False) -> str:
         """
         Return the current cockpit token, generating one if missing.
-        
+
         PRESERVES: Exact behavior from cockpit/auth.py
         ENHANCES: Token expiry management and caching
         """
@@ -182,16 +185,16 @@ class CognitiveAuthService:
     def generate_one_time_token(self, ttl_seconds: int = 900) -> str:
         """
         Generate a one-time token for special operations (like pairing).
-        
+
         PRESERVES: One-time token concept from cockpit/auth.py
         ENHANCES: TTL management and cleanup
         """
         tok = secrets.token_urlsafe(32)
         expiry = datetime.utcnow() + timedelta(seconds=ttl_seconds)
-        
+
         with self._lock:
             self._one_time_tokens[tok] = expiry
-        
+
         return tok
 
     def validate_one_time_token(self, token: str) -> bool:
@@ -199,11 +202,11 @@ class CognitiveAuthService:
         with self._lock:
             if token not in self._one_time_tokens:
                 return False
-            
+
             if datetime.utcnow() > self._one_time_tokens[token]:
                 del self._one_time_tokens[token]
                 return False
-            
+
             # Consume token
             del self._one_time_tokens[token]
             return True
@@ -215,24 +218,25 @@ class CognitiveAuthService:
             expired = [tok for tok, expiry in self._one_time_tokens.items() if now > expiry]
             for tok in expired:
                 del self._one_time_tokens[tok]
-    
+
     # World Context Integration Methods
-    
-    def authenticate_with_world_context(self, credentials: dict, 
-                                       world_context: Optional[WorldContext] = None) -> bool:
+
+    def authenticate_with_world_context(
+        self, credentials: dict, world_context: Optional[WorldContext] = None
+    ) -> bool:
         """
         Authenticate credentials with world context enhancement.
-        
+
         ENHANCED: World context integration for intelligent authentication
         """
         # Get world context if not provided
         if not world_context:
             world_context = self._get_world_context()
-        
+
         # Standard credential validation (preserve existing behavior)
         if not self._validate_credentials(credentials):
             return False
-        
+
         # World-aware authentication checks
         if world_context:
             # Check for security risk factors
@@ -240,44 +244,44 @@ class CognitiveAuthService:
                 # Additional security measures in high volatility regime
                 if not self._check_high_volatility_security(credentials, world_context):
                     return False
-            
+
             # Check for suspicious activity patterns
             if world_context.agent_activity.get("retail", 0) > 0.9:
                 # High retail activity might indicate FOMO or stress
                 if not self._check_activity_security(credentials, world_context):
                     return False
-        
+
         return True
-    
+
     def _validate_credentials(self, credentials: dict) -> bool:
         """Validate basic credentials (preserve existing behavior)."""
         # Placeholder for actual credential validation logic
         # In production, this would validate against user database, etc.
         return True  # Allow for demo purposes
-    
-    def _check_high_volatility_security(self, credentials: dict, 
-                                   world_context: WorldContext) -> bool:
+
+    def _check_high_volatility_security(
+        self, credentials: dict, world_context: WorldContext
+    ) -> bool:
         """Check security in high volatility regime."""
         # In high volatility, implement additional security measures
         # For now, allow all authenticated requests
         return True
-    
-    def _check_activity_security(self, credentials: dict, 
-                             world_context: WorldContext) -> bool:
+
+    def _check_activity_security(self, credentials: dict, world_context: WorldContext) -> bool:
         """Check for suspicious activity patterns."""
         # In production, check for suspicious patterns
         # For now, allow all authenticated requests
         return True
-    
+
     def _get_world_context(self) -> Optional[WorldContext]:
         """Get current world context from world model integration."""
         if not WORLD_MODEL_AVAILABLE:
             return None
-        
+
         try:
             # Get world model predictions and state
             bridge = get_integration_bridge()
-            
+
             if bridge:
                 # Build world context from bridge metrics
                 # For now, return a default context
@@ -289,29 +293,29 @@ class CognitiveAuthService:
                     agent_activity={},
                     causal_factors=[],
                     prediction_confidence=0.75,
-                    timestamp=datetime.utcnow()
+                    timestamp=datetime.utcnow(),
                 )
                 return context
-        
+
         except Exception as e:
             sys.stderr.write(f"[cognitive_auth] Error getting world context: {e}\n")
-        
+
         return None
-    
+
     def get_world_aware_token(self, force_refresh: bool = False) -> dict:
         """
         Get token with world context information.
-        
+
         ENHANCED: Returns token with world context metadata
         """
         token = self.get_or_create_token(force_refresh)
         world_context = self._get_world_context()
-        
+
         return {
             "token": token,
             "expiry": self._token_expiry.isoformat() if self._token_expiry else None,
             "world_context": world_context.to_dict() if world_context else None,
-            "world_integration_enabled": WORLD_MODEL_AVAILABLE
+            "world_integration_enabled": WORLD_MODEL_AVAILABLE,
         }
 
 
@@ -319,7 +323,7 @@ class CognitiveAuthService:
 def _extract(request: Request) -> str | None:
     """
     Extract token from request (header, query param, or cookie).
-    
+
     PRESERVES: Exact extraction logic from cockpit/auth.py
     """
     auth = request.headers.get("authorization", "")
@@ -337,7 +341,7 @@ def _extract(request: Request) -> str | None:
 class CognitiveTokenAuthMiddleware:
     """
     Pure-ASGI bearer-token gate for cognitive control center.
-    
+
     PRESERVES: All middleware logic from cockpit/auth.py
     ENHANCES: Cognitive environment path support and agent-aware auth
     """
@@ -358,8 +362,9 @@ class CognitiveTokenAuthMiddleware:
         path: str = scope.get("path", "")
 
         # Check public paths (preserves cockpit logic + adds cognitive paths)
-        if (path in self._public_paths_exact or 
-            any(path.startswith(p) for p in self._public_path_prefixes)):
+        if path in self._public_paths_exact or any(
+            path.startswith(p) for p in self._public_path_prefixes
+        ):
             await self._app(scope, receive, send)
             return
 
@@ -385,7 +390,7 @@ class CognitiveTokenAuthMiddleware:
 def get_or_create_token() -> str:
     """
     Return the current cockpit token, generating one if missing.
-    
+
     PRESERVES: Exact API from cockpit/auth.py
     ENHANCES: Delegates to cognitive service
     """

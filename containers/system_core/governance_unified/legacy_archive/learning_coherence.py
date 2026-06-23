@@ -41,15 +41,16 @@ from state.ledger.event_store import append_event
 
 
 class CoherenceLevel(StrEnum):
-    HIGH     = "HIGH"
-    MEDIUM   = "MEDIUM"
-    LOW      = "LOW"
+    HIGH = "HIGH"
+    MEDIUM = "MEDIUM"
+    LOW = "LOW"
     CRITICAL = "CRITICAL"
 
 
 @dataclass(frozen=True, slots=True)
 class LearningCoherenceScore:
     """Composite coherence snapshot across all learning guards."""
+
     ts_ns: int
     # Per-dimension scores [0, 1]
     epistemic_grounding: float
@@ -92,7 +93,7 @@ class LearningCoherenceMonitor:
     the rolling score history.
     """
 
-    _HALT_THRESHOLD = 0.60   # halt learning updates below this
+    _HALT_THRESHOLD = 0.60  # halt learning updates below this
 
     def __init__(self) -> None:
         self._lock = threading.Lock()
@@ -110,6 +111,7 @@ class LearningCoherenceMonitor:
             from governance_unified.domains.cognitive.learning_truthfulness import (
                 get_learning_truthfulness_validator,
             )
+
             ext_ratio = _safe_get(get_learning_truthfulness_validator().get_external_ratio, 0.5)
         except Exception:
             ext_ratio = 0.5
@@ -120,6 +122,7 @@ class LearningCoherenceMonitor:
             from governance_unified.domains.cognitive.belief_integrity import (
                 get_belief_integrity_guard,
             )
+
             ece = _safe_get(get_belief_integrity_guard().get_ece, 0.0)
             # ECE of 0.30 or above maps to 0.0 score; 0.0 ECE maps to 1.0
             belief_cal = max(0.0, 1.0 - (ece / 0.30))
@@ -132,6 +135,7 @@ class LearningCoherenceMonitor:
             from governance_unified.domains.cognitive.mutation_validator import (
                 get_mutation_validator,
             )
+
             mv = get_mutation_validator()
             total = mv._total_validated if hasattr(mv, "_total_validated") else 0
             approved = mv._total_approved if hasattr(mv, "_total_approved") else 0
@@ -145,8 +149,11 @@ class LearningCoherenceMonitor:
             from governance_unified.domains.cognitive.memory_contamination import (
                 get_memory_contamination_detector,
             )
+
             mcd = get_memory_contamination_detector()
-            max_contam = mcd.max_contamination_score() if hasattr(mcd, "max_contamination_score") else 0.0
+            max_contam = (
+                mcd.max_contamination_score() if hasattr(mcd, "max_contamination_score") else 0.0
+            )
             memory_integrity = max(0.0, 1.0 - max_contam)
         except Exception:
             memory_integrity = 1.0
@@ -157,6 +164,7 @@ class LearningCoherenceMonitor:
             from governance_unified.domains.cognitive.identity_stability import (
                 get_identity_stability_monitor,
             )
+
             ism = get_identity_stability_monitor()
             min_sim = ism.min_similarity() if hasattr(ism, "min_similarity") else 1.0
             short_stab = max(0.0, min_sim)
@@ -166,6 +174,7 @@ class LearningCoherenceMonitor:
             from governance_unified.domains.cognitive.long_horizon_memory import (
                 get_long_horizon_memory,
             )
+
             long_stab = get_long_horizon_memory().identity_stability_signal()
         except Exception:
             long_stab = 1.0
@@ -178,6 +187,7 @@ class LearningCoherenceMonitor:
             from governance_unified.domains.cognitive.reward_hacking_detector import (
                 get_reward_hacking_detector,
             )
+
             rhd = get_reward_hacking_detector()
             min_corr = rhd.min_correlation() if hasattr(rhd, "min_correlation") else 1.0
             reward_align = max(0.0, (min_corr + 1.0) / 2.0)  # [-1,1] → [0,1]
@@ -185,8 +195,14 @@ class LearningCoherenceMonitor:
             reward_align = 1.0
 
         # --- Composite (equal weights) ---
-        dims = [ext_ratio, belief_cal, mutation_safety, memory_integrity,
-                identity_stab, reward_align]
+        dims = [
+            ext_ratio,
+            belief_cal,
+            mutation_safety,
+            memory_integrity,
+            identity_stab,
+            reward_align,
+        ]
         # Geometric mean emphasises lowest dimension
         product = 1.0
         for d in dims:
@@ -226,7 +242,7 @@ class LearningCoherenceMonitor:
         with self._lock:
             self._history.append(result)
             if len(self._history) > self._max_history:
-                self._history = self._history[-self._max_history:]
+                self._history = self._history[-self._max_history :]
 
         if level in (CoherenceLevel.LOW, CoherenceLevel.CRITICAL):
             append_event(

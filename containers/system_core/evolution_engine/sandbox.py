@@ -632,8 +632,8 @@ def sb3_ppo_trainer(
         #     never touches IO at module load.
         # Import-only — never bind to module-level names.
         import stable_baselines3  # type: ignore[import-not-found]
-        from stable_baselines3 import (  # type: ignore[import-not-found]
-            PPO,  # noqa: F401  -- re-exported into the wrapper below.
+        from stable_baselines3 import (  # type: ignore[import-not-found]; noqa: F401  -- re-exported into the wrapper below.
+            PPO,
         )
     except ImportError as exc:  # pragma: no cover - exercised when SB3 missing
         raise ImportError(

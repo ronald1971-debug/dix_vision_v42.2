@@ -6,11 +6,7 @@ Real strategy discovery, pattern mining, and classification algorithms
 """
 
 from .pattern_mining import PatternMiningEngine
-from .strategy_generation import StrategyGenerationSystem
 from .strategy_classification import StrategyClassification
+from .strategy_generation import StrategyGenerationSystem
 
-__all__ = [
-    'PatternMiningEngine',
-    'StrategyGenerationSystem',
-    'StrategyClassification'
-]
+__all__ = ["PatternMiningEngine", "StrategyGenerationSystem", "StrategyClassification"]

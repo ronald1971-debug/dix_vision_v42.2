@@ -35,22 +35,29 @@ _logger = logging.getLogger(__name__)
 # Authority matrix — single source of truth
 # ---------------------------------------------------------------------------
 
-AUTHORITY_EDGES: frozenset[tuple[str, str]] = frozenset({
-    ("data_feed",           "intelligence_engine"),
-    ("intelligence_engine", "governance_engine"),
-    ("governance_engine",   "execution_engine"),
-    ("execution_engine",    "venue"),
-    # Reverse (response path) also allowed
-    ("intelligence_engine", "data_feed"),
-    ("governance_engine",   "intelligence_engine"),
-    ("execution_engine",    "governance_engine"),
-    ("venue",               "execution_engine"),
-})
+AUTHORITY_EDGES: frozenset[tuple[str, str]] = frozenset(
+    {
+        ("data_feed", "intelligence_engine"),
+        ("intelligence_engine", "governance_engine"),
+        ("governance_engine", "execution_engine"),
+        ("execution_engine", "venue"),
+        # Reverse (response path) also allowed
+        ("intelligence_engine", "data_feed"),
+        ("governance_engine", "intelligence_engine"),
+        ("execution_engine", "governance_engine"),
+        ("venue", "execution_engine"),
+    }
+)
 
-KNOWN_ENGINES: frozenset[str] = frozenset({
-    "data_feed", "intelligence_engine", "governance_engine",
-    "execution_engine", "venue",
-})
+KNOWN_ENGINES: frozenset[str] = frozenset(
+    {
+        "data_feed",
+        "intelligence_engine",
+        "governance_engine",
+        "execution_engine",
+        "venue",
+    }
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -121,8 +128,7 @@ class RuntimeIsolationBoundary:
                     callee=callee,
                     ts_ns=ts_ns,
                     detail=(
-                        f"boundary violation: {caller!r} → {callee!r} "
-                        f"not in authority matrix"
+                        f"boundary violation: {caller!r} → {callee!r} " f"not in authority matrix"
                     ),
                 )
                 self._violations.append(violation)
@@ -131,9 +137,7 @@ class RuntimeIsolationBoundary:
 
         if not allowed:
             self._emit_violation(caller, callee, ts_ns)
-            _logger.critical(
-                "IsolationBoundary: VIOLATION %s → %s", caller, callee
-            )
+            _logger.critical("IsolationBoundary: VIOLATION %s → %s", caller, callee)
         return allowed
 
     def is_allowed(self, caller: str, callee: str) -> bool:
@@ -198,18 +202,23 @@ class RuntimeIsolationBoundary:
     def _emit_violation(caller: str, callee: str, ts_ns: int) -> None:
         try:
             from state.event_bus import CognitiveChannel, get_event_bus
-            get_event_bus().publish(CognitiveChannel.DYON_VIOLATION, {
-                "source": "isolation_boundary",
-                "hazard": "BOUNDARY_VIOLATION",
-                "caller": caller,
-                "callee": callee,
-                "severity": "CRITICAL",
-                "ts_ns": ts_ns,
-            })
+
+            get_event_bus().publish(
+                CognitiveChannel.DYON_VIOLATION,
+                {
+                    "source": "isolation_boundary",
+                    "hazard": "BOUNDARY_VIOLATION",
+                    "caller": caller,
+                    "callee": callee,
+                    "severity": "CRITICAL",
+                    "ts_ns": ts_ns,
+                },
+            )
         except Exception:
             pass
         try:
             from state.ledger.append import append_event
+
             append_event(
                 stream="GOVERNANCE",
                 kind="BOUNDARY_VIOLATION",
@@ -233,9 +242,7 @@ _boundary: RuntimeIsolationBoundary | None = None
 _boundary_lock = threading.Lock()
 
 
-def get_isolation_boundary(
-    *, strict_unknown: bool = True
-) -> RuntimeIsolationBoundary:
+def get_isolation_boundary(*, strict_unknown: bool = True) -> RuntimeIsolationBoundary:
     global _boundary
     with _boundary_lock:
         if _boundary is None:

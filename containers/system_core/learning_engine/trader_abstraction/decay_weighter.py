@@ -92,8 +92,7 @@ class DecayWeighter:
         weight descending.
         """
         results = [
-            (pid, self.decay(weight=w, pattern_ts_ns=ts, now_ns=now_ns))
-            for pid, w, ts in patterns
+            (pid, self.decay(weight=w, pattern_ts_ns=ts, now_ns=now_ns)) for pid, w, ts in patterns
         ]
         results.sort(key=lambda x: x[1].decayed_weight, reverse=True)
         return results

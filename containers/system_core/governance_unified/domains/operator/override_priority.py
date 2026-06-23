@@ -148,8 +148,7 @@ class OverridePriorityManager:
             for target in list(self._overrides.keys()):
                 before = len(self._overrides[target])
                 self._overrides[target] = [
-                    r for r in self._overrides[target]
-                    if r.expires_ns == 0 or r.expires_ns > now_ns
+                    r for r in self._overrides[target] if r.expires_ns == 0 or r.expires_ns > now_ns
                 ]
                 removed += before - len(self._overrides[target])
 

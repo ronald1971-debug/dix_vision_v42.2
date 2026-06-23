@@ -29,27 +29,22 @@ ENHANCED FEATURES:
 
 from __future__ import annotations
 
-import re
-import threading
 import os
+import re
 import sys
+import threading
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Callable, Optional, Dict, List
+from typing import Dict, List, Optional
 
 # Try to import world model components for world context integration
 try:
-    sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+    sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
     from world_model.indicator_integration import get_integration_bridge
+
     WORLD_MODEL_AVAILABLE = True
 except ImportError:
     WORLD_MODEL_AVAILABLE = False
-
-from core.charter import Voice, all_charters
-from core.introspection import Introspection, introspect
-from mind.knowledge.language import detect_language
-from state.ledger.writer import get_writer
-from system.locale import current as current_locale
 
 from cognitive_control_center.agent_operations_center.activity_feeds import (
     ActivityType,
@@ -59,6 +54,11 @@ from cognitive_control_center.core.operating_environment import (
     CognitiveEntityType,
     get_cognitive_environment,
 )
+from core.charter import Voice, all_charters
+from core.introspection import Introspection, introspect
+from mind.knowledge.language import detect_language
+from state.ledger.writer import get_writer
+from system.locale import current as current_locale
 
 # Preserve exact regex from cockpit/chat.py
 _URL_RE = re.compile(
@@ -146,6 +146,7 @@ _GOV_KEYWORDS = (
 @dataclass
 class ChatTurn:
     """Preserve exact ChatTurn structure from cockpit/chat.py"""
+
     operator_message: str
     voice: Voice
     answer: str
@@ -164,6 +165,7 @@ class ChatTurn:
 @dataclass
 class WorldContext:
     """World model context for chat responses."""
+
     market_regime: str  # bullish, bearish, sideways, high_volatility
     market_trend: str  # trending, mean_reverting
     volatility_regime: str  # high, normal, low
@@ -172,7 +174,7 @@ class WorldContext:
     causal_factors: List[str]  # relevant causal factors
     prediction_confidence: float  # world model prediction confidence
     timestamp: datetime
-    
+
     def to_dict(self) -> dict:
         """Convert to dictionary for processing."""
         return {
@@ -183,13 +185,13 @@ class WorldContext:
             "agent_activity": self.agent_activity,
             "causal_factors": self.causal_factors,
             "prediction_confidence": self.prediction_confidence,
-            "timestamp": self.timestamp.isoformat()
+            "timestamp": self.timestamp.isoformat(),
         }
 
 
 class Router:
     """Preserve exact Router logic from cockpit/chat.py"""
-    
+
     def route(self, message: str, forced_voice: Voice | None = None) -> Voice:
         if forced_voice is not None:
             return forced_voice
@@ -211,7 +213,7 @@ class Router:
 class CognitiveChat:
     """
     Cognitive chat service for the unified control center.
-    
+
     PRESERVES: All cockpit/chat.py functionality
     ENHANCES: Agent operations center integration and cognitive environment awareness
     """
@@ -229,34 +231,39 @@ class CognitiveChat:
             return list(self._history[-limit:])
 
     def send(
-        self, message: str, forced_voice: Voice | None = None, locale_tag: str = "", workspace: str | None = None
+        self,
+        message: str,
+        forced_voice: Voice | None = None,
+        locale_tag: str = "",
+        workspace: str | None = None,
     ) -> ChatTurn:
         """
         Send a chat message and get a response.
-        
+
         PRESERVES: All logic from cockpit/chat.py
         ENHANCES: Workspace context and cognitive environment integration
         """
         lang = detect_language(message) or "en"
-        
+
         # Preserve exact URL sniffing logic
         urls = _URL_RE.findall(message or "")
         sniffed: list[dict[str, object]] = []
         for u in urls[:3]:
             try:
                 from mind.sources.providers.api_sniffer import propose_candidate
+
                 sniffed.append(propose_candidate(u).to_dict())
             except Exception:
                 continue
-        
+
         voice = self._router.route(message, forced_voice=forced_voice)
         if urls and not forced_voice:
             voice = Voice.DYON
-        
+
         peers = [v for v in Voice if v is not voice]
         info = introspect(voice, message, peers=peers)
         answer = info.render()
-        
+
         # Preserve exact sniffed output formatting
         if sniffed:
             lines = ["", "API SNIFFER (DYON):"]
@@ -268,9 +275,9 @@ class CognitiveChat:
                     f"relevance={s.get('relevance_score')}"
                 )
             answer = answer + "\n" + "\n".join(lines)
-        
+
         model_used = "template"
-        
+
         # Preserve exact LLM paraphrase logic
         try:
             from cockpit.llm import Capability
@@ -291,6 +298,7 @@ class CognitiveChat:
 
         # ENHANCED: Create enhanced ChatTurn with cognitive metadata
         from datetime import datetime
+
         turn = ChatTurn(
             operator_message=message,
             voice=voice,
@@ -303,7 +311,7 @@ class CognitiveChat:
             workspace=workspace,
             timestamp=datetime.utcnow().isoformat(),
         )
-        
+
         with self._lock:
             self._history.append(turn)
 
@@ -352,49 +360,50 @@ class CognitiveChat:
             pass
 
         return turn
-    
+
     # World Context Integration Methods
-    
-    def send_with_world_understanding(self, message: str, 
-                                  forced_voice: Voice | None = None, 
-                                  locale_tag: str = "", 
-                                  workspace: str | None = None,
-                                  world_context: Optional[WorldContext] = None) -> ChatTurn:
+
+    def send_with_world_understanding(
+        self,
+        message: str,
+        forced_voice: Voice | None = None,
+        locale_tag: str = "",
+        workspace: str | None = None,
+        world_context: Optional[WorldContext] = None,
+    ) -> ChatTurn:
         """
         Send chat message with world understanding enhancement.
-        
+
         ENHANCED: World context integration for intelligent responses
         """
         # Get world context if not provided
         if not world_context:
             world_context = self._get_world_context()
-        
+
         # Get standard chat turn
         turn = self.send(message, forced_voice, locale_tag, workspace)
-        
+
         # Enhance with world context if available
         if world_context and turn:
             # Add world-aware context to the answer
-            world_enhancement = self._generate_world_aware_response_enhancement(
-                turn, world_context
-            )
-            
+            world_enhancement = self._generate_world_aware_response_enhancement(turn, world_context)
+
             # Add world context metadata
             # (In a real implementation, this would modify the answer or metadata)
             turn.workspace = workspace
             turn.timestamp = datetime.utcnow().isoformat()
-        
+
         return turn
-    
+
     def _get_world_context(self) -> Optional[WorldContext]:
         """Get current world context from world model integration."""
         if not WORLD_MODEL_AVAILABLE:
             return None
-        
+
         try:
             # Get world model predictions and state
             bridge = get_integration_bridge()
-            
+
             if bridge:
                 # Build world context from bridge metrics
                 # For now, return a default context
@@ -406,49 +415,52 @@ class CognitiveChat:
                     agent_activity={},
                     causal_factors=[],
                     prediction_confidence=0.75,
-                    timestamp=datetime.utcnow()
+                    timestamp=datetime.utcnow(),
                 )
                 return context
-        
+
         except Exception as e:
             sys.stderr.write(f"[cognitive_chat] Error getting world context: {e}\n")
-        
+
         return None
-    
-    def _generate_world_aware_response_enhancement(self, turn: ChatTurn, 
-                                                world_context: WorldContext) -> str:
+
+    def _generate_world_aware_response_enhancement(
+        self, turn: ChatTurn, world_context: WorldContext
+    ) -> str:
         """Generate world-aware enhancement for chat response."""
         enhancement_parts = []
-        
+
         # Market regime context
         if world_context.market_regime != "sideways":
             enhancement_parts.append(f"Market regime: {world_context.market_regime}")
-        
+
         # Trend context
         if world_context.market_trend != "neutral":
             enhancement_parts.append(f"Market trend: {world_context.market_trend}")
-        
+
         # Volatility awareness
         if world_context.volatility_regime == "high":
             enhancement_parts.append("High volatility detected - exercise caution")
-        
+
         # Liquidity state
         if world_context.liquidity_state == "low":
             enhancement_parts.append("Low liquidity conditions")
-        
+
         # Causal factors
         if world_context.causal_factors:
             enhancement_parts.append(f"Active causal factors: {len(world_context.causal_factors)}")
-        
+
         # Agent activity
         if world_context.agent_activity:
-            active_agents = [agent for agent, activity in world_context.agent_activity.items() if activity > 0.7]
+            active_agents = [
+                agent for agent, activity in world_context.agent_activity.items() if activity > 0.7
+            ]
             if active_agents:
                 enhancement_parts.append(f"Active market participants: {', '.join(active_agents)}")
-        
+
         if enhancement_parts:
             return "\n\nWorld Context: " + "; ".join(enhancement_parts)
-        
+
         return ""
 
 
@@ -460,7 +472,7 @@ _chat_lock = threading.Lock()
 def get_chat() -> CognitiveChat:
     """
     Get the singleton chat instance.
-    
+
     PRESERVES: Exact API from cockpit/chat.py
     ENHANCES: Returns CognitiveChat instead of Chat
     """
@@ -480,7 +492,7 @@ def available_voices() -> list[str]:
 
 __all__ = [
     "CognitiveChat",
-    "ChatTurn", 
+    "ChatTurn",
     "Router",
     "get_chat",
     "available_voices",

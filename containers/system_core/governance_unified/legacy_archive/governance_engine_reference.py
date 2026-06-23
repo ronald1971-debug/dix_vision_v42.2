@@ -14,8 +14,8 @@ import uuid
 from dataclasses import dataclass, field
 from typing import Any
 
-from governance_unified.engine import BeliefState
 from core.types import ApprovalStatus, ExecutionIntent, PromotionStage, Severity
+from governance_unified.engine import BeliefState
 
 
 @dataclass
@@ -87,9 +87,7 @@ class GovernanceKernel:
             return True
         return False
 
-    def evaluate_intent(
-        self, intent: ExecutionIntent, belief: BeliefState
-    ) -> ApprovalDecision:
+    def evaluate_intent(self, intent: ExecutionIntent, belief: BeliefState) -> ApprovalDecision:
         """Evaluate an ExecutionIntent against all active policies."""
         if self._kill_switch:
             return ApprovalDecision(
@@ -154,9 +152,7 @@ class GovernanceKernel:
 
         if intent.quantity > 0 and policy.max_position_pct < 1.0:
             if intent.quantity > policy.max_position_pct * 100:
-                violations.append(
-                    f"{policy.name}: quantity {intent.quantity} exceeds max position"
-                )
+                violations.append(f"{policy.name}: quantity {intent.quantity} exceeds max position")
 
         return violations
 

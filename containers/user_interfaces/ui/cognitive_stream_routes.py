@@ -29,7 +29,6 @@ from typing import Any
 
 from fastapi import APIRouter, Request
 from fastapi.responses import StreamingResponse
-
 from system_unified.time_source import utc_now
 
 # ---------------------------------------------------------------------------
@@ -96,18 +95,17 @@ async def _cognitive_sse_generator(
     store = event_store_supplier()
 
     # Phase 1 — backfill: newest-first from query(), reversed for chrono order
-    indira_backfill = list(reversed(
-        store.query(event_type="INTELLIGENCE", source="INDIRA", limit=backfill_n)
-    ))
-    dyon_backfill = list(reversed(
-        store.query(event_type="SYSTEM", source="DYON", limit=backfill_n)
-    ))
+    indira_backfill = list(
+        reversed(store.query(event_type="INTELLIGENCE", source="INDIRA", limit=backfill_n))
+    )
+    dyon_backfill = list(
+        reversed(store.query(event_type="SYSTEM", source="DYON", limit=backfill_n))
+    )
 
     # Merge both backlogs in id order for a coherent timeline
-    combined_backfill = (
-        [("indira", r) for r in indira_backfill]
-        + [("dyon", r) for r in dyon_backfill]
-    )
+    combined_backfill = [("indira", r) for r in indira_backfill] + [
+        ("dyon", r) for r in dyon_backfill
+    ]
     combined_backfill.sort(key=lambda t: t[1].get("id", 0))
 
     last_id = 0
@@ -128,10 +126,7 @@ async def _cognitive_sse_generator(
             new_indira = store.query_since(last_id, event_type="INTELLIGENCE", source="INDIRA")
             new_dyon = store.query_since(last_id, event_type="SYSTEM", source="DYON")
 
-            combined = (
-                [("indira", r) for r in new_indira]
-                + [("dyon", r) for r in new_dyon]
-            )
+            combined = [("indira", r) for r in new_indira] + [("dyon", r) for r in new_dyon]
             combined.sort(key=lambda t: t[1].get("id", 0))
 
             for channel, row in combined:
@@ -167,6 +162,7 @@ def build_cognitive_stream_router(
     """
     if event_store_supplier is None:
         from state.ledger.event_store import get_event_store
+
         event_store_supplier = get_event_store
 
     router = APIRouter(prefix="/api/cognitive", tags=["cognitive-stream"])
@@ -219,8 +215,7 @@ def build_cognitive_stream_router(
                 for r in store.query(event_type="INTELLIGENCE", source="INDIRA", limit=n)
             ],
             "dyon": [
-                _parse_payload(r)
-                for r in store.query(event_type="SYSTEM", source="DYON", limit=n)
+                _parse_payload(r) for r in store.query(event_type="SYSTEM", source="DYON", limit=n)
             ],
         }
 

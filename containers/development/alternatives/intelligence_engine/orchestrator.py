@@ -11,57 +11,56 @@ Integrated with DYON for autonomous evolution and self-reflection.
 from __future__ import annotations
 
 import logging
+import threading
 from dataclasses import dataclass
 from typing import Any, Optional
-import threading
 
+from intelligence_engine.decision_maker import (
+    DecisionAlternative,
+    DecisionContext,
+    DecisionType,
+    ProductionDecisionMaker,
+    get_production_decision_maker,
+)
+from intelligence_engine.evaluator import (
+    EvaluationCategory,
+    EvaluationContext,
+    ProductionEvaluator,
+    get_production_evaluator,
+)
+from intelligence_engine.inference import (
+    InferenceInput,
+    InferenceModel,
+    InferenceType,
+    ProductionInferenceEngine,
+    get_production_inference_engine,
+)
+from intelligence_engine.knowledge_integrator import (
+    KnowledgeQuery,
+    ProductionKnowledgeIntegrator,
+    get_production_knowledge_integrator,
+)
+from intelligence_engine.planner import (
+    PlanningConstraint,
+    PlanningGoal,
+    PlanningHorizon,
+    PlanType,
+    ProductionPlanner,
+    get_production_planner,
+)
+
+# Import production-grade components
+from intelligence_engine.reasoner import (
+    ProductionReasoner,
+    ReasoningComplexity,
+    ReasoningType,
+    get_production_reasoner,
+)
 from system.time_source import now
 
 # Delay DYON imports to avoid circular dependency
 # DYON will be initialized separately
 
-# Import production-grade components
-from intelligence_engine.reasoner import (
-    ProductionReasoner,
-    ReasoningType,
-    ReasoningComplexity,
-    get_production_reasoner
-)
-from intelligence_engine.decision_maker import (
-    ProductionDecisionMaker,
-    DecisionType,
-    DecisionAlternative,
-    DecisionContext,
-    DecisionCriteriaWeights,
-    get_production_decision_maker
-)
-from intelligence_engine.planner import (
-    ProductionPlanner,
-    PlanType,
-    PlanningHorizon,
-    PlanningGoal,
-    PlanningConstraint,
-    get_production_planner
-)
-from intelligence_engine.evaluator import (
-    ProductionEvaluator,
-    EvaluationCategory,
-    EvaluationContext,
-    get_production_evaluator
-)
-from intelligence_engine.inference import (
-    ProductionInferenceEngine,
-    InferenceType,
-    InferenceInput,
-    InferenceModel,
-    get_production_inference_engine
-)
-from intelligence_engine.knowledge_integrator import (
-    ProductionKnowledgeIntegrator,
-    KnowledgeSourceType,
-    KnowledgeQuery,
-    get_production_knowledge_integrator
-)
 
 logger = logging.getLogger(__name__)
 
@@ -69,9 +68,11 @@ logger = logging.getLogger(__name__)
 @dataclass
 class IntelligenceOperation:
     """An intelligence operation."""
-    
+
     operation_id: str
-    operation_type: str  # "reasoning" | "decision" | "planning" | "evaluation" | "inference" | "knowledge"
+    operation_type: (
+        str  # "reasoning" | "decision" | "planning" | "evaluation" | "inference" | "knowledge"
+    )
     input_data: dict[str, Any]
     output_data: dict[str, Any] = None
     confidence: float = 0.0
@@ -90,7 +91,7 @@ class IntelligenceOperation:
 
 class IntelligenceOrchestrator:
     """Orchestrates intelligence operations.
-    
+
     Production-grade orchestrator that coordinates:
     - Reasoning capabilities (via ProductionReasoner)
     - Decision-making capabilities (via ProductionDecisionMaker)
@@ -99,11 +100,11 @@ class IntelligenceOrchestrator:
     - Inference capabilities (via ProductionInferenceEngine)
     - Knowledge integration (via ProductionKnowledgeIntegrator)
     """
-    
+
     def __init__(self) -> None:
         self._operations: list[IntelligenceOperation] = []
         self._operation_queue: list[IntelligenceOperation] = []
-        
+
         # Initialize production-grade components
         self._reasoner: Optional[ProductionReasoner] = None
         self._decision_maker: Optional[ProductionDecisionMaker] = None
@@ -111,14 +112,14 @@ class IntelligenceOrchestrator:
         self._evaluator: Optional[ProductionEvaluator] = None
         self._inference_engine: Optional[ProductionInferenceEngine] = None
         self._knowledge_integrator: Optional[ProductionKnowledgeIntegrator] = None
-        
+
         # DYON integration
         self._dyon_assistant = None
         self._dyon_reflection = None
         self._dyon_enabled: bool = False
-        
+
         self._lock = threading.Lock()
-        
+
     def start(self) -> bool:
         """Start the intelligence orchestrator with production-grade components and DYON integration."""
         try:
@@ -129,7 +130,7 @@ class IntelligenceOrchestrator:
             self._evaluator = get_production_evaluator()
             self._inference_engine = get_production_inference_engine()
             self._knowledge_integrator = get_production_knowledge_integrator()
-            
+
             # Start all components
             if self._reasoner:
                 self._reasoner.start()
@@ -143,28 +144,30 @@ class IntelligenceOrchestrator:
                 self._inference_engine.start()
             if self._knowledge_integrator:
                 self._knowledge_integrator.start()
-            
+
             logger.info("[INTELLIGENCE] Production-grade components initialized")
         except Exception as e:
             logger.warning(f"[INTELLIGENCE] Could not initialize production-grade components: {e}")
             logger.info("[INTELLIGENCE] Continuing with DYON-only mode")
-        
+
         # Always initialize DYON capabilities (independent of intelligence components)
         try:
             from system.dyon_coding_assistant import get_dyon_assistant
             from system.dyon_self_reflection import get_self_reflection
-            
+
             self._dyon_assistant = get_dyon_assistant()
             self._dyon_reflection = get_self_reflection()
             self._dyon_enabled = True
-            logger.info("[INTELLIGENCE] DYON integration enabled for autonomous intelligence evolution")
+            logger.info(
+                "[INTELLIGENCE] DYON integration enabled for autonomous intelligence evolution"
+            )
         except ImportError as e:
             logger.warning(f"[INTELLIGENCE] Could not initialize DYON: {e}")
             self._dyon_enabled = False
-        
+
         logger.info("[INTELLIGENCE] Intelligence orchestrator started")
         return True
-    
+
     def stop(self) -> bool:
         """Stop the intelligence orchestrator and all components."""
         try:
@@ -181,27 +184,27 @@ class IntelligenceOrchestrator:
                 self._inference_engine.stop()
             if self._knowledge_integrator:
                 self._knowledge_integrator.stop()
-            
+
             logger.info("[INTELLIGENCE] Intelligence orchestrator stopped")
             return True
         except Exception as e:
             logger.error(f"[INTELLIGENCE] Failed to stop: {e}")
             return False
-    
+
     # Reasoning Operations
-    def reason(self, query: dict[str, Any], 
-               reasoning_type: str = "deductive",
-               complexity: str = "moderate") -> IntelligenceOperation:
+    def reason(
+        self, query: dict[str, Any], reasoning_type: str = "deductive", complexity: str = "moderate"
+    ) -> IntelligenceOperation:
         """Perform reasoning using production-grade reasoner."""
         if not self._reasoner:
             return self._create_disabled_operation("reasoning")
-        
+
         try:
             reasoning_type_enum = ReasoningType(reasoning_type)
             complexity_enum = ReasoningComplexity(complexity)
-            
+
             result = self._reasoner.reason(query, reasoning_type_enum, complexity_enum)
-            
+
             operation = IntelligenceOperation(
                 operation_id=f"reason_{now().sequence}",
                 operation_type="reasoning",
@@ -210,49 +213,58 @@ class IntelligenceOrchestrator:
                     "conclusion": result.conclusion,
                     "confidence": result.confidence,
                     "reasoning_type": result.reasoning_type.value,
-                    "reasoning_chain": str(result.reasoning_chain) if result.reasoning_chain else None
+                    "reasoning_chain": (
+                        str(result.reasoning_chain) if result.reasoning_chain else None
+                    ),
                 },
                 confidence=result.confidence,
-                status="completed"
+                status="completed",
             )
-            
+
             with self._lock:
                 self._operations.append(operation)
-            
+
             return operation
-            
+
         except Exception as e:
             logger.error(f"[INTELLIGENCE] Reasoning failed: {e}")
             return self._create_error_operation("reasoning", str(e))
-    
+
     # Decision Operations
-    def make_decision(self, alternatives: list[dict[str, Any]], 
-                     context: dict[str, Any],
-                     decision_type: str = "operational") -> IntelligenceOperation:
+    def make_decision(
+        self,
+        alternatives: list[dict[str, Any]],
+        context: dict[str, Any],
+        decision_type: str = "operational",
+    ) -> IntelligenceOperation:
         """Make a decision using production-grade decision-maker."""
         if not self._decision_maker:
             return self._create_disabled_operation("decision")
-        
+
         try:
             decision_type_enum = DecisionType(decision_type)
-            
+
             # Convert dict alternatives to DecisionAlternative objects
             decision_alternatives = [
                 DecisionAlternative(
                     alternative_id=alt.get("alternative_id", f"alt_{i}"),
                     description=alt.get("description", ""),
-                    criteria_scores={
-                        DecisionCriteria(k): v 
-                        for k, v in alt.get("criteria_scores", {}).items()
-                        if k in [e.value for e in DecisionCriteria]
-                    } if isinstance(alt.get("criteria_scores", {}), dict) else {},
+                    criteria_scores=(
+                        {
+                            DecisionCriteria(k): v
+                            for k, v in alt.get("criteria_scores", {}).items()
+                            if k in [e.value for e in DecisionCriteria]
+                        }
+                        if isinstance(alt.get("criteria_scores", {}), dict)
+                        else {}
+                    ),
                     estimated_outcomes=alt.get("estimated_outcomes", {}),
                     risk_factors=alt.get("risk_factors", []),
-                    metadata=alt.get("metadata", {})
+                    metadata=alt.get("metadata", {}),
                 )
                 for i, alt in enumerate(alternatives)
             ]
-            
+
             # Convert context to DecisionContext
             decision_context = DecisionContext(
                 context_id=f"context_{now().sequence}",
@@ -260,13 +272,13 @@ class IntelligenceOrchestrator:
                 system_state=context.get("system_state", {}),
                 risk_environment=context.get("risk_environment", {}),
                 temporal_constraints=context.get("temporal_constraints", {}),
-                resource_constraints=context.get("resource_constraints", {})
+                resource_constraints=context.get("resource_constraints", {}),
             )
-            
+
             result = self._decision_maker.make_decision(
                 decision_alternatives, decision_context, decision_type_enum
             )
-            
+
             operation = IntelligenceOperation(
                 operation_id=f"decision_{now().sequence}",
                 operation_type="decision",
@@ -275,34 +287,37 @@ class IntelligenceOrchestrator:
                     "chosen_alternative": result.chosen_alternative.description,
                     "decision_score": result.decision_score,
                     "confidence": result.confidence,
-                    "recommendation": result.recommendation
+                    "recommendation": result.recommendation,
                 },
                 confidence=result.confidence,
-                status="completed"
+                status="completed",
             )
-            
+
             with self._lock:
                 self._operations.append(operation)
-            
+
             return operation
-            
+
         except Exception as e:
             logger.error(f"[INTELLIGENCE] Decision making failed: {e}")
             return self._create_error_operation("decision", str(e))
-    
+
     # Planning Operations
-    def create_plan(self, goals: list[dict[str, Any]], 
-                   plan_type: str = "operational",
-                   constraints: Optional[list[dict[str, Any]]] = None,
-                   horizon: str = "short_term") -> IntelligenceOperation:
+    def create_plan(
+        self,
+        goals: list[dict[str, Any]],
+        plan_type: str = "operational",
+        constraints: Optional[list[dict[str, Any]]] = None,
+        horizon: str = "short_term",
+    ) -> IntelligenceOperation:
         """Create a plan using production-grade planner."""
         if not self._planner:
             return self._create_disabled_operation("planning")
-        
+
         try:
             plan_type_enum = PlanType(plan_type)
             horizon_enum = PlanningHorizon(horizon)
-            
+
             # Convert goals to PlanningGoal objects
             planning_goals = [
                 PlanningGoal(
@@ -312,11 +327,11 @@ class IntelligenceOrchestrator:
                     deadline=goal.get("deadline"),
                     success_criteria=goal.get("success_criteria", {}),
                     constraints=goal.get("constraints", []),
-                    metadata=goal.get("metadata", {})
+                    metadata=goal.get("metadata", {}),
                 )
                 for i, goal in enumerate(goals)
             ]
-            
+
             # Convert constraints to PlanningConstraint objects
             planning_constraints = [
                 PlanningConstraint(
@@ -324,15 +339,15 @@ class IntelligenceOrchestrator:
                     constraint_type=const.get("constraint_type", "general"),
                     description=const.get("description", ""),
                     severity=const.get("severity", 1.0),
-                    metadata=const.get("metadata", {})
+                    metadata=const.get("metadata", {}),
                 )
                 for i, const in enumerate(constraints or [])
             ]
-            
+
             result = self._planner.create_plan(
                 planning_goals, plan_type_enum, planning_constraints, horizon_enum
             )
-            
+
             operation = IntelligenceOperation(
                 operation_id=f"planning_{now().sequence}",
                 operation_type="planning",
@@ -341,29 +356,29 @@ class IntelligenceOrchestrator:
                     "plan_id": result.generated_plan.plan_id if result.generated_plan else None,
                     "success_probability": result.planning_confidence,
                     "task_count": len(result.generated_plan.tasks) if result.generated_plan else 0,
-                    "recommendations": result.recommendations
+                    "recommendations": result.recommendations,
                 },
                 confidence=result.planning_confidence,
-                status="completed" if result.generated_plan else "failed"
+                status="completed" if result.generated_plan else "failed",
             )
-            
+
             with self._lock:
                 self._operations.append(operation)
-            
+
             return operation
-            
+
         except Exception as e:
             logger.error(f"[INTELLIGENCE] Planning failed: {e}")
             return self._create_error_operation("planning", str(e))
-    
+
     # Evaluation Operations
-    def evaluate(self, data: dict[str, Any], 
-                context: dict[str, Any],
-                categories: Optional[list[str]] = None) -> IntelligenceOperation:
+    def evaluate(
+        self, data: dict[str, Any], context: dict[str, Any], categories: Optional[list[str]] = None
+    ) -> IntelligenceOperation:
         """Perform evaluation using production-grade evaluator."""
         if not self._evaluator:
             return self._create_disabled_operation("evaluation")
-        
+
         try:
             # Convert context to EvaluationContext
             evaluation_context = EvaluationContext(
@@ -373,9 +388,9 @@ class IntelligenceOrchestrator:
                 scope=context.get("scope", []),
                 benchmark=context.get("benchmark"),
                 constraints=context.get("constraints", []),
-                metadata=context.get("metadata", {})
+                metadata=context.get("metadata", {}),
             )
-            
+
             # Convert categories to enums
             evaluation_categories = []
             if categories:
@@ -384,9 +399,9 @@ class IntelligenceOrchestrator:
                         evaluation_categories.append(EvaluationCategory(cat))
                     except ValueError:
                         pass
-            
+
             result = self._evaluator.evaluate(data, evaluation_context, evaluation_categories)
-            
+
             operation = IntelligenceOperation(
                 operation_id=f"evaluation_{now().sequence}",
                 operation_type="evaluation",
@@ -395,40 +410,43 @@ class IntelligenceOrchestrator:
                     "overall_score": result.overall_score,
                     "category_scores": {k.value: v for k, v in result.category_scores.items()},
                     "metric_count": len(result.metrics),
-                    "recommendations": result.recommendations
+                    "recommendations": result.recommendations,
                 },
                 confidence=result.confidence,
-                status="completed"
+                status="completed",
             )
-            
+
             with self._lock:
                 self._operations.append(operation)
-            
+
             return operation
-            
+
         except Exception as e:
             logger.error(f"[INTELLIGENCE] Evaluation failed: {e}")
             return self._create_error_operation("evaluation", str(e))
-    
+
     # Inference Operations
-    def infer(self, data: dict[str, Any], 
-             inference_type: str = "deterministic",
-             model: Optional[dict[str, Any]] = None) -> IntelligenceOperation:
+    def infer(
+        self,
+        data: dict[str, Any],
+        inference_type: str = "deterministic",
+        model: Optional[dict[str, Any]] = None,
+    ) -> IntelligenceOperation:
         """Perform inference using production-grade inference engine."""
         if not self._inference_engine:
             return self._create_disabled_operation("inference")
-        
+
         try:
             inference_type_enum = InferenceType(inference_type)
-            
+
             # Create input
             inference_input = InferenceInput(
                 input_id=f"input_{now().sequence}",
                 data=data,
                 input_type=data.get("input_type", "generic"),
-                metadata=data.get("metadata", {})
+                metadata=data.get("metadata", {}),
             )
-            
+
             # Create model if specified
             inference_model = None
             if model:
@@ -439,11 +457,13 @@ class IntelligenceOrchestrator:
                     version=model.get("version", "1.0"),
                     parameters=model.get("parameters", {}),
                     performance_metrics=model.get("performance_metrics", {}),
-                    metadata=model.get("metadata", {})
+                    metadata=model.get("metadata", {}),
                 )
-            
-            result = self._inference_engine.infer(inference_input, inference_model, inference_type_enum)
-            
+
+            result = self._inference_engine.infer(
+                inference_input, inference_model, inference_type_enum
+            )
+
             operation = IntelligenceOperation(
                 operation_id=f"inference_{now().sequence}",
                 operation_type="inference",
@@ -452,29 +472,29 @@ class IntelligenceOrchestrator:
                     "result": result.output_data.result,
                     "confidence": result.confidence,
                     "inference_time_ms": result.timing_info.get("total_time_ms", 0),
-                    "cache_hit": result.cache_hit
+                    "cache_hit": result.cache_hit,
                 },
                 confidence=result.confidence,
-                status="completed"
+                status="completed",
             )
-            
+
             with self._lock:
                 self._operations.append(operation)
-            
+
             return operation
-            
+
         except Exception as e:
             logger.error(f"[INTELLIGENCE] Inference failed: {e}")
             return self._create_error_operation("inference", str(e))
-    
+
     # Knowledge Operations
-    def query_knowledge(self, query_type: str, 
-                      parameters: dict[str, Any],
-                      constraints: Optional[list[str]] = None) -> IntelligenceOperation:
+    def query_knowledge(
+        self, query_type: str, parameters: dict[str, Any], constraints: Optional[list[str]] = None
+    ) -> IntelligenceOperation:
         """Query knowledge graph using production-grade knowledge integrator."""
         if not self._knowledge_integrator:
             return self._create_disabled_operation("knowledge")
-        
+
         try:
             # Create knowledge query
             knowledge_query = KnowledgeQuery(
@@ -482,11 +502,11 @@ class IntelligenceOrchestrator:
                 query_type=query_type,
                 parameters=parameters,
                 constraints=constraints or [],
-                metadata={}
+                metadata={},
             )
-            
+
             result = self._knowledge_integrator.query(knowledge_query)
-            
+
             operation = IntelligenceOperation(
                 operation_id=f"knowledge_{now().sequence}",
                 operation_type="knowledge",
@@ -496,152 +516,156 @@ class IntelligenceOrchestrator:
                     "entity_count": len(result.entities),
                     "relationship_count": len(result.relationships),
                     "path_count": len(result.paths),
-                    "explanation": result.explanation
+                    "explanation": result.explanation,
                 },
                 confidence=result.confidence,
-                status="completed"
+                status="completed",
             )
-            
+
             with self._lock:
                 self._operations.append(operation)
-            
+
             return operation
-            
+
         except Exception as e:
             logger.error(f"[INTELLIGENCE] Knowledge query failed: {e}")
             return self._create_error_operation("knowledge", str(e))
-    
+
     def get_reasoning(self) -> Optional[ProductionReasoner]:
         """Get the reasoner component."""
         return self._reasoner
-    
+
     def get_decision_maker(self) -> Optional[ProductionDecisionMaker]:
         """Get the decision-maker component."""
         return self._decision_maker
-    
+
     def get_planner(self) -> Optional[ProductionPlanner]:
         """Get the planner component."""
         return self._planner
-    
+
     def get_evaluator(self) -> Optional[ProductionEvaluator]:
         """Get the evaluator component."""
         return self._evaluator
-    
+
     def get_inference_engine(self) -> Optional[ProductionInferenceEngine]:
         """Get the inference engine component."""
         return self._inference_engine
-    
+
     def get_knowledge_integrator(self) -> Optional[ProductionKnowledgeIntegrator]:
         """Get the knowledge integrator component."""
         return self._knowledge_integrator
-    
+
     # DYON Integration Properties
     @property
     def dyon_assistant(self):
         """Get DYON coding assistant for autonomous coding tasks."""
         return self._dyon_assistant
-    
+
     @property
     def dyon_reflection(self):
         """Get DYON self-reflection for intelligence analysis."""
         return self._dyon_reflection
-    
+
     @property
     def dyon_enabled(self) -> bool:
         """Check if DYON integration is enabled."""
         return self._dyon_enabled
-    
+
     # DYON Integration Methods
-    
+
     def analyze_intelligence_engine(self) -> dict[str, Any]:
         """Analyze the intelligence engine using DYON self-reflection."""
         if not self._dyon_enabled or not self._dyon_reflection:
             return {"error": "DYON self-reflection not enabled", "dyon_enabled": self._dyon_enabled}
-        
+
         logger.info("[INTELLIGENCE] DYON analyzing intelligence engine...")
         result = self._dyon_reflection.analyze_codebase(focus="intelligence_engine")
         return {
             "analysis": result.to_report(),
             "issues_found": len(result.issues),
             "priority": result.priority,
-            "action_items": result.action_items
+            "action_items": result.action_items,
         }
-    
+
     def optimize_intelligence_component(self, component: str, goal: str) -> dict[str, Any]:
         """Optimize an intelligence component using DYON.
-        
+
         Args:
             component: Component name (reasoner, decision_maker, planner, evaluator, inference, knowledge)
             goal: Optimization goal
         """
         if not self._dyon_enabled or not self._dyon_assistant:
-            return {"error": "DYON coding assistant not enabled", "dyon_enabled": self._dyon_enabled}
-        
+            return {
+                "error": "DYON coding assistant not enabled",
+                "dyon_enabled": self._dyon_enabled,
+            }
+
         logger.info(f"[INTELLIGENCE] DYON optimizing {component} for: {goal}")
         result = self._dyon_assistant.optimize_performance(component, goal)
         return {
             "component": component,
             "goal": goal,
             "result": result,
-            "status": result.get("status", "unknown")
+            "status": result.get("status", "unknown"),
         }
-    
+
     def evolve_intelligence_engine(self, goal: str) -> dict[str, Any]:
         """Evolve the intelligence engine for a specific goal using DYON.
-        
+
         This is a high-level autonomous operation for intelligence evolution.
         """
         if not self._dyon_enabled or not self._dyon_assistant:
-            return {"error": "DYON coding assistant not enabled", "dyon_enabled": self._dyon_enabled}
-        
+            return {
+                "error": "DYON coding assistant not enabled",
+                "dyon_enabled": self._dyon_enabled,
+            }
+
         logger.warning(f"[INTELLIGENCE] DYON evolving intelligence engine for: {goal}")
         result = self._dyon_assistant.evolve_system(goal)
         return {
             "goal": goal,
             "result": result,
             "status": result.get("status", "unknown"),
-            "warning": "Autonomous intelligence evolution executed"
+            "warning": "Autonomous intelligence evolution executed",
         }
-    
+
     def fix_intelligence_bug(self, component: str, bug_description: str) -> dict[str, Any]:
         """Fix an intelligence bug using DYON.
-        
+
         Args:
             component: Component name
             bug_description: Description of the bug
         """
         if not self._dyon_enabled or not self._dyon_assistant:
-            return {"error": "DYON coding assistant not enabled", "dyon_enabled": self._dyon_enabled}
-        
+            return {
+                "error": "DYON coding assistant not enabled",
+                "dyon_enabled": self._dyon_enabled,
+            }
+
         logger.info(f"[INTELLIGENCE] DYON fixing bug in {component}: {bug_description}")
         result = self._dyon_assistant.fix_bug(
-            f"intelligence_engine/{component}.py",
-            bug_description
+            f"intelligence_engine/{component}.py", bug_description
         )
         return {
             "component": component,
             "bug": bug_description,
             "result": result,
-            "status": result.get("status", "unknown")
+            "status": result.get("status", "unknown"),
         }
-    
+
     def suggest_intelligence_improvements(self, goal: str) -> dict[str, Any]:
         """Suggest intelligence engine improvements using DYON reflection.
-        
+
         Args:
             goal: Improvement goal
         """
         if not self._dyon_enabled or not self._dyon_reflection:
             return {"error": "DYON self-reflection not enabled", "dyon_enabled": self._dyon_enabled}
-        
+
         logger.info(f"[INTELLIGENCE] DYON suggesting intelligence improvements for: {goal}")
         suggestions = self._dyon_reflection.suggest_improvements(goal)
-        return {
-            "goal": goal,
-            "suggestions": suggestions,
-            "count": len(suggestions)
-        }
-    
+        return {"goal": goal, "suggestions": suggestions, "count": len(suggestions)}
+
     def get_orchestrator_state(self) -> dict[str, Any]:
         """Get comprehensive orchestrator state including DYON."""
         return {
@@ -650,39 +674,48 @@ class IntelligenceOrchestrator:
             "planner": {"status": "active" if self._planner else "inactive"},
             "evaluator": {"status": "active" if self._evaluator else "inactive"},
             "inference_engine": {"status": "active" if self._inference_engine else "inactive"},
-            "knowledge_integrator": {"status": "active" if self._knowledge_integrator else "inactive"},
+            "knowledge_integrator": {
+                "status": "active" if self._knowledge_integrator else "inactive"
+            },
             "dyon_integration": {
                 "enabled": self._dyon_enabled,
                 "assistant": "active" if self._dyon_assistant else "inactive",
                 "reflection": "active" if self._dyon_reflection else "inactive",
-                "capabilities": ["coding", "self_reflection", "autonomous_evolution"] if self._dyon_enabled else []
+                "capabilities": (
+                    ["coding", "self_reflection", "autonomous_evolution"]
+                    if self._dyon_enabled
+                    else []
+                ),
             },
             "operations_count": len(self._operations),
-            "status": "ready"
+            "status": "ready",
         }
-    
+
     def get_operations(self, limit: int = 100) -> list[IntelligenceOperation]:
         """Get operation history."""
         with self._lock:
             return self._operations[-limit:]
-    
+
     def clear_operations(self) -> None:
         """Clear operation history."""
         with self._lock:
             self._operations.clear()
         logger.info("[INTELLIGENCE] Operation history cleared")
-    
+
     def _create_disabled_operation(self, operation_type: str) -> IntelligenceOperation:
         """Create operation for disabled component."""
         return IntelligenceOperation(
             operation_id=f"{operation_type}_{now().sequence}",
             operation_type=operation_type,
             input_data={},
-            output_data={"status": "disabled", "message": f"{operation_type} component not available"},
+            output_data={
+                "status": "disabled",
+                "message": f"{operation_type} component not available",
+            },
             confidence=0.0,
-            status="failed"
+            status="failed",
         )
-    
+
     def _create_error_operation(self, operation_type: str, error: str) -> IntelligenceOperation:
         """Create operation for failed operation."""
         return IntelligenceOperation(
@@ -691,7 +724,7 @@ class IntelligenceOrchestrator:
             input_data={},
             output_data={"status": "error", "message": error},
             confidence=0.0,
-            status="failed"
+            status="failed",
         )
 
 

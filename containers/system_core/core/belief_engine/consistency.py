@@ -11,6 +11,7 @@ from dataclasses import dataclass
 @dataclass(frozen=True, slots=True)
 class ConsistencyReport:
     """Report of belief consistency check."""
+
     consistent: bool
     ts_ns: int
     violations: tuple[str, ...]

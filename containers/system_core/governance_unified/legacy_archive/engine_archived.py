@@ -27,11 +27,11 @@ from core.contracts.operator_governance import (
     LockoutScope,
     OperatorGovernanceStatus,
 )
+from operator_governance import get_consent_router
 from operator_governance.authority_escalation import (
     AuthorityEscalationGuard,
     get_authority_escalation_guard,
 )
-from operator_governance import get_consent_router
 from operator_governance.governance_visibility import (
     GovernanceVisibilityMonitor,
     get_governance_visibility_monitor,
@@ -189,21 +189,13 @@ class OperatorGovernanceEngine:
         # Active overrides
         active_overrides = self.override_mgr.override_count()
 
-        overall_healthy = (
-            authority_intact
-            and no_unauthorized_escalation
-            and visibility_healthy
-        )
+        overall_healthy = authority_intact and no_unauthorized_escalation and visibility_healthy
 
         detail_parts: list[str] = []
         if not authority_intact:
-            detail_parts.append(
-                f"constitution_violations={self.constitution.violation_count()}"
-            )
+            detail_parts.append(f"constitution_violations={self.constitution.violation_count()}")
         if not no_unauthorized_escalation:
-            detail_parts.append(
-                f"escalation_pending={self.escalation_guard.pending_count()}"
-            )
+            detail_parts.append(f"escalation_pending={self.escalation_guard.pending_count()}")
         if consent_backlog > 0:
             detail_parts.append(f"consent_backlog={consent_backlog}")
         if not visibility_healthy:

@@ -108,6 +108,7 @@ class LatentRegimeEmbedder:
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 @dataclass(frozen=True, slots=True)
 class _RegimeCentroids:
     trend_up: tuple[float, ...] = (0.6, 0.4, 0.0, 0.0)

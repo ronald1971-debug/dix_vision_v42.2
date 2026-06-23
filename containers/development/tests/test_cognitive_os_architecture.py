@@ -1,19 +1,18 @@
 """Tests for Unified Cognitive OS Architecture Integration."""
 
-import unittest
-import sys
 import os
+import sys
+import unittest
 from typing import Mapping
 
 # Add paths to imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from cognitive_os import (
-    CognitiveOSKernel,
-    get_cognitive_os_kernel,
+    CognitiveOSMetrics,
     SystemLayer,
     SystemStatus,
-    CognitiveOSMetrics,
+    get_cognitive_os_kernel,
 )
 
 
@@ -168,15 +167,15 @@ def run_tests():
     runner = unittest.TextTestRunner(verbosity=2)
     result = runner.run(suite)
 
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("UNIFIED COGNITIVE OS ARCHITECTURE TEST SUMMARY")
-    print("="*70)
+    print("=" * 70)
     print(f"Tests run: {result.testsRun}")
     print(f"Successes: {result.testsRun - len(result.failures) - len(result.errors)}")
     print(f"Failures: {len(result.failures)}")
     print(f"Errors: {len(result.errors)}")
     print(f"Skipped: {len(result.skipped)}")
-    print("="*70)
+    print("=" * 70)
 
     return result.wasSuccessful()
 

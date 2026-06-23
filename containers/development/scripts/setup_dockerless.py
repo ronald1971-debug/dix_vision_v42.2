@@ -6,14 +6,12 @@ This script sets up DIX VISION infrastructure using:
 - File-based storage for all data
 """
 
-import sys
-import os
-import logging
-import sqlite3
 import json
+import logging
+import os
+import sqlite3
+import sys
 import time
-from typing import Dict, Any
-from pathlib import Path
 
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -83,7 +81,6 @@ class DockerlessInfrastructure:
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
             """,
-
             # Orders table
             """
             CREATE TABLE IF NOT EXISTS orders (
@@ -105,7 +102,6 @@ class DockerlessInfrastructure:
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
             """,
-
             # Positions table
             """
             CREATE TABLE IF NOT EXISTS positions (
@@ -121,7 +117,6 @@ class DockerlessInfrastructure:
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
             """,
-
             # Trust anchors table
             """
             CREATE TABLE IF NOT EXISTS trust_anchors (
@@ -139,7 +134,6 @@ class DockerlessInfrastructure:
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
             """,
-
             # Foundation hashes table
             """
             CREATE TABLE IF NOT EXISTS foundation_hashes (
@@ -154,7 +148,6 @@ class DockerlessInfrastructure:
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
             """,
-
             # Verification artifacts table
             """
             CREATE TABLE IF NOT EXISTS verification_artifacts (
@@ -172,7 +165,6 @@ class DockerlessInfrastructure:
                 FOREIGN KEY (anchor_id) REFERENCES trust_anchors(anchor_id)
             )
             """,
-
             # Trading decisions table
             """
             CREATE TABLE IF NOT EXISTS trading_decisions (
@@ -193,7 +185,6 @@ class DockerlessInfrastructure:
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
             """,
-
             # Audit log table
             """
             CREATE TABLE IF NOT EXISTS audit_log (
@@ -206,7 +197,7 @@ class DockerlessInfrastructure:
                 severity TEXT DEFAULT 'INFO',
                 timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
-            """
+            """,
         ]
 
         for table_sql in tables:
@@ -241,30 +232,25 @@ class DockerlessInfrastructure:
                 "status": "initialized",
                 "version": "42.2",
                 "init_time": time.time(),
-                "cache": {
-                    "market_data": {},
-                    "decisions": {},
-                    "risk_metrics": {},
-                    "patterns": {}
-                },
+                "cache": {"market_data": {}, "decisions": {}, "risk_metrics": {}, "patterns": {}},
                 "config": {
                     "cache:market_data:ttl": "60",
                     "cache:decisions:ttl": "300",
                     "cache:risk_metrics:ttl": "600",
                     "cache:patterns:ttl": "1800",
-                    "cache:enabled": "true"
+                    "cache:enabled": "true",
                 },
                 "monitoring": {
                     "health:status": "ok",
                     "health:last_check": str(time.time()),
                     "metrics:total_requests": "0",
                     "metrics:errors": "0",
-                    "metrics:latency_avg": "0"
-                }
+                    "metrics:latency_avg": "0",
+                },
             }
 
             # Write cache file
-            with open(self.cache_path, 'w') as f:
+            with open(self.cache_path, "w") as f:
                 json.dump(cache_data, f, indent=2)
 
             logger.info(f"✅ Local cache created: {self.cache_path}")
@@ -337,7 +323,7 @@ LOG_OUTPUT=stdout
 LOG_FILE_PATH=logs/dix_vision.log
 """
 
-            with open(config_path, 'w') as f:
+            with open(config_path, "w") as f:
                 f.write(config_content)
 
             logger.info(f"✅ Dockerless configuration created: {config_path}")
@@ -415,7 +401,7 @@ class SQLiteAdapter:
             self._conn.rollback()
 '''
 
-            with open(os.path.join(adapters_dir, "sqlite_adapter.py"), 'w') as f:
+            with open(os.path.join(adapters_dir, "sqlite_adapter.py"), "w") as f:
                 f.write(sqlite_adapter)
 
             # Local cache adapter
@@ -477,11 +463,11 @@ class LocalCacheAdapter:
         return True
 '''
 
-            with open(os.path.join(adapters_dir, "cache_adapter.py"), 'w') as f:
+            with open(os.path.join(adapters_dir, "cache_adapter.py"), "w") as f:
                 f.write(cache_adapter)
 
             # Create __init__.py
-            with open(os.path.join(adapters_dir, "__init__.py"), 'w') as f:
+            with open(os.path.join(adapters_dir, "__init__.py"), "w") as f:
                 f.write('"""Infrastructure adapters for dockerless operation."""\n')
 
             logger.info(f"✅ Dockerless adapters created: {adapters_dir}")
@@ -524,7 +510,7 @@ class LocalCacheAdapter:
 
             # Test cache
             try:
-                with open(self.cache_path, 'r') as f:
+                with open(self.cache_path, "r") as f:
                     cache_data = json.load(f)
                     if cache_data.get("status") == "initialized":
                         logger.info("✅ Cache connection successful")
@@ -551,7 +537,7 @@ class LocalCacheAdapter:
             ("setup_local_cache", "Setup local cache"),
             ("create_dockerless_config", "Create dockerless configuration"),
             ("create_dockerless_adapters", "Create dockerless adapters"),
-            ("verify_dockerless_setup", "Verify dockerless setup")
+            ("verify_dockerless_setup", "Verify dockerless setup"),
         ]
 
         results = []
@@ -590,9 +576,7 @@ def main():
     """Main function to run dockerless infrastructure setup."""
     import argparse
 
-    parser = argparse.ArgumentParser(
-        description="Set up Dockerless infrastructure for DIX VISION"
-    )
+    parser = argparse.ArgumentParser(description="Set up Dockerless infrastructure for DIX VISION")
     parser.add_argument("--path", help="Base path for infrastructure")
     parser.add_argument("--verify-only", action="store_true", help="Only verify existing setup")
 

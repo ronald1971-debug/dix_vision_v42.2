@@ -1,11 +1,11 @@
 import re
 
-with open('ui/server.py', 'r', encoding='utf-8') as f:
+with open("ui/server.py", "r", encoding="utf-8") as f:
     content = f.read()
 
 # Find the _build_live_feeds method and replace it
 # We'll use regex to find the method boundaries
-pattern = r'(    def _build_live_feeds\(self\) -> None:.*?)(    def _build_learning_evolution_loops\(self\) -> None:)'
+pattern = r"(    def _build_live_feeds\(self\) -> None:.*?)(    def _build_learning_evolution_loops\(self\) -> None:)"
 match = re.search(pattern, content, re.DOTALL)
 
 if match:
@@ -31,8 +31,8 @@ if match:
 
 '''
     content = content.replace(old_method, new_method)
-    with open('ui/server.py', 'w', encoding='utf-8', newline='\n') as f:
+    with open("ui/server.py", "w", encoding="utf-8", newline="\n") as f:
         f.write(content)
-    print('Successfully replaced _build_live_feeds method')
+    print("Successfully replaced _build_live_feeds method")
 else:
-    print('Pattern not found')
+    print("Pattern not found")

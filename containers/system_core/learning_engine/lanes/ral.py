@@ -113,9 +113,7 @@ class DecisionReplay:
             raise RALError(f"actual_reward must be finite, got {self.actual_reward}")
         for i, r in enumerate(self.counterfactual_rewards):
             if not math.isfinite(r):
-                raise RALError(
-                    f"counterfactual_rewards[{i}] must be finite, got {r}"
-                )
+                raise RALError(f"counterfactual_rewards[{i}] must be finite, got {r}")
 
 
 @dataclasses.dataclass(frozen=True, slots=True)
@@ -148,9 +146,7 @@ class RALState:
 # ---------------------------------------------------------------------------
 
 
-def _compute_digest(
-    params: tuple[float, ...], n_replays: int, mean_regret: float
-) -> str:
+def _compute_digest(params: tuple[float, ...], n_replays: int, mean_regret: float) -> str:
     h = hashlib.blake2b(digest_size=16)
     h.update(n_replays.to_bytes(8, "little"))
     h.update(repr(mean_regret).encode())
@@ -254,10 +250,7 @@ def ral_update(
         # Scale update by regret and temperature
         if regret > 0.0 and replay.counterfactual_rewards:
             # Softmax over counterfactual rewards to weight the gradient
-            temps = [
-                r / config.counterfactual_temperature
-                for r in replay.counterfactual_rewards
-            ]
+            temps = [r / config.counterfactual_temperature for r in replay.counterfactual_rewards]
             max_t = max(temps)
             exps = [math.exp(t - max_t) for t in temps]
             total_exp = sum(exps)
@@ -265,8 +258,14 @@ def ral_update(
 
             # Regret-weighted parameter nudge (uniform feature signal without
             # feature vector available at this level — nudge all params evenly)
-            nudge = lr * regret * sum(
-                w for w, r in zip(weights, replay.counterfactual_rewards) if r > replay.actual_reward
+            nudge = (
+                lr
+                * regret
+                * sum(
+                    w
+                    for w, r in zip(weights, replay.counterfactual_rewards)
+                    if r > replay.actual_reward
+                )
             )
             for i in range(n_params):
                 param_accum[i] += nudge
@@ -274,9 +273,7 @@ def ral_update(
     # EMA of mean regret
     ema_alpha = 0.1
     batch_mean_regret = (sum(regrets) / len(regrets)) if regrets else 0.0
-    new_mean_regret = (
-        ema_alpha * batch_mean_regret + (1.0 - ema_alpha) * state.mean_regret
-    )
+    new_mean_regret = ema_alpha * batch_mean_regret + (1.0 - ema_alpha) * state.mean_regret
 
     new_params = tuple(param_accum)
     new_n_replays = state.n_replays + len(replays)

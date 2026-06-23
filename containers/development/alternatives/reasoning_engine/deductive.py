@@ -42,12 +42,16 @@ class DeductiveEngine:
     def deduce(self, active_conditions: set[str]) -> tuple[DeductiveConclusion, ...]:
         conclusions = []
         for rule in self._rules.values():
-            if rule.applies(active_conditions) and not any(e in active_conditions for e in rule.exceptions):
-                conclusions.append(DeductiveConclusion(
-                    object_id=f"DEDUCE-{rule.rule_id}",
-                    ts_ns=0,
-                    rule_id=rule.rule_id,
-                    conclusion=rule.consequent,
-                    contributor_chain=("deductive_engine",),
-                ))
+            if rule.applies(active_conditions) and not any(
+                e in active_conditions for e in rule.exceptions
+            ):
+                conclusions.append(
+                    DeductiveConclusion(
+                        object_id=f"DEDUCE-{rule.rule_id}",
+                        ts_ns=0,
+                        rule_id=rule.rule_id,
+                        conclusion=rule.consequent,
+                        contributor_chain=("deductive_engine",),
+                    )
+                )
         return tuple(conclusions)

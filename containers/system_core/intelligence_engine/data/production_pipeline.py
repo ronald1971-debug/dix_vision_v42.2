@@ -8,19 +8,18 @@ from __future__ import annotations
 import asyncio
 import logging
 import threading
-from typing import Any, Dict, List, Optional, Callable, AsyncGenerator
+import time
+from collections import defaultdict, deque
 from dataclasses import dataclass, field
 from enum import Enum
-from collections import deque, defaultdict
-import time
-import json
-from datetime import datetime, timezone
+from typing import Any, Callable, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
 
 class DataQuality(str, Enum):
     """Data quality levels."""
+
     HIGH = "HIGH"  # Real-time, complete, validated
     MEDIUM = "MEDIUM"  # Slightly delayed, mostly complete
     LOW = "LOW"  # Delayed, incomplete, needs validation
@@ -29,6 +28,7 @@ class DataQuality(str, Enum):
 
 class DataSource(str, Enum):
     """Production data sources."""
+
     WEBSOCKET = "WEBSOCKET"  # Real-time streaming data
     REST_API = "REST_API"  # Poll-based data
     FIX_PROTOCOL = "FIX_PROTOCOL"  # Financial Information Exchange
@@ -40,6 +40,7 @@ class DataSource(str, Enum):
 @dataclass
 class MarketDataMessage:
     """Standardized market data message for production pipelines."""
+
     symbol: str
     timestamp: float
     price: float
@@ -65,7 +66,7 @@ class MarketDataMessage:
             "ask_size": self.ask_size,
             "source": self.source.value,
             "quality": self.quality.value,
-            "metadata": self.metadata
+            "metadata": self.metadata,
         }
 
 
@@ -95,7 +96,7 @@ class DataValidator:
             issues.append(f"Data is stale: {abs(current_time - message.timestamp):.2f}s old")
 
         # Spread validation
-        spread = (message.ask - message.bid) / message.bid if message.bid > 0 else float('inf')
+        spread = (message.ask - message.bid) / message.bid if message.bid > 0 else float("inf")
         if spread > 0.05:  # 5% spread threshold
             issues.append(f"Spread too wide: {spread:.4f}")
 
@@ -162,7 +163,7 @@ class DataProcessor:
             "momentum": self._calculate_momentum,
             "volatility": self._calculate_volatility,
             "spread": self._calculate_spread,
-            "mid_price": self._calculate_mid_price
+            "mid_price": self._calculate_mid_price,
         }
 
     def process_message(self, message: MarketDataMessage) -> MarketDataMessage:
@@ -192,7 +193,7 @@ class DataProcessor:
             ask_size=message.ask_size,
             source=message.source,
             quality=message.quality,
-            metadata=enriched_metadata
+            metadata=enriched_metadata,
         )
 
     def _calculate_momentum(self, message: MarketDataMessage) -> float:
@@ -229,7 +230,7 @@ class ProductionDataPipeline:
             "invalid_messages": 0,
             "messages_by_source": defaultdict(int),
             "messages_by_quality": defaultdict(int),
-            "processing_times": deque(maxlen=1000)
+            "processing_times": deque(maxlen=1000),
         }
         self._lock = threading.Lock()
         self._running = False
@@ -313,7 +314,7 @@ class ProductionDataPipeline:
                 ask_size=float(raw_message.get("ask_size", 0.0)),
                 source=source,
                 quality=DataQuality.MEDIUM,  # Will be set during validation
-                metadata=raw_message.get("metadata", {})
+                metadata=raw_message.get("metadata", {}),
             )
         except (KeyError, ValueError, TypeError) as e:
             logger.error(f"Failed to parse raw message: {e}")
@@ -344,7 +345,9 @@ class ProductionDataPipeline:
                 self._subscribers[symbol].remove(callback)
         logger.info(f"Unsubscribed from {symbol}")
 
-    def get_buffered_messages(self, symbol: Optional[str] = None, count: int = 100) -> List[MarketDataMessage]:
+    def get_buffered_messages(
+        self, symbol: Optional[str] = None, count: int = 100
+    ) -> List[MarketDataMessage]:
         """Get buffered messages."""
         messages = self._buffer.peek(count)
 
@@ -357,7 +360,9 @@ class ProductionDataPipeline:
         """Get pipeline statistics."""
         with self._lock:
             processing_times = list(self._statistics["processing_times"])
-            avg_processing_time = sum(processing_times) / len(processing_times) if processing_times else 0.0
+            avg_processing_time = (
+                sum(processing_times) / len(processing_times) if processing_times else 0.0
+            )
 
             return {
                 "total_messages": self._statistics["total_messages"],
@@ -365,13 +370,16 @@ class ProductionDataPipeline:
                 "invalid_messages": self._statistics["invalid_messages"],
                 "validation_rate": (
                     self._statistics["valid_messages"] / self._statistics["total_messages"]
-                    if self._statistics["total_messages"] > 0 else 0.0
+                    if self._statistics["total_messages"] > 0
+                    else 0.0
                 ),
                 "messages_by_source": dict(self._statistics["messages_by_source"]),
-                "messages_by_quality": {k.value: v for k, v in self._statistics["messages_by_quality"].items()},
+                "messages_by_quality": {
+                    k.value: v for k, v in self._statistics["messages_by_quality"].items()
+                },
                 "average_processing_time_ms": avg_processing_time * 1000,
                 "buffer_size": self._buffer.size(),
-                "running": self._running
+                "running": self._running,
             }
 
 
@@ -387,7 +395,7 @@ class MarketDataSimulator:
             "ETH/USD": 3000.0,
             "AAPL": 175.0,
             "GOOGL": 140.0,
-            "MSFT": 330.0
+            "MSFT": 330.0,
         }
 
     async def start_simulation(self, update_interval: float = 0.1) -> None:
@@ -431,7 +439,7 @@ class MarketDataSimulator:
             "bid_size": volume * 10,
             "ask_size": volume * 10,
             "source": "WEBSOCKET",
-            "metadata": {"simulated": True}
+            "metadata": {"simulated": True},
         }
 
         await self._pipeline.process_message(raw_message)

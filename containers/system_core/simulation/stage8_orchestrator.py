@@ -20,6 +20,7 @@ Cross-engine signal routing (per tick):
   macro_stress → stress  → vol_cascade, exchange_failure (indirectly)
   exchange → fill_rate   → latency market_activity scaling
 """
+
 from __future__ import annotations
 
 import threading
@@ -42,20 +43,20 @@ class Stage8SimulationOrchestrator:
     """Drives all 9 simulation engines in a coordinated tick loop."""
 
     def __init__(self) -> None:
-        self._market    = get_synthetic_market_engine()
-        self._arena     = get_adversarial_arena()
+        self._market = get_synthetic_market_engine()
+        self._arena = get_adversarial_arena()
         self._reflexive = get_reflexive_engine()
         self._liquidity = get_liquidity_warfare_engine()
-        self._crowd     = get_crowd_psychology_engine()
-        self._vol       = get_volatility_cascade_engine()
-        self._macro     = get_macro_stress_engine()
-        self._exchange  = get_exchange_failure_engine()
-        self._latency   = get_latency_warfare_engine()
+        self._crowd = get_crowd_psychology_engine()
+        self._vol = get_volatility_cascade_engine()
+        self._macro = get_macro_stress_engine()
+        self._exchange = get_exchange_failure_engine()
+        self._latency = get_latency_warfare_engine()
 
         self._tick_count = 0
-        self._running    = False
+        self._running = False
         self._thread: threading.Thread | None = None
-        self._lock       = threading.Lock()
+        self._lock = threading.Lock()
 
     # ------------------------------------------------------------------
     def tick(self, ts_ns: int | None = None) -> None:
@@ -69,20 +70,20 @@ class Stage8SimulationOrchestrator:
 
             # 1. Market tick — generates price return + realised vol
             self._market.tick(ts_ns)
-            mkt_snap     = self._market.snapshot()
+            mkt_snap = self._market.snapshot()
             price_return = mkt_snap.get("last_log_return", 0.0)
             realised_vol = mkt_snap.get("realised_vol", 0.02)
 
             # 2. Macro stress — affects vol and prices
             self._macro.tick(ts_ns)
-            macro_snap   = self._macro.snapshot()
-            vol_mult     = macro_snap.get("composite_vol_mult", 1.0)
+            macro_snap = self._macro.snapshot()
+            vol_mult = macro_snap.get("composite_vol_mult", 1.0)
             stressed_vol = realised_vol * vol_mult
 
             # 3. Volatility cascade — fed stressed vol
             self._vol.tick(ts_ns, realised_vol=stressed_vol, price_return=price_return)
-            vol_snap     = self._vol.snapshot()
-            current_vol  = vol_snap.get("current_vol", stressed_vol)
+            vol_snap = self._vol.snapshot()
+            current_vol = vol_snap.get("current_vol", stressed_vol)
 
             # 4. Crowd psychology — driven by price return + vol
             self._crowd.tick(ts_ns, price_return=price_return, market_vol=current_vol)
@@ -92,8 +93,8 @@ class Stage8SimulationOrchestrator:
 
             # 6. Exchange failure
             self._exchange.tick(ts_ns)
-            exc_snap    = self._exchange.snapshot()
-            fill_rate   = exc_snap.get("aggregate_fill_rate", 1.0)
+            exc_snap = self._exchange.snapshot()
+            fill_rate = exc_snap.get("aggregate_fill_rate", 1.0)
 
             # 7. Liquidity warfare — vol-driven attack rates
             self._liquidity.tick(ts_ns, market_vol=current_vol)
@@ -119,18 +120,18 @@ class Stage8SimulationOrchestrator:
             return {
                 "orchestrator": {
                     "tick_count": tick_count,
-                    "engines":    9,
-                    "running":    self._running,
+                    "engines": 9,
+                    "running": self._running,
                 },
-                "synthetic_market":   self._market.snapshot(),
-                "adversarial_arena":  self._arena.snapshot(),
-                "reflexive":          self._reflexive.snapshot(),
-                "liquidity_warfare":  self._liquidity.snapshot(),
-                "crowd_psychology":   self._crowd.snapshot(),
+                "synthetic_market": self._market.snapshot(),
+                "adversarial_arena": self._arena.snapshot(),
+                "reflexive": self._reflexive.snapshot(),
+                "liquidity_warfare": self._liquidity.snapshot(),
+                "crowd_psychology": self._crowd.snapshot(),
                 "volatility_cascade": self._vol.snapshot(),
-                "macro_stress":       self._macro.snapshot(),
-                "exchange_failure":   self._exchange.snapshot(),
-                "latency_warfare":    self._latency.snapshot(),
+                "macro_stress": self._macro.snapshot(),
+                "exchange_failure": self._exchange.snapshot(),
+                "latency_warfare": self._latency.snapshot(),
             }
         except Exception:
             return {"error": "snapshot_failed"}
@@ -142,8 +143,11 @@ class Stage8SimulationOrchestrator:
         if self._running:
             return
         self._running = True
-        self._thread  = threading.Thread(
-            target=self._loop, args=(tick_interval_s,), daemon=True, name="stage8-orch",
+        self._thread = threading.Thread(
+            target=self._loop,
+            args=(tick_interval_s,),
+            daemon=True,
+            name="stage8-orch",
         )
         self._thread.start()
 

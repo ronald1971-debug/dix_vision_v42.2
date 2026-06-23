@@ -83,12 +83,14 @@ class EngineStatusGrid:
         health_rows = self._projection.engine_health_rows()
         rows: list[EngineHealthRow] = []
         for row in health_rows:
-            rows.append(EngineHealthRow(
-                engine_name=row["engine_name"],
-                bucket=row["bucket"],
-                detail=row.get("detail", ""),
-                plugin_states=(),
-            ))
+            rows.append(
+                EngineHealthRow(
+                    engine_name=row["engine_name"],
+                    bucket=row["bucket"],
+                    detail=row.get("detail", ""),
+                    plugin_states=(),
+                )
+            )
         return tuple(rows)
 
     def _row_for(self, engine_name: str, engine: object) -> EngineHealthRow:

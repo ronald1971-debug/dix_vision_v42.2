@@ -13,11 +13,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 _REGIME_MULTIPLIERS: dict[str, float] = {
-    "TREND_UP":   1.2,
+    "TREND_UP": 1.2,
     "TREND_DOWN": 1.2,
-    "RANGE":      0.8,
-    "VOL_SPIKE":  0.4,
-    "UNKNOWN":    1.0,
+    "RANGE": 0.8,
+    "VOL_SPIKE": 0.4,
+    "UNKNOWN": 1.0,
 }
 
 _FLOOR_PCT = 0.02
@@ -27,15 +27,17 @@ _CAP_PCT = 0.40
 @dataclass(frozen=True, slots=True)
 class SimAllocationRequest:
     """Capital allocation request for one simulation strategy."""
+
     strategy_id: str
     regime: str
-    score: float     # composite score from scoring_engine
+    score: float  # composite score from scoring_engine
     priority: int = 1
 
 
 @dataclass(frozen=True, slots=True)
 class SimAllocationDecision:
     """Resolved capital allocation in a simulation."""
+
     strategy_id: str
     allocated_usd: float
     allocation_fraction: float

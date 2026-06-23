@@ -9,24 +9,20 @@ Author: DIX VISION Trading Governance
 Version: 42.2
 """
 
-import logging
-from typing import Any, Dict, Optional, List
-from datetime import datetime
-from decimal import Decimal
-import time
-
 import sys
-import os
+import time
+from datetime import datetime
+from typing import Any, Dict, Optional
+
 sys.path.append('/app/governance')
 
 from base_external_repo_wrapper import (
     BaseExternalRepoGovernanceWrapper,
-    PermissionLevel,
-    GovernanceViolation,
-    SafetyViolation,
     ExternalRepositoryMetrics,
-    ExternalRepositoryHealthCheck
+    GovernanceViolation,
+    PermissionLevel,
 )
+
 
 class CCXTGovernanceWrapper(BaseExternalRepoGovernanceWrapper):
     """

@@ -1,13 +1,13 @@
 {
   "auto_github_push": {
-    "enabled": true,
+    "enabled": false,
     "files_threshold": 30,
     "repo_path": "c:\\dix_vision_v42.2",
     "auto_commit_message": "Auto commit by Devin",
     "force_push": false
   },
   "hooks": {
-    "after_edit": "python auto_pr.py --once",
-    "after_write": "python auto_pr.py --once"
+    "after_edit": "",
+    "after_write": ""
   }
 }

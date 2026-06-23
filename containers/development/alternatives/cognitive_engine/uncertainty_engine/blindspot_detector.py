@@ -38,7 +38,9 @@ class BlindspotDetector:
         self._signals: list[BlindspotSignal] = []
         self._domain_variance: dict[str, float] = {}
 
-    def analyze(self, domain: str, expected: float, actual: float, context: dict[str, Any] | None = None) -> BlindspotSignal | None:
+    def analyze(
+        self, domain: str, expected: float, actual: float, context: dict[str, Any] | None = None
+    ) -> BlindspotSignal | None:
         """Analyze deviation and detect if it indicates a blindspot.
 
         Args:
@@ -64,7 +66,9 @@ class BlindspotDetector:
             return signal
         return None
 
-    def detect_pattern_gap(self, pattern_id: str, expected_count: int, actual_count: int) -> BlindspotSignal | None:
+    def detect_pattern_gap(
+        self, pattern_id: str, expected_count: int, actual_count: int
+    ) -> BlindspotSignal | None:
         """Detect gaps in pattern recognition."""
         gap_ratio = abs(expected_count - actual_count) / max(expected_count, 1)
         if gap_ratio > self.threshold:

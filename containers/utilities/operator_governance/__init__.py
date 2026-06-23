@@ -3,16 +3,20 @@ Operator Governance - Operator-Specific Governance Module
 NO LAZY LOADING - All components load directly
 """
 
-from typing import Dict, List, Optional, Any
 import logging
 
-from .authority_escalation import AuthorityEscalation, AuthorityEscalationGuard, get_authority_escalation_guard
+from .authority_escalation import (
+    AuthorityEscalation,
+    AuthorityEscalationGuard,
+    get_authority_escalation_guard,
+)
 from .consent_router import ConsentRouter
 
 logger = logging.getLogger(__name__)
 
 # Global instance for consent router
 _consent_router = None
+
 
 def get_consent_router() -> ConsentRouter:
     """Get consent router instance"""
@@ -21,4 +25,11 @@ def get_consent_router() -> ConsentRouter:
         _consent_router = ConsentRouter()
     return _consent_router
 
-__all__ = ['AuthorityEscalation', 'AuthorityEscalationGuard', 'get_authority_escalation_guard', 'ConsentRouter', 'get_consent_router']
+
+__all__ = [
+    "AuthorityEscalation",
+    "AuthorityEscalationGuard",
+    "get_authority_escalation_guard",
+    "ConsentRouter",
+    "get_consent_router",
+]

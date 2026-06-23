@@ -13,16 +13,19 @@ class RealityDomain(Enum):
     SYSTEM = "system"
     RISK = "risk"
 
+
 @dataclass(frozen=True)
 class Belief:
     """A single unit of cognition within the ."""
+
     domain: RealityDomain
     contributor: str  # Engine name
     content: dict[str, Any]
     confidence: float  # 0.0 to 1.0
-    uncertainty: float # 0.0 to 1.0
+    uncertainty: float  # 0.0 to 1.0
     timestamp: float
     consensus_weight: float = 1.0
+
 
 @dataclass
 class BeliefState:
@@ -30,6 +33,7 @@ class BeliefState:
     The central cognitive substrate of DIX VISION.
     Single source of truth for all engines.
     """
+
     market_reality: dict[str, Any] = field(default_factory=dict)
     trader_reality: dict[str, Any] = field(default_factory=dict)
     strategy_reality: dict[str, Any] = field(default_factory=dict)
@@ -37,11 +41,11 @@ class BeliefState:
     execution_reality: dict[str, Any] = field(default_factory=dict)
     regime_reality: dict[str, Any] = field(default_factory=dict)
     system_reality: dict[str, Any] = field(default_factory=dict)
-    
+
     confidence_metrics: dict[str, float] = field(default_factory=dict)
     uncertainty_metrics: dict[str, float] = field(default_factory=dict)
     consensus_metrics: dict[str, float] = field(default_factory=dict)
-    
+
     def update_belief(self, belief: Belief):
         """
         Updates the state based on a new engine contribution.

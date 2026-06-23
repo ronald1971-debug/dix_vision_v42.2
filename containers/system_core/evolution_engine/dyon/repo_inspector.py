@@ -41,9 +41,7 @@ from typing import Any
 
 _logger = logging.getLogger(__name__)
 
-_IMPORT_RE = re.compile(
-    r"^\s*(?:from\s+([\w.]+)\s+import|import\s+([\w.]+))", re.MULTILINE
-)
+_IMPORT_RE = re.compile(r"^\s*(?:from\s+([\w.]+)\s+import|import\s+([\w.]+))", re.MULTILINE)
 
 # Layer prefix map — ordered: first match wins
 _LAYER_PREFIXES: tuple[tuple[str, str], ...] = (
@@ -66,10 +64,20 @@ _LAYER_PREFIXES: tuple[tuple[str, str], ...] = (
     ("mind", "L3"),
 )
 
-_EXCLUDED_DIRS: frozenset[str] = frozenset({
-    ".git", "__pycache__", ".venv", "venv", "node_modules",
-    ".mypy_cache", ".pytest_cache", "dist", "build", ".tox",
-})
+_EXCLUDED_DIRS: frozenset[str] = frozenset(
+    {
+        ".git",
+        "__pycache__",
+        ".venv",
+        "venv",
+        "node_modules",
+        ".mypy_cache",
+        ".pytest_cache",
+        "dist",
+        "build",
+        ".tox",
+    }
+)
 
 
 def _layer_of(rel_path: str) -> str:
@@ -89,11 +97,11 @@ def _layer_of(rel_path: str) -> str:
 class ModuleInfo:
     """One discovered Python module."""
 
-    module_path: str        # dot-notation module path, e.g. "state.event_bus"
-    rel_file: str           # repo-relative file path, e.g. "state/event_bus.py"
-    layer: str              # L0–L8 / UI / SVC / ?
+    module_path: str  # dot-notation module path, e.g. "state.event_bus"
+    rel_file: str  # repo-relative file path, e.g. "state/event_bus.py"
+    layer: str  # L0–L8 / UI / SVC / ?
     line_count: int
-    import_count: int       # number of import statements found
+    import_count: int  # number of import statements found
 
 
 @dataclass
@@ -107,7 +115,7 @@ class RepoSnapshot:
     layer_counts: dict[str, int] = field(default_factory=dict)
     modules: list[ModuleInfo] = field(default_factory=list)
     edge_list: list[tuple[str, str]] = field(default_factory=list)  # (from, to) module pairs
-    isolated_modules: list[str] = field(default_factory=list)       # no in- or out-edges
+    isolated_modules: list[str] = field(default_factory=list)  # no in- or out-edges
     edge_count: int = 0
     scan_duration_ms: float = 0.0
 
@@ -167,6 +175,7 @@ class RepoInspector:
         Returns the new snapshot.
         """
         import time as _time
+
         t0 = _time.monotonic()
 
         modules: list[ModuleInfo] = []
@@ -201,13 +210,15 @@ class RepoInspector:
 
                 import_count = len(file_edges)
                 edges.extend(file_edges)
-                modules.append(ModuleInfo(
-                    module_path=module_path,
-                    rel_file=rel_str,
-                    layer=layer,
-                    line_count=lines,
-                    import_count=import_count,
-                ))
+                modules.append(
+                    ModuleInfo(
+                        module_path=module_path,
+                        rel_file=rel_str,
+                        layer=layer,
+                        line_count=lines,
+                        import_count=import_count,
+                    )
+                )
             except Exception:
                 continue
 
@@ -216,7 +227,8 @@ class RepoInspector:
         edge_targets = {b for _, b in edges}
         connected = edge_sources | edge_targets
         isolated = [
-            m.module_path for m in modules
+            m.module_path
+            for m in modules
             if m.module_path not in connected and m.module_path not in edge_targets
         ]
 
@@ -228,7 +240,7 @@ class RepoInspector:
             total_lines=total_lines,
             layer_counts=layer_counts,
             modules=modules,
-            edge_list=edges[:5000],   # cap for memory safety
+            edge_list=edges[:5000],  # cap for memory safety
             isolated_modules=sorted(isolated),
             edge_count=len(edges),
             scan_duration_ms=duration_ms,
@@ -240,7 +252,10 @@ class RepoInspector:
 
         _logger.info(
             "RepoInspector: scanned %d files, %d edges, %d isolated in %.0fms",
-            len(modules), len(edges), len(isolated), duration_ms,
+            len(modules),
+            len(edges),
+            len(isolated),
+            duration_ms,
         )
         return snap
 

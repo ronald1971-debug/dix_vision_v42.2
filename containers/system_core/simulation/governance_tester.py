@@ -86,14 +86,15 @@ class MockRiskConstraints:
     circuit_breaker_loss_pct: float = 0.01
     max_leverage: float = 10.0
 
-    def allows_trade(
-        self, size_usd: float, portfolio_usd: float
-    ) -> tuple[bool, str]:
+    def allows_trade(self, size_usd: float, portfolio_usd: float) -> tuple[bool, str]:
         """Check if a trade is allowed under risk constraints."""
         if size_usd > self.max_position_usd:
             return False, f"size_usd={size_usd} exceeds max_position_usd={self.max_position_usd}"
         if portfolio_usd > self.max_portfolio_usd:
-            return False, f"portfolio_usd={portfolio_usd} exceeds max_portfolio_usd={self.max_portfolio_usd}"
+            return (
+                False,
+                f"portfolio_usd={portfolio_usd} exceeds max_portfolio_usd={self.max_portfolio_usd}",
+            )
         return True, "risk_validated"
 
 
@@ -254,7 +255,9 @@ class GovernanceTestHarness:
         constraints = MockRiskConstraints()
         allowed, reason = constraints.allows_trade(small_size_usd, portfolio_usd)
         if allowed and small_size_pct <= constraints.circuit_breaker_loss_pct * 100:
-            decision1 = GovernanceDecision(GovernanceOutcome.APPROVED, "circuit_breaker_not_triggered")
+            decision1 = GovernanceDecision(
+                GovernanceOutcome.APPROVED, "circuit_breaker_not_triggered"
+            )
         else:
             decision1 = GovernanceDecision(GovernanceOutcome.REJECTED, reason)
         result.decisions.append(decision1)
@@ -409,7 +412,11 @@ def run_governance_test_suite() -> dict[str, GovernanceTestResult]:
         test_case=GovernanceTestCase.RISK_CONSTRAINT_VALIDATION,
         scenario_id="risk_constraint_test_1",
         seed=42,
-        parameters={"valid_size_usd": 10_000.0, "invalid_size_usd": 200_000.0, "portfolio_usd": 100_000.0},
+        parameters={
+            "valid_size_usd": 10_000.0,
+            "invalid_size_usd": 200_000.0,
+            "portfolio_usd": 100_000.0,
+        },
     )
     results[config1.scenario_id] = harness.run_test(config1)
 

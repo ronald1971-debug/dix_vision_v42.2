@@ -128,9 +128,7 @@ class PlaybookTrainer:
         return (obs, action)
 
     def _greedy(self, obs: tuple[float, ...]) -> str:
-        vals = [
-            (a.value, self._q.get(self._q_key(obs, a.value), 0.0)) for a in ActionSpace
-        ]
+        vals = [(a.value, self._q.get(self._q_key(obs, a.value), 0.0)) for a in ActionSpace]
         best = max(vals, key=lambda x: x[1])[0]
         return best
 
@@ -150,17 +148,10 @@ class PlaybookTrainer:
                 key = self._q_key(obs, act.value)
                 old = self._q.get(key, 0.0)
                 next_best = max(
-                    (
-                        self._q.get(
-                            self._q_key(step.observation, a.value), 0.0
-                        )
-                        for a in ActionSpace
-                    ),
+                    (self._q.get(self._q_key(step.observation, a.value), 0.0) for a in ActionSpace),
                     default=0.0,
                 )
-                self._q[key] = old + self._lr * (
-                    step.reward + self._gamma * next_best - old
-                )
+                self._q[key] = old + self._lr * (step.reward + self._gamma * next_best - old)
                 obs = step.observation
                 done = step.terminated or step.truncated
             scores.append(total)

@@ -14,8 +14,8 @@ __all__ = ["CrowdDensityEstimate", "CrowdDensityEstimator"]
 class CrowdDensityEstimate:
     ts_ns: int
     symbol: str
-    crowding_score: float    # 0.0 = empty, 1.0 = max crowded
-    direction: str           # "LONG", "SHORT", "NEUTRAL"
+    crowding_score: float  # 0.0 = empty, 1.0 = max crowded
+    direction: str  # "LONG", "SHORT", "NEUTRAL"
     participant_estimate: int
     detail: str = ""
 
@@ -36,8 +36,8 @@ class CrowdDensityEstimator:
         ts_ns: int,
         symbol: str,
         *,
-        long_oi_fraction: float,   # 0.0–1.0 fraction of OI that is long
-        volume_zscore: float = 0.0, # standardised volume relative to recent avg
+        long_oi_fraction: float,  # 0.0–1.0 fraction of OI that is long
+        volume_zscore: float = 0.0,  # standardised volume relative to recent avg
     ) -> CrowdDensityEstimate:
         if long_oi_fraction >= self._long_thresh:
             direction = "LONG"

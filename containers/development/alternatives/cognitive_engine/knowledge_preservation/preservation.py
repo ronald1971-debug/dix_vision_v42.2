@@ -60,12 +60,14 @@ class KnowledgePreserver:
         self._archive.store(snapshot)
         self._last_snapshot = snapshot
 
-        self._preservation_events.append({
-            "event": "capture",
-            "snapshot_id": snapshot.snapshot_id,
-            "entries": snapshot.total_entries(),
-            "timestamp": time.time_ns(),
-        })
+        self._preservation_events.append(
+            {
+                "event": "capture",
+                "snapshot_id": snapshot.snapshot_id,
+                "entries": snapshot.total_entries(),
+                "timestamp": time.time_ns(),
+            }
+        )
 
         return snapshot
 
@@ -73,11 +75,13 @@ class KnowledgePreserver:
         """Restore knowledge from a snapshot."""
         snapshot = self._archive.retrieve(snapshot_id)
         if snapshot:
-            self._preservation_events.append({
-                "event": "restore",
-                "snapshot_id": snapshot_id,
-                "timestamp": time.time_ns(),
-            })
+            self._preservation_events.append(
+                {
+                    "event": "restore",
+                    "snapshot_id": snapshot_id,
+                    "timestamp": time.time_ns(),
+                }
+            )
         return snapshot
 
     def auto_snapshot_before_change(self, source: str = "unknown") -> KnowledgeSnapshot:

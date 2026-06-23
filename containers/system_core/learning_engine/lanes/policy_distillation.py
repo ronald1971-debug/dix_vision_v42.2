@@ -744,26 +744,22 @@ def cleanrl_ppo_distiller_factory() -> PolicyDistiller:  # pragma: no cover
             # ── Build simple 2-hidden-layer actor + critic ────────────────
             _H = 64
             actor_net = nn.Sequential(
-                nn.Linear(obs_dim, _H), nn.Tanh(),
-                nn.Linear(_H, _H), nn.Tanh(),
+                nn.Linear(obs_dim, _H),
+                nn.Tanh(),
+                nn.Linear(_H, _H),
+                nn.Tanh(),
                 nn.Linear(_H, act_dim),
             ).to(device)
             critic_net = nn.Sequential(
-                nn.Linear(obs_dim, _H), nn.Tanh(),
-                nn.Linear(_H, _H), nn.Tanh(),
+                nn.Linear(obs_dim, _H),
+                nn.Tanh(),
+                nn.Linear(_H, _H),
+                nn.Tanh(),
                 nn.Linear(_H, 1),
             ).to(device)
-            log_std = nn.Parameter(
-                torch.zeros(act_dim, device=device)
-            )
-            params = (
-                list(actor_net.parameters())
-                + list(critic_net.parameters())
-                + [log_std]
-            )
-            optimizer = torch.optim.Adam(
-                params, lr=config.learning_rate, eps=1e-5
-            )
+            log_std = nn.Parameter(torch.zeros(act_dim, device=device))
+            params = list(actor_net.parameters()) + list(critic_net.parameters()) + [log_std]
+            optimizer = torch.optim.Adam(params, lr=config.learning_rate, eps=1e-5)
 
             mb_size = max(1, n // config.num_minibatches)
 
@@ -789,9 +785,7 @@ def cleanrl_ppo_distiller_factory() -> PolicyDistiller:  # pragma: no cover
                     mb_ret = ret_t[idx]
 
                     if config.norm_adv and mb_adv.numel() > 1:
-                        mb_adv = (mb_adv - mb_adv.mean()) / (
-                            mb_adv.std() + 1e-8
-                        )
+                        mb_adv = (mb_adv - mb_adv.mean()) / (mb_adv.std() + 1e-8)
 
                     # Actor forward
                     mean_a = actor_net(mb_obs)
@@ -803,14 +797,10 @@ def cleanrl_ppo_distiller_factory() -> PolicyDistiller:  # pragma: no cover
                     log_ratio = new_lp - mb_olp
                     ratio = log_ratio.exp()
                     kl_mb = float(((ratio - 1) - log_ratio).mean())
-                    cf_mb = float(
-                        ((ratio - 1.0).abs() > config.clip_coef).float().mean()
-                    )
+                    cf_mb = float(((ratio - 1.0).abs() > config.clip_coef).float().mean())
 
                     pg1 = -mb_adv * ratio
-                    pg2 = -mb_adv * ratio.clamp(
-                        1 - config.clip_coef, 1 + config.clip_coef
-                    )
+                    pg2 = -mb_adv * ratio.clamp(1 - config.clip_coef, 1 + config.clip_coef)
                     policy_loss = torch.max(pg1, pg2).mean()
 
                     # Critic forward
@@ -819,19 +809,18 @@ def cleanrl_ppo_distiller_factory() -> PolicyDistiller:  # pragma: no cover
                         v_clip = mb_oval + (new_val - mb_oval).clamp(
                             -config.clip_coef, config.clip_coef
                         )
-                        vl = 0.5 * torch.max(
-                            (new_val - mb_ret).pow(2),
-                            (v_clip - mb_ret).pow(2),
-                        ).mean()
+                        vl = (
+                            0.5
+                            * torch.max(
+                                (new_val - mb_ret).pow(2),
+                                (v_clip - mb_ret).pow(2),
+                            ).mean()
+                        )
                     else:
                         vl = 0.5 * (new_val - mb_ret).pow(2).mean()
 
                     el = -entropy
-                    loss = (
-                        policy_loss
-                        + config.vf_coef * vl
-                        + config.ent_coef * el
-                    )
+                    loss = policy_loss + config.vf_coef * vl + config.ent_coef * el
 
                     optimizer.zero_grad()
                     loss.backward()
@@ -857,17 +846,12 @@ def cleanrl_ppo_distiller_factory() -> PolicyDistiller:  # pragma: no cover
                     value_loss=epoch_vl / e_upd,
                 )
 
-                if (
-                    config.target_kl is not None
-                    and (epoch_kl / e_upd) > config.target_kl
-                ):
+                if config.target_kl is not None and (epoch_kl / e_upd) > config.target_kl:
                     break
 
             # ── Aggregate metrics ─────────────────────────────────────────
             nd = max(1, total_updates)
-            traj_sums = [
-                sum(s.reward for s in t.steps) for t in trajectories
-            ]
+            traj_sums = [sum(s.reward for s in t.steps) for t in trajectories]
             ep_mean = float(sum(traj_sums)) / max(1, len(traj_sums))
             ep_best = float(max(traj_sums)) if traj_sums else 0.0
 
@@ -884,6 +868,7 @@ def cleanrl_ppo_distiller_factory() -> PolicyDistiller:  # pragma: no cover
 
             # ── Serialise weights → BLAKE2b-16 digest ────────────────────
             import io as _io
+
             buf = _io.BytesIO()
             torch.save(
                 {

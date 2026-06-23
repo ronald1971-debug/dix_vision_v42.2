@@ -193,7 +193,6 @@ class TraderPatternSelector:
     ) -> None:
         """Record outcome for a matched pattern (for future scoring)."""
         # Implementation would update pattern performance metrics
-        pass
 
     @property
     def match_history(self) -> list[PatternMatch]:

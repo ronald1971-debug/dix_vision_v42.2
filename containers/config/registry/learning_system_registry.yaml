@@ -1,0 +1,169 @@
+# Learning System Registry
+# DIX VISION v42.2 - Learning System Configuration
+
+version: "1.0.0"
+created_date: "2026-06-21"
+updated_date: "2026-06-21"
+compatible_with: "DIX VISION v42.2+"
+
+# Signal-First Integration
+signal_first_integration:
+  enabled: true
+  learning_signal_ratio: 0.85
+  learning_world_ratio: 0.15
+  dashboard_control_enabled: true
+  trading_form_optimization_enabled: true
+  world_context_integration_enabled: true
+  description: "Learning system with Phase 1 signal-first integration"
+
+# Learning Engines
+learning_engines:
+  enhanced_learning_engine:
+    id: le_001
+    name: Enhanced Learning Engine
+    location: "containers/system_core/learning_engine/enhanced_learning_engine.py"
+    enabled: true
+    phase_1_integrated: true
+    phase_2_integrated: true
+    phase_3_integrated: true
+    description: "Enhanced learning engine with signal-first integration"
+    
+    # Learning Capabilities
+    capabilities:
+      - meta_learning
+      - reinforcement_learning
+      - online_learning
+      - transfer_learning
+    
+    # Signal-First Learning Parameters
+    signal_first_parameters:
+      signal_weight: 0.85
+      world_context_weight: 0.15
+      auto_adjust_for_regime: true
+      dashboard_control: true
+  
+  meta_learning_engine:
+    id: le_002
+    name: Meta Learning Engine
+    location: "containers/system_core/learning_engine/"
+    enabled: true
+    phase_1_integrated: true
+    description: "Meta learning for strategy adaptation"
+    
+    signal_first_parameters:
+      signal_weight: 0.85
+      world_context_weight: 0.15
+      meta_learning_signal_first: true
+
+# Learning Capabilities Registry
+learning_capabilities:
+  temporal_reasoning:
+    id: lc_001
+    name: Temporal Reasoning
+    enabled: true
+    implementation: "indira_temporal_reasoning"
+    signal_first_compatible: true
+    description: "Temporal reasoning for time-series analysis"
+    
+  meta_learning:
+    id: lc_002
+    name: Meta Learning
+    enabled: true
+    implementation: "indira_meta_learning"
+    signal_first_compatible: true
+    description: "Meta learning for strategy adaptation"
+    
+  reinforcement_learning:
+    id: lc_003
+    name: Reinforcement Learning
+    enabled: true
+    implementation: "reinforcement_learning_engine"
+    signal_first_compatible: true
+    description: "Reinforcement learning for decision optimization"
+    
+  online_learning:
+    id: lc_004
+    name: Online Learning
+    enabled: true
+    implementation: "online_learning_engine"
+    signal_first_compatible: true
+    description: "Online learning for real-time adaptation"
+    
+  transfer_learning:
+    id: lc_005
+    name: Transfer Learning
+    enabled: true
+    implementation: "transfer_learning_engine"
+    signal_first_compatible: true
+    description: "Transfer learning for domain adaptation"
+
+# Learning System Configuration
+learning_config:
+  # Model Training
+  model_training:
+    training_frequency: "daily"
+    batch_size: 1024
+    epochs: 100
+    validation_split: 0.2
+    
+    # Signal-First Training
+    signal_first_training:
+      enabled: true
+      signal_data_weight: 0.85
+      world_context_data_weight: 0.15
+      regime_specific_training: true
+  
+  # Model Evaluation
+  model_evaluation:
+    evaluation_frequency: "weekly"
+    performance_metrics:
+      - accuracy
+      - precision
+      - recall
+      - f1_score
+      - sharpe_ratio
+    signal_first_metrics: true
+  
+  # Model Deployment
+  model_deployment:
+    deployment_strategy: "canary"
+    rollback_enabled: true
+    a_b_testing: true
+    
+    # Signal-First Deployment
+    signal_first_deployment:
+      enabled: true
+      deploy_with_signal_first_config: true
+
+# Learning Governance
+learning_governance:
+  require_approval_for_model_updates: true
+  governance_approval_required: true
+  audit_trail_enabled: true
+  model_versioning: true
+  
+  # Signal-First Learning Governance
+  signal_first_governance:
+    enabled: true
+    learning_compliance_check: true
+    signal_first_model_validation: true
+    description: "Governance for signal-first learning"
+
+# Learning Interface Standards
+learning_interface_standard:
+  standardized: true
+  interface_version: "1.0"
+  signal_first_compatible: true
+  description: "Standardized learning interface for Phase 1 integration"
+
+# Learning System Status
+learning_system_status:
+  total_learning_engines: 2
+  total_capabilities: 5
+  phase_1_integrated: 2
+  signal_first_ready: true
+  operational: true
+
+# Version information
+version: "1.0.0"
+status: "phase1_integrated"

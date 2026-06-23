@@ -107,9 +107,11 @@ class TraderClustering:
         new_size = old.cluster_size + 1
         # Simple centroid update
         new_centroid = tuple(
-            (old.centroid[i] * old.cluster_size + embedding[i]) / new_size
-            if i < len(embedding) and i < len(old.centroid)
-            else 0.0
+            (
+                (old.centroid[i] * old.cluster_size + embedding[i]) / new_size
+                if i < len(embedding) and i < len(old.centroid)
+                else 0.0
+            )
             for i in range(max(len(old.centroid), len(embedding)))
         )
         self._clusters[best_cluster] = TraderCluster(

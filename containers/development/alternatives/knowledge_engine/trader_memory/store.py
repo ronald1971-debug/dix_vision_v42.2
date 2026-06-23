@@ -88,8 +88,6 @@ class TraderObservation:
     metadata: dict[str, Any] = field(default_factory=dict)
 
 
-
-
 class TraderKnowledgeStore:
     """Long-term memory store for trader knowledge.
 
@@ -140,8 +138,7 @@ class TraderKnowledgeStore:
 
     def get_reliable_traders(self, regime: str, min_confidence: float = 0.7) -> list[TraderMemory]:
         return [
-            m for m in self._memories.values()
-            if m.is_reliable_in_regime(regime, min_confidence)
+            m for m in self._memories.values() if m.is_reliable_in_regime(regime, min_confidence)
         ]
 
 

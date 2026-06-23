@@ -2,9 +2,9 @@
 Research layer - Phase 7 implementation
 """
 
-from research_engine import ResearchEngine, ResearchStatus, ResearchType, ResearchQuery
-from knowledge_graph import KnowledgeGraph, NodeType, EdgeType, Node, Edge
-from citation_manager import CitationManager, CitationFormat, SourceType, Citation
+from citation_manager import Citation, CitationFormat, CitationManager, SourceType
+from knowledge_graph import Edge, EdgeType, KnowledgeGraph, Node, NodeType
+from research_engine import ResearchEngine, ResearchQuery, ResearchStatus, ResearchType
 
 __all__ = [
     "ResearchEngine",

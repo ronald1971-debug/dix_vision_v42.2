@@ -6,8 +6,8 @@ This script performs health checks for the LangChain container to ensure
 proper functioning of the AI/LLM capabilities.
 """
 
-import sys
 import logging
+import sys
 from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
@@ -16,7 +16,6 @@ logger = logging.getLogger('langchain_health_check')
 def check_imports():
     """Check if required modules can be imported"""
     try:
-        import langchain
         logger.info("LangChain import successful")
         return True
     except ImportError as e:
@@ -26,8 +25,8 @@ def check_imports():
 def check_governance_wrapper():
     """Check if governance wrapper can be initialized"""
     try:
-        from langchain_governance_wrapper import LangChainGovernanceWrapper
         from base_external_repo_wrapper import PermissionLevel
+        from langchain_governance_wrapper import LangChainGovernanceWrapper
         
         wrapper = LangChainGovernanceWrapper(PermissionLevel.READ_ONLY)
         logger.info("Governance wrapper initialization successful")

@@ -1,24 +1,21 @@
 """Tests for Production Trading Components."""
 
-import unittest
-import sys
 import os
-import time
+import sys
+import unittest
 
 # Add paths to imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from execution_unified.production_trading import (
     Order,
-    Position,
-    OrderType,
     OrderSide,
-    OrderStatus,
-    StrategyType,
-    RiskParameters,
+    OrderType,
+    Position,
     ProductionRiskManager,
     ProductionStrategyExecutor,
-    ProductionAutonomousTrader,
+    RiskParameters,
+    StrategyType,
     get_production_trader,
 )
 
@@ -33,7 +30,7 @@ class TestProductionRiskManager(unittest.TestCase):
             max_portfolio_value=1000000.0,  # Increase to allow test orders
             max_daily_loss=0.02,
             max_drawdown=0.10,
-            max_leverage=2.0
+            max_leverage=2.0,
         )
         self.risk_manager = ProductionRiskManager(risk_params)
 
@@ -45,7 +42,7 @@ class TestProductionRiskManager(unittest.TestCase):
             order_type=OrderType.MARKET,
             order_side=OrderSide.BUY,
             quantity=1.0,  # Small quantity: 1 * 45000 = 45000, well within 100000 limit
-            price=45000.0
+            price=45000.0,
         )
 
         is_safe, message = self.risk_manager.check_order_risk(order, {})
@@ -59,7 +56,7 @@ class TestProductionRiskManager(unittest.TestCase):
             order_type=OrderType.MARKET,
             order_side=OrderSide.BUY,
             quantity=2000.0,  # Exceeds max_position_size
-            price=45000.0
+            price=45000.0,
         )
 
         is_safe, message = self.risk_manager.check_order_risk(order, {})
@@ -91,24 +88,20 @@ class TestProductionRiskManager(unittest.TestCase):
     def test_leverage_check(self):
         """Test leverage risk check."""
         # Create a portfolio with existing position
-        portfolio_state = {
-            "total_value": 100000.0,
-            "leverage": 1.0
-        }
+        portfolio_state = {"total_value": 100000.0, "leverage": 1.0}
 
         order = Order(
             symbol="BTC/USD",
             order_type=OrderType.MARKET,
             order_side=OrderSide.BUY,
             quantity=5000.0,  # Would exceed max_position_size first
-            price=45000.0
+            price=45000.0,
         )
 
-        is_safe, message = self.risk_manager.check_order_risk(order, {"BTC/USD": Position(
-            symbol="BTC/USD",
-            quantity=1000.0,
-            average_entry_price=45000.0
-        )})
+        is_safe, message = self.risk_manager.check_order_risk(
+            order,
+            {"BTC/USD": Position(symbol="BTC/USD", quantity=1000.0, average_entry_price=45000.0)},
+        )
 
         self.assertFalse(is_safe)
         self.assertIn("exceeds maximum", message.lower())
@@ -129,7 +122,7 @@ class TestProductionStrategyExecutor(unittest.TestCase):
             symbol="BTC/USD",
             current_price=45000.0,
             momentum_signal=0.5,  # Strong buy
-            portfolio_value=100000.0
+            portfolio_value=100000.0,
         )
 
         if result:
@@ -142,7 +135,7 @@ class TestProductionStrategyExecutor(unittest.TestCase):
             symbol="BTC/USD",
             current_price=45000.0,
             momentum_signal=-0.5,  # Strong sell
-            portfolio_value=100000.0
+            portfolio_value=100000.0,
         )
 
         if result:
@@ -156,7 +149,7 @@ class TestProductionStrategyExecutor(unittest.TestCase):
             current_price=44000.0,  # Below mean
             z_score=-2.5,  # Significant deviation
             mean_price=45000.0,
-            portfolio_value=100000.0
+            portfolio_value=100000.0,
         )
 
         # Should generate buy order for mean reversion
@@ -170,7 +163,7 @@ class TestProductionStrategyExecutor(unittest.TestCase):
             current_price=46000.0,
             resistance_level=45000.0,
             support_level=44000.0,
-            portfolio_value=100000.0
+            portfolio_value=100000.0,
         )
 
         if result:
@@ -184,7 +177,7 @@ class TestProductionStrategyExecutor(unittest.TestCase):
             order_type=OrderType.MARKET,
             order_side=OrderSide.BUY,
             quantity=10.0,
-            price=45000.0
+            price=45000.0,
         )
 
         filled_order = self.executor._simulate_order_fill(order)
@@ -213,10 +206,7 @@ class TestProductionAutonomousTrader(unittest.TestCase):
     def test_execute_trading_decision_momentum(self):
         """Test executing momentum trading decision."""
         order = self.trader.execute_trading_decision(
-            strategy_type=StrategyType.MOMENTUM,
-            symbol="BTC/USD",
-            current_price=45000.0,
-            signal=0.3
+            strategy_type=StrategyType.MOMENTUM, symbol="BTC/USD", current_price=45000.0, signal=0.3
         )
 
         if order:
@@ -230,7 +220,7 @@ class TestProductionAutonomousTrader(unittest.TestCase):
             symbol="BTC/USD",
             current_price=44000.0,
             signal=-2.0,  # z-score
-            mean_price=45000.0
+            mean_price=45000.0,
         )
 
         if order:
@@ -262,15 +252,15 @@ def run_production_trading_tests():
     runner = unittest.TextTestRunner(verbosity=2)
     result = runner.run(suite)
 
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("PRODUCTION TRADING TEST SUMMARY")
-    print("="*70)
+    print("=" * 70)
     print(f"Tests run: {result.testsRun}")
     print(f"Successes: {result.testsRun - len(result.failures) - len(result.errors)}")
     print(f"Failures: {len(result.failures)}")
     print(f"Errors: {len(result.errors)}")
     print(f"Skipped: {len(result.skipped)}")
-    print("="*70)
+    print("=" * 70)
 
     return result.wasSuccessful()
 

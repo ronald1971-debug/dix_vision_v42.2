@@ -44,26 +44,26 @@ from typing import Any
 # ============================================================================
 
 # Add proper Python paths for DIX VISION canonical system architecture
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-infrastructure_path = os.path.join(project_root, 'containers', 'infrastructure')
-infrastructure_security_path = os.path.join(infrastructure_path, 'security')
-infrastructure_core_path = os.path.join(infrastructure_path, 'core')
-system_core_path = os.path.join(project_root, 'containers', 'system_core')
-system_engine_path = os.path.join(system_core_path, 'system_engine')  # System infrastructure
-system_path = os.path.join(system_core_path, 'system')  # System components
-system_unified_path = os.path.join(system_core_path, 'system_unified')  # Unified system components
-user_interfaces_path = os.path.join(project_root, 'containers', 'user_interfaces')
-evolution_engine_path = os.path.join(system_core_path, 'evolution_engine')
-governance_unified_path = os.path.join(system_core_path, 'governance_unified')
-cognitive_domains_path = os.path.join(governance_unified_path, 'domains', 'cognitive')
-execution_unified_path = os.path.join(system_core_path, 'execution_unified')
-execution_core_path = os.path.join(execution_unified_path, 'core')
-execution_engine_archive_path = os.path.join(execution_unified_path, 'engine_archive')
-cognitive_control_center_path = os.path.join(system_core_path, 'cognitive_control_center')
-intelligence_engine_path = os.path.join(system_core_path, 'intelligence_engine')
-learning_engine_path = os.path.join(system_core_path, 'learning_engine')
-state_path = os.path.join(system_core_path, 'state')
-mind_path = os.path.join(system_core_path, 'mind')
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+infrastructure_path = os.path.join(project_root, "containers", "infrastructure")
+infrastructure_security_path = os.path.join(infrastructure_path, "security")
+infrastructure_core_path = os.path.join(infrastructure_path, "core")
+system_core_path = os.path.join(project_root, "containers", "system_core")
+system_engine_path = os.path.join(system_core_path, "system_engine")  # System infrastructure
+system_path = os.path.join(system_core_path, "system")  # System components
+system_unified_path = os.path.join(system_core_path, "system_unified")  # Unified system components
+user_interfaces_path = os.path.join(project_root, "containers", "user_interfaces")
+evolution_engine_path = os.path.join(system_core_path, "evolution_engine")
+governance_unified_path = os.path.join(system_core_path, "governance_unified")
+cognitive_domains_path = os.path.join(governance_unified_path, "domains", "cognitive")
+execution_unified_path = os.path.join(system_core_path, "execution_unified")
+execution_core_path = os.path.join(execution_unified_path, "core")
+execution_engine_archive_path = os.path.join(execution_unified_path, "engine_archive")
+cognitive_control_center_path = os.path.join(system_core_path, "cognitive_control_center")
+intelligence_engine_path = os.path.join(system_core_path, "intelligence_engine")
+learning_engine_path = os.path.join(system_core_path, "learning_engine")
+state_path = os.path.join(system_core_path, "state")
+mind_path = os.path.join(system_core_path, "mind")
 
 sys.path.insert(0, infrastructure_path)
 sys.path.insert(0, infrastructure_security_path)  # Security module
@@ -73,7 +73,7 @@ sys.path.insert(0, system_engine_path)  # System infrastructure first
 sys.path.insert(0, system_path)  # System components
 sys.path.insert(0, system_unified_path)  # Unified system components
 sys.path.insert(0, user_interfaces_path)
-sys.path.insert(0, os.path.join(user_interfaces_path, 'dashboard_backend'))
+sys.path.insert(0, os.path.join(user_interfaces_path, "dashboard_backend"))
 sys.path.insert(0, evolution_engine_path)
 sys.path.insert(0, governance_unified_path)
 sys.path.insert(0, cognitive_domains_path)
@@ -91,15 +91,6 @@ sys.path.insert(0, mind_path)
 # ============================================================================
 
 import yaml
-from fastapi import Depends, FastAPI, HTTPException, Request, status
-from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
-from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel, Field
-
-# Security imports for authentication (M-7)
-from infrastructure.security.authentication import get_authenticator
-from ui.auth_middleware import optional_auth, require_auth, verify_token
-
 from core.cognitive_router import (
     TaskClass,
     enabled_ai_providers,
@@ -142,27 +133,23 @@ from dashboard_backend.control_plane.decision_trace import DecisionTracePanel
 from dashboard_backend.control_plane.engine_status_grid import EngineStatusGrid
 from dashboard_backend.control_plane.memecoin_control_panel import MemecoinControlPanel
 from dashboard_backend.control_plane.mode_control_bar import ModeControlBar
-from dashboard_backend.control_plane.router import ControlPlaneRouter
 from dashboard_backend.control_plane.strategy_lifecycle_panel import (
     StrategyLifecyclePanel,
 )
 from evolution_engine.engine import EvolutionEngine
-from evolution_engine.intelligence_loops.mutation_proposer import (
-    MutationProposer,
-)
 from evolution_engine.loops.structural_loop import (
-    StructuralEvolutionLoop,
     StructuralLoopTickResult,
 )
 from evolution_engine.patch_pipeline.backtest import BacktestSummary
 from evolution_engine.patch_pipeline.orchestrator import (
-    PatchPipelineOrchestrator,
     StageEvidence,
 )
-from evolution_engine.patch_pipeline.pipeline import PatchPipeline
 from execution_unified.core.execution_engine import ExecutionEngine
-from execution_unified.engine_archive.execution_gate import AuthorityGuard
 from execution_unified.core.protections.feedback import FeedbackCollector
+from execution_unified.engine_archive.execution_gate import AuthorityGuard
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
+from fastapi.staticfiles import StaticFiles
 from governance_unified.control_plane.decision_signer import (
     DecisionSigner,
     make_decision_signer,
@@ -179,10 +166,10 @@ from governance_unified.harness_approver import (
     HARNESS_APPROVER_ENV_VAR,
     approve_signal_for_execution,
 )
-from governance_unified.services.patch_pipeline_bridge import (
-    PatchApprovalBridge,
-)
 from governance_unified.strategy_registry import StrategyRegistry
+
+# Security imports for authentication (M-7)
+from pydantic import BaseModel, Field
 from ui.state_projection import StateProjection, init_state_projection
 
 # Hardening-S1 item 1 — explicit opt-in for the harness approval shim.
@@ -194,9 +181,7 @@ from ui.state_projection import StateProjection, init_state_projection
 # authority lint B33 rule fires at CI time and at runtime the call
 # raises :class:`HarnessApproverDisabledError`.
 os.environ.setdefault(HARNESS_APPROVER_ENV_VAR, "1")
-from execution_unified.engine_archive.registry import (
-    default_registry as default_adapter_registry,
-)
+from execution_unified.engine_archive.registry import default_registry as default_adapter_registry
 from intelligence_engine.cognitive.approval_edge import (
     ApprovalEdge,
 )
@@ -210,15 +195,8 @@ from intelligence_engine.cognitive.chat.http_chat_transport import (
     build_default_dispatch_transport,
 )
 from intelligence_engine.engine import IntelligenceEngine
-from intelligence_engine.knowledge import NewsKnowledgeIndex
-from intelligence_engine.learning.slow_loop import (
-    FeedbackSample,
-    ParameterBounds,
-    SlowLoopLearner,
-)
 from intelligence_engine.learning_gate import LearningGate
 from intelligence_engine.learning_interface import LearningInterface
-from intelligence_engine.mcp import OpenNewsServer
 from intelligence_engine.meta_controller import (
     MetaControllerHotPath,
     load_meta_controller_config,
@@ -240,34 +218,20 @@ from intelligence_engine.runtime_context_builder import (
     RuntimeMonitorView,
     build_runtime_context,
 )
-from intelligence_engine.strategy_runtime.state_machine import (
-    StrategyStateMachine,
-)
 from intelligence_engine.trader_modeling import (
     make_trader_observation,
     observation_as_system_event,
 )
 from learning_engine.engine import LearningEngine
-from learning_engine.lanes.patch_outcome_feedback import PatchOutcomeFeedback
-from learning_engine.loops.builders import (
-    make_diff_update_builder,
-    make_pnl_sample_builder,
-)
 from learning_engine.loops.closed_loop import (
-    ClosedLearningLoop,
     LoopTickResult,
 )
-from learning_engine.update_emitter import UpdateEmitter
-from state.ledger.reader import LedgerReader
-from system_unified.time_source import wall_ns
 from system_engine.backtest_ingest.internal import (
     BacktestRequest,
     run_deterministic_backtest,
 )
 from system_engine.coupling import HazardThrottleAdapter
-from system_engine.credentials import (
-    DEFAULT_TIMEOUT_S as CREDENTIAL_VERIFY_TIMEOUT_S,
-)
+from system_engine.credentials import DEFAULT_TIMEOUT_S as CREDENTIAL_VERIFY_TIMEOUT_S
 from system_engine.credentials import (
     StorageNotWritable,
     is_devin_session,
@@ -297,14 +261,13 @@ from system_engine.scvs.source_registry import (
     SourceRegistry,
     load_source_registry,
 )
+from system_unified.time_source import wall_ns
 from ui._ledger_boot import resolve_ledger_path
 from ui.cockpit_routes import build_cockpit_router
 from ui.cognitive_chat_runtime import (
     CognitiveChatRuntime,
 )
-from ui.cognitive_chat_runtime import (
-    build_runtime as build_cognitive_chat_runtime,
-)
+from ui.cognitive_chat_runtime import build_runtime as build_cognitive_chat_runtime
 from ui.cognitive_governance_routes import build_cognitive_governance_router
 from ui.cognitive_report_routes import build_cognitive_report_router
 from ui.cognitive_research_routes import build_cognitive_research_router
@@ -314,10 +277,6 @@ from ui.cognitive_stream_routes import build_cognitive_stream_router
 from ui.dashboard_projection_routes import build_projection_router
 from ui.dashboard_routes import build_dashboard_router
 from ui.execution_routes import build_execution_router
-from ui.feeds.news_runner import CoinDeskRSSFeedRunner
-from ui.feeds.pumpfun_runner import PumpFunFeedRunner
-from ui.feeds.raydium_runner import RaydiumPoolFeedRunner
-from ui.feeds.runner import FeedRunner
 from ui.feeds.tradingview_alert import (
     TRADINGVIEW_ALERT_SOURCE_FEED,
     parse_tradingview_alert_payload,
@@ -443,6 +402,7 @@ class _State:
         # from any callsite (cockpit, ui, observability) without threading
         # the instance through every call chain.
         from core.kernel import set_kernel as _set_kernel
+
         _set_kernel(self.system_kernel)
         self.state_projection: StateProjection = init_state_projection(
             self.system_kernel,
@@ -713,9 +673,11 @@ class _State:
         _boot_mode_str = os.environ.get("DIXVISION_BOOT_MODE", "LIVE").strip().upper()
         try:
             from core.contracts.governance import SystemMode as _SM  # noqa: PLC0415
+
             _boot_initial_mode = _SM[_boot_mode_str]
         except (KeyError, ImportError):
             from core.contracts.governance import SystemMode as _SM  # noqa: PLC0415
+
             _boot_initial_mode = _SM.SAFE
         self.governance = GovernanceEngine(
             ledger=ledger,
@@ -808,7 +770,10 @@ class _State:
         # Cognitive governance engine — single process-level instance. Stored
         # on _State so the runtime topology registrar can track it as an
         # active declared node (STARTED vs DORMANT).
-        from governance_unified.domains.cognitive.cognitive_engine import get_cognitive_governance as _cogov  # noqa: PLC0415
+        from governance_unified.domains.cognitive.cognitive_engine import (  # noqa: PLC0415
+            get_cognitive_governance as _cogov,
+        )
+
         self.cognitive_governance_engine = _cogov()
 
     def _build_event_buffers(self) -> None:
@@ -836,9 +801,12 @@ class _State:
         # Phase 6 dashboard widgets (DASH-1)
         try:
             from governance_unified.fsm.strategy_fsm import StrategyStateMachine
+
             self.strategy_fsm = StrategyStateMachine()
         except ImportError:
-            _logger.warning("[BOOT] StrategyStateMachine not available, dashboard strategy controls disabled")
+            _logger.warning(
+                "[BOOT] StrategyStateMachine not available, dashboard strategy controls disabled"
+            )
             self.strategy_fsm = None
 
         # AUDIT-P0.2 — when the harness has a SQLite-backed authority
@@ -851,6 +819,7 @@ class _State:
         # degrades to an empty tuple.
         try:
             from state.ledger.reader import LedgerReader
+
             self.ledger_reader = LedgerReader(db_path=self._ledger_path)
         except ImportError:
             _logger.warning("[BOOT] LedgerReader not available, dashboard audit features disabled")
@@ -867,6 +836,7 @@ class _State:
         # Try to load dashboard backend components
         try:
             from dashboard_backend.control_plane.router import ControlPlaneRouter
+
             self.dashboard_router = ControlPlaneRouter(
                 bridge=self.governance.operator,
             )
@@ -876,6 +846,7 @@ class _State:
 
         try:
             from dashboard_backend.control_plane.mode_control_bar import ModeControlBar
+
             if self.dashboard_router and self.state_projection:
                 self.mode_widget = ModeControlBar(
                     state_transitions=self.governance.state_transitions,
@@ -888,6 +859,7 @@ class _State:
 
         try:
             from dashboard_backend.control_plane.engine_status_grid import EngineStatusGrid
+
             if self.state_projection:
                 self.engines_widget = EngineStatusGrid(
                     engines=self.all_engines(),
@@ -898,7 +870,10 @@ class _State:
             _logger.warning(f"[BOOT] EngineStatusGrid not available: {e}")
 
         try:
-            from dashboard_backend.control_plane.strategy_lifecycle_panel import StrategyLifecyclePanel
+            from dashboard_backend.control_plane.strategy_lifecycle_panel import (
+                StrategyLifecyclePanel,
+            )
+
             if self.strategy_fsm:
                 self.strategies_widget = StrategyLifecyclePanel(fsm=self.strategy_fsm)
                 _logger.info("[BOOT] StrategyLifecyclePanel loaded successfully")
@@ -907,6 +882,7 @@ class _State:
 
         try:
             from dashboard_backend.control_plane.decision_trace import DecisionTracePanel
+
             if self.ledger_reader:
                 self.decisions_widget = DecisionTracePanel(ledger=self.ledger_reader)
                 _logger.info("[BOOT] DecisionTracePanel loaded successfully")
@@ -915,6 +891,7 @@ class _State:
 
         try:
             from dashboard_backend.control_plane.memecoin_control_panel import MemecoinControlPanel
+
             if self.dashboard_router:
                 self.memecoin_widget = MemecoinControlPanel(
                     router=self.dashboard_router,
@@ -1577,7 +1554,10 @@ def _run_scvs_boot_check() -> None:
             for v in violations:
                 _logger.warning("[SCVS-BOOT]  %s: %s", v.rule, v.detail)
         else:
-            _logger.info("[SCVS-BOOT] bidirectional closure check passed (%d declarations)", len(declarations))
+            _logger.info(
+                "[SCVS-BOOT] bidirectional closure check passed (%d declarations)",
+                len(declarations),
+            )
     except Exception as exc:  # pragma: no cover — best-effort; never blocks boot
         _logger.warning("[SCVS-BOOT] check skipped: %s", exc)
 
@@ -1964,6 +1944,7 @@ app.include_router(build_cockpit_router())
 try:
     from dashboard2026.api.indira_intelligence_api import router as indira_intelligence_router
     from dashboard2026.api.markets_api import router as unified_markets_router
+
     app.include_router(indira_intelligence_router)
     app.include_router(unified_markets_router)
     _logger.info("[BOOT] Dashboard Build A API routers loaded successfully")
@@ -1976,6 +1957,7 @@ _logger.info("[BOOT] Loading additional UI routers...")
 try:
     _logger.info("[BOOT] Loading dashboard router...")
     from ui.dashboard_routes import build_dashboard_router
+
     app.include_router(build_dashboard_router(lambda: STATE))
     _logger.info("[BOOT] Dashboard router loaded successfully")
 except ImportError as e:
@@ -1984,6 +1966,7 @@ except ImportError as e:
 try:
     _logger.info("[BOOT] Loading projection router...")
     from ui.dashboard_routes import build_projection_router
+
     app.include_router(build_projection_router())
     _logger.info("[BOOT] Projection router loaded successfully")
 except ImportError as e:
@@ -1993,6 +1976,7 @@ except ImportError as e:
 try:
     _logger.info("[BOOT] Loading plugin router...")
     from ui.dashboard_routes import build_plugin_router
+
     app.include_router(
         build_plugin_router(
             registry_provider=lambda: STATE.plugin_registry,
@@ -2008,6 +1992,7 @@ except ImportError as e:
 try:
     _logger.info("[BOOT] Loading approval router...")
     from ui.dashboard_routes import build_approval_router
+
     app.include_router(
         build_approval_router(
             approval_queue=lambda: STATE.approval_queue,
@@ -2023,6 +2008,7 @@ except ImportError as e:
 try:
     _logger.info("[BOOT] Loading memory router...")
     from ui.memory_routes import build_memory_router as _build_memory_router
+
     app.include_router(_build_memory_router())
     _logger.info("[BOOT] Memory router loaded successfully")
 except ImportError as e:
@@ -2032,6 +2018,7 @@ except ImportError as e:
 try:
     _logger.info("[BOOT] Loading fabric router...")
     from ui.fabric_routes import build_fabric_router as _build_fabric_router
+
     app.include_router(_build_fabric_router())
     _logger.info("[BOOT] Fabric router loaded successfully")
 except ImportError as e:
@@ -2102,6 +2089,7 @@ def index() -> Any:
         content="<html><body><h1>DIX VISION</h1><p>Dashboard unavailable - run npm build</p></body></html>",
         status_code=200,
     )
+
 
 _logger.info("[BOOT] Root route handler registered")
 
@@ -2222,16 +2210,25 @@ def health() -> dict[str, Any]:
         return {
             "status": "healthy",
             "projection": out,
-            "mode": str(STATE.governance.state_transitions.current_mode()) if STATE.governance else "unknown",
+            "mode": (
+                str(STATE.governance.state_transitions.current_mode())
+                if STATE.governance
+                else "unknown"
+            ),
         }
     except Exception as e:
         # Return error information even if projection fails
         import traceback
+
         _logger.error(f"Health check error: {e}\n{traceback.format_exc()}")
         return {
             "status": "unhealthy",
             "error": str(e),
-            "mode": str(STATE.governance.state_transitions.current_mode()) if STATE.governance else "unknown",
+            "mode": (
+                str(STATE.governance.state_transitions.current_mode())
+                if STATE.governance
+                else "unknown"
+            ),
         }
 
 
@@ -2567,12 +2564,16 @@ def _project_loop_result(result: LoopTickResult) -> dict[str, Any]:
 # COMPLIANCE CONTROL
 # ============================================================================
 
+
 class ComplianceLevelRequest(BaseModel):
     """Request model for setting compliance level."""
+
     level: int = Field(..., ge=0, le=100, description="Compliance level from 0-100%")
+
 
 class ComplianceConfig(BaseModel):
     """Current compliance configuration."""
+
     level: int
     regulatory_weight: float
     audit_weight: float
@@ -2580,9 +2581,11 @@ class ComplianceConfig(BaseModel):
     data_weight: float
     label: str
 
+
 # Global compliance state
 _compliance_level: int = 100
 _compliance_lock = threading.Lock()
+
 
 def _get_compliance_weights(level: int) -> dict[str, float]:
     """Calculate per-component compliance weights based on overall level."""
@@ -2615,6 +2618,7 @@ def _get_compliance_weights(level: int) -> dict[str, float]:
             "data": 0.1,
         }
 
+
 def _get_compliance_label(level: int) -> str:
     """Get human-readable compliance label."""
     if level >= 75:
@@ -2625,6 +2629,7 @@ def _get_compliance_label(level: int) -> str:
         return "MEDIUM"
     else:
         return "LOW"
+
 
 @app.get("/api/compliance/config")
 def get_compliance_config() -> ComplianceConfig:
@@ -2640,23 +2645,24 @@ def get_compliance_config() -> ComplianceConfig:
             label=_get_compliance_label(_compliance_level),
         )
 
+
 @app.post("/api/compliance/set")
 def set_compliance_level(body: ComplianceLevelRequest) -> dict[str, Any]:
     """Set the global compliance level (0-100%).
-    
+
     This affects all compliance checks throughout the system:
     - Regulatory validation weight
     - Audit persistence requirements
     - Trading calculation strictness
     - Data source validation requirements
-    
+
     Returns the updated compliance configuration.
     """
     with _compliance_lock:
         global _compliance_level
         _compliance_level = body.level
         weights = _get_compliance_weights(_compliance_level)
-        
+
         logger = logging.getLogger("compliance")
         logger.info(
             f"Compliance level set to {_compliance_level}% "
@@ -2666,7 +2672,7 @@ def set_compliance_level(body: ComplianceLevelRequest) -> dict[str, Any]:
             f"trading={weights['trading']}, "
             f"data={weights['data']}"
         )
-        
+
         return {
             "ok": True,
             "level": _compliance_level,
@@ -2674,10 +2680,11 @@ def set_compliance_level(body: ComplianceLevelRequest) -> dict[str, Any]:
             "weights": weights,
         }
 
+
 @app.get("/api/compliance/weights")
 def get_compliance_weights() -> dict[str, float]:
     """Get current per-component compliance weights.
-    
+
     These weights can be used by various components to adjust
     their behavior based on the current compliance level.
     """

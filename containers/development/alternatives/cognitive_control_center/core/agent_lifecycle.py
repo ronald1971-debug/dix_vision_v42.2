@@ -26,6 +26,7 @@ from cognitive_control_center.core.workspace_manager import (
 
 class AgentState(StrEnum):
     """States in the agent lifecycle."""
+
     REGISTERED = "registered"
     INITIALIZING = "initializing"
     ACTIVE = "active"
@@ -38,6 +39,7 @@ class AgentState(StrEnum):
 @dataclass
 class AgentLifecycleEvent:
     """Event in agent lifecycle."""
+
     agent_id: str
     agent_type: CognitiveEntityType
     from_state: AgentState | None
@@ -50,6 +52,7 @@ class AgentLifecycleEvent:
 @dataclass
 class AgentRegistration:
     """Agent registration in the cognitive environment."""
+
     agent_id: str
     agent_type: CognitiveEntityType
     state: AgentState
@@ -180,7 +183,9 @@ class AgentLifecycleManager:
                 reason=reason or "agent_resumed",
             )
 
-    def report_agent_error(self, agent_id: str, error: str, data: dict[str, Any] | None = None) -> AgentLifecycleEvent:
+    def report_agent_error(
+        self, agent_id: str, error: str, data: dict[str, Any] | None = None
+    ) -> AgentLifecycleEvent:
         """Report an agent error and transition to error state."""
         with self._lock:
             return self._transition_state(

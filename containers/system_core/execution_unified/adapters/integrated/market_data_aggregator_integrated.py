@@ -15,14 +15,15 @@ Dependencies: orderbook, latency_tracker
 # In a full implementation, the actual adapter code would be migrated here
 # along with necessary compatibility adjustments.
 
+
 class MarketdataaggregatorIntegrated:
     """Integrated market_data_aggregator adapter."""
-    
+
     def __init__(self):
         self.name = "market_data_aggregator"
         self.source = "execution_engine/market_data/aggregator.py"
         self.priority = "MEDIUM"
-        
+
     def execute(self, order_data: dict) -> dict:
         """Execute order using integrated adapter."""
         # Placeholder for actual execution logic

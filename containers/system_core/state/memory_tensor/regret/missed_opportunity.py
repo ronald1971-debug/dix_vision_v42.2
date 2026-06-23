@@ -78,9 +78,7 @@ class MissedOpportunity:
                 f"MissedOpportunity.ts_ns must be int, got {type(self.ts_ns).__name__}"
             )
         if not isinstance(self.symbol, str) or not self.symbol:
-            raise ValueError(
-                f"MissedOpportunity.symbol must be non-empty str, got {self.symbol!r}"
-            )
+            raise ValueError(f"MissedOpportunity.symbol must be non-empty str, got {self.symbol!r}")
         if self.direction not in _VALID_DIRECTIONS:
             raise ValueError(
                 f"MissedOpportunity.direction must be one of {sorted(_VALID_DIRECTIONS)!r}, "
@@ -150,8 +148,6 @@ class MissedOpportunityLog:
     def by_symbol(self, symbol: str) -> tuple[MissedOpportunity, ...]:
         """Return all entries matching *symbol* in insertion order."""
         if not isinstance(symbol, str) or not symbol:
-            raise ValueError(
-                "MissedOpportunityLog.by_symbol: symbol must be non-empty str"
-            )
+            raise ValueError("MissedOpportunityLog.by_symbol: symbol must be non-empty str")
         with self._lock:
             return tuple(e for e in self._entries if e.symbol == symbol)

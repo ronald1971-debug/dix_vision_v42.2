@@ -59,31 +59,19 @@ class StrategyAtom:
 
     def __post_init__(self) -> None:
         if not isinstance(self.atom_id, str) or not self.atom_id:
-            raise ValueError(
-                f"StrategyAtom.atom_id must be non-empty str, got {self.atom_id!r}"
-            )
+            raise ValueError(f"StrategyAtom.atom_id must be non-empty str, got {self.atom_id!r}")
         if not isinstance(self.ts_ns, int) or isinstance(self.ts_ns, bool):
-            raise ValueError(
-                f"StrategyAtom.ts_ns must be int, got {type(self.ts_ns).__name__}"
-            )
+            raise ValueError(f"StrategyAtom.ts_ns must be int, got {type(self.ts_ns).__name__}")
         if not isinstance(self.profile_id, str) or not self.profile_id:
             raise ValueError(
                 f"StrategyAtom.profile_id must be non-empty str, got {self.profile_id!r}"
             )
         if not isinstance(self.kind, str) or not self.kind:
-            raise ValueError(
-                f"StrategyAtom.kind must be non-empty str, got {self.kind!r}"
-            )
+            raise ValueError(f"StrategyAtom.kind must be non-empty str, got {self.kind!r}")
         if not isinstance(self.params, tuple):
-            raise ValueError(
-                f"StrategyAtom.params must be tuple, got {type(self.params).__name__}"
-            )
+            raise ValueError(f"StrategyAtom.params must be tuple, got {type(self.params).__name__}")
         for i, pair in enumerate(self.params):
-            if (
-                not isinstance(pair, tuple)
-                or len(pair) != 2
-                or not isinstance(pair[0], str)
-            ):
+            if not isinstance(pair, tuple) or len(pair) != 2 or not isinstance(pair[0], str):
                 raise ValueError(
                     f"StrategyAtom.params[{i}] must be (str, object) tuple, got {pair!r}"
                 )
@@ -147,9 +135,7 @@ class StrategyAtomStore:
         ``atom_id`` ascending for INV-15 deterministic ordering.
         """
         if not isinstance(profile_id, str) or not profile_id:
-            raise ValueError(
-                "StrategyAtomStore.by_profile: profile_id must be non-empty str"
-            )
+            raise ValueError("StrategyAtomStore.by_profile: profile_id must be non-empty str")
         with self._lock:
             atom_ids = list(self._by_profile.get(profile_id, []))
             atoms = [self._atoms[aid] for aid in atom_ids if aid in self._atoms]

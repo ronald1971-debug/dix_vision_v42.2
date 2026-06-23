@@ -124,15 +124,9 @@ class ArchetypeEmbeddingPipeline:
         if query_rec is None:
             return []
         candidates = [
-            self._get_embedding_record(aid)
-            for aid in self._registry.ids()
-            if aid != archetype_id
+            self._get_embedding_record(aid) for aid in self._registry.ids() if aid != archetype_id
         ]
-        scored = [
-            (self._cosine_similarity(query_rec, c), c)
-            for c in candidates
-            if c is not None
-        ]
+        scored = [(self._cosine_similarity(query_rec, c), c) for c in candidates if c is not None]
         scored.sort(key=lambda x: x[0], reverse=True)
         return scored[:top_k]
 
@@ -154,8 +148,7 @@ class ArchetypeEmbeddingPipeline:
 
     def _rebuild_cached_texts(self) -> None:
         self._cached_texts = {
-            aid: self._archetype_to_text(a)
-            for aid, a in self._registry.by_id.items()
+            aid: self._archetype_to_text(a) for aid, a in self._registry.by_id.items()
         }
 
     @staticmethod
@@ -190,9 +183,7 @@ class ArchetypeEmbeddingPipeline:
             text = self._cached_texts[archetype_id]
             if incremental and self._store.size > 0:
                 existing = self._store._records
-                match = next(
-                    (r for r in existing if r.record_id == archetype_id), None
-                )
+                match = next((r for r in existing if r.record_id == archetype_id), None)
                 if match is not None and match.metadata.get("source_text") == text:
                     continue
             vec = embed_text(text, self._spec)
@@ -206,9 +197,7 @@ class ArchetypeEmbeddingPipeline:
             )
         return records
 
-    def _get_embedding_record(
-        self, archetype_id: str
-    ) -> ArchetypeEmbeddingRecord | None:
+    def _get_embedding_record(self, archetype_id: str) -> ArchetypeEmbeddingRecord | None:
         rec = next(
             (r for r in self._store._records if r.record_id == archetype_id),
             None,

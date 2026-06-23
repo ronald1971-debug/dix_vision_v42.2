@@ -34,7 +34,9 @@ class CognitiveMaturityModel:
                 progress=0.0,
             )
 
-    def update_level(self, domain: MaturityDomain, level: MaturityLevel, evidence: str = "") -> None:
+    def update_level(
+        self, domain: MaturityDomain, level: MaturityLevel, evidence: str = ""
+    ) -> None:
         """Update maturity level for a domain."""
         current = self._domains.get(domain)
         if current:
@@ -89,9 +91,7 @@ class CognitiveMaturityModel:
 
             highest = sorted_domains[-1].domain.value if sorted_domains else ""
             lowest = sorted_domains[0].domain.value if sorted_domains else ""
-            improvement = tuple(
-                d.domain.value for d in sorted_domains[:2]
-            )
+            improvement = tuple(d.domain.value for d in sorted_domains[:2])
         else:
             avg = 0.0
             highest = ""

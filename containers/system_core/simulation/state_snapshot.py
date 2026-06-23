@@ -20,6 +20,7 @@ from typing import Any
 @dataclass(frozen=True, slots=True)
 class PositionState:
     """Open position state within a simulation."""
+
     symbol: str
     side: str
     qty: float
@@ -31,6 +32,7 @@ class PositionState:
 @dataclass(frozen=True, slots=True)
 class SimulationStateSnapshot:
     """Complete simulation state at a checkpoint."""
+
     snapshot_id: str
     strategy_id: str
     scenario_id: str
@@ -41,7 +43,7 @@ class SimulationStateSnapshot:
     positions: tuple[PositionState, ...]
     realised_pnl: float
     num_trades: int
-    checksum: str    # deterministic hash of state fields (INV-15)
+    checksum: str  # deterministic hash of state fields (INV-15)
 
     @property
     def total_position_value(self) -> float:
@@ -61,7 +63,9 @@ def _compute_checksum(
         f"{p.symbol}:{p.side}:{p.qty}:{p.entry_price}"
         for p in sorted(positions, key=lambda x: x.symbol)
     )
-    canonical = f"{strategy_id}|{scenario_id}|{bar_index}|{cash_usd:.8f}|{pos_repr}|{realised_pnl:.8f}"
+    canonical = (
+        f"{strategy_id}|{scenario_id}|{bar_index}|{cash_usd:.8f}|{pos_repr}|{realised_pnl:.8f}"
+    )
     return hashlib.sha256(canonical.encode()).hexdigest()[:16]
 
 
@@ -121,10 +125,7 @@ class SnapshotStore:
 
     def latest_for(self, strategy_id: str) -> SimulationStateSnapshot | None:
         with self._lock:
-            candidates = [
-                s for s in self._store.values()
-                if s.strategy_id == strategy_id
-            ]
+            candidates = [s for s in self._store.values() if s.strategy_id == strategy_id]
         if not candidates:
             return None
         return max(candidates, key=lambda s: s.bar_index)

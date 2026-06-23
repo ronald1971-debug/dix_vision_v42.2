@@ -126,9 +126,7 @@ class GithubTrendingMonitor:
             "categories": list(self._categories),
             "last_scan_ts_ns": self._last_scan_ts_ns,
             "discovered_repo_count": len(self._discovered_repos),
-            "discovered_repos": {
-                name: dict(info) for name, info in self._discovered_repos.items()
-            },
+            "discovered_repos": {name: dict(info) for name, info in self._discovered_repos.items()},
         }
 
 

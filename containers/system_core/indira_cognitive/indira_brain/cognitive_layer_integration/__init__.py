@@ -5,12 +5,8 @@ Contract-Compliant Real Implementation
 Real INDIRA to Execution integration, governance integration, and feedback loop systems
 """
 
-from .indira_execution_integration import INDIRAExecutionIntegration
-from .governance_integration import GovernanceIntegration
 from .feedback_loop_system import FeedbackLoopSystem
+from .governance_integration import GovernanceIntegration
+from .indira_execution_integration import INDIRAExecutionIntegration
 
-__all__ = [
-    'INDIRAExecutionIntegration',
-    'GovernanceIntegration',
-    'FeedbackLoopSystem'
-]
+__all__ = ["INDIRAExecutionIntegration", "GovernanceIntegration", "FeedbackLoopSystem"]

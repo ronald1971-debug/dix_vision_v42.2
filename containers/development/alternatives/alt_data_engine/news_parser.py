@@ -15,6 +15,7 @@ from dataclasses import dataclass
 # DTOs
 # ---------------------------------------------------------------------------
 
+
 @dataclass(frozen=True, slots=True)
 class MacroData:
     indicator: str
@@ -31,7 +32,7 @@ class NewsEvent:
     ts_ns: int
     source: str
     sentiment_score: float  # [-1, 1]
-    impact_score: float     # [0, 1]
+    impact_score: float  # [0, 1]
     symbols_mentioned: tuple[str, ...] = ()
 
 
@@ -49,6 +50,7 @@ class SocialSignal:
 # ---------------------------------------------------------------------------
 # Macro feed
 # ---------------------------------------------------------------------------
+
 
 class MacroFeed:
     """In-memory macro-data provider with deterministic updates.
@@ -81,9 +83,7 @@ class MacroFeed:
             source=source,
             confidence=confidence,
         )
-        self._history.setdefault(indicator, deque(maxlen=self._lookback)).append(
-            rec
-        )
+        self._history.setdefault(indicator, deque(maxlen=self._lookback)).append(rec)
 
     def get_latest(self) -> list[MacroData]:
         out: list[MacroData] = []
@@ -100,9 +100,7 @@ class MacroFeed:
         latest = self.get_latest()
         if not latest:
             return "NEUTRAL"
-        rates_up = any(
-            m.indicator.upper().endswith("RATE") and m.value > 0 for m in latest
-        )
+        rates_up = any(m.indicator.upper().endswith("RATE") and m.value > 0 for m in latest)
         inflation_up = any(
             any(k in m.indicator.upper() for k in ("CPI", "INFLATION")) and m.value > 3.0
             for m in latest
@@ -117,6 +115,7 @@ class MacroFeed:
 # ---------------------------------------------------------------------------
 # News parser
 # ---------------------------------------------------------------------------
+
 
 @dataclass(frozen=True, slots=True)
 class ParseResult:
@@ -136,23 +135,62 @@ class NewsParser:
 
     _POSITIVE: frozenset[str] = frozenset(
         {
-            "beat", "beats", "surge", "surges", "gain", "gains",
-            "rally", "rallies", "bullish", "upgrade", "upgraded",
-            "outperform", "growth", "positive", "profit", "profits",
+            "beat",
+            "beats",
+            "surge",
+            "surges",
+            "gain",
+            "gains",
+            "rally",
+            "rallies",
+            "bullish",
+            "upgrade",
+            "upgraded",
+            "outperform",
+            "growth",
+            "positive",
+            "profit",
+            "profits",
         }
     )
     _NEGATIVE: frozenset[str] = frozenset(
         {
-            "miss", "misses", "plunge", "plunges", "loss", "losses",
-            "bearish", "downgrade", "downgraded", "underperform",
-            "recession", "negative", "crisis", "crash", "collapse",
+            "miss",
+            "misses",
+            "plunge",
+            "plunges",
+            "loss",
+            "losses",
+            "bearish",
+            "downgrade",
+            "downgraded",
+            "underperform",
+            "recession",
+            "negative",
+            "crisis",
+            "crash",
+            "collapse",
         }
     )
     _IMPACT: frozenset[str] = frozenset(
         {
-            "federal", "fed", "ecb", "boj", "treasury", "inflation",
-            "cpi", "gdp", "employment", "nfp", "rate", "rates",
-            "earnings", "merger", "acquisition", "sec", "lawsuit",
+            "federal",
+            "fed",
+            "ecb",
+            "boj",
+            "treasury",
+            "inflation",
+            "cpi",
+            "gdp",
+            "employment",
+            "nfp",
+            "rate",
+            "rates",
+            "earnings",
+            "merger",
+            "acquisition",
+            "sec",
+            "lawsuit",
         }
     )
 

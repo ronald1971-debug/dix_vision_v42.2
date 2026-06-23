@@ -28,7 +28,7 @@ from typing import Any
 
 _logger = logging.getLogger(__name__)
 
-TRUST_PASS_THRESHOLD: float = 0.50    # minimum trust for CLASS_A/B auto-pass
+TRUST_PASS_THRESHOLD: float = 0.50  # minimum trust for CLASS_A/B auto-pass
 QUARANTINE_TTL_NS: int = 300_000_000_000  # 5 minutes in nanoseconds
 
 
@@ -59,7 +59,7 @@ class QuarantineEntry:
     source_engine: str
     description: str
     ts_ns_quarantined: int
-    sign_offs: list[str] = field(default_factory=list)   # governor IDs
+    sign_offs: list[str] = field(default_factory=list)  # governor IDs
     released: bool = False
     expired: bool = False
 
@@ -142,7 +142,11 @@ class MutationFirewall:
             self._emit_containment_event(verdict)
         _logger.debug(
             "MutationFirewall[%s] class=%s trust=%.2f → %s: %s",
-            proposal_id[:16], mutation_class, trust, decision.value, reason,
+            proposal_id[:16],
+            mutation_class,
+            trust,
+            decision.value,
+            reason,
         )
         return verdict
 
@@ -203,8 +207,12 @@ class MutationFirewall:
                 if not e.released and not e.expired
             ]
             recent_blocks = [
-                {"proposal_id": v.proposal_id, "class": v.mutation_class,
-                 "reason": v.reason, "ts_ns": v.ts_ns}
+                {
+                    "proposal_id": v.proposal_id,
+                    "class": v.mutation_class,
+                    "reason": v.reason,
+                    "ts_ns": v.ts_ns,
+                }
                 for v in self._block_log[-10:]
             ]
         return {
@@ -241,6 +249,7 @@ class MutationFirewall:
     def _source_trust(source_engine: str) -> float:
         try:
             from .trust_scorer import get_trust_scorer
+
             return get_trust_scorer().score(source_engine)
         except Exception:
             return 0.0  # fail-closed: unavailable scorer means untrusted, not fully-trusted
@@ -259,6 +268,7 @@ class MutationFirewall:
     def _audit(verdict: FirewallVerdict) -> None:
         try:
             from state.ledger.append import append_event
+
             append_event(
                 stream="GOVERNANCE",
                 kind="MUTATION_FIREWALL",
@@ -279,13 +289,17 @@ class MutationFirewall:
     def _emit_containment_event(verdict: FirewallVerdict) -> None:
         try:
             from state.event_bus import CognitiveChannel, get_event_bus
-            get_event_bus().publish(CognitiveChannel.DYON_VIOLATION, {
-                "source": "mutation_firewall",
-                "proposal_id": verdict.proposal_id,
-                "decision": verdict.decision.value,
-                "reason": verdict.reason,
-                "ts_ns": verdict.ts_ns,
-            })
+
+            get_event_bus().publish(
+                CognitiveChannel.DYON_VIOLATION,
+                {
+                    "source": "mutation_firewall",
+                    "proposal_id": verdict.proposal_id,
+                    "decision": verdict.decision.value,
+                    "reason": verdict.reason,
+                    "ts_ns": verdict.ts_ns,
+                },
+            )
         except Exception:
             pass
 

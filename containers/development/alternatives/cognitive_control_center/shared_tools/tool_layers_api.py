@@ -6,22 +6,19 @@ This module provides REST API endpoints for the shared tool layers (Desktop, Bro
 allowing the Dashboard2026 frontend to manage and monitor tool layer usage by Operator, INDIRA, and DYON.
 """
 
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
-from typing import Optional, List, Dict, Any
 from datetime import datetime
+from typing import Dict, List, Optional
 
 from cognitive_control_center.shared_tools.tool_layers import (
-    get_shared_tool_layers,
-    ToolLayerType,
-    ToolLayerStatus,
-    ToolLayerSession,
-    DesktopLayerActivity,
     BrowserLayerActivity,
-    CognitiveEntityType,
     BrowserType,
+    CognitiveEntityType,
+    DesktopLayerActivity,
+    ToolLayerType,
+    get_shared_tool_layers,
 )
-
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
 
 router = APIRouter(prefix="/shared-tools", tags=["shared-tools"])
 
@@ -83,15 +80,14 @@ class BrowserAvailabilityResponse(BaseModel):
 
 # API Endpoints
 
+
 @router.get("/layers/status", response_model=Dict[str, LayerStatusResponse])
 async def get_all_layer_status():
     """Get status of all shared tool layers."""
     tool_layers = get_shared_tool_layers()
-    
+
     return {
-        layer_type.value: LayerStatusResponse(
-            **tool_layers.get_layer_status(layer_type)
-        )
+        layer_type.value: LayerStatusResponse(**tool_layers.get_layer_status(layer_type))
         for layer_type in ToolLayerType
     }
 
@@ -100,12 +96,12 @@ async def get_all_layer_status():
 async def get_layer_status(layer_type: str):
     """Get status of a specific tool layer."""
     tool_layers = get_shared_tool_layers()
-    
+
     try:
         layer_type_enum = ToolLayerType(layer_type)
     except ValueError:
         raise HTTPException(status_code=400, detail=f"Invalid layer type: {layer_type}")
-    
+
     status = tool_layers.get_layer_status(layer_type_enum)
     return LayerStatusResponse(**status)
 
@@ -114,9 +110,9 @@ async def get_layer_status(layer_type: str):
 async def get_browser_availability():
     """Get availability status for each browser type (Operator=Edge, INDIRA=Chrome, DYON=Firefox)."""
     tool_layers = get_shared_tool_layers()
-    
+
     availability = tool_layers.get_browser_availability()
-    
+
     return {
         browser_type: BrowserAvailabilityResponse(**status)
         for browser_type, status in availability.items()
@@ -132,16 +128,18 @@ async def start_tool_layer_session(
 ):
     """Start a new session using a shared tool layer."""
     tool_layers = get_shared_tool_layers()
-    
+
     try:
         entity_type_enum = CognitiveEntityType(entity_type)
         layer_type_enum = ToolLayerType(layer_type)
         browser_type_enum = BrowserType(browser_type) if browser_type else None
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
-    
-    session_id = tool_layers.start_session(entity_type_enum, entity_id, layer_type_enum, browser_type_enum)
-    
+
+    session_id = tool_layers.start_session(
+        entity_type_enum, entity_id, layer_type_enum, browser_type_enum
+    )
+
     return {
         "session_id": session_id,
         "entity_type": entity_type,
@@ -157,7 +155,7 @@ async def end_tool_layer_session(session_id: str):
     """End a tool layer session."""
     tool_layers = get_shared_tool_layers()
     tool_layers.end_session(session_id)
-    
+
     return {"session_id": session_id, "status": "ended"}
 
 
@@ -168,16 +166,16 @@ async def get_tool_layer_sessions(
 ):
     """Get tool layer sessions, optionally filtered by entity."""
     tool_layers = get_shared_tool_layers()
-    
+
     entity_filter = None
     if entity_type:
         try:
             entity_filter = CognitiveEntityType(entity_type)
         except ValueError:
             raise HTTPException(status_code=400, detail=f"Invalid entity type: {entity_type}")
-    
+
     sessions = tool_layers.get_entity_sessions(entity_filter, entity_id)
-    
+
     return [
         ToolLayerSessionResponse(
             session_id=s.session_id,
@@ -207,12 +205,12 @@ async def record_desktop_activity(
 ):
     """Record activity in the Desktop Agent Layer."""
     tool_layers = get_shared_tool_layers()
-    
+
     try:
         entity_type_enum = CognitiveEntityType(entity_type)
     except ValueError:
         raise HTTPException(status_code=400, detail=f"Invalid entity type: {entity_type}")
-    
+
     activity = DesktopLayerActivity(
         session_id=session_id,
         entity_type=entity_type_enum,
@@ -223,9 +221,9 @@ async def record_desktop_activity(
         coordinates=coordinates,
         screenshot_path=screenshot_path,
     )
-    
+
     tool_layers.record_desktop_activity(activity)
-    
+
     return {"status": "recorded", "activity_type": activity_type}
 
 
@@ -237,16 +235,16 @@ async def get_desktop_activities(
 ):
     """Get desktop layer activities, optionally filtered."""
     tool_layers = get_shared_tool_layers()
-    
+
     entity_filter = None
     if entity_type:
         try:
             entity_filter = CognitiveEntityType(entity_type)
         except ValueError:
             raise HTTPException(status_code=400, detail=f"Invalid entity type: {entity_type}")
-    
+
     activities = tool_layers.get_desktop_activities(entity_filter, entity_id, limit)
-    
+
     return [
         DesktopActivityResponse(
             session_id=a.session_id,
@@ -277,13 +275,13 @@ async def record_browser_activity(
 ):
     """Record activity in the Browser Layer."""
     tool_layers = get_shared_tool_layers()
-    
+
     try:
         entity_type_enum = CognitiveEntityType(entity_type)
         browser_type_enum = BrowserType(browser_type) if browser_type else None
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid entity type or browser type")
-    
+
     activity = BrowserLayerActivity(
         session_id=session_id,
         entity_type=entity_type_enum,
@@ -295,9 +293,9 @@ async def record_browser_activity(
         user_agent=user_agent,
         browser_type=browser_type_enum,
     )
-    
+
     tool_layers.record_browser_activity(activity)
-    
+
     return {"status": "recorded", "activity_type": activity_type}
 
 
@@ -309,16 +307,16 @@ async def get_browser_activities(
 ):
     """Get browser layer activities, optionally filtered."""
     tool_layers = get_shared_tool_layers()
-    
+
     entity_filter = None
     if entity_type:
         try:
             entity_filter = CognitiveEntityType(entity_type)
         except ValueError:
             raise HTTPException(status_code=400, detail=f"Invalid entity type: {entity_type}")
-    
+
     activities = tool_layers.get_browser_activities(entity_filter, entity_id, limit)
-    
+
     return [
         BrowserActivityResponse(
             session_id=a.session_id,

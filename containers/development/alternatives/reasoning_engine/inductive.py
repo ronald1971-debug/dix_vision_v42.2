@@ -14,6 +14,7 @@ class ObservedInstance:
     timestamp_ns: int
     confidence: float
 
+
 @dataclass(frozen=True, slots=True)
 class InductivePattern(CognitiveObject):
     pattern_name: str = ""
@@ -27,11 +28,14 @@ class InductivePattern(CognitiveObject):
     def is_robust(self, min_instances: int = 10, min_confidence: float = 0.7) -> bool:
         return self.instance_count >= min_instances and self.pattern_confidence >= min_confidence
 
+
 class InductiveEngine:
     def __init__(self) -> None:
         self._patterns: dict[str, InductivePattern] = {}
 
-    def induce(self, observations: Sequence[ObservedInstance], min_confidence: float = 0.6) -> InductivePattern | None:
+    def induce(
+        self, observations: Sequence[ObservedInstance], min_confidence: float = 0.6
+    ) -> InductivePattern | None:
         if not observations:
             return None
         feature_counts: dict[str, dict[str, int]] = {}
@@ -43,7 +47,8 @@ class InductiveEngine:
             outcome_counts[obs.outcome] = outcome_counts.get(obs.outcome, 0) + 1
         dominant_outcome = max(outcome_counts, key=lambda k: outcome_counts[k])
         dominant_features = [
-            feat for feat, outcomes in feature_counts.items()
+            feat
+            for feat, outcomes in feature_counts.items()
             if outcomes.get(dominant_outcome, 0) / sum(outcomes.values()) >= min_confidence
         ]
         confidence = outcome_counts[dominant_outcome] / len(observations)

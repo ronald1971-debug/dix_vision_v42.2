@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from typing import Any, Dict, List
+from typing import List
 
 from system.time_source import now
 
@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class MissionExecution:
     """A mission execution."""
+
     execution_id: str
     plan_id: str
     status: str = "pending"
@@ -31,35 +32,35 @@ class MissionExecution:
 
 class ProductionMissionExecutor:
     """Production-grade mission executor."""
-    
+
     def __init__(self) -> None:
         self._executions: List[MissionExecution] = {}
-        
+
     def start(self) -> bool:
         logger.info("[MISSION_EXECUTOR] Production mission executor started")
         return True
-    
+
     def stop(self) -> bool:
         logger.info("[MISSION_EXECUTOR] Production mission executor stopped")
         return True
-    
+
     def execute_mission(self, plan_id: str) -> MissionExecution:
         """Execute a mission plan."""
         execution = MissionExecution(
             execution_id=f"exec_{now().sequence}",
             plan_id=plan_id,
             status="running",
-            timestamp=now().utc_time.isoformat()
+            timestamp=now().utc_time.isoformat(),
         )
         self._executions[plan_id] = execution
         return execution
-    
+
     def update_progress(self, plan_id: str, progress: float, task: str) -> None:
         """Update mission execution progress."""
         if plan_id in self._executions:
             self._executions[plan_id].progress = progress
             self._executions[plan_id].tasks_completed.append(task)
-    
+
     def complete_mission(self, plan_id: str) -> MissionExecution:
         """Complete a mission execution."""
         if plan_id in self._executions:

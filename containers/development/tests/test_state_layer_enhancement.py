@@ -1,24 +1,22 @@
 """Tests for State Layer Enhancement (Replay Validation and Deterministic Verification)."""
 
-import unittest
-import sys
 import os
+import sys
+import unittest
 
 # Add paths to imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from state import (
-    ReplayValidator,
-    get_replay_validator,
+    DeterminismReport,
     ReplayResult,
     ReplayStatus,
-    DeterministicVerifier,
     get_deterministic_verifier,
-    DeterminismReport,
+    get_replay_validator,
 )
 
 # Import MemoryRecord and MemoryKind directly from contracts
-from state.memory.contracts import MemoryRecord, MemoryKind
+from state.memory.contracts import MemoryKind, MemoryRecord
 
 
 class TestReplayValidator(unittest.TestCase):
@@ -236,15 +234,15 @@ def run_tests():
     runner = unittest.TextTestRunner(verbosity=2)
     result = runner.run(suite)
 
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("STATE LAYER ENHANCEMENT TEST SUMMARY")
-    print("="*70)
+    print("=" * 70)
     print(f"Tests run: {result.testsRun}")
     print(f"Successes: {result.testsRun - len(result.failures) - len(result.errors)}")
     print(f"Failures: {len(result.failures)}")
     print(f"Errors: {len(result.errors)}")
     print(f"Skipped: {len(result.skipped)}")
-    print("="*70)
+    print("=" * 70)
 
     return result.wasSuccessful()
 

@@ -28,9 +28,6 @@ from collections.abc import Callable, Sequence
 from dataclasses import asdict, is_dataclass
 from typing import Any, Protocol
 
-from fastapi import APIRouter, HTTPException, Query
-from pydantic import BaseModel, Field
-
 from core.coherence.system_intent import (
     INTENT_KEY_FOCUS,
     INTENT_KEY_HORIZON,
@@ -51,6 +48,8 @@ from dashboard_backend.control_plane.router import ControlPlaneRouter
 from dashboard_backend.control_plane.strategy_lifecycle_panel import (
     StrategyLifecyclePanel,
 )
+from fastapi import APIRouter, HTTPException, Query
+from pydantic import BaseModel, Field
 from ui.state_projection import get_state_projection
 
 
@@ -164,7 +163,7 @@ def build_dashboard_router(provider: _WidgetsProvider) -> APIRouter:
                     "mode": {
                         "current_mode": "LIVE",
                         "legal_targets": ["PAPER", "SAFE", "LIVE", "AUTO"],
-                        "is_locked": False
+                        "is_locked": False,
                     }
                 }
             result: dict[str, Any] = {"mode": _to_dict(widgets.mode.snapshot())}
@@ -184,7 +183,7 @@ def build_dashboard_router(provider: _WidgetsProvider) -> APIRouter:
                     "current_mode": "LIVE",
                     "legal_targets": ["PAPER", "SAFE", "LIVE", "AUTO"],
                     "is_locked": False,
-                    "error": str(e)
+                    "error": str(e),
                 }
             }
 

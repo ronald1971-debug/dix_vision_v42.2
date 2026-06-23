@@ -1,0 +1,162 @@
+# Cognitive System Registry
+# DIX VISION v42.2 - Cognitive System Configuration
+# INDIRA 30X + DYON + Intelligence Engine + Cognitive Control
+
+cognitive_systems:
+  indira_cognitive:
+    id: cog_001
+    name: INDIRA Cognitive
+    domain: MARKET_DOMAIN
+    location: "containers/system_core/indira_cognitive/"
+    enhancement_level: "30X"
+    brain_subsystems: 17
+    description: "Market trading cognitive operations with 30X enhancement"
+    
+    # Phase 1 Signal-First Integration
+    signal_first_integration:
+      enabled: true
+      domain_specific_ratios:
+        signal: 0.85
+        world: 0.15
+      allowed_range:
+        signal: [0.70, 0.95]
+        world: [0.05, 0.30]
+      dashboard_control_enabled: true
+      trading_form_optimization_enabled: true
+      world_context_integration_enabled: true
+      description: "INDIRA cognitive uses standard signal-first baseline for market decisions"
+    
+    # Brain Subsystems
+    brain_subsystems:
+      - attention_system
+      - memory_system
+      - learning_system
+      - reasoning_system
+      - decision_making
+      - pattern_recognition
+      - meta_cognition
+      - self_awareness
+      - emotional_intelligence
+      - intuition
+      - creativity
+      - innovation
+      - adaptation
+      - temporal_reasoning
+      - spatial_reasoning
+      - social_cognition
+      - ethical_reasoning
+    
+    # Enhancement Status
+    phase_1_complete: true
+    phase_2_complete: true
+    phase_3_complete: true
+    phase_4_complete: true
+    
+  dyon_cognitive:
+    id: cog_002
+    name: DYON Cognitive
+    domain: SYSTEM_DOMAIN
+    location: "containers/system_core/dyon_cognitive/"
+    enhancement_level: "Phase1"
+    components:
+      - DYON cognitive engine
+      - evolution engine
+    description: "System engineering intelligence"
+    
+    signal_first_integration:
+      enabled: true
+      domain_specific_ratios:
+        signal: 0.85
+        world: 0.15
+      allowed_range:
+        signal: [0.70, 0.95]
+        world: [0.05, 0.30]
+      dashboard_control_enabled: true
+      trading_form_optimization_enabled: false  # System-level configuration
+      world_context_integration_enabled: true
+      description: "DYON cognitive uses system-level signal-first configuration"
+    
+    enhancement_status:
+      phase_1_complete: true
+      other_phases_not_applicable: true
+  
+  intelligence_engine_cognitive:
+    id: cog_003
+    name: Intelligence Engine Cognitive
+    domain: RUNTIME_COGNITIVE_DOMAIN
+    location: "containers/intelligence_engine/cognitive/"
+    components: 9
+    description: "Runtime cognitive operations"
+    
+    signal_first_integration:
+      enabled: true
+      domain_specific_ratios:
+        signal: 0.85
+        world: 0.15
+      allowed_range:
+        signal: [0.70, 0.95]
+        world: [0.05, 0.30]
+      dashboard_control_enabled: true
+      trading_form_optimization_enabled: true
+      world_context_integration_enabled: true
+      description: "Intelligence engine cognitive uses standard signal-first baseline"
+    
+    enhancement_status:
+      operational: true
+      phase_1_integration: true
+    
+  cognitive_control_center:
+    id: cog_004
+    name: Cognitive Control Center
+    domain: CONTROL_DOMAIN
+    location: "containers/cognitive_control_center/"
+    components: 2
+    description: "Cognitive governance and control operations"
+    
+    signal_first_integration:
+      enabled: true
+      domain_specific_ratios:
+        signal: 0.85
+        world: 0.15
+      allowed_range:
+        signal: [0.70, 0.95]
+        world: [0.05, 0.30]
+      dashboard_control_enabled: true
+      trading_form_optimization_enabled: false  # Control uses system-level
+      world_context_integration_enabled: true
+      description: "Cognitive control uses governance-focused signal-first configuration"
+    
+    enhancement_status:
+      operational: true
+      phase_1_integration: true
+
+# Cognitive Enhancement Status
+cognitive_enhancement_status:
+  total_cognitive_systems: 4
+  phase_1_integrated: 4
+  enhancement_engines:
+    - cognitive_enhancer.py (337 lines)
+    - enhanced_learning_engine.py (484 lines)
+  integration_methods:
+    - wrapping_approach
+    - zero_loss_guarantee
+    - backward_compatibility
+
+# Domain Separation Verification
+domain_separation:
+  preserved: true
+  canonical_domains:
+    MARKET_DOMAIN: "INDIRA Cognitive"
+    SYSTEM_DOMAIN: "DYON Cognitive"
+    RUNTIME_COGNITIVE_DOMAIN: "Intelligence Engine"
+    CONTROL_DOMAIN: "Cognitive Control Center"
+    RESEARCH_DOMAIN: "Development Alternatives"
+    INDEPENDENT_DOMAIN: "Machine Learning"
+  violations: 0
+  description: "All cognitive domains properly separated per canonical architecture"
+
+# Version information
+version: "1.0.0"
+created_date: "2026-06-21"
+updated_date: "2026-06-21"
+compatible_with: "DIX VISION v42.2+"

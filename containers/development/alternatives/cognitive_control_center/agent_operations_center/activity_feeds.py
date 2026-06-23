@@ -10,7 +10,6 @@ component identified in the architectural gap analysis.
 from __future__ import annotations
 
 import threading
-import time
 from collections import deque
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
@@ -19,13 +18,13 @@ from typing import Any, Callable
 
 from cognitive_control_center.core.operating_environment import (
     CognitiveEntityType,
-    AgentActivity,
     get_cognitive_environment,
 )
 
 
 class ActivityType(StrEnum):
     """Types of activities in the activity feed."""
+
     COGNITIVE_PROCESS = "cognitive_process"
     TOOL_USAGE = "tool_usage"
     MEMORY_ACCESS = "memory_access"
@@ -39,6 +38,7 @@ class ActivityType(StrEnum):
 @dataclass
 class ActivityFeedEvent:
     """Event in the activity feed."""
+
     agent_type: CognitiveEntityType
     agent_id: str
     activity_type: ActivityType
@@ -195,7 +195,9 @@ class AgentActivityFeeds:
                     "recent_errors": 0,
                 }
 
-            recent_events = [e for e in feed if e.timestamp >= datetime.utcnow() - timedelta(minutes=5)]
+            recent_events = [
+                e for e in feed if e.timestamp >= datetime.utcnow() - timedelta(minutes=5)
+            ]
             error_count = len([e for e in recent_events if e.severity in ["error", "critical"]])
 
             return {

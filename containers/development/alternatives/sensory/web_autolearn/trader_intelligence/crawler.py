@@ -47,8 +47,7 @@ class TISourceCrawler:
                 import httpx  # noqa: PLC0415
             except ImportError as exc:
                 raise ImportError(
-                    "httpx is required for TISourceCrawler. "
-                    "Install with: pip install httpx"
+                    "httpx is required for TISourceCrawler. " "Install with: pip install httpx"
                 ) from exc
             self._httpx_client = httpx.Client(timeout=self._timeout, follow_redirects=True)
         return self._httpx_client
@@ -59,6 +58,7 @@ class TISourceCrawler:
         else:
             client = self._get_client()
             import httpx  # noqa: PLC0415
+
             response: httpx.Response = client.get(url)  # type: ignore[attr-defined]
             status_code = response.status_code
             raw_html = response.text

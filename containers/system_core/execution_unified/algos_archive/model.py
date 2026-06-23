@@ -32,8 +32,8 @@ class ImpactModel:
 
     def __init__(
         self,
-        sigma_bps: float = 50.0,       # annualised vol proxy in bps
-        temp_fraction: float = 0.6,     # fraction of impact that is temporary
+        sigma_bps: float = 50.0,  # annualised vol proxy in bps
+        temp_fraction: float = 0.6,  # fraction of impact that is temporary
         scale: float = 1.0,
     ) -> None:
         if not 0.0 < temp_fraction < 1.0:

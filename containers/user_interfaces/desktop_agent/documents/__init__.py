@@ -2,9 +2,14 @@
 Documents layer - Phase 6 implementation
 """
 
-from document_processor import DocumentProcessor, DocumentType, ProcessingStatus, Document
-from ocr_reader import OCRReader, OCRState, OCRResult
-from document_classifier import DocumentClassifier, DocumentCategory, ClassificationConfidence, DocumentClassification
+from document_classifier import (
+    ClassificationConfidence,
+    DocumentCategory,
+    DocumentClassification,
+    DocumentClassifier,
+)
+from document_processor import Document, DocumentProcessor, DocumentType, ProcessingStatus
+from ocr_reader import OCRReader, OCRResult, OCRState
 
 __all__ = [
     "DocumentProcessor",

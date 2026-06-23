@@ -11,6 +11,7 @@ from dataclasses import dataclass
 @dataclass(frozen=True, slots=True)
 class BeliefSnapshot:
     """A snapshot of belief state at a point in time."""
+
     ts_ns: int
     version: str
     data: dict  # Serialized belief state

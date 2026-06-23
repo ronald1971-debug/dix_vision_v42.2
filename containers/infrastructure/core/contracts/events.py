@@ -4,14 +4,16 @@ Real implementation for system events
 Based on events.proto from DIX VISION contracts
 """
 
-from dataclasses import dataclass, field
-from enum import Enum
-from typing import Optional, Dict, Any
 import time
 import uuid
+from dataclasses import dataclass, field
+from enum import Enum
+from typing import Any, Dict
+
 
 class EventKind(Enum):
     """Event kind classification"""
+
     MARKET = "market"
     SIGNAL = "signal"
     SYSTEM = "system"
@@ -20,8 +22,10 @@ class EventKind(Enum):
     EXECUTION = "execution"
     LEARNING = "learning"
 
+
 class HazardSeverity(Enum):
     """Hazard severity levels"""
+
     LOW = "low"
     MEDIUM = "medium"
     INFO = "info"
@@ -31,8 +35,10 @@ class HazardSeverity(Enum):
     CRITICAL = "critical"
     FATAL = "fatal"
 
+
 class ExecutionStatus(Enum):
     """Execution status enumeration"""
+
     PENDING = "pending"
     IN_PROGRESS = "in_progress"
     COMPLETED = "completed"
@@ -43,8 +49,10 @@ class ExecutionStatus(Enum):
     EXPIRED = "expired"
     ERROR = "error"
 
+
 class SystemEventKind(Enum):
     """Specific system event kinds"""
+
     ENGINE_STARTUP = "engine_startup"
     ENGINE_SHUTDOWN = "engine_shutdown"
     HEALTH_CHECK = "health_check"
@@ -478,65 +486,78 @@ class SystemEventKind(Enum):
     BUILDOUT_PARAM_LOADED = "buildout_param_loaded"
     BUILDOUT_PARAM_EXPORTED = "buildout_param_exported"
 
+
 class Side(Enum):
     """Trade side"""
+
     BUY = "buy"
     SELL = "sell"
+
 
 @dataclass
 class Event:
     """Base event class"""
+
     kind: EventKind
     timestamp: float = field(default_factory=time.time)
     event_id: str = field(default_factory=lambda: str(uuid.uuid4()))
     metadata: Dict[str, Any] = field(default_factory=dict)
 
+
 @dataclass
 class HazardEvent(Event):
     """Hazard event for system safety"""
+
     severity: str = "warning"
     component: str = ""
     description: str = ""
     mitigation_required: bool = True
-    
+
     def __post_init__(self):
         if self.kind != EventKind.HAZARD:
             self.kind = EventKind.HAZARD
 
+
 @dataclass
 class SignalEvent(Event):
     """Signal event for trading signals"""
+
     strength: float = 0.5
     source: str = ""
     confidence: float = 1.0
-    
+
     def __post_init__(self):
         if self.kind != EventKind.SIGNAL:
             self.kind = EventKind.SIGNAL
 
+
 @dataclass
 class SystemEvent(Event):
     """System event for system operations"""
+
     system_event_kind: SystemEventKind = SystemEventKind.HEALTH_CHECK
     component: str = ""
     status: str = "ok"
-    
+
     def __post_init__(self):
         if self.kind != EventKind.SYSTEM:
             self.kind = EventKind.SYSTEM
 
+
 @dataclass
 class ExecutionEvent(Event):
     """Execution event for trade execution"""
+
     side: Side = Side.BUY
     symbol: str = ""
     quantity: float = 0.0
     price: float = 0.0
     execution_id: str = ""
-    
+
     def __post_init__(self):
         if self.kind != EventKind.EXECUTION:
             self.kind = EventKind.EXECUTION
+
 
 __all__ = [
     "EventKind",
@@ -548,5 +569,5 @@ __all__ = [
     "HazardEvent",
     "SignalEvent",
     "SystemEvent",
-    "ExecutionEvent"
+    "ExecutionEvent",
 ]

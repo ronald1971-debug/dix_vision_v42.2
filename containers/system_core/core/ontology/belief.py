@@ -15,7 +15,9 @@ class CognitiveBelief(CognitiveObject):
     revision_count: int = 0
 
     @classmethod
-    def create(cls, *, object_id: str, ts_ns: int, domain: str = "unknown", claim: str = "", **kwargs):
+    def create(
+        cls, *, object_id: str, ts_ns: int, domain: str = "unknown", claim: str = "", **kwargs
+    ):
         return cls(
             object_id=object_id,
             object_type=ObjectKind.BELIEF,

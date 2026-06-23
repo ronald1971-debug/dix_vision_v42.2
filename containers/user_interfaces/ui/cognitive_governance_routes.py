@@ -102,8 +102,8 @@ def build_cognitive_governance_router() -> APIRouter:
     def get_knowledge_lifecycle() -> dict[str, Any]:
         """Read knowledge lifecycle state — active and retired knowledge items."""
         try:
-            from cognitive_governance.knowledge_lifecycle import (
-                get_knowledge_lifecycle,  # noqa: PLC0415
+            from cognitive_governance.knowledge_lifecycle import (  # noqa: PLC0415
+                get_knowledge_lifecycle,
             )
 
             manager = get_knowledge_lifecycle()
@@ -134,8 +134,8 @@ def build_cognitive_governance_router() -> APIRouter:
     def get_cognitive_physics() -> dict[str, Any]:
         """Read cognitive physics statistics — belief propagation, decay, uncertainty."""
         try:
-            from cognitive_governance.cognitive_physics import (
-                get_cognitive_physics,  # noqa: PLC0415
+            from cognitive_governance.cognitive_physics import (  # noqa: PLC0415
+                get_cognitive_physics,
             )
 
             engine = get_cognitive_physics()

@@ -1,0 +1,181 @@
+# Data Sources Registry
+# DIX VISION v42.2 - Data Source Configuration
+
+version: "1.0.0"
+created_date: "2026-06-21"
+updated_date: "2026-06-21"
+compatible_with: "DIX VISION v42.2+"
+
+# Signal-First Integration
+signal_first_integration:
+  enabled: true
+  world_context_sources_enabled: true
+  signal_data_sources_enabled: true
+  description: "Data sources configured for signal-first architecture"
+
+# Signal Data Sources (85% of processing)
+signal_data_sources:
+  orderbook:
+    id: ds_001
+    name: Order Book Data
+    category: "signal"
+    priority: "HIGH"
+    enabled: true
+    exchanges:
+      - binance
+      - coinbase
+      - kraken
+    update_frequency: "real-time"
+    description: "Order book data for signal processing"
+    
+  trades:
+    id: ds_002
+    name: Trade Data
+    category: "signal"
+    priority: "HIGH"
+    enabled: true
+    exchanges:
+      - binance
+      - coinbase
+      - kraken
+    update_frequency: "real-time"
+    description: "Trade data for signal processing"
+    
+  price_data:
+    id: ds_003
+    name: Price Data (OHLCV)
+    category: "signal"
+    priority: "HIGH"
+    enabled: true
+    timeframes:
+      - 1m
+      - 5m
+      - 15m
+      - 1h
+      - 4h
+      - 1d
+    description: "OHLCV price data for signal processing"
+    
+  technical_indicators:
+    id: ds_004
+    name: Technical Indicators
+    category: "signal"
+    priority: "HIGH"
+    enabled: true
+    indicators:
+      - RSI
+      - MACD
+      - Bollinger Bands
+      - Moving Averages
+      - ATR
+    description: "Technical indicator data for signal processing"
+    
+  onchain_data:
+    id: ds_005
+    name: On-Chain Data
+    category: "signal"
+    priority: "MEDIUM"
+    enabled: true
+    metrics:
+      - whale_transactions
+      - exchange_flows
+      - network_activity
+      - token_distribution
+    description: "On-chain metrics for signal processing"
+
+# World Context Data Sources (15% of processing)
+world_context_sources:
+  world_indicators:
+    id: ds_101
+    name: World Indicators
+    category: "world_context"
+    priority: "HIGH"
+    enabled: true
+    indicators:
+      - market_regime
+      - volatility_index
+      - fear_greed_index
+      - market_sentiment
+    description: "World indicators for context"
+    
+  social_sentiment:
+    id: ds_102
+    name: Social Sentiment
+    category: "world_context"
+    priority: "MEDIUM"
+    enabled: true
+    sources:
+      - twitter
+      - reddit
+      - telegram
+    description: "Social media sentiment data"
+    
+  news_data:
+    id: ds_103
+    name: News Data
+    category: "world_context"
+    priority: "MEDIUM"
+    enabled: true
+    sources:
+      - crypto_news
+      - financial_news
+      - regulatory_news
+    description: "News data for context"
+    
+  macro_data:
+    id: ds_104
+    name: Macro Economic Data
+    category: "world_context"
+    priority: "LOW"
+    enabled: true
+    metrics:
+      - interest_rates
+      - inflation
+      - gdp
+      - unemployment
+    description: "Macro economic indicators"
+    
+  regime_data:
+    id: ds_105
+    name: Regime Data
+    category: "world_context"
+    priority: "HIGH"
+    enabled: true
+    regime_types:
+      - trending
+      - ranging
+      - volatile
+      - quiet
+    description: "Market regime classification data"
+
+# Data Source Configuration
+data_source_config:
+  quality_requirements:
+    min_data_quality_score: 0.90
+    data_validation_required: true
+    missing_data_handling: "interpolation"
+    outlier_handling: "filtering"
+  
+  performance_requirements:
+    max_latency_ms: 100
+    min_update_frequency: "real-time"
+    historical_data_retention_days: 365
+  
+  governance:
+    require_approval_for_new_sources: true
+    audit_trail_enabled: true
+    source_validation_required: true
+
+# Data Source Integration
+data_source_integration:
+  integration_points:
+    - trading_systems
+    - cognitive_systems
+    - learning_systems
+    - risk_management
+  
+  signal_first_optimization:
+    signal_sources_weight: 0.85
+    world_context_sources_weight: 0.15
+    dynamic_weight_adjustment: true
+    description: "Signal-first data source weight optimization"

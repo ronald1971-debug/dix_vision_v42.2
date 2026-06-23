@@ -47,6 +47,7 @@ def _append(sub_type: str, payload: dict[str, Any]) -> None:
     """Best-effort ledger append — never raises."""
     try:
         from state.ledger.event_store import append_event
+
         append_event(_INTELLIGENCE_EVENT_TYPE, sub_type, _INDIRA_SOURCE, payload)
     except Exception:  # pragma: no cover
         pass
@@ -55,6 +56,7 @@ def _append(sub_type: str, payload: dict[str, Any]) -> None:
 # ---------------------------------------------------------------------------
 # INDIRA cognitive event emitters
 # ---------------------------------------------------------------------------
+
 
 def emit_thought_stream(
     *,
@@ -175,6 +177,7 @@ def emit_memory_formation(
 ) -> str:
     """Emit a MemoryFormationEvent and return its memory_id."""
     from core.contracts.cognitive_observability import MemoryKind
+
     mid = memory_id or str(_uuid.uuid4())
     try:
         kind = MemoryKind(memory_kind)
@@ -220,6 +223,7 @@ def emit_mutation_trace(
 ) -> None:
     """Emit a MutationTraceEvent."""
     from core.contracts.cognitive_observability import GovernanceStatus
+
     try:
         status = GovernanceStatus(governance_status)
     except ValueError:

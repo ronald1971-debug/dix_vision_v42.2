@@ -39,8 +39,9 @@ class CognitiveTime:
         self._current: dict[str, dict] = {}
         self._projected: dict[str, dict] = {}
 
-    def record_belief(self, belief_id: str, domain: str, claim: str,
-                      confidence: float, source: str) -> None:
+    def record_belief(
+        self, belief_id: str, domain: str, claim: str, confidence: float, source: str
+    ) -> None:
         ts_ns = _now_ns()
         rec = BeliefRecord(
             ts_ns=ts_ns,
@@ -62,8 +63,9 @@ class CognitiveTime:
                 self._past[belief_id] = deque(maxlen=500)
             self._past[belief_id].append(rec)
 
-    def project_belief(self, belief_id: str, future_claim: str,
-                       projected_confidence: float, horizon_ns: int) -> dict:
+    def project_belief(
+        self, belief_id: str, future_claim: str, projected_confidence: float, horizon_ns: int
+    ) -> dict:
         ts_ns = _now_ns()
         proj = {
             "belief_id": belief_id,
@@ -114,6 +116,7 @@ class CognitiveTime:
 def _now_ns() -> int:
     try:
         from system.time_source import wall_ns
+
         return wall_ns()
     except Exception:
         return int(_time.time() * 1e9)

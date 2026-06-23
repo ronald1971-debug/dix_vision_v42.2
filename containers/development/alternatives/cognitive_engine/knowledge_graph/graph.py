@@ -65,15 +65,21 @@ class KnowledgeGraph:
 
         return edge
 
-    def connect_trader_strategy(self, trader_id: str, strategy_id: str, strength: float = 1.0) -> KnowledgeEdge | None:
+    def connect_trader_strategy(
+        self, trader_id: str, strategy_id: str, strength: float = 1.0
+    ) -> KnowledgeEdge | None:
         """Connect a trader to a strategy they use."""
         return self.add_edge(trader_id, strategy_id, EdgeType.USES, strength)
 
-    def connect_strategy_regime(self, strategy_id: str, regime_id: str, **props: Any) -> KnowledgeEdge | None:
+    def connect_strategy_regime(
+        self, strategy_id: str, regime_id: str, **props: Any
+    ) -> KnowledgeEdge | None:
         """Connect strategy to regime where it works."""
         return self.add_edge(strategy_id, regime_id, EdgeType.WORKS_DURING, **props)
 
-    def connect_regime_condition(self, regime_id: str, condition: str, strength: float = 1.0) -> KnowledgeEdge | None:
+    def connect_regime_condition(
+        self, regime_id: str, condition: str, strength: float = 1.0
+    ) -> KnowledgeEdge | None:
         """Connect regime to liquidity/volatility condition."""
         return self.add_edge(regime_id, condition, EdgeType.APPEARS_WHEN, strength)
 

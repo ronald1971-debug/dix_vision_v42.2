@@ -45,10 +45,10 @@ class PatchSimulationResult:
     patch_id: str
     instruction_type: str
     target_file: str
-    outcome: str                  # "APPROVED" | "REJECTED" | "DEFERRED"
+    outcome: str  # "APPROVED" | "REJECTED" | "DEFERRED"
     violation_resolved: bool
     new_violations_introduced: int
-    confidence: float             # 0.0–1.0 after simulation discount
+    confidence: float  # 0.0–1.0 after simulation discount
     notes: str
     ts_ns: int
 
@@ -103,12 +103,16 @@ class DyonPatchSimulator:
                 result = self._simulate_add_frozen(instruction, ts_ns=ts_ns)
             else:
                 result = self._deferred(
-                    instruction, ts_ns=ts_ns,
+                    instruction,
+                    ts_ns=ts_ns,
                     notes=f"type={itype}_requires_human_review",
                 )
         except Exception as exc:
-            _logger.debug("DyonPatchSimulator.simulate error on %s: %s",
-                          getattr(instruction, "patch_id", "?"), exc)
+            _logger.debug(
+                "DyonPatchSimulator.simulate error on %s: %s",
+                getattr(instruction, "patch_id", "?"),
+                exc,
+            )
             result = self._rejected(instruction, ts_ns, f"internal_error:{exc}")
 
         self._record_outcome(instruction, result, ts_ns=ts_ns)
@@ -130,9 +134,7 @@ class DyonPatchSimulator:
     # Import removal / redirect simulation
     # ------------------------------------------------------------------
 
-    def _simulate_import_removal(
-        self, instruction: Any, *, ts_ns: int
-    ) -> PatchSimulationResult:
+    def _simulate_import_removal(self, instruction: Any, *, ts_ns: int) -> PatchSimulationResult:
         source = self._read_file(instruction.target_file)
         if source is None:
             return self._rejected(instruction, ts_ns, "file_unreadable")
@@ -172,16 +174,16 @@ class DyonPatchSimulator:
     # ADD_FROZEN simulation
     # ------------------------------------------------------------------
 
-    def _simulate_add_frozen(
-        self, instruction: Any, *, ts_ns: int
-    ) -> PatchSimulationResult:
+    def _simulate_add_frozen(self, instruction: Any, *, ts_ns: int) -> PatchSimulationResult:
         source = self._read_file(instruction.target_file)
         if source is None:
             return self._rejected(instruction, ts_ns, "file_unreadable")
 
         modified = self._apply_add_frozen(source, instruction.target_line)
         if modified is None:
-            return self._rejected(instruction, ts_ns, "dataclass_decorator_not_found_near_target_line")
+            return self._rejected(
+                instruction, ts_ns, "dataclass_decorator_not_found_near_target_line"
+            )
 
         if not self._valid_python(modified):
             return self._rejected(instruction, ts_ns, "modified_source_has_syntax_error")
@@ -195,8 +197,11 @@ class DyonPatchSimulator:
             violation_resolved=not already_present,
             new_violations_introduced=0,
             confidence=instruction.confidence,
-            notes="frozen_annotation_already_present" if already_present
-                  else "frozen_annotation_applicable_and_syntactically_valid",
+            notes=(
+                "frozen_annotation_already_present"
+                if already_present
+                else "frozen_annotation_applicable_and_syntactically_valid"
+            ),
             ts_ns=ts_ns,
         )
 
@@ -224,6 +229,7 @@ class DyonPatchSimulator:
             _iter_imports,
             _module_name_for,
         )
+
         try:
             tree = ast.parse(source)
         except SyntaxError:
@@ -278,8 +284,7 @@ class DyonPatchSimulator:
                 indent = lines[i][: len(lines[i]) - len(lines[i].lstrip())]
                 if "(" in stripped:
                     lines[i] = (
-                        lines[i].rstrip().rstrip(")").rstrip(", ")
-                        + ", frozen=True, slots=True)\n"
+                        lines[i].rstrip().rstrip(")").rstrip(", ") + ", frozen=True, slots=True)\n"
                     )
                 else:
                     lines[i] = indent + "@dataclass(frozen=True, slots=True)\n"
@@ -298,9 +303,7 @@ class DyonPatchSimulator:
     # Result constructors
     # ------------------------------------------------------------------
 
-    def _rejected(
-        self, instruction: Any, ts_ns: int, notes: str
-    ) -> PatchSimulationResult:
+    def _rejected(self, instruction: Any, ts_ns: int, notes: str) -> PatchSimulationResult:
         return PatchSimulationResult(
             patch_id=instruction.patch_id,
             instruction_type=instruction.instruction_type,
@@ -313,9 +316,7 @@ class DyonPatchSimulator:
             ts_ns=ts_ns,
         )
 
-    def _deferred(
-        self, instruction: Any, *, ts_ns: int, notes: str
-    ) -> PatchSimulationResult:
+    def _deferred(self, instruction: Any, *, ts_ns: int, notes: str) -> PatchSimulationResult:
         return PatchSimulationResult(
             patch_id=instruction.patch_id,
             instruction_type=instruction.instruction_type,
@@ -333,11 +334,10 @@ class DyonPatchSimulator:
     # ------------------------------------------------------------------
 
     @staticmethod
-    def _record_outcome(
-        instruction: Any, result: PatchSimulationResult, *, ts_ns: int
-    ) -> None:
+    def _record_outcome(instruction: Any, result: PatchSimulationResult, *, ts_ns: int) -> None:
         try:
             from evolution_engine.dyon.dyon_memory import get_dyon_memory
+
             vkey = (
                 f"{instruction.invariant_id}"
                 f":{getattr(instruction, 'source_module', instruction.target_file)}"

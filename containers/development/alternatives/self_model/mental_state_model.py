@@ -9,9 +9,9 @@ and production-ready mental state management.
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from dataclasses import dataclass
 from enum import Enum
+from typing import List
 
 from system.time_source import now
 
@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 
 class CognitiveState(Enum):
     """Cognitive states."""
+
     FOCUSED = "focused"
     DIVERGENT = "divergent"
     REFLECTIVE = "reflective"
@@ -29,6 +30,7 @@ class CognitiveState(Enum):
 
 class EmotionalState(Enum):
     """Emotional states."""
+
     CALM = "calm"
     CURIOUS = "curious"
     CONFIDENT = "confident"
@@ -39,6 +41,7 @@ class EmotionalState(Enum):
 @dataclass
 class MentalStateSnapshot:
     """Mental state at a point in time."""
+
     snapshot_id: str
     cognitive_state: CognitiveState
     emotional_state: EmotionalState
@@ -49,25 +52,27 @@ class MentalStateSnapshot:
 
 class ProductionMentalStateModel:
     """Production-grade mental state model."""
-    
+
     def __init__(self) -> None:
         self._mental_states: List[MentalStateSnapshot] = []
         self._current_state = MentalStateSnapshot(
             snapshot_id=f"initial_{now().sequence}",
             cognitive_state=CognitiveState.ANALYTICAL,
             emotional_state=EmotionalState.CALM,
-            timestamp=now().utc_time.isoformat()
+            timestamp=now().utc_time.isoformat(),
         )
-        
+
     def start(self) -> bool:
         logger.info("[MENTAL_STATE] Production mental state model started")
         return True
-    
+
     def stop(self) -> bool:
         logger.info("[MENTAL_STATE] Production mental state model stopped")
         return True
-    
-    def update_mental_state(self, cognitive_state: CognitiveState, emotional_state: EmotionalState) -> MentalStateSnapshot:
+
+    def update_mental_state(
+        self, cognitive_state: CognitiveState, emotional_state: EmotionalState
+    ) -> MentalStateSnapshot:
         """Update mental state."""
         snapshot = MentalStateSnapshot(
             snapshot_id=f"mental_{now().sequence}",
@@ -75,7 +80,7 @@ class ProductionMentalStateModel:
             emotional_state=emotional_state,
             confidence=0.7,
             arousal=0.6,
-            timestamp=now().utc_time.isoformat()
+            timestamp=now().utc_time.isoformat(),
         )
         self._mental_states.append(snapshot)
         self._current_state = snapshot

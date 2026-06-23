@@ -88,7 +88,7 @@ class MarketReplay:
 
     def replay(self) -> Iterator[Observation]:
         """Yield observations from market data sequentially."""
-        for tick in self._data[self._position:]:
+        for tick in self._data[self._position :]:
             self._position += 1
             yield Observation(
                 obs_type=ObservationType.PRICE_TICK,

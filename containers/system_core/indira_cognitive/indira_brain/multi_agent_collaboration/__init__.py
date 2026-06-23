@@ -4,25 +4,25 @@ Contract-Compliant Real Implementation
 """
 
 from .multi_agent_collaboration import (
-    AgentRole,
-    NegotiationProtocol,
     Agent,
+    AgentRole,
     CollaborationResult,
-    MultiAgentNegotiation,
     CollaborativeDecisionMaking,
-    SwarmIntelligence,
     MultiAgentCollaborativeIntelligence,
-    get_multi_agent_system
+    MultiAgentNegotiation,
+    NegotiationProtocol,
+    SwarmIntelligence,
+    get_multi_agent_system,
 )
 
 __all__ = [
-    'AgentRole',
-    'NegotiationProtocol',
-    'Agent',
-    'CollaborationResult',
-    'MultiAgentNegotiation',
-    'CollaborativeDecisionMaking',
-    'SwarmIntelligence',
-    'MultiAgentCollaborativeIntelligence',
-    'get_multi_agent_system'
+    "AgentRole",
+    "NegotiationProtocol",
+    "Agent",
+    "CollaborationResult",
+    "MultiAgentNegotiation",
+    "CollaborativeDecisionMaking",
+    "SwarmIntelligence",
+    "MultiAgentCollaborativeIntelligence",
+    "get_multi_agent_system",
 ]

@@ -5,18 +5,16 @@ Creates minimal, efficient verification artifacts for trust validation.
 
 from __future__ import annotations
 
-import dataclasses
 import logging
 import threading
-from collections.abc import Mapping
 from types import MappingProxyType
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from trust_root.core.kernel import FoundationHash, VerificationArtifact, TrustStatus
+    from trust_root.core.kernel import FoundationHash, TrustStatus, VerificationArtifact
 
 # Import for runtime use
-from trust_root.core.kernel import FoundationHash, VerificationArtifact, TrustStatus
+from trust_root.core.kernel import FoundationHash, TrustStatus, VerificationArtifact
 
 _logger = logging.getLogger(__name__)
 
@@ -124,9 +122,7 @@ class LeanArtifactGenerator:
         """
         with self._lock:
             return [
-                artifact
-                for artifact in self._artifacts.values()
-                if artifact.hash_id == hash_id
+                artifact for artifact in self._artifacts.values() if artifact.hash_id == hash_id
             ]
 
     def get_statistics(self) -> dict[str, int]:

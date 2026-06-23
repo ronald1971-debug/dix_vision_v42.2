@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from typing import Any, Dict, List
+from typing import Dict, List
 
 from system.time_source import now
 
@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class LearningState:
     """Learning state of the system."""
+
     state_id: str
     learning_rate: float = 0.1
     knowledge_base_size: int = 0
@@ -29,25 +30,25 @@ class LearningState:
 
 class ProductionLearningModel:
     """Production-grade learning model."""
-    
+
     def __init__(self) -> None:
         self._learning_states: List[LearningState] = []
-        
+
     def start(self) -> bool:
         logger.info("[LEARNING_MODEL] Production learning model started")
         return True
-    
+
     def stop(self) -> bool:
         logger.info("[LEARNING_MODEL] Production learning model stopped")
         return True
-    
+
     def record_learning_state(self, learning_rate: float, knowledge_size: int) -> LearningState:
         """Record learning state."""
         state = LearningState(
             state_id=f"learn_{now().sequence}",
             learning_rate=learning_rate,
             knowledge_base_size=knowledge_size,
-            timestamp=now().utc_time.isoformat()
+            timestamp=now().utc_time.isoformat(),
         )
         self._learning_states.append(state)
         return state

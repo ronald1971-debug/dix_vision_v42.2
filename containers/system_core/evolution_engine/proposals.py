@@ -109,11 +109,7 @@ class ProposalEngine:
         return False
 
     def get_pending(self) -> list[EvolutionProposal]:
-        return [
-            p
-            for p in self._proposals.values()
-            if p.approval_status == ApprovalStatus.PENDING
-        ]
+        return [p for p in self._proposals.values() if p.approval_status == ApprovalStatus.PENDING]
 
     def get_approved(self) -> list[EvolutionProposal]:
         return [p for p in self._proposals.values() if p.is_approved]

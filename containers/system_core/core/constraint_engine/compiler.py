@@ -31,8 +31,6 @@ from enum import StrEnum
 from pathlib import Path
 from typing import Any
 
-import yaml
-
 # R-4 / Phase-6 audit fix — import the ``expr`` submodule via its
 # fully-qualified module path rather than through the package facade
 # ``from core.constraint_engine import expr``. The latter records a
@@ -44,6 +42,7 @@ import yaml
 # byte-identical runtime behaviour (the ``expr_mod`` alias is reused
 # verbatim throughout the rest of this file).
 import core.constraint_engine.expr as expr_mod  # noqa: PLR0402
+import yaml
 from system_engine.authority import AuthorityMatrix, load_authority_matrix
 
 

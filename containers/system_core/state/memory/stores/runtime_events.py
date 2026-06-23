@@ -17,7 +17,7 @@ from typing import Any
 
 from state.memory.contracts import MemoryKind, MemoryRecord
 
-_logger   = logging.getLogger(__name__)
+_logger = logging.getLogger(__name__)
 _MAX_SIZE = 3_000
 
 
@@ -26,7 +26,7 @@ class RuntimeEventMemoryStore:
 
     def __init__(self, max_size: int = _MAX_SIZE) -> None:
         self._max_size = max_size
-        self._lock     = threading.Lock()
+        self._lock = threading.Lock()
         self._records: deque[MemoryRecord] = deque(maxlen=max_size)
         # component → list of (ts_ns, event_type)
         self._by_component: dict[str, list[tuple[int, str]]] = defaultdict(list)
@@ -39,29 +39,31 @@ class RuntimeEventMemoryStore:
     def record_health_event(
         self,
         *,
-        record_id:  str,
-        component:  str,
+        record_id: str,
+        component: str,
         event_type: str,
-        severity:   str,
-        ts_ns:      int,
-        detail:     str,
-        source:     str = "system_monitor",
-        tags:       frozenset[str] = frozenset(),
+        severity: str,
+        ts_ns: int,
+        detail: str,
+        source: str = "system_monitor",
+        tags: frozenset[str] = frozenset(),
     ) -> MemoryRecord:
         rec = MemoryRecord(
-            record_id  = record_id,
-            kind       = MemoryKind.RUNTIME,
-            ts_ns      = ts_ns,
-            source     = source,
-            summary    = f"HEALTH [{severity}] {component}/{event_type}: {detail}",
-            body       = MappingProxyType({
-                "component":  component,
-                "event_type": event_type,
-                "severity":   severity,
-                "detail":     detail,
-            }),
-            tags       = tags | frozenset([component, event_type.lower(), severity.lower(), "health"]),
-            confidence = 1.0 if severity in ("CRITICAL", "ERROR") else 0.5,
+            record_id=record_id,
+            kind=MemoryKind.RUNTIME,
+            ts_ns=ts_ns,
+            source=source,
+            summary=f"HEALTH [{severity}] {component}/{event_type}: {detail}",
+            body=MappingProxyType(
+                {
+                    "component": component,
+                    "event_type": event_type,
+                    "severity": severity,
+                    "detail": detail,
+                }
+            ),
+            tags=tags | frozenset([component, event_type.lower(), severity.lower(), "health"]),
+            confidence=1.0 if severity in ("CRITICAL", "ERROR") else 0.5,
         )
         with self._lock:
             self._records.append(rec)
@@ -72,43 +74,43 @@ class RuntimeEventMemoryStore:
     def record_failure(
         self,
         *,
-        record_id:  str,
-        component:  str,
-        ts_ns:      int,
-        error:      str,
-        source:     str = "system_monitor",
-        tags:       frozenset[str] = frozenset(),
+        record_id: str,
+        component: str,
+        ts_ns: int,
+        error: str,
+        source: str = "system_monitor",
+        tags: frozenset[str] = frozenset(),
     ) -> MemoryRecord:
         return self.record_health_event(
-            record_id  = record_id,
-            component  = component,
-            event_type = "FAILURE",
-            severity   = "CRITICAL",
-            ts_ns      = ts_ns,
-            detail     = error,
-            source     = source,
-            tags       = tags | frozenset(["failure"]),
+            record_id=record_id,
+            component=component,
+            event_type="FAILURE",
+            severity="CRITICAL",
+            ts_ns=ts_ns,
+            detail=error,
+            source=source,
+            tags=tags | frozenset(["failure"]),
         )
 
     def record_recovery(
         self,
         *,
-        record_id:  str,
-        component:  str,
-        ts_ns:      int,
-        strategy:   str,
-        source:     str = "system_monitor",
-        tags:       frozenset[str] = frozenset(),
+        record_id: str,
+        component: str,
+        ts_ns: int,
+        strategy: str,
+        source: str = "system_monitor",
+        tags: frozenset[str] = frozenset(),
     ) -> MemoryRecord:
         return self.record_health_event(
-            record_id  = record_id,
-            component  = component,
-            event_type = "RECOVERY",
-            severity   = "INFO",
-            ts_ns      = ts_ns,
-            detail     = f"recovered via {strategy}",
-            source     = source,
-            tags       = tags | frozenset(["recovery"]),
+            record_id=record_id,
+            component=component,
+            event_type="RECOVERY",
+            severity="INFO",
+            ts_ns=ts_ns,
+            detail=f"recovered via {strategy}",
+            source=source,
+            tags=tags | frozenset(["recovery"]),
         )
 
     # ------------------------------------------------------------------
@@ -145,11 +147,11 @@ class RuntimeEventMemoryStore:
     def snapshot(self) -> dict[str, Any]:
         with self._lock:
             return {
-                "active":           True,
-                "size":             len(self._records),
-                "max_size":         self._max_size,
-                "components":       len(self._by_component),
-                "severity_counts":  dict(self._severity_counts),
+                "active": True,
+                "size": len(self._records),
+                "max_size": self._max_size,
+                "components": len(self._by_component),
+                "severity_counts": dict(self._severity_counts),
                 "recurring_failures": self.recurring_failures(min_count=3),
             }
 

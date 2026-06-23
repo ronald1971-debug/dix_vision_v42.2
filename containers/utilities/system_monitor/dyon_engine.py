@@ -42,12 +42,12 @@ class DyonEngine:
         self._emitter = get_hazard_emitter("dyon.engine")
         self._running = False
         self._thread: threading.Thread | None = None
-        
+
         # NEW: DYON brain adapter integration (v42.2)
         self._dyon_brain_adapter = None
         try:
             from system_monitor.dyon_brain_adapter import get_dyon_brain_adapter
-            
+
             self._dyon_brain_adapter = get_dyon_brain_adapter()
             self._dyon_adapter_initialized = True
         except Exception:
@@ -95,14 +95,14 @@ class DyonEngine:
     def analyze_system_issue_with_new_architecture(self, issue: str, context: dict = None) -> dict:
         """
         Analyze system issue with optional new cognitive architecture enhancement.
-        
+
         This method provides enhanced system analysis using the new DYON Brain Adapter
         when available, while maintaining backward compatibility with the legacy system.
-        
+
         Args:
             issue: Description of the system issue to analyze.
             context: Additional context about the issue (optional).
-            
+
         Returns:
             dict: Analysis results with optional cognitive enhancement.
         """
@@ -110,24 +110,24 @@ class DyonEngine:
         system_data = {
             "issue": issue,
             "context": context,
-            "health": self._health.get_status() if hasattr(self._health, 'get_status') else {},
-            "state": self._state.get().__dict__ if hasattr(self._state, 'get') else {}
+            "health": self._health.get_status() if hasattr(self._health, "get_status") else {},
+            "state": self._state.get().__dict__ if hasattr(self._state, "get") else {},
         }
-        
+
         # Try to enhance with new DYON brain adapter
         if self._dyon_brain_adapter:
             try:
                 enhanced = self._dyon_brain_adapter.analyze_system_issue(
                     issue=issue,
                     context=system_data,
-                    reasoning_mode="causal"  # Default to causal reasoning for system issues
+                    reasoning_mode="causal",  # Default to causal reasoning for system issues
                 )
-                
+
                 if enhanced and enhanced.get("analysis_type") == "enhanced_cognitive":
                     return enhanced
             except Exception as e:
                 self._log.warning(f"New DYON brain analysis failed: {e}")
-        
+
         # Fallback to legacy analysis
         return {
             "analysis_type": "legacy",
@@ -141,7 +141,7 @@ class DyonEngine:
             "recommendations": ["Monitor system health", "Check hazard detector"],
             "latency_ms": 0.0,
             "integration_mode": "fallback",
-            "reasoning_quality": "basic"
+            "reasoning_quality": "basic",
         }
 
 

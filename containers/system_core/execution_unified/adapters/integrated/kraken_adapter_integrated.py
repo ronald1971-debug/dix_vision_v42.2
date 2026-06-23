@@ -15,14 +15,15 @@ Dependencies: base_adapter
 # In a full implementation, the actual adapter code would be migrated here
 # along with necessary compatibility adjustments.
 
+
 class KrakenadapterIntegrated:
     """Integrated kraken_adapter adapter."""
-    
+
     def __init__(self):
         self.name = "kraken_adapter"
         self.source = "execution/adapters/kraken.py"
         self.priority = "CRITICAL"
-        
+
     def execute(self, order_data: dict) -> dict:
         """Execute order using integrated adapter."""
         # Placeholder for actual execution logic

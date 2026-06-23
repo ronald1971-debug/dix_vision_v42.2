@@ -226,8 +226,8 @@ class AdversarialObserver(AgentBase, AgentIntrospection):
             return False
 
         recent_mids = mids[-self.stop_hunt_window :]
-        channel_high = max(highs[: -1]) if len(highs) > 1 else highs[0]
-        channel_low = min(lows[: -1]) if len(lows) > 1 else lows[0]
+        channel_high = max(highs[:-1]) if len(highs) > 1 else highs[0]
+        channel_low = min(lows[:-1]) if len(lows) > 1 else lows[0]
         current_mid = mids[-1]
         peak = max(recent_mids)
         trough = min(recent_mids)
@@ -253,9 +253,7 @@ class AdversarialObserver(AgentBase, AgentIntrospection):
         """
         rationale: list[str] = []
 
-        current_spread = (
-            list(self._spread_window)[-1] if self._spread_window else 0.0
-        )
+        current_spread = list(self._spread_window)[-1] if self._spread_window else 0.0
 
         # Run all detectors.
         patterns: list[str] = []

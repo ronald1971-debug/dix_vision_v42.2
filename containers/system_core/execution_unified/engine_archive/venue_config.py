@@ -65,11 +65,11 @@ BINANCE_PAPER = VenueConfig(
     asset_class="crypto",
     initial_cash=10_000.0,
     slippage_bps=5.0,
-    taker_fee_bps=7.5,        # 0.075 % standard spot taker
+    taker_fee_bps=7.5,  # 0.075 % standard spot taker
     maker_fee_bps=7.5,
-    latency_ns_base=50_000_000,    # 50 ms
+    latency_ns_base=50_000_000,  # 50 ms
     latency_ns_jitter=20_000_000,  # ± 20 ms
-    default_qty=0.001,             # ~1 BTC unit / small default
+    default_qty=0.001,  # ~1 BTC unit / small default
 )
 
 COINBASE_PAPER = VenueConfig(
@@ -79,8 +79,8 @@ COINBASE_PAPER = VenueConfig(
     asset_class="crypto",
     initial_cash=10_000.0,
     slippage_bps=8.0,
-    taker_fee_bps=25.0,       # 0.25 % Advanced Trade Starter taker
-    maker_fee_bps=15.0,       # 0.15 % maker
+    taker_fee_bps=25.0,  # 0.25 % Advanced Trade Starter taker
+    maker_fee_bps=15.0,  # 0.15 % maker
     latency_ns_base=80_000_000,
     latency_ns_jitter=30_000_000,
     default_qty=0.001,
@@ -93,8 +93,8 @@ KRAKEN_PAPER = VenueConfig(
     asset_class="crypto",
     initial_cash=10_000.0,
     slippage_bps=6.0,
-    taker_fee_bps=26.0,       # 0.26 % Starter taker
-    maker_fee_bps=16.0,       # 0.16 % maker
+    taker_fee_bps=26.0,  # 0.26 % Starter taker
+    maker_fee_bps=16.0,  # 0.16 % maker
     latency_ns_base=70_000_000,
     latency_ns_jitter=25_000_000,
     default_qty=0.001,
@@ -105,13 +105,13 @@ ALPACA_PAPER = VenueConfig(
     venue="alpaca:paper",
     exchange="Alpaca",
     asset_class="equity",
-    initial_cash=100_000.0,   # IBKR/Alpaca paper accounts start with 100k
+    initial_cash=100_000.0,  # IBKR/Alpaca paper accounts start with 100k
     slippage_bps=3.0,
-    taker_fee_bps=0.0,        # commission-free US equities + crypto
+    taker_fee_bps=0.0,  # commission-free US equities + crypto
     maker_fee_bps=0.0,
     latency_ns_base=30_000_000,
     latency_ns_jitter=10_000_000,
-    default_qty=1.0,           # 1 share default
+    default_qty=1.0,  # 1 share default
 )
 
 OANDA_PAPER = VenueConfig(
@@ -120,12 +120,12 @@ OANDA_PAPER = VenueConfig(
     exchange="OANDA",
     asset_class="forex",
     initial_cash=50_000.0,
-    slippage_bps=15.0,        # forex spread cost (~1.5 pip EUR/USD)
-    taker_fee_bps=10.0,       # spread equivalent fee (EUR/USD ≈ 1 pip = 10 bps)
+    slippage_bps=15.0,  # forex spread cost (~1.5 pip EUR/USD)
+    taker_fee_bps=10.0,  # spread equivalent fee (EUR/USD ≈ 1 pip = 10 bps)
     maker_fee_bps=10.0,
     latency_ns_base=100_000_000,
     latency_ns_jitter=40_000_000,
-    default_qty=1000.0,       # 1 micro lot = 1000 units
+    default_qty=1000.0,  # 1 micro lot = 1000 units
 )
 
 IBKR_PAPER = VenueConfig(
@@ -135,7 +135,7 @@ IBKR_PAPER = VenueConfig(
     asset_class="multi",
     initial_cash=100_000.0,
     slippage_bps=4.0,
-    taker_fee_bps=5.0,        # IBKR Tiered ~0.05 % US equity
+    taker_fee_bps=5.0,  # IBKR Tiered ~0.05 % US equity
     maker_fee_bps=3.0,
     latency_ns_base=40_000_000,
     latency_ns_jitter=15_000_000,

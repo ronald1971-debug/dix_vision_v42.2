@@ -4,27 +4,27 @@ Contract-Compliant Real Implementation
 """
 
 from .continual_learning import (
+    ContinualLearningResult,
+    ContinualLearningSystem,
+    DynamicNetworkExpansion,
+    ElasticWeightConsolidation,
+    ExperienceReplayWithImportance,
+    KnowledgeDistillation,
     LearningTaskType,
     ParameterImportance,
-    ContinualLearningResult,
-    ElasticWeightConsolidation,
     ProgressNeuralNetworks,
-    ExperienceReplayWithImportance,
-    DynamicNetworkExpansion,
-    KnowledgeDistillation,
-    ContinualLearningSystem,
-    get_continual_learning_system
+    get_continual_learning_system,
 )
 
 __all__ = [
-    'LearningTaskType',
-    'ParameterImportance',
-    'ContinualLearningResult',
-    'ElasticWeightConsolidation',
-    'ProgressNeuralNetworks',
-    'ExperienceReplayWithImportance',
-    'DynamicNetworkExpansion',
-    'KnowledgeDistillation',
-    'ContinualLearningSystem',
-    'get_continual_learning_system'
+    "LearningTaskType",
+    "ParameterImportance",
+    "ContinualLearningResult",
+    "ElasticWeightConsolidation",
+    "ProgressNeuralNetworks",
+    "ExperienceReplayWithImportance",
+    "DynamicNetworkExpansion",
+    "KnowledgeDistillation",
+    "ContinualLearningSystem",
+    "get_continual_learning_system",
 ]

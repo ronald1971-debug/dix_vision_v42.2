@@ -5,8 +5,8 @@ cvxpy Container Health Check
 This script performs health checks for the cvxpy container.
 """
 
-import sys
 import logging
+import sys
 from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
@@ -25,8 +25,8 @@ def check_imports():
 def check_governance_wrapper():
     """Check if governance wrapper can be initialized"""
     try:
-        from cvxpy_governance_wrapper import CvxpyGovernanceWrapper
         from base_external_repo_wrapper import PermissionLevel
+        from cvxpy_governance_wrapper import CvxpyGovernanceWrapper
         
         wrapper = CvxpyGovernanceWrapper(PermissionLevel.READ_ONLY)
         logger.info("Governance wrapper initialization successful")

@@ -11,9 +11,10 @@ from __future__ import annotations
 import threading
 from typing import Any
 
-from .hazard_classifier import classify
-from .escalation_matrix import escalate_severity, should_escalate
 from state.ledger.risk_resolution_log import ResolutionRecord, get_risk_resolution_log
+
+from .escalation_matrix import escalate_severity, should_escalate
+from .hazard_classifier import classify
 
 
 class HazardRouter:

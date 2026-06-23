@@ -27,19 +27,23 @@ from typing import Any
 _logger = logging.getLogger(__name__)
 
 # Packages that must not be imported by higher-level cognitive/governance layers
-_B1_FORBIDDEN_TARGETS: frozenset[str] = frozenset({
-    "execution_engine",
-    "execution",
-})
+_B1_FORBIDDEN_TARGETS: frozenset[str] = frozenset(
+    {
+        "execution_engine",
+        "execution",
+    }
+)
 # Packages considered "upper layers" that must not directly import execution
-_B1_UPPER_LAYERS: frozenset[str] = frozenset({
-    "intelligence_engine",
-    "mind",
-    "learning_engine",
-    "evolution_engine",
-    "governance_engine",
-    "cognitive_governance",
-})
+_B1_UPPER_LAYERS: frozenset[str] = frozenset(
+    {
+        "intelligence_engine",
+        "mind",
+        "learning_engine",
+        "evolution_engine",
+        "governance_engine",
+        "cognitive_governance",
+    }
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -121,6 +125,7 @@ class DependencyGraph:
         If no inspector data is available, returns an empty snapshot.
         """
         import time as _time
+
         t0 = _time.monotonic()
 
         edges: list[tuple[str, str]] = []
@@ -129,6 +134,7 @@ class DependencyGraph:
 
         try:
             from evolution_engine.dyon.repo_inspector import get_repo_inspector
+
             repo_snap = get_repo_inspector().latest_snapshot()
             if repo_snap is not None:
                 edges = list(repo_snap.edge_list)
@@ -156,10 +162,7 @@ class DependencyGraph:
         # Isolated: no in-edges AND no out-edges among repo modules
         sources = {s for s, _ in intra_edges}
         intra_targets = {t for _, t in intra_edges if t in repo_modules}
-        isolated = sorted(
-            m for m in repo_modules
-            if m not in sources and m not in intra_targets
-        )
+        isolated = sorted(m for m in repo_modules if m not in sources and m not in intra_targets)
 
         duration_ms = (_time.monotonic() - t0) * 1000.0
         snap = DependencyGraphSnapshot(
@@ -181,7 +184,11 @@ class DependencyGraph:
 
         _logger.info(
             "DependencyGraph: %d modules, %d edges, %d cycles, %d B1 violations in %.0fms",
-            len(modules), len(intra_edges), len(cycles), len(b1_violations), duration_ms,
+            len(modules),
+            len(intra_edges),
+            len(cycles),
+            len(b1_violations),
+            duration_ms,
         )
         return snap
 
@@ -260,11 +267,13 @@ class DependencyGraph:
                     key = frozenset(path)
                     if key not in seen_keys:
                         seen_keys.add(key)
-                        cycles.append(Cycle(
-                            path=path,
-                            length=len(path),
-                            involves_layer=layer_map.get(path[0], "?"),
-                        ))
+                        cycles.append(
+                            Cycle(
+                                path=path,
+                                length=len(path),
+                                involves_layer=layer_map.get(path[0], "?"),
+                            )
+                        )
                 elif c == WHITE:
                     color[nbr] = GRAY
                     parent[nbr] = node
@@ -294,25 +303,26 @@ class DependencyGraph:
                 continue
             seen.add(key)
             src_layer = layer_map.get(src, "?")
-            violations.append(B1Violation(
-                source_module=src,
-                target_package=tgt_pkg,
-                source_layer=src_layer,
-                description=(
-                    f"B1 violation: {src} ({src_layer}) imports "
-                    f"{tgt_pkg} — cognitive/governance layers must not "
-                    "directly import execution_engine"
-                ),
-            ))
+            violations.append(
+                B1Violation(
+                    source_module=src,
+                    target_package=tgt_pkg,
+                    source_layer=src_layer,
+                    description=(
+                        f"B1 violation: {src} ({src_layer}) imports "
+                        f"{tgt_pkg} — cognitive/governance layers must not "
+                        "directly import execution_engine"
+                    ),
+                )
+            )
         return violations
 
-    def _emit_b1_violations(
-        self, violations: list[B1Violation], ts_ns: int
-    ) -> None:
+    def _emit_b1_violations(self, violations: list[B1Violation], ts_ns: int) -> None:
         try:
             from evolution_engine.charter.dyon_observability_emitter import (
                 emit_dependency_anomaly,
             )
+
             for v in violations[:5]:
                 emit_dependency_anomaly(
                     ts_ns=ts_ns,

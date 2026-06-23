@@ -19,6 +19,7 @@ from simulation.scoring_engine import SimulationScore
 @dataclass(frozen=True, slots=True)
 class StrategyOutcome:
     """Outcome for one strategy in a simulation run."""
+
     strategy_id: str
     scenario_id: str
     score: SimulationScore
@@ -31,6 +32,7 @@ class StrategyOutcome:
 @dataclass(frozen=True, slots=True)
 class SimulationOutcome:
     """Aggregated outcome of a full simulation arena run."""
+
     run_id: str
     scenario_ids: tuple[str, ...]
     strategy_outcomes: tuple[StrategyOutcome, ...]
@@ -74,15 +76,17 @@ def build_simulation_outcome(
         capital = capital_per_strategy.get(score.strategy_id, 0.0)
         final_eq = final_equity_per_strategy.get(score.strategy_id, capital)
         promoted = score.composite_score >= promotion_threshold
-        outcomes.append(StrategyOutcome(
-            strategy_id=score.strategy_id,
-            scenario_id=score.scenario_id,
-            score=score,
-            capital_allocated_usd=capital,
-            final_equity_usd=final_eq,
-            rank=rank,
-            promoted=promoted,
-        ))
+        outcomes.append(
+            StrategyOutcome(
+                strategy_id=score.strategy_id,
+                scenario_id=score.scenario_id,
+                score=score,
+                capital_allocated_usd=capital,
+                final_equity_usd=final_eq,
+                rank=rank,
+                promoted=promoted,
+            )
+        )
 
     scenario_ids = tuple(sorted({s.scenario_id for s in scores}))
     winner_id = ranked[0].strategy_id if ranked else ""

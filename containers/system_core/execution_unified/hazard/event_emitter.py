@@ -10,7 +10,12 @@ from __future__ import annotations
 
 from typing import Any
 
-from execution_unified.hazard.async_bus import HazardEvent, HazardSeverity, HazardType, get_hazard_bus
+from execution_unified.hazard.async_bus import (
+    HazardEvent,
+    HazardSeverity,
+    HazardType,
+    get_hazard_bus,
+)
 from state.ledger.event_store import append_event
 
 

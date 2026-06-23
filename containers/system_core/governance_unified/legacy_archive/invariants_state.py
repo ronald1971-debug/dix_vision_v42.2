@@ -93,11 +93,13 @@ def get_all_descriptions() -> tuple[InvariantDescription, ...]:
             enforcement = "CODE"
         else:
             enforcement = "DOC + REVIEW"
-        out.append(InvariantDescription(
-            invariant_id=inv,
-            severity="MANDATORY",
-            enforcement=enforcement,
-        ))
+        out.append(
+            InvariantDescription(
+                invariant_id=inv,
+                severity="MANDATORY",
+                enforcement=enforcement,
+            )
+        )
     return tuple(out)
 
 

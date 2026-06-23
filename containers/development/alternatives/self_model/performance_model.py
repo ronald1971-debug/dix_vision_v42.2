@@ -10,8 +10,8 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
 from enum import Enum
+from typing import Any, Dict, List
 
 from system.time_source import now
 
@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 
 class PerformanceMetric(Enum):
     """Types of performance metrics."""
+
     ACCURACY = "accuracy"
     SPEED = "speed"
     RELIABILITY = "reliability"
@@ -30,6 +31,7 @@ class PerformanceMetric(Enum):
 @dataclass
 class PerformanceSnapshot:
     """Performance snapshot at a point in time."""
+
     snapshot_id: str
     metrics: Dict[str, float] = field(default_factory=dict)
     context: Dict[str, Any] = field(default_factory=dict)
@@ -38,25 +40,27 @@ class PerformanceSnapshot:
 
 class ProductionPerformanceModel:
     """Production-grade performance model."""
-    
+
     def __init__(self) -> None:
         self._performance_history: List[PerformanceSnapshot] = []
-        
+
     def start(self) -> bool:
         logger.info("[PERFORMANCE_MODEL] Production performance model started")
         return True
-    
+
     def stop(self) -> bool:
         logger.info("[PERFORMANCE_MODEL] Production performance model stopped")
         return True
-    
-    def record_performance(self, metrics: Dict[str, float], context: Dict[str, Any] = None) -> PerformanceSnapshot:
+
+    def record_performance(
+        self, metrics: Dict[str, float], context: Dict[str, Any] = None
+    ) -> PerformanceSnapshot:
         """Record performance metrics."""
         snapshot = PerformanceSnapshot(
             snapshot_id=f"perf_{now().sequence}",
             metrics=metrics,
             context=context or {},
-            timestamp=now().utc_time.isoformat()
+            timestamp=now().utc_time.isoformat(),
         )
         self._performance_history.append(snapshot)
         return snapshot

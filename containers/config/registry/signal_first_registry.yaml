@@ -1,0 +1,230 @@
+# Signal-First Architecture Registry
+# DIX VISION v42.2 - Phase 1 Signal-First Configuration
+# 85/15 Universal Baseline: 85% signal processing, 15% world context
+
+signal_first_config:
+  # Universal baseline ratio
+  baseline_ratio:
+    signal: 0.85  # 85% signal processing
+    world: 0.15    # 15% world context
+    description: "Universal signal-first baseline for all operations"
+    
+  # Dashboard control system
+  dashboard_control:
+    enabled: true
+    slider_range:
+      min: 0.50
+      max: 0.95
+      default: 0.85
+      step: 0.01
+    allow_manual_override: true
+    operator_control: true
+    description: "Dashboard slider control for signal-world ratio adjustment"
+    
+  # Auto-adjustment capabilities
+  auto_adjustment:
+    enabled: true
+    by_regime: true
+    by_trading_form: true
+    by_market_condition: true
+    by_volatility: false
+    description: "Automatic ratio adjustment based on conditions"
+    
+  # Governance integration
+  governance:
+    require_approval: true
+    audit_trail: true
+    log_all_changes: true
+    require_operator_id: true
+    min_approval_threshold: 0.70  # 70% governance approval required
+    description: "Governance requirements for signal-first operations"
+    
+  # World context integration
+  world_context:
+    enabled: true
+    weight: 0.15  # 15% world context baseline
+    sources:
+      - world_indicators
+      - regime_data
+      - market_conditions
+      - risk_metrics
+    description: "World context integration for signal-first architecture"
+    
+  # Trading form optimization
+  trading_form_optimization:
+    enabled: true
+    form_specific_ratios: true
+    auto_optimize: true
+    description: "Trading form-specific optimal ratio optimization"
+
+# Trading form specific ratios
+trading_form_ratios:
+  discretionary_hybrid:
+    category: discretionary_hybrid
+    domain: crypto
+    timeframe: swing
+    execution_mode: semi_auto
+    optimal_ratio:
+      signal: 0.85
+      world: 0.15
+    allowed_range:
+      signal: [0.70, 0.95]
+      world: [0.05, 0.30]
+    description: "Discretionary hybrid trading optimal ratio"
+    
+  liquidity_focused:
+    category: liquidity_focused
+    domain: crypto
+    timeframe: intraday
+    execution_mode: auto
+    optimal_ratio:
+      signal: 0.80
+      world: 0.20
+    allowed_range:
+      signal: [0.65, 0.90]
+      world: [0.10, 0.35]
+    description: "Liquidity focused trading optimal ratio"
+    
+  trend_following:
+    category: trend_momentum
+    domain: crypto
+    timeframe: swing
+    execution_mode: semi_auto
+    optimal_ratio:
+      signal: 0.82
+      world: 0.18
+    allowed_range:
+      signal: [0.67, 0.92]
+      world: [0.08, 0.33]
+    description: "Trend following trading optimal ratio"
+    
+  mean_reversion:
+    category: trend_momentum
+    domain: crypto
+    timeframe: swing
+    execution_mode: semi_auto
+    optimal_ratio:
+      signal: 0.78
+      world: 0.22
+    allowed_range:
+      signal: [0.63, 0.88]
+      world: [0.12, 0.37]
+    description: "Mean reversion trading optimal ratio"
+    
+  volatility_exploitation:
+    category: volatility_options
+    domain: crypto
+    timeframe: intraday
+    execution_mode: auto
+    optimal_ratio:
+      signal: 0.75
+      world: 0.25
+    allowed_range:
+      signal: [0.60, 0.85]
+      world: [0.15, 0.40]
+    description: "Volatility exploitation trading optimal ratio"
+    
+  crypto_arbitrage:
+    category: arbitrage
+    domain: crypto
+    timeframe: scalping
+    execution_mode: auto
+    optimal_ratio:
+      signal: 0.90
+      world: 0.10
+    allowed_range:
+      signal: [0.75, 0.95]
+      world: [0.05, 0.25]
+    description: "Crypto arbitrage trading optimal ratio"
+    
+  portfolio_hybrid:
+    category: portfolio_hybrid
+    domain: crypto
+    timeframe: swing
+    execution_mode: semi_auto
+    optimal_ratio:
+      signal: 0.85
+      world: 0.15
+    allowed_range:
+      signal: [0.70, 0.95]
+      world: [0.05, 0.30]
+    description: "Portfolio hybrid trading optimal ratio"
+
+# Domain-specific ratios
+domain_specific_ratios:
+  crypto:
+    name: Cryptocurrency
+    enabled: true
+    default_signal_ratio: 0.85
+    allowed_range:
+      signal: [0.70, 0.95]
+      world: [0.05, 0.30]
+    description: "Cryptocurrency domain-specific optimal ratios"
+    
+  forex:
+    name: Foreign Exchange
+    enabled: false  # Can be enabled later
+    default_signal_ratio: 0.80
+    allowed_range:
+      signal: [0.65, 0.90]
+      world: [0.10, 0.35]
+    description: "Foreign exchange domain-specific optimal ratios"
+    
+  stocks:
+    name: Stocks
+    enabled: false
+    default_signal_ratio: 0.75
+    allowed_range:
+      signal: [0.60, 0.85]
+      world: [0.15, 0.40]
+    description: "Stocks domain-specific optimal ratios"
+    
+  futures:
+    name: Futures
+    enabled: false
+    default_signal_ratio: 0.82
+    allowed_range:
+      signal: [0.67, 0.92]
+      world: [0.08, 0.33]
+    description: "Futures domain-specific optimal ratios"
+    
+  options:
+    name: Options
+    enabled: false
+    default_signal_ratio: 0.78
+    allowed_range:
+      signal: [0.63, 0.88]
+      world: [0.12, 0.37]
+    description: "Options domain-specific optimal ratios"
+    
+  commodities:
+    name: Commodities
+    enabled: false
+    default_signal_ratio: 0.80
+    allowed_range:
+      signal: [0.65, 0.90]
+      world: [0.10, 0.35]
+    description: "Commodities domain-specific optimal ratios"
+
+# System-wide settings
+system_settings:
+  default_ratio: 0.85
+  max_ratio: 0.95
+  min_ratio: 0.50
+  require_dashboard_approval_for_extreme_ratios: true
+  extreme_ratio_threshold: 0.90
+  description: "System-wide signal-first constraints"
+
+# Validation rules
+validation:
+  enforce_ratio_range: true
+  validate_before_operation: true
+  auto_correct_invalid_ratios: true
+  log_validation_failures: true
+  description: "Signal-first validation rules"
+
+# Version information
+version: "1.0.0"
+created_date: "2026-06-21"
+updated_date: "2026-06-21"
+compatible_with: "DIX VISION v42.2+"

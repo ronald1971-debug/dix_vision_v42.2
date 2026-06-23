@@ -132,11 +132,9 @@ def parse_ticker_frame(
 class _WSConnection(Protocol):
     """Minimal subset of ``websockets.WebSocketClientProtocol`` we use."""
 
-    def __aiter__(self) -> AsyncIterable[str]:
-        ...
+    def __aiter__(self) -> AsyncIterable[str]: ...
 
-    async def close(self) -> None:
-        ...
+    async def close(self) -> None: ...
 
 
 WSConnect = Callable[[str], Awaitable[_WSConnection]]

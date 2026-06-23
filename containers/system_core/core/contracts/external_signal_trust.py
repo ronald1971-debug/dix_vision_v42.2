@@ -15,7 +15,6 @@ from pathlib import Path
 from types import MappingProxyType
 
 import yaml
-
 from core.contracts.signal_trust import SignalTrust, default_cap_for
 
 DEFAULT_REGISTRY_PATH = "registry/external_signal_trust.yaml"

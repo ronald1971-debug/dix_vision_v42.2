@@ -4,12 +4,12 @@ Real implementations for API-related contracts
 """
 
 from .credentials import (
-    PresenceState,
     CredentialItem,
     CredentialsStatusResponse,
     CredentialsSummary,
+    PresenceState,
     PresenceStateApi,
-    get_presence_state_api
+    get_presence_state_api,
 )
 
 __all__ = [
@@ -18,5 +18,5 @@ __all__ = [
     "CredentialsStatusResponse",
     "CredentialsSummary",
     "PresenceStateApi",
-    "get_presence_state_api"
+    "get_presence_state_api",
 ]

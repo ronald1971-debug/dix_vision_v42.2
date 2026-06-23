@@ -37,11 +37,11 @@ _logger = logging.getLogger(__name__)
 class TournamentGenome:
     """One strategy genome entering the mutation tournament."""
 
-    genome_id: str         # unique identifier
-    description: str       # human-readable description
-    params: dict[str, float]   # mutable strategy parameters
-    mutation_class: str    # CLASS_A | CLASS_B | CLASS_C
-    source_module: str     # originating module (for pipeline submission)
+    genome_id: str  # unique identifier
+    description: str  # human-readable description
+    params: dict[str, float]  # mutable strategy parameters
+    mutation_class: str  # CLASS_A | CLASS_B | CLASS_C
+    source_module: str  # originating module (for pipeline submission)
 
     def __hash__(self) -> int:
         return hash(self.genome_id)
@@ -56,8 +56,8 @@ class TournamentSurvivor:
 
     genome: TournamentGenome
     fitness: float
-    scenario_scores: dict[str, float]   # scenario → pnl_mean_usd
-    rank: int                           # 1 = best
+    scenario_scores: dict[str, float]  # scenario → pnl_mean_usd
+    rank: int  # 1 = best
 
 
 @dataclass
@@ -82,6 +82,7 @@ def _run_flash_crash_scenario(genome: TournamentGenome, ts_ns: int, seed: int) -
     """Flash crash: how much does the genome lose / recover?"""
     try:
         from simulation.adversarial.flash_crash_synth import FlashCrashParams, generate
+
         params = FlashCrashParams(
             crash_pct=0.15,
             recovery_pct=0.6,
@@ -102,9 +103,12 @@ def _run_regime_switch_scenario(genome: TournamentGenome, ts_ns: int, seed: int)
     """Regime switch: how well does the genome adapt?"""
     try:
         from simulation.regime_switch_sim import RegimeSwitchParams, simulate
+
         params = RegimeSwitchParams(n_regimes=3, bars_per_regime=50, seed=seed)
         result = simulate(params=params, ts_ns=ts_ns)
-        regime_sens = genome.params.get("regime_sensitivity", genome.params.get("macro_awareness", 0.5))
+        regime_sens = genome.params.get(
+            "regime_sensitivity", genome.params.get("macro_awareness", 0.5)
+        )
         score = getattr(result, "adaptability_score", 0.5)
         return float(score * regime_sens * 100.0)
     except Exception:
@@ -116,6 +120,7 @@ def _run_stop_hunter_scenario(genome: TournamentGenome, ts_ns: int, seed: int) -
     """Stop-hunter adversarial: how much liquidity is captured vs lost?"""
     try:
         from simulation.adversarial.stop_hunter import StopHunterParams, simulate
+
         params = StopHunterParams(hunt_intensity=0.7, seed=seed)
         result = simulate(params=params, ts_ns=ts_ns)
         patience = genome.params.get("patience", 0.5)
@@ -204,10 +209,16 @@ class MutationTournament:
                 sharpe_ratio=pnl_mean / max(1.0, max_dd),
                 win_rate=min(1.0, pnl_mean / 100.0),
             )
-            contestants.append((genome, scores, Contestant(
-                strategy_id=genome.genome_id,
-                summary=summary,
-            )))
+            contestants.append(
+                (
+                    genome,
+                    scores,
+                    Contestant(
+                        strategy_id=genome.genome_id,
+                        summary=summary,
+                    ),
+                )
+            )
 
         # Tournament selection via Arena
         arena_contestants = [c for _, _, c in contestants]
@@ -233,12 +244,14 @@ class MutationTournament:
             if sid in genome_map:
                 g, scores = genome_map[sid]
                 fitness = sum(scores.values()) / max(1, len(scores))
-                survivors.append(TournamentSurvivor(
-                    genome=g,
-                    fitness=round(fitness, 4),
-                    scenario_scores=scores,
-                    rank=rank,
-                ))
+                survivors.append(
+                    TournamentSurvivor(
+                        genome=g,
+                        fitness=round(fitness, 4),
+                        scenario_scores=scores,
+                        rank=rank,
+                    )
+                )
 
         return TournamentRun(
             ts_ns=ts_ns,

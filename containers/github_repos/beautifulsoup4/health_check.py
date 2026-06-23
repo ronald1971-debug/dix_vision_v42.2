@@ -5,8 +5,8 @@ beautifulsoup4 Container Health Check
 This script performs health checks for the beautifulsoup4 container.
 """
 
-import sys
 import logging
+import sys
 from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
@@ -25,8 +25,8 @@ def check_imports():
 def check_governance_wrapper():
     """Check if governance wrapper can be initialized"""
     try:
-        from beautifulsoup4_governance_wrapper import Beautifulsoup4GovernanceWrapper
         from base_external_repo_wrapper import PermissionLevel
+        from beautifulsoup4_governance_wrapper import Beautifulsoup4GovernanceWrapper
         
         wrapper = Beautifulsoup4GovernanceWrapper(PermissionLevel.READ_ONLY)
         logger.info("Governance wrapper initialization successful")

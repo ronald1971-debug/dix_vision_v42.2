@@ -45,13 +45,12 @@ from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
 from typing import Any, Protocol
 
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel, Field
-
 from core.contracts.engine import MicrostructurePlugin, PluginLifecycle
+from fastapi import APIRouter, HTTPException
 from governance_unified.control_plane.ledger_authority_writer import (
     LedgerAuthorityWriter,
 )
+from pydantic import BaseModel, Field
 
 
 class _StartStopFeed(Protocol):

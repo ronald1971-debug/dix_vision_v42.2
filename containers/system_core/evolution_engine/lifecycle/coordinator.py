@@ -135,9 +135,7 @@ class EvolutionLifecycleCoordinator:
     # Operator API
     # ------------------------------------------------------------------
 
-    def approve_governance(
-        self, proposal_id: str, operator_id: str, ts_ns: int
-    ) -> bool:
+    def approve_governance(self, proposal_id: str, operator_id: str, ts_ns: int) -> bool:
         """Operator approves a proposal at GOV_REVIEW stage."""
         with self._lock:
             record = self._active.get(proposal_id)
@@ -145,6 +143,7 @@ class EvolutionLifecycleCoordinator:
                 return False
 
         from evolution_engine.lifecycle.contracts import GovernanceDecision
+
         decision = GovernanceDecision(
             verdict="APPROVED",
             operator_id=operator_id,
@@ -166,6 +165,7 @@ class EvolutionLifecycleCoordinator:
                 return False
 
         from evolution_engine.lifecycle.contracts import GovernanceDecision
+
         decision = GovernanceDecision(
             verdict="DENIED",
             operator_id=operator_id,
@@ -177,26 +177,25 @@ class EvolutionLifecycleCoordinator:
         self._reject(record, f"governance rejected: {reason}", ts_ns)
         return True
 
-    def trigger_rollback(
-        self, proposal_id: str, reason: str, operator_id: str, ts_ns: int
-    ) -> bool:
+    def trigger_rollback(self, proposal_id: str, reason: str, operator_id: str, ts_ns: int) -> bool:
         """Operator or watchdog triggers rollback of a promoted proposal."""
         with self._lock:
             record = self._active.get(proposal_id)
             if record is None or record.stage not in (
-                LifecycleStage.PROMOTED, LifecycleStage.REPLAY_AUDIT
+                LifecycleStage.PROMOTED,
+                LifecycleStage.REPLAY_AUDIT,
             ):
                 return False
 
-        self._execute_rollback(record, trigger="OPERATOR", operator_id=operator_id,
-                               reason=reason, ts_ns=ts_ns)
+        self._execute_rollback(
+            record, trigger="OPERATOR", operator_id=operator_id, reason=reason, ts_ns=ts_ns
+        )
         return True
 
-    def approve_deployment(
-        self, proposal_id: str, operator_id: str, ts_ns: int
-    ) -> bool:
+    def approve_deployment(self, proposal_id: str, operator_id: str, ts_ns: int) -> bool:
         """Operator approves deployment for CLASS_B / CLASS_C proposals."""
         from evolution_engine.lifecycle.deployment import get_deployment_gate
+
         gate = get_deployment_gate()
         dr = gate.approve_deployment(proposal_id, operator_id, ts_ns)
         if dr is None:
@@ -280,6 +279,7 @@ class EvolutionLifecycleCoordinator:
             # CLASS_A: auto-approve; B/C: wait for operator
             if self._auto_approve_a and record.mutation_class == "CLASS_A":
                 from evolution_engine.lifecycle.contracts import GovernanceDecision
+
                 decision = GovernanceDecision(
                     verdict="AUTO_APPROVED",
                     operator_id="AUTO",
@@ -308,6 +308,7 @@ class EvolutionLifecycleCoordinator:
 
     def _run_sandbox(self, record: ProposalRecord, ts_ns: int) -> None:
         from evolution_engine.lifecycle.sandbox import get_sandbox_runner
+
         result = get_sandbox_runner().run(record, ts_ns)
         record.sandbox_result = result
         record.advance(LifecycleStage.SANDBOX, f"sandbox={result.outcome}", ts_ns)
@@ -316,6 +317,7 @@ class EvolutionLifecycleCoordinator:
 
     def _run_simulation(self, record: ProposalRecord, ts_ns: int) -> None:
         from evolution_engine.lifecycle.simulation import get_simulation_evaluator
+
         result = get_simulation_evaluator().evaluate(record, ts_ns)
         record.simulation_result = result
         record.advance(
@@ -333,6 +335,7 @@ class EvolutionLifecycleCoordinator:
 
     def _run_benchmark(self, record: ProposalRecord, ts_ns: int) -> None:
         from evolution_engine.lifecycle.benchmark import get_benchmark_engine
+
         result = get_benchmark_engine().run(record, ts_ns)
         record.benchmark_result = result
         record.advance(
@@ -361,6 +364,7 @@ class EvolutionLifecycleCoordinator:
 
     def _transition_to_promoted(self, record: ProposalRecord, ts_ns: int) -> None:
         from evolution_engine.lifecycle.rollback import get_rollback_engine
+
         snapshot_key = get_rollback_engine().register_for_rollback(record, ts_ns)
         record.advance(LifecycleStage.PROMOTED, f"promoted snapshot={snapshot_key[:12]}", ts_ns)
         record.add_audit("PROMOTED", f"promoted snapshot_key={snapshot_key}", "SYSTEM", ts_ns)
@@ -375,20 +379,23 @@ class EvolutionLifecycleCoordinator:
         ts_ns: int,
     ) -> None:
         from evolution_engine.lifecycle.rollback import get_rollback_engine
+
         rr = get_rollback_engine().execute_rollback(
             record, trigger=trigger, operator_id=operator_id, reason=reason, ts_ns=ts_ns
         )
         record.rollback_record = rr
         record.rolled_back = True
         record.advance(LifecycleStage.ROLLED_BACK, f"rollback trigger={trigger}", ts_ns)
-        record.add_audit("ROLLED_BACK", f"trigger={trigger} by={operator_id}: {reason}",
-                         operator_id, ts_ns)
+        record.add_audit(
+            "ROLLED_BACK", f"trigger={trigger} by={operator_id}: {reason}", operator_id, ts_ns
+        )
         self._emit_transition(record.proposal_id, LifecycleStage.ROLLED_BACK, ts_ns)
         # Rolled-back proposals still go through REPLAY_AUDIT
         self._run_replay_audit(record, ts_ns)
 
     def _run_replay_audit(self, record: ProposalRecord, ts_ns: int) -> None:
         from evolution_engine.lifecycle.audit import get_replay_audit_trail
+
         trail = get_replay_audit_trail()
         trail.record_proposal(record)
         record.advance(LifecycleStage.REPLAY_AUDIT, "audit trail persisted", ts_ns)
@@ -403,6 +410,7 @@ class EvolutionLifecycleCoordinator:
 
     def _run_deployment(self, record: ProposalRecord, ts_ns: int) -> None:
         from evolution_engine.lifecycle.deployment import get_deployment_gate
+
         gate = get_deployment_gate(auto_deploy_class_a=self._auto_deploy_a)
         dr = gate.enter(record, ts_ns)
         if dr is not None:
@@ -420,6 +428,7 @@ class EvolutionLifecycleCoordinator:
         # Persist audit before finalising
         try:
             from evolution_engine.lifecycle.audit import get_replay_audit_trail
+
             get_replay_audit_trail().record_proposal(record)
         except Exception:
             pass
@@ -438,21 +447,24 @@ class EvolutionLifecycleCoordinator:
     # ------------------------------------------------------------------
 
     @staticmethod
-    def _emit_transition(
-        proposal_id: str, stage: LifecycleStage, ts_ns: int
-    ) -> None:
+    def _emit_transition(proposal_id: str, stage: LifecycleStage, ts_ns: int) -> None:
         try:
             from state.event_bus import CognitiveChannel, get_event_bus
-            get_event_bus().publish(CognitiveChannel.DYON_PROPOSAL, {
-                "proposal_id": proposal_id,
-                "lifecycle_stage": stage.value,
-                "lifecycle_coordinator": True,
-                "ts_ns": ts_ns,
-            })
+
+            get_event_bus().publish(
+                CognitiveChannel.DYON_PROPOSAL,
+                {
+                    "proposal_id": proposal_id,
+                    "lifecycle_stage": stage.value,
+                    "lifecycle_coordinator": True,
+                    "ts_ns": ts_ns,
+                },
+            )
         except Exception:
             pass
         try:
             from evolution_engine.charter.dyon_observability_emitter import emit_patch_proposal
+
             emit_patch_proposal(
                 ts_ns=ts_ns,
                 proposal_id=proposal_id,

@@ -84,8 +84,9 @@ class LiquidityAttackResult:
     digest: str
 
 
-def _canonical_json(ts_ns: int, symbol: str, depth_removed_pct: float,
-                    slippage_multiplier: float) -> bytes:
+def _canonical_json(
+    ts_ns: int, symbol: str, depth_removed_pct: float, slippage_multiplier: float
+) -> bytes:
     """Return a stable UTF-8 JSON encoding for hashing."""
     doc = {
         "ts_ns": ts_ns,
@@ -146,9 +147,7 @@ class LiquidityAttacker:
         if not symbol:
             raise ValueError("LiquidityAttacker.simulate: symbol must be non-empty")
         if ts_ns < 0:
-            raise ValueError(
-                f"LiquidityAttacker.simulate: ts_ns must be >= 0, got {ts_ns!r}"
-            )
+            raise ValueError(f"LiquidityAttacker.simulate: ts_ns must be >= 0, got {ts_ns!r}")
 
         params = self._params
         rng = random.Random(params.seed)

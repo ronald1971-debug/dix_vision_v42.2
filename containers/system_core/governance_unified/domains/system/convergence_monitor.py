@@ -83,9 +83,7 @@ class ConvergenceMonitor:
 
         # Determine convergence state
         with self._lock:
-            prev_score, last_improvement_ts = self._progress.get(
-                subsystem, (0.0, ts_ns)
-            )
+            prev_score, last_improvement_ts = self._progress.get(subsystem, (0.0, ts_ns))
             if score > prev_score:
                 last_improvement_ts = ts_ns
             self._progress[subsystem] = (score, last_improvement_ts)
@@ -174,9 +172,7 @@ class ConvergenceMonitor:
                 for s, r in records.items()
                 if r.state in (ConvergenceState.DIVERGING, ConvergenceState.STALLED)
             ],
-            "integrated": [
-                s for s, r in records.items() if r.state is ConvergenceState.INTEGRATED
-            ],
+            "integrated": [s for s, r in records.items() if r.state is ConvergenceState.INTEGRATED],
         }
 
 

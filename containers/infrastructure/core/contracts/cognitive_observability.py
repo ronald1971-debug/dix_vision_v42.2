@@ -3,10 +3,10 @@ Core Contracts Cognitive Observability
 Real implementation for cognitive observability tracking
 """
 
+import time
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, Any, List, Optional
-import time
+from typing import Any, Dict, List, Optional
 
 # Predefined observability streams
 DYON_SYSTEM_STREAM = "dyon_system_stream"
@@ -16,8 +16,10 @@ DYON_EXPLORATION_STREAM = "dyon_exploration_stream"
 DYON_LEARNING_STREAM = "dyon_learning_stream"
 DYON_ADAPTATION_STREAM = "dyon_adaptation_stream"
 
+
 class CognitiveState(Enum):
     """Cognitive state enumeration"""
+
     NORMAL = "normal"
     UNCERTAIN = "uncertain"
     CONFUSED = "confused"
@@ -29,16 +31,20 @@ class CognitiveState(Enum):
     DECIDING = "deciding"
     ACTING = "acting"
 
+
 class ObservabilityLevel(Enum):
     """Observability level enumeration"""
+
     NONE = "none"
     BASIC = "basic"
     DETAILED = "detailed"
     COMPREHENSIVE = "comprehensive"
     DEBUG = "debug"
 
+
 class CognitiveEventKind(Enum):
     """Cognitive event kind enumeration"""
+
     REASONING_START = "reasoning_start"
     REASONING_STEP = "reasoning_step"
     REASONING_COMPLETE = "reasoning_complete"
@@ -54,8 +60,10 @@ class CognitiveEventKind(Enum):
     COGNITIVE_DRIFT = "cognitive_drift"
     SYSTEM_STATE_CHANGE = "system_state_change"
 
+
 class DependencyAnomalyKind(Enum):
     """Dependency anomaly kind enumeration"""
+
     CYCLICAL_DEPENDENCY = "cyclic_dependency"
     MISSING_DEPENDENCY = "missing_dependency"
     VERSION_MISMATCH = "version_mismatch"
@@ -66,16 +74,20 @@ class DependencyAnomalyKind(Enum):
     RUNTIME_ERROR = "runtime_error"
     LOADING_FAILURE = "loading_failure"
 
+
 class DriftSeverity(Enum):
     """Drift severity enumeration"""
+
     CRITICAL = "critical"
     HIGH = "high"
     MEDIUM = "medium"
     LOW = "low"
     NEGLIGIBLE = "negligible"
 
+
 class GovernanceStatus(Enum):
     """Governance status enumeration"""
+
     ACTIVE = "active"
     INACTIVE = "inactive"
     SUSPENDED = "suspended"
@@ -87,8 +99,10 @@ class GovernanceStatus(Enum):
     OPTIMAL = "optimal"
     WARNING = "warning"
 
+
 class PatchKind(Enum):
     """Patch kind enumeration"""
+
     BUGFIX = "bugfix"
     FEATURE = "feature"
     REFACTOR = "refactor"
@@ -100,8 +114,10 @@ class PatchKind(Enum):
     EVOLUTIONARY = "evolutionary"
     REVOLUTIONARY = "revolutionary"
 
+
 class RepairOutcome(Enum):
     """Repair outcome enumeration"""
+
     SUCCESS = "success"
     FAILURE = "failure"
     PARTIAL = "partial"
@@ -113,8 +129,10 @@ class RepairOutcome(Enum):
     ROLLED_BACK = "rolled_back"
     PENDING = "pending"
 
+
 class RepairStage(Enum):
     """Repair stage enumeration"""
+
     DETECTION = "detection"
     ANALYSIS = "analysis"
     PROPOSAL = "proposal"
@@ -126,9 +144,11 @@ class RepairStage(Enum):
     COMPLETION = "completion"
     POST_MORTTEM = "post_mortem"
 
+
 @dataclass
 class CognitiveObservability:
     """Cognitive observability information"""
+
     observability_id: str
     cognitive_state: CognitiveState
     confidence: float
@@ -138,27 +158,31 @@ class CognitiveObservability:
     context: Dict[str, Any] = field(default_factory=dict)
     timestamp: float = field(default_factory=time.time)
     observability_level: ObservabilityLevel = ObservabilityLevel.DETAILED
-    
+
     def is_confident(self) -> bool:
         """Check if cognitive state is confident"""
         return self.cognitive_state in [CognitiveState.CONFIDENT, CognitiveState.NORMAL]
-    
+
     def is_uncertain(self) -> bool:
         """Check if cognitive state is uncertain"""
-        return self.cognitive_state in [CognitiveState.UNCERTAIN, CognitiveState.CONFUSED, CognitiveState.UNCERTAINLY]
-    
+        return self.cognitive_state in [
+            CognitiveState.UNCERTAIN,
+            CognitiveState.CONFUSED,
+            CognitiveState.UNCERTAINLY,
+        ]
+
     def add_reasoning_step(self, step: str) -> None:
         """Add a reasoning step"""
         self.reasoning_trace.append(step)
-    
+
     def add_decision(self, decision: str) -> None:
         """Add a decision"""
         self.decisions.append(decision)
-    
+
     def add_assumption(self, assumption: str) -> None:
         """Add an assumption"""
         self.assumptions.append(assumption)
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary"""
         return {
@@ -170,12 +194,14 @@ class CognitiveObservability:
             "assumptions": self.assumptions,
             "context": self.context,
             "timestamp": self.timestamp,
-            "observability_level": self.observability_level.value
+            "observability_level": self.observability_level.value,
         }
+
 
 @dataclass
 class ArchitecturalDriftEvent:
     """Architectural drift event"""
+
     event_id: str
     drift_type: str
     severity: str
@@ -183,11 +209,11 @@ class ArchitecturalDriftEvent:
     timestamp: float = field(default_factory=time.time)
     context: Dict[str, Any] = field(default_factory=dict)
     mitigation: str = ""
-    
+
     def is_critical(self) -> bool:
         """Check if drift event is critical"""
         return self.severity == "critical"
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary"""
         return {
@@ -197,12 +223,14 @@ class ArchitecturalDriftEvent:
             "description": self.description,
             "timestamp": self.timestamp,
             "context": self.context,
-            "mitigation": self.mitigation
+            "mitigation": self.mitigation,
         }
+
 
 @dataclass
 class DependencyAnomalyEvent:
     """Dependency anomaly event"""
+
     event_id: str
     anomaly_type: str
     severity: str
@@ -211,11 +239,11 @@ class DependencyAnomalyEvent:
     timestamp: float = field(default_factory=time.time)
     context: Dict[str, Any] = field(default_factory=dict)
     resolution: str = ""
-    
+
     def is_critical(self) -> bool:
         """Check if anomaly event is critical"""
         return self.severity == "critical"
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary"""
         return {
@@ -226,12 +254,14 @@ class DependencyAnomalyEvent:
             "affected_modules": self.affected_modules,
             "timestamp": self.timestamp,
             "context": self.context,
-            "resolution": self.resolution
+            "resolution": self.resolution,
         }
+
 
 @dataclass
 class PatchProposalEvent:
     """Patch proposal event"""
+
     event_id: str
     patch_kind: PatchKind
     description: str
@@ -240,11 +270,11 @@ class PatchProposalEvent:
     timestamp: float = field(default_factory=time.time)
     context: Dict[str, Any] = field(default_factory=dict)
     status: str = "proposed"
-    
+
     def is_confident(self) -> bool:
         """Check if proposal is confident"""
         return self.confidence > 0.7
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary"""
         return {
@@ -255,12 +285,14 @@ class PatchProposalEvent:
             "confidence": self.confidence,
             "timestamp": self.timestamp,
             "context": self.context,
-            "status": self.status
+            "status": self.status,
         }
+
 
 @dataclass
 class RepairPipelineEvent:
     """Repair pipeline event"""
+
     event_id: str
     pipeline_stage: str
     repair_type: str
@@ -269,11 +301,11 @@ class RepairPipelineEvent:
     timestamp: float = field(default_factory=time.time)
     context: Dict[str, Any] = field(default_factory=dict)
     metrics: Dict[str, float] = field(default_factory=dict)
-    
+
     def is_successful(self) -> bool:
         """Check if repair was successful"""
         return self.outcome == RepairOutcome.SUCCESS
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary"""
         return {
@@ -284,12 +316,14 @@ class RepairPipelineEvent:
             "outcome": self.outcome.value,
             "timestamp": self.timestamp,
             "context": self.context,
-            "metrics": self.metrics
+            "metrics": self.metrics,
         }
+
 
 @dataclass
 class RuntimeAnomalyEvent:
     """Runtime anomaly event"""
+
     event_id: str
     anomaly_type: str
     severity: str
@@ -299,11 +333,11 @@ class RuntimeAnomalyEvent:
     context: Dict[str, Any] = field(default_factory=dict)
     resolution: str = ""
     recovery_action: str = ""
-    
+
     def is_critical(self) -> bool:
         """Check if anomaly is critical"""
         return self.severity == "critical"
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary"""
         return {
@@ -315,12 +349,14 @@ class RuntimeAnomalyEvent:
             "timestamp": self.timestamp,
             "context": self.context,
             "resolution": self.resolution,
-            "recovery_action": self.recovery_action
+            "recovery_action": self.recovery_action,
         }
+
 
 @dataclass
 class TopologyDriftEvent:
     """Topology drift event"""
+
     event_id: str
     drift_type: str
     severity: DriftSeverity
@@ -329,11 +365,11 @@ class TopologyDriftEvent:
     timestamp: float = field(default_factory=time.time)
     context: Dict[str, Any] = field(default_factory=dict)
     mitigation: str = ""
-    
+
     def is_critical(self) -> bool:
         """Check if drift is critical"""
         return self.severity == DriftSeverity.CRITICAL
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary"""
         return {
@@ -344,33 +380,37 @@ class TopologyDriftEvent:
             "affected_components": self.affected_components,
             "timestamp": self.timestamp,
             "context": self.context,
-            "mitigation": self.mitigation
+            "mitigation": self.mitigation,
         }
+
 
 class CognitiveObservabilityRegistry:
     """Registry for cognitive observability records"""
+
     def __init__(self):
         self._observability_records: Dict[str, CognitiveObservability] = {}
-    
+
     def register_observability(self, observability: CognitiveObservability) -> bool:
         """Register an observability record"""
         self._observability_records[observability.observability_id] = observability
         return True
-    
+
     def get_observability(self, observability_id: str) -> Optional[CognitiveObservability]:
         """Get a specific observability record"""
         return self._observability_records.get(observability_id)
-    
+
     def get_uncertain_observations(self) -> List[CognitiveObservability]:
         """Get all uncertain observations"""
         return [o for o in self._observability_records.values() if o.is_uncertain()]
-    
+
     def get_confident_observations(self) -> List[CognitiveObservability]:
         """Get all confident observations"""
         return [o for o in self._observability_records.values() if o.is_confident()]
 
+
 # Global observability registry
 _observability_registry: Optional[CognitiveObservabilityRegistry] = None
+
 
 def get_observability_registry() -> CognitiveObservabilityRegistry:
     """Get the global observability registry"""
@@ -379,15 +419,19 @@ def get_observability_registry() -> CognitiveObservabilityRegistry:
         _observability_registry = CognitiveObservabilityRegistry()
     return _observability_registry
 
-def create_observability(observability_id: str, cognitive_state: CognitiveState, confidence: float) -> CognitiveObservability:
+
+def create_observability(
+    observability_id: str, cognitive_state: CognitiveState, confidence: float
+) -> CognitiveObservability:
     """Create a new cognitive observability record"""
     return CognitiveObservability(
-        observability_id=observability_id,
-        cognitive_state=cognitive_state,
-        confidence=confidence
+        observability_id=observability_id, cognitive_state=cognitive_state, confidence=confidence
     )
 
-def track_cognitive_state(cognitive_state: CognitiveState, confidence: float, context: Dict[str, Any] = None) -> CognitiveObservability:
+
+def track_cognitive_state(
+    cognitive_state: CognitiveState, confidence: float, context: Dict[str, Any] = None
+) -> CognitiveObservability:
     """Track a cognitive state"""
     observability_id = f"cognitive_{int(time.time())}"
     observability = create_observability(observability_id, cognitive_state, confidence)
@@ -395,6 +439,7 @@ def track_cognitive_state(cognitive_state: CognitiveState, confidence: float, co
         observability.context = context
     get_observability_registry().register_observability(observability)
     return observability
+
 
 __all__ = [
     "DYON_SYSTEM_STREAM",
@@ -422,5 +467,5 @@ __all__ = [
     "CognitiveObservabilityRegistry",
     "get_observability_registry",
     "create_observability",
-    "track_cognitive_state"
+    "track_cognitive_state",
 ]

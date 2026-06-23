@@ -13,8 +13,8 @@ import logging
 from dataclasses import dataclass
 from typing import Any
 
+from mission_system.mission_system import ProductionMissionSystem, get_production_mission_system
 from system.time_source import now
-from mission_system.mission_system import get_production_mission_system, ProductionMissionSystem
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class Mission:
     """A system mission."""
-    
+
     mission_id: str
     goal: str
     status: str = "pending"  # "pending" | "in_progress" | "completed" | "failed"
@@ -30,7 +30,7 @@ class Mission:
     allocated_resources: dict[str, Any] = None
     success_metrics: dict[str, float] = None
     timestamp: str = ""
-    
+
     def __post_init__(self):
         if self.objectives is None:
             self.objectives = []
@@ -44,12 +44,12 @@ class Mission:
 
 class MissionSystemOrchestrator:
     """Production-grade orchestrator for mission operations using production-grade components."""
-    
+
     def __init__(self) -> None:
         self._production_system: ProductionMissionSystem | None = None
         self._missions: dict[str, Mission] = {}
         self._active_mission: str | None = None
-    
+
     def start(self) -> bool:
         """Start the mission system orchestrator with production-grade components."""
         try:
@@ -60,7 +60,7 @@ class MissionSystemOrchestrator:
         except Exception as e:
             logger.error(f"[MISSION] Failed to start: {e}")
             return False
-    
+
     def stop(self) -> bool:
         """Stop the mission system orchestrator."""
         try:
@@ -71,7 +71,7 @@ class MissionSystemOrchestrator:
         except Exception as e:
             logger.error(f"[MISSION] Failed to stop: {e}")
             return False
-    
+
     def plan_mission(self, goal: str, constraints: dict[str, Any] = None) -> Mission:
         """Plan a mission."""
         mission = Mission(
@@ -80,54 +80,60 @@ class MissionSystemOrchestrator:
             status="pending",
             objectives=[{"objective": goal, "status": "pending"}],
             allocated_resources={},
-            success_metrics={}
+            success_metrics={},
         )
         self._missions[mission.mission_id] = mission
         return mission
-    
+
     def execute_mission(self, mission_id: str) -> bool:
         """Execute a mission."""
         if mission_id not in self._missions:
             return False
-        
+
         self._active_mission = mission_id
         self._missions[mission_id].status = "in_progress"
         return True
-    
+
     def monitor_mission(self, mission_id: str) -> dict[str, Any]:
         """Monitor mission progress."""
         mission = self._missions.get(mission_id)
         if not mission:
             return {"status": "not_found"}
-        
+
         return {
             "mission_id": mission_id,
             "status": mission.status,
-            "progress": 0.5 if mission.status == "in_progress" else 1.0 if mission.status == "completed" else 0.0,
-            "objectives_completed": len([o for o in mission.objectives if o.get("status") == "completed"]),
-            "total_objectives": len(mission.objectives)
+            "progress": (
+                0.5
+                if mission.status == "in_progress"
+                else 1.0 if mission.status == "completed" else 0.0
+            ),
+            "objectives_completed": len(
+                [o for o in mission.objectives if o.get("status") == "completed"]
+            ),
+            "total_objectives": len(mission.objectives),
         }
-    
+
     def complete_mission(self, mission_id: str) -> bool:
         """Mark a mission as completed."""
         if mission_id not in self._missions:
             return False
-        
+
         self._missions[mission_id].status = "completed"
         if self._active_mission == mission_id:
             self._active_mission = None
         return True
-    
+
     def get_mission(self, mission_id: str) -> Mission | None:
         """Get a mission by ID."""
         return self._missions.get(mission_id)
-    
+
     def get_active_mission(self) -> Mission | None:
         """Get the currently active mission."""
         if self._active_mission:
             return self._missions.get(self._active_mission)
         return None
-    
+
     @property
     def production_system(self) -> ProductionMissionSystem | None:
         """Get the production-grade mission system instance."""

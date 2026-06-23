@@ -41,7 +41,6 @@ Credentials:
 """
 
 from __future__ import annotations
-from dataclasses import dataclass
 
 import dataclasses
 from collections.abc import Mapping, Sequence

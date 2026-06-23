@@ -100,7 +100,10 @@ class AsyncWriter:
                 self._consecutive_failures += 1
                 _logger.error(
                     "LedgerWriter: write failed for %s/%s (consecutive=%d): %s",
-                    job.event_type, job.sub_type, self._consecutive_failures, exc,
+                    job.event_type,
+                    job.sub_type,
+                    self._consecutive_failures,
+                    exc,
                     exc_info=True,
                 )
                 if self._consecutive_failures >= LEDGER_FAIL_THRESHOLD and not self._degraded:
@@ -113,9 +116,10 @@ class AsyncWriter:
                     )
                     try:
                         from immutable_core.kill_switch import trigger_kill_switch
+
                         trigger_kill_switch(
                             reason=f"LedgerWriter: {self._consecutive_failures} "
-                                   "consecutive ledger write failures (INV-65)",
+                            "consecutive ledger write failures (INV-65)",
                             source="LedgerWriter",
                         )
                     except Exception as ks_exc:

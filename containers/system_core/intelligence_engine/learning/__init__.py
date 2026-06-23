@@ -1,26 +1,26 @@
 """Learning module - Mature with Reinforcement Loops and Cognitive Learning Governance."""
 
 # Existing components
-from .slow_loop import SlowLoopLearner, ParameterBounds, FeedbackSample
+from .cognitive_governance import (
+    CognitiveLearningGovernance,
+    GovernanceAction,
+    GovernanceDecision,
+    LearningConstraint,
+    LearningPhase,
+    get_cognitive_learning_governance,
+)
 
 # New mature learning components
 from .reinforcement_engine import (
-    ReinforcementEngine,
-    get_reinforcement_engine,
     FeedbackSample,
-    ParameterBounds,
-    ReinforcementUpdate,
     LearningRateStrategy,
+    ParameterBounds,
+    ReinforcementEngine,
     ReinforcementStatus,
+    ReinforcementUpdate,
+    get_reinforcement_engine,
 )
-from .cognitive_governance import (
-    CognitiveLearningGovernance,
-    get_cognitive_learning_governance,
-    LearningConstraint,
-    GovernanceDecision,
-    GovernanceAction,
-    LearningPhase,
-)
+from .slow_loop import FeedbackSample, ParameterBounds, SlowLoopLearner
 
 __all__ = [
     # Existing

@@ -42,8 +42,9 @@ class InstitutionalMemory:
             "failure",
         }
 
-    def store(self, category: str, title: str, description: str,
-              significance: float) -> MemoryEntry:
+    def store(
+        self, category: str, title: str, description: str, significance: float
+    ) -> MemoryEntry:
         if category not in self._categories:
             category = "discovery"
         eid = f"MEM-{category[:4].upper()}-{_time.time_ns():x}"
@@ -92,6 +93,7 @@ class InstitutionalMemory:
 def _now_ns() -> int:
     try:
         from system.time_source import wall_ns
+
         return wall_ns()
     except Exception:
         return int(_time.time() * 1e9)

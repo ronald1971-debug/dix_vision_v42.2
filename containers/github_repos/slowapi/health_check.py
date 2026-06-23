@@ -5,8 +5,8 @@ slowapi Container Health Check
 This script performs health checks for the slowapi container.
 """
 
-import sys
 import logging
+import sys
 from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
@@ -25,8 +25,8 @@ def check_imports():
 def check_governance_wrapper():
     """Check if governance wrapper can be initialized"""
     try:
-        from slowapi_governance_wrapper import SlowapiGovernanceWrapper
         from base_external_repo_wrapper import PermissionLevel
+        from slowapi_governance_wrapper import SlowapiGovernanceWrapper
         
         wrapper = SlowapiGovernanceWrapper(PermissionLevel.READ_ONLY)
         logger.info("Governance wrapper initialization successful")

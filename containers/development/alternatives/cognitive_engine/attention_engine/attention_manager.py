@@ -54,9 +54,7 @@ class AttentionManager:
         uncertainty: float = 0.5,
     ) -> FocusTarget | None:
         """Allocate attention to a target if bandwidth available."""
-        required = self._calculate_bandwidth(
-            opportunity, risk, novelty, uncertainty
-        )
+        required = self._calculate_bandwidth(opportunity, risk, novelty, uncertainty)
 
         if self._current_bandwidth + required > self._max_bandwidth:
             # Insufficient bandwidth - return None
@@ -93,9 +91,11 @@ class AttentionManager:
         """Release attention from a target."""
         for i, alloc in enumerate(self._allocations):
             if alloc.target_id == target_id:
-                released = self._calculate_bandwidth(
-                    alloc.reason, 0, 0, 0
-                ) if "bandwidth" in str(alloc.reason) else 0.1
+                released = (
+                    self._calculate_bandwidth(alloc.reason, 0, 0, 0)
+                    if "bandwidth" in str(alloc.reason)
+                    else 0.1
+                )
                 self._current_bandwidth = max(0.0, self._current_bandwidth - released)
                 self._allocations.pop(i)
                 return released

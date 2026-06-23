@@ -6,24 +6,23 @@ This module provides REST API endpoints for managing agent lifecycle and workspa
 allowing the Dashboard2026 frontend to control and observe agent behavior in the cognitive environment.
 """
 
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
-from typing import Optional, List, Dict, Any
 from datetime import datetime
+from typing import Any, Dict, List, Optional
 
 from cognitive_control_center.core.agent_lifecycle import (
-    get_agent_lifecycle_manager,
-    AgentState,
     AgentLifecycleEvent,
     AgentRegistration,
+    AgentState,
     CognitiveEntityType,
+    get_agent_lifecycle_manager,
 )
 from cognitive_control_center.core.workspace_manager import (
-    get_workspace_manager,
-    WorkspaceType,
     WorkspaceTransition,
+    WorkspaceType,
+    get_workspace_manager,
 )
-
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
 
 router = APIRouter(prefix="/lifecycle", tags=["agent-lifecycle"])
 

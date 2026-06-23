@@ -17,7 +17,7 @@ from typing import Any
 
 from state.memory.contracts import MemoryKind, MemoryRecord
 
-_logger   = logging.getLogger(__name__)
+_logger = logging.getLogger(__name__)
 _MAX_SIZE = 1_000
 
 
@@ -25,11 +25,13 @@ class TraderMemoryStore:
     """Tracks trader archetype performance history per regime."""
 
     def __init__(self, max_size: int = _MAX_SIZE) -> None:
-        self._max_size  = max_size
-        self._lock      = threading.Lock()
-        self._records:  deque[MemoryRecord] = deque(maxlen=max_size)
+        self._max_size = max_size
+        self._lock = threading.Lock()
+        self._records: deque[MemoryRecord] = deque(maxlen=max_size)
         # archetype → regime → list of (win: bool, pnl: float)
-        self._perf:     dict[str, dict[str, list[tuple[bool, float]]]] = defaultdict(lambda: defaultdict(list))
+        self._perf: dict[str, dict[str, list[tuple[bool, float]]]] = defaultdict(
+            lambda: defaultdict(list)
+        )
 
     # ------------------------------------------------------------------
     # Write
@@ -38,32 +40,33 @@ class TraderMemoryStore:
     def record_performance(
         self,
         *,
-        record_id:  str,
-        archetype:  str,
-        regime:     str,
-        ts_ns:      int,
-        win:        bool,
-        pnl:        float,
-        source:     str = "trader_modeling",
-        tags:       frozenset[str] = frozenset(),
+        record_id: str,
+        archetype: str,
+        regime: str,
+        ts_ns: int,
+        win: bool,
+        pnl: float,
+        source: str = "trader_modeling",
+        tags: frozenset[str] = frozenset(),
     ) -> MemoryRecord:
         rec = MemoryRecord(
-            record_id = record_id,
-            kind      = MemoryKind.TRADER,
-            ts_ns     = ts_ns,
-            source    = source,
-            summary   = (
-                f"TRADER {archetype} in {regime}: "
-                f"{'WIN' if win else 'LOSS'} pnl={pnl:.4f}"
+            record_id=record_id,
+            kind=MemoryKind.TRADER,
+            ts_ns=ts_ns,
+            source=source,
+            summary=(
+                f"TRADER {archetype} in {regime}: " f"{'WIN' if win else 'LOSS'} pnl={pnl:.4f}"
             ),
-            body      = MappingProxyType({
-                "archetype": archetype,
-                "regime":    regime,
-                "win":       "1" if win else "0",
-                "pnl":       str(pnl),
-            }),
-            tags      = tags | frozenset([archetype, regime, "performance"]),
-            confidence = 1.0 if win else 0.0,
+            body=MappingProxyType(
+                {
+                    "archetype": archetype,
+                    "regime": regime,
+                    "win": "1" if win else "0",
+                    "pnl": str(pnl),
+                }
+            ),
+            tags=tags | frozenset([archetype, regime, "performance"]),
+            confidence=1.0 if win else 0.0,
         )
         with self._lock:
             self._records.append(rec)
@@ -73,27 +76,29 @@ class TraderMemoryStore:
     def record_archetype_shift(
         self,
         *,
-        record_id:  str,
-        from_arch:  str,
-        to_arch:    str,
-        ts_ns:      int,
-        reason:     str,
-        source:     str = "behavioral_cluster",
-        tags:       frozenset[str] = frozenset(),
+        record_id: str,
+        from_arch: str,
+        to_arch: str,
+        ts_ns: int,
+        reason: str,
+        source: str = "behavioral_cluster",
+        tags: frozenset[str] = frozenset(),
     ) -> MemoryRecord:
         rec = MemoryRecord(
-            record_id = record_id,
-            kind      = MemoryKind.TRADER,
-            ts_ns     = ts_ns,
-            source    = source,
-            summary   = f"ARCHETYPE SHIFT {from_arch} → {to_arch}: {reason}",
-            body      = MappingProxyType({
-                "from_archetype": from_arch,
-                "to_archetype":   to_arch,
-                "reason":         reason,
-                "event":          "archetype_shift",
-            }),
-            tags      = tags | frozenset([from_arch, to_arch, "archetype_shift"]),
+            record_id=record_id,
+            kind=MemoryKind.TRADER,
+            ts_ns=ts_ns,
+            source=source,
+            summary=f"ARCHETYPE SHIFT {from_arch} → {to_arch}: {reason}",
+            body=MappingProxyType(
+                {
+                    "from_archetype": from_arch,
+                    "to_archetype": to_arch,
+                    "reason": reason,
+                    "event": "archetype_shift",
+                }
+            ),
+            tags=tags | frozenset([from_arch, to_arch, "archetype_shift"]),
         )
         with self._lock:
             self._records.append(rec)
@@ -129,7 +134,7 @@ class TraderMemoryStore:
             archetypes = list(self._perf.keys())
         rows = []
         for arch in archetypes:
-            wr   = self.win_rate(arch, regime)
+            wr = self.win_rate(arch, regime)
             apnl = self.avg_pnl(arch, regime)
             rows.append({"archetype": arch, "win_rate": wr, "avg_pnl": apnl})
         rows.sort(key=lambda r: r["win_rate"], reverse=True)
@@ -149,11 +154,11 @@ class TraderMemoryStore:
                 for entries in regime_dict.values()
             )
             return {
-                "active":         True,
-                "size":           len(self._records),
-                "max_size":       self._max_size,
-                "archetypes":     len(self._perf),
-                "total_entries":  total_entries,
+                "active": True,
+                "size": len(self._records),
+                "max_size": self._max_size,
+                "archetypes": len(self._perf),
+                "total_entries": total_entries,
             }
 
 

@@ -5,46 +5,76 @@ Contract-Compliant Real Implementation
 Real infrastructure components for Dashboard2026 cognitive command center
 """
 
-from .mission_control_center import MissionControlCenter, Mission, Task, Decision, MissionControlConfig, MissionState, TaskPriority, TaskStatus
-from .operator_workspace import OperatorWorkspace, Workspace, OperatorSession, WorkspaceType, WorkspaceState, WorkspaceConfig
-from .center_communication import CenterCommunication, CenterMessage, MessageHandler, CommunicationConfig, CenterType, MessageType, MessagePriority
-from .intelligence_acquisition import IntelligenceAcquisition, IntelligenceItem, ProcessedIntelligence, KnowledgeObject, AcquisitionConfig, IntelligenceSource, IntelligenceQuality, IntelligenceStatus
+from .center_communication import (
+    CenterCommunication,
+    CenterMessage,
+    CenterType,
+    CommunicationConfig,
+    MessageHandler,
+    MessagePriority,
+    MessageType,
+)
+from .intelligence_acquisition import (
+    AcquisitionConfig,
+    IntelligenceAcquisition,
+    IntelligenceItem,
+    IntelligenceQuality,
+    IntelligenceSource,
+    IntelligenceStatus,
+    KnowledgeObject,
+    ProcessedIntelligence,
+)
+from .mission_control_center import (
+    Decision,
+    Mission,
+    MissionControlCenter,
+    MissionControlConfig,
+    MissionState,
+    Task,
+    TaskPriority,
+    TaskStatus,
+)
+from .operator_workspace import (
+    OperatorSession,
+    OperatorWorkspace,
+    Workspace,
+    WorkspaceConfig,
+    WorkspaceState,
+    WorkspaceType,
+)
 
 __all__ = [
     # Mission Control
-    'MissionControlCenter',
-    'Mission',
-    'Task',
-    'Decision',
-    'MissionControlConfig',
-    'MissionState',
-    'TaskPriority',
-    'TaskStatus',
-    
+    "MissionControlCenter",
+    "Mission",
+    "Task",
+    "Decision",
+    "MissionControlConfig",
+    "MissionState",
+    "TaskPriority",
+    "TaskStatus",
     # Operator Workspace
-    'OperatorWorkspace',
-    'Workspace',
-    'OperatorSession',
-    'WorkspaceType',
-    'WorkspaceState',
-    'WorkspaceConfig',
-    
+    "OperatorWorkspace",
+    "Workspace",
+    "OperatorSession",
+    "WorkspaceType",
+    "WorkspaceState",
+    "WorkspaceConfig",
     # Center Communication
-    'CenterCommunication',
-    'CenterMessage',
-    'MessageHandler',
-    'CommunicationConfig',
-    'CenterType',
-    'MessageType',
-    'MessagePriority',
-    
+    "CenterCommunication",
+    "CenterMessage",
+    "MessageHandler",
+    "CommunicationConfig",
+    "CenterType",
+    "MessageType",
+    "MessagePriority",
     # Intelligence Acquisition
-    'IntelligenceAcquisition',
-    'IntelligenceItem',
-    'ProcessedIntelligence',
-    'KnowledgeObject',
-    'AcquisitionConfig',
-    'IntelligenceSource',
-    'IntelligenceQuality',
-    'IntelligenceStatus'
+    "IntelligenceAcquisition",
+    "IntelligenceItem",
+    "ProcessedIntelligence",
+    "KnowledgeObject",
+    "AcquisitionConfig",
+    "IntelligenceSource",
+    "IntelligenceQuality",
+    "IntelligenceStatus",
 ]

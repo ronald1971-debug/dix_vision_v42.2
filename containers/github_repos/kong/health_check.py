@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-import sys
 import logging
+import sys
 from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
@@ -8,7 +8,6 @@ logger = logging.getLogger('kong_health_check')
 
 def check_imports():
     try:
-        import kong
         logger.info("Kong import successful")
         return True
     except ImportError as e:
@@ -17,8 +16,8 @@ def check_imports():
 
 def check_governance_wrapper():
     try:
-        from kong_governance_wrapper import KongGovernanceWrapper
         from base_external_repo_wrapper import PermissionLevel
+        from kong_governance_wrapper import KongGovernanceWrapper
         wrapper = KongGovernanceWrapper(PermissionLevel.READ_ONLY)
         logger.info("Governance wrapper initialization successful")
         return True

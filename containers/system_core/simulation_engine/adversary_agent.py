@@ -112,7 +112,6 @@ class AdversaryAgent:
     def on_fill(self, fill: SimFill) -> None:
         """Record fill and update position."""
         # Position tracking omitted for simplicity
-        pass
 
 
 __all__ = [

@@ -3,38 +3,38 @@ DIX VISION Custom Skill: Research Coin
 Research cryptocurrency information from multiple sources.
 """
 
-import logging
+from typing import Any, Dict
+
 import requests
-from typing import Dict, Any
 from desktop_agent.skills.skill import Skill, SkillMetadata
 
 
 class ResearchCoinSkill(Skill):
     """
     Skill for researching cryptocurrency information.
-    
+
     Gathers data from multiple sources including CoinGecko, CoinMarketCap,
     DexScreener, and social platforms to provide comprehensive coin analysis.
     """
-    
+
     def __init__(self, runtime):
         """Initialize research coin skill."""
         super().__init__(runtime)
-        
+
     async def execute(self, coin_symbol: str, **kwargs) -> Dict[str, Any]:
         """
         Research a cryptocurrency.
-        
+
         Args:
             coin_symbol: Cryptocurrency symbol (e.g., BTC, ETH)
             **kwargs: Additional research parameters
-            
+
         Returns:
             Research results with price, market data, and analysis
         """
         try:
             self.logger.info(f"Researching coin: {coin_symbol}")
-            
+
             results = {
                 "symbol": coin_symbol.upper(),
                 "price_data": await self._get_price_data(coin_symbol),
@@ -43,13 +43,13 @@ class ResearchCoinSkill(Skill):
                 "on_chain_data": await self._get_on_chain_data(coin_symbol),
                 "analysis": await self._analyze_data(coin_symbol),
             }
-            
+
             return results
-            
+
         except Exception as e:
             self.logger.error(f"Error researching coin {coin_symbol}: {e}")
             return {"error": str(e), "symbol": coin_symbol}
-            
+
     async def _get_price_data(self, symbol: str) -> Dict[str, Any]:
         """Get price data from multiple sources with compliance level integration."""
         try:
@@ -63,12 +63,14 @@ class ResearchCoinSkill(Skill):
         except Exception as e:
             self.logger.warning(f"Failed to fetch compliance weights: {e}")
             data_weight = 1.0
-        
+
         # If data weight is very low, return cached/simulated data
         if data_weight < 0.3:
-            self.logger.info(f"Data compliance weight {data_weight:.2f} < 0.3, using simulated data")
+            self.logger.info(
+                f"Data compliance weight {data_weight:.2f} < 0.3, using simulated data"
+            )
             return self._get_simulated_price_data(symbol)
-        
+
         # Try to fetch real data from CoinGecko (public API, no key required)
         try:
             coingecko_url = f"https://api.coingecko.com/api/v3/coins/markets"
@@ -78,9 +80,9 @@ class ResearchCoinSkill(Skill):
                 "order": "market_cap_desc",
                 "per_page": 1,
                 "page": 1,
-                "sparkline": "false"
+                "sparkline": "false",
             }
-            
+
             api_response = requests.get(coingecko_url, params=params, timeout=5.0)
             if api_response.status_code == 200:
                 data = api_response.json()
@@ -98,19 +100,21 @@ class ResearchCoinSkill(Skill):
                     }
         except Exception as e:
             self.logger.warning(f"Failed to fetch CoinGecko data: {e}")
-        
+
         # Fallback to simulated data if API fails
         return self._get_simulated_price_data(symbol, compliance_weight=data_weight)
-    
-    def _get_simulated_price_data(self, symbol: str, compliance_weight: float = 1.0) -> Dict[str, Any]:
+
+    def _get_simulated_price_data(
+        self, symbol: str, compliance_weight: float = 1.0
+    ) -> Dict[str, Any]:
         """Generate simulated price data for testing/low compliance modes."""
         import random
-        
+
         # Generate plausible but fake data
         base_price = random.uniform(0.01, 1000.0)
         change_24h = random.uniform(-10.0, 10.0)
         change_7d = random.uniform(-25.0, 25.0)
-        
+
         return {
             "current_price": base_price,
             "24h_change": change_24h,
@@ -121,7 +125,7 @@ class ResearchCoinSkill(Skill):
             "source": "simulated",
             "compliance_weight": compliance_weight,
         }
-        
+
     async def _get_market_data(self, symbol: str) -> Dict[str, Any]:
         """Get market cap and ranking data."""
         return {
@@ -130,7 +134,7 @@ class ResearchCoinSkill(Skill):
             "circulating_supply": 0.0,
             "total_supply": 0.0,
         }
-        
+
     async def _get_social_data(self, symbol: str) -> Dict[str, Any]:
         """Get social media sentiment and mentions."""
         return {
@@ -139,7 +143,7 @@ class ResearchCoinSkill(Skill):
             "sentiment_score": 0.0,
             "trending": False,
         }
-        
+
     async def _get_on_chain_data(self, symbol: str) -> Dict[str, Any]:
         """Get on-chain metrics."""
         return {
@@ -147,7 +151,7 @@ class ResearchCoinSkill(Skill):
             "transaction_volume": 0.0,
             "large_transactions": 0,
         }
-        
+
     async def _analyze_data(self, symbol: str) -> Dict[str, Any]:
         """Analyze gathered data and provide insights."""
         return {
@@ -156,7 +160,7 @@ class ResearchCoinSkill(Skill):
             "recommendation": "hold",
             "confidence": 0.0,
         }
-        
+
     def get_metadata(self) -> SkillMetadata:
         """Get skill metadata."""
         return SkillMetadata(

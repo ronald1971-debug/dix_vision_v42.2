@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class SimulatedEvent:
     """A simulated event."""
+
     event_id: str
     event_type: str
     parameters: Dict[str, Any] = field(default_factory=dict)
@@ -29,26 +30,28 @@ class SimulatedEvent:
 
 class ProductionEventSimulator:
     """Production-grade event simulator."""
-    
+
     def __init__(self) -> None:
         self._events: List[SimulatedEvent] = []
-        
+
     def start(self) -> bool:
         logger.info("[EVENT_SIMULATOR] Production event simulator started")
         return True
-    
+
     def stop(self) -> bool:
         logger.info("[EVENT_SIMULATOR] Production event simulator stopped")
         return True
-    
-    def generate_event(self, event_type: str, parameters: Dict[str, Any], impact: Dict[str, float]) -> SimulatedEvent:
+
+    def generate_event(
+        self, event_type: str, parameters: Dict[str, Any], impact: Dict[str, float]
+    ) -> SimulatedEvent:
         """Generate a simulated event."""
         event = SimulatedEvent(
             event_id=f"event_{now().sequence}",
             event_type=event_type,
             parameters=parameters,
             impact=impact,
-            timestamp=now().utc_time.isoformat()
+            timestamp=now().utc_time.isoformat(),
         )
         self._events.append(event)
         return event

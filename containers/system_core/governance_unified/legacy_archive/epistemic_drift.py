@@ -116,9 +116,7 @@ class EpistemicDriftMonitor:
                 "recommend pausing learning updates and increasing external grounding"
             )
         elif drift_score >= WARNING_THRESHOLD:
-            detail_parts.append(
-                f"WARNING: drift_score={drift_score:.4f} >= {WARNING_THRESHOLD}"
-            )
+            detail_parts.append(f"WARNING: drift_score={drift_score:.4f} >= {WARNING_THRESHOLD}")
         detail = "; ".join(detail_parts) if detail_parts else f"drift_score={drift_score:.4f}, OK"
 
         report = EpistemicDriftReport(

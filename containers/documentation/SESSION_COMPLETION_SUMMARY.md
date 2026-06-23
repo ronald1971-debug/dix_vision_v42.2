@@ -60,7 +60,7 @@
 - Health monitoring initialization
 
 #### 3. World-Indicator Integration Wiring (CRITICAL)
-**Impact:** Implements core architectural principle: "World understanding and indicator processing are equally important"
+**Impact:** Implements core architectural principle: "Signal processing is the primary driver (85%) for profitable trading, with world understanding (15%) providing essential enhancement for risk management and regime awareness"
 
 **Files Created:**
 - `integration/world_indicator_coordinator.py` - World-indicator coordination for equal importance processing

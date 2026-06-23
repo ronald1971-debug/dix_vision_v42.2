@@ -183,9 +183,7 @@ class LiveTradingRiskConstraints:
 
             self._daily_pnl_usd += pnl_usd
 
-    def _check_position_size_limit(
-        self, context: LiveTradeRiskContext
-    ) -> RiskCheckResult:
+    def _check_position_size_limit(self, context: LiveTradeRiskContext) -> RiskCheckResult:
         """Check if the position size exceeds the limit."""
         passed = context.size_usd <= self._config.max_position_usd
         return RiskCheckResult(
@@ -200,9 +198,7 @@ class LiveTradingRiskConstraints:
             metadata={"symbol": context.symbol, "venue": context.venue},
         )
 
-    def _check_portfolio_exposure_limit(
-        self, context: LiveTradeRiskContext
-    ) -> RiskCheckResult:
+    def _check_portfolio_exposure_limit(self, context: LiveTradeRiskContext) -> RiskCheckResult:
         """Check if portfolio exposure exceeds the limit."""
         current_exposure = context.current_positions.get(context.symbol, 0.0)
         new_exposure = current_exposure + context.size_usd
@@ -226,9 +222,7 @@ class LiveTradingRiskConstraints:
             },
         )
 
-    def _check_leverage_limit(
-        self, context: LiveTradeRiskContext
-    ) -> RiskCheckResult:
+    def _check_leverage_limit(self, context: LiveTradeRiskContext) -> RiskCheckResult:
         """Check if leverage exceeds the limit."""
         passed = context.leverage <= self._config.max_leverage
 
@@ -244,11 +238,11 @@ class LiveTradingRiskConstraints:
             metadata={"symbol": context.symbol, "venue": context.venue},
         )
 
-    def _check_circuit_breaker(
-        self, context: LiveTradeRiskContext
-    ) -> RiskCheckResult:
+    def _check_circuit_breaker(self, context: LiveTradeRiskContext) -> RiskCheckResult:
         """Check if daily losses trigger circuit breaker."""
-        loss_pct = abs(context.daily_pnl_usd) / context.portfolio_usd if context.portfolio_usd > 0 else 0.0
+        loss_pct = (
+            abs(context.daily_pnl_usd) / context.portfolio_usd if context.portfolio_usd > 0 else 0.0
+        )
         passed = loss_pct < self._config.circuit_breaker_loss_pct
 
         return RiskCheckResult(
@@ -266,9 +260,7 @@ class LiveTradingRiskConstraints:
             },
         )
 
-    def _check_volatility_limit(
-        self, context: LiveTradeRiskContext
-    ) -> RiskCheckResult:
+    def _check_volatility_limit(self, context: LiveTradeRiskContext) -> RiskCheckResult:
         """Check if volatility exceeds the limit."""
         passed = context.volatility <= self._config.max_volatility
 
@@ -284,13 +276,13 @@ class LiveTradingRiskConstraints:
             metadata={"symbol": context.symbol, "venue": context.venue},
         )
 
-    def _check_concentration_limit(
-        self, context: LiveTradeRiskContext
-    ) -> RiskCheckResult:
+    def _check_concentration_limit(self, context: LiveTradeRiskContext) -> RiskCheckResult:
         """Check if concentration exceeds the limit."""
         current_exposure = context.current_positions.get(context.symbol, 0.0)
         new_exposure = current_exposure + context.size_usd
-        concentration_pct = new_exposure / context.portfolio_usd if context.portfolio_usd > 0 else 0.0
+        concentration_pct = (
+            new_exposure / context.portfolio_usd if context.portfolio_usd > 0 else 0.0
+        )
         passed = concentration_pct <= self._config.max_concentration_pct
 
         return RiskCheckResult(

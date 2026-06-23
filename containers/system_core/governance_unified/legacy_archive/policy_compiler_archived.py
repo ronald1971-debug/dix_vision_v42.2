@@ -26,6 +26,7 @@ def _load_registry() -> dict:
     if _POLICY_REGISTRY_CACHE is None:
         try:
             from tools.ownership_registry_loader import load_registry
+
             _POLICY_REGISTRY_CACHE = load_registry()
         except Exception:
             _POLICY_REGISTRY_CACHE = {}
@@ -35,6 +36,7 @@ def _load_registry() -> dict:
 @dataclass(frozen=True, slots=True)
 class PolicyRule:
     """Executable rule derived from an invariant."""
+
     invariant_id: str
     action: Literal["deny", "allow", "require", "warn"]
     target_engine: str
@@ -47,16 +49,32 @@ def _build_policy_rules() -> tuple[PolicyRule, ...]:
     registry = _load_registry()
     engines = registry.get("engines", {})
 
-    indira_domains = tuple(engines.get("indira", {}).get("owns", [
-        "market_intelligence", "trader_intelligence", "strategy_intelligence",
-        "portfolio_intelligence", "allocation_intelligence",
-        "position_intelligence", "execution_feedback_intelligence"
-    ]))
+    indira_domains = tuple(
+        engines.get("indira", {}).get(
+            "owns",
+            [
+                "market_intelligence",
+                "trader_intelligence",
+                "strategy_intelligence",
+                "portfolio_intelligence",
+                "allocation_intelligence",
+                "position_intelligence",
+                "execution_feedback_intelligence",
+            ],
+        )
+    )
 
-    dyon_domains = tuple(engines.get("dyon", {}).get("owns", [
-        "repository_intelligence", "architecture_intelligence",
-        "runtime_intelligence", "infrastructure_intelligence"
-    ]))
+    dyon_domains = tuple(
+        engines.get("dyon", {}).get(
+            "owns",
+            [
+                "repository_intelligence",
+                "architecture_intelligence",
+                "runtime_intelligence",
+                "infrastructure_intelligence",
+            ],
+        )
+    )
 
     rules: list[PolicyRule] = [
         PolicyRule(
@@ -77,53 +95,59 @@ def _build_policy_rules() -> tuple[PolicyRule, ...]:
 
     # Add domain ownership rules from registry
     for domain in indira_domains:
-        rules.append(PolicyRule(
-            invariant_id=InvariantID.DIX_03,
-            action="deny",
-            target_engine="dyon",
-            target_capability=domain,
-            rationale=f"DYON owns system cognition only. INV-DIX-03 violation (domain: {domain}).",
-        ))
+        rules.append(
+            PolicyRule(
+                invariant_id=InvariantID.DIX_03,
+                action="deny",
+                target_engine="dyon",
+                target_capability=domain,
+                rationale=f"DYON owns system cognition only. INV-DIX-03 violation (domain: {domain}).",
+            )
+        )
 
     for domain in dyon_domains:
-        rules.append(PolicyRule(
-            invariant_id=InvariantID.DIX_04,
-            action="deny",
-            target_engine="indira",
-            target_capability=domain,
-            rationale=f"INDIRA owns market cognition only. INV-DIX-04 violation (domain: {domain}).",
-        ))
+        rules.append(
+            PolicyRule(
+                invariant_id=InvariantID.DIX_04,
+                action="deny",
+                target_engine="indira",
+                target_capability=domain,
+                rationale=f"INDIRA owns market cognition only. INV-DIX-04 violation (domain: {domain}).",
+            )
+        )
 
-    rules.extend([
-        PolicyRule(
-            invariant_id=InvariantID.DIX_05,
-            action="deny",
-            target_engine="dyon",
-            target_capability="strategy_generation",
-            rationale="Strategy cognition belongs exclusively to INDIRA. INV-DIX-05 violation.",
-        ),
-        PolicyRule(
-            invariant_id=InvariantID.DIX_06,
-            action="deny",
-            target_engine="execution_engine",
-            target_capability="decision_creation",
-            rationale="Execution owns interaction, not decisions. INV-DIX-06 violation.",
-        ),
-        PolicyRule(
-            invariant_id=InvariantID.DIX_12,
-            action="deny",
-            target_engine="any",
-            target_capability="cognitive_to_capital_direct",
-            rationale="Capital deployment is separate from cognitive development. INV-DIX-12 violation.",
-        ),
-        PolicyRule(
-            invariant_id=InvariantID.DIX_13,
-            action="deny",
-            target_engine="any",
-            target_capability="cross_domain_bypass",
-            rationale="Architectural domain separation is mandatory. INV-DIX-13 violation.",
-        ),
-    ])
+    rules.extend(
+        [
+            PolicyRule(
+                invariant_id=InvariantID.DIX_05,
+                action="deny",
+                target_engine="dyon",
+                target_capability="strategy_generation",
+                rationale="Strategy cognition belongs exclusively to INDIRA. INV-DIX-05 violation.",
+            ),
+            PolicyRule(
+                invariant_id=InvariantID.DIX_06,
+                action="deny",
+                target_engine="execution_engine",
+                target_capability="decision_creation",
+                rationale="Execution owns interaction, not decisions. INV-DIX-06 violation.",
+            ),
+            PolicyRule(
+                invariant_id=InvariantID.DIX_12,
+                action="deny",
+                target_engine="any",
+                target_capability="cognitive_to_capital_direct",
+                rationale="Capital deployment is separate from cognitive development. INV-DIX-12 violation.",
+            ),
+            PolicyRule(
+                invariant_id=InvariantID.DIX_13,
+                action="deny",
+                target_engine="any",
+                target_capability="cross_domain_bypass",
+                rationale="Architectural domain separation is mandatory. INV-DIX-13 violation.",
+            ),
+        ]
+    )
 
     return tuple(rules)
 
@@ -136,9 +160,7 @@ def compile_invariant(invariant_id: str) -> tuple[PolicyRule, ...]:
     return tuple(r for r in COMPILED_RULES if r.invariant_id == invariant_id)
 
 
-def check_policy_violation(
-    engine: str, capability: str, ts_ns: int
-) -> tuple[bool, str | None]:
+def check_policy_violation(engine: str, capability: str, ts_ns: int) -> tuple[bool, str | None]:
     """Check if an engine/capability pair violates any invariant.
 
     Returns:

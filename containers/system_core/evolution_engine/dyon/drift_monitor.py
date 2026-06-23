@@ -34,8 +34,8 @@ _logger = logging.getLogger(__name__)
 
 _MAX_HISTORY: int = 100
 _TREND_WINDOW: int = 20
-_SPIKE_THRESHOLD: int = 3         # new violations vs previous scan
-_GRADE_THRESHOLDS = (90, 75, 55, 35)   # A, B, C, D thresholds; below D → F
+_SPIKE_THRESHOLD: int = 3  # new violations vs previous scan
+_GRADE_THRESHOLDS = (90, 75, 55, 35)  # A, B, C, D thresholds; below D → F
 
 
 def _ols_slope(ys: list[float]) -> float:
@@ -65,7 +65,7 @@ class ScanDataPoint:
     critical_count: int
     warning_count: int
     health_score: float
-    violation_keys: frozenset[str]   # for new-violation detection
+    violation_keys: frozenset[str]  # for new-violation detection
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -88,7 +88,7 @@ class DriftState:
     """Current drift assessment."""
 
     health_score: float = 100.0
-    trend: str = "STABLE"          # IMPROVING | STABLE | DEGRADING
+    trend: str = "STABLE"  # IMPROVING | STABLE | DEGRADING
     grade: str = "A"
     spike_detected: bool = False
     new_violations_this_scan: int = 0
@@ -144,8 +144,7 @@ class ArchitectureDriftMonitor:
         health = self._compute_health(critical_count, warning_count)
         grade = self._health_to_grade(health)
         vkeys = frozenset(
-            f"{v.get('invariant_id', '?')}:{v.get('source_module', '?')}"
-            for v in violations
+            f"{v.get('invariant_id', '?')}:{v.get('source_module', '?')}" for v in violations
         )
 
         with self._lock:
@@ -161,9 +160,7 @@ class ArchitectureDriftMonitor:
             )
 
             # Compute new / resolved vs previous scan
-            prev_vkeys = (
-                self._history[-1].violation_keys if self._history else frozenset()
-            )
+            prev_vkeys = self._history[-1].violation_keys if self._history else frozenset()
             new_viol = len(vkeys - prev_vkeys)
             resolved = len(prev_vkeys - vkeys)
             spike = new_viol >= _SPIKE_THRESHOLD
@@ -204,7 +201,8 @@ class ArchitectureDriftMonitor:
         if spike:
             _logger.warning(
                 "ArchitectureDriftMonitor: SPIKE detected — %d new violations (scan #%d)",
-                new_viol, scan_idx,
+                new_viol,
+                scan_idx,
             )
         return state_copy
 
@@ -246,9 +244,7 @@ class ArchitectureDriftMonitor:
         with self._lock:
             s = self._state
         arrow = {"IMPROVING": "↑", "DEGRADING": "↓", "STABLE": "→"}.get(s.trend, "?")
-        return (
-            f"Architecture health {s.health_score:.0f}/100 (grade {s.grade}, trend {arrow})"
-        )
+        return f"Architecture health {s.health_score:.0f}/100 (grade {s.grade}, trend {arrow})"
 
     # ------------------------------------------------------------------
     # Static helpers

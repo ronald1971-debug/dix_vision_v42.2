@@ -75,15 +75,13 @@ class StrategyKnowledgeStore:
     def query_by_market(self, market: str) -> list[StrategyMemory]:
         ids = self._index_by_market.get(market, [])
         return [
-            self._memories[sid] for sid in ids
-            if sid in self._memories and sid not in self._retired
+            self._memories[sid] for sid in ids if sid in self._memories and sid not in self._retired
         ]
 
     def query_by_timeframe(self, timeframe: str) -> list[StrategyMemory]:
         ids = self._index_by_timeframe.get(timeframe, [])
         return [
-            self._memories[sid] for sid in ids
-            if sid in self._memories and sid not in self._retired
+            self._memories[sid] for sid in ids if sid in self._memories and sid not in self._retired
         ]
 
     def retire(self, strategy_id: str) -> bool:

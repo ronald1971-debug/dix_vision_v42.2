@@ -1,5 +1,5 @@
 """Sensory module."""
 
-from .onchain.contracts import OnchainEvent, HolderShiftAdvisory
+from .onchain.contracts import HolderShiftAdvisory, OnchainEvent
 
 __all__ = ["OnchainEvent", "HolderShiftAdvisory"]

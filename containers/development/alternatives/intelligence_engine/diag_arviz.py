@@ -869,32 +869,24 @@ def arviz_diagnostic_engine() -> ArviZDiagnosticEngine:
                 arr = flat.reshape(n_chains, n_draws, n_vars)
             else:
                 # Pad / truncate to fit (handles empty-sample edge cases).
-                arr = numpy.zeros(
-                    (n_chains, n_draws, n_vars), dtype=numpy.float64
-                )
+                arr = numpy.zeros((n_chains, n_draws, n_vars), dtype=numpy.float64)
                 usable = min(flat.size, expected)
                 arr.flat[:usable] = flat[:usable]
 
             # Build InferenceData — one scalar variable per posterior dim.
             # arviz convention: each entry in the posterior dict has shape
             # (num_chains, num_draws) for a scalar variable.
-            posterior_dict = {
-                f"var_{i}": arr[:, :, i] for i in range(n_vars)
-            }
+            posterior_dict = {f"var_{i}": arr[:, :, i] for i in range(n_vars)}
             idata = arviz.from_dict(posterior=posterior_dict)
 
             # Run az.summary() — computes mean, sd, HDI, ESS, R-hat in
             # one pass.  The ``extend=True`` flag adds ess_bulk, ess_tail,
             # and r_hat columns (arviz >= 0.12).
-            summary_df = arviz.summary(
-                idata, hdi_prob=arguments.hdi_prob, extend=True
-            )
+            summary_df = arviz.summary(idata, hdi_prob=arguments.hdi_prob, extend=True)
 
             # Locate the two HDI bound columns; their names depend on
             # hdi_prob (e.g. "hdi_3%" / "hdi_97%" for hdi_prob=0.94).
-            hdi_cols = sorted(
-                c for c in summary_df.columns if c.startswith("hdi_")
-            )
+            hdi_cols = sorted(c for c in summary_df.columns if c.startswith("hdi_"))
             hdi_lo_col: str | None = hdi_cols[0] if len(hdi_cols) >= 1 else None
             hdi_hi_col: str | None = hdi_cols[1] if len(hdi_cols) >= 2 else None
 
@@ -927,16 +919,8 @@ def arviz_diagnostic_engine() -> ArviZDiagnosticEngine:
                     sd_v = max(0.0, _safe("sd", 0.0))
                     _lo_default = mean_v - sd_v
                     _hi_default = mean_v + sd_v
-                    hdi_lo = (
-                        _safe(hdi_lo_col, _lo_default)
-                        if hdi_lo_col
-                        else _lo_default
-                    )
-                    hdi_hi = (
-                        _safe(hdi_hi_col, _hi_default)
-                        if hdi_hi_col
-                        else _hi_default
-                    )
+                    hdi_lo = _safe(hdi_lo_col, _lo_default) if hdi_lo_col else _lo_default
+                    hdi_hi = _safe(hdi_hi_col, _hi_default) if hdi_hi_col else _hi_default
                     if hdi_lo > hdi_hi:
                         hdi_lo, hdi_hi = hdi_hi, hdi_lo
                     ess_bulk = max(0.0, _safe("ess_bulk", default_ess))

@@ -43,7 +43,13 @@ class StreamRouter:
             try:
                 h(event)
             except Exception as exc:
-                _logger.error("StreamRouter: handler %s raised for event_type=%s: %s", getattr(h, "__qualname__", h), et, exc, exc_info=True)
+                _logger.error(
+                    "StreamRouter: handler %s raised for event_type=%s: %s",
+                    getattr(h, "__qualname__", h),
+                    et,
+                    exc,
+                    exc_info=True,
+                )
                 continue
 
 

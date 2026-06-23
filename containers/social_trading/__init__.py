@@ -6,31 +6,31 @@ Social trading and community features
 """
 
 from .social_platform import (
-    SocialFeatureType,
-    LeaderboardType,
-    CopyTradingMode,
-    UserProfile,
-    SocialPost,
-    CopyTradeRelation,
-    SocialTradingPlatform,
-    CopyTradingManager,
-    LeaderboardManager,
     CommunityAnalytics,
+    CopyTradeRelation,
+    CopyTradingManager,
+    CopyTradingMode,
+    LeaderboardManager,
+    LeaderboardType,
+    SocialFeatureType,
+    SocialPost,
+    SocialTradingPlatform,
     SocialTradingSystem,
-    get_social_trading_system
+    UserProfile,
+    get_social_trading_system,
 )
 
 __all__ = [
-    'SocialFeatureType',
-    'LeaderboardType',
-    'CopyTradingMode',
-    'UserProfile',
-    'SocialPost',
-    'CopyTradeRelation',
-    'SocialTradingPlatform',
-    'CopyTradingManager',
-    'LeaderboardManager',
-    'CommunityAnalytics',
-    'SocialTradingSystem',
-    'get_social_trading_system'
+    "SocialFeatureType",
+    "LeaderboardType",
+    "CopyTradingMode",
+    "UserProfile",
+    "SocialPost",
+    "CopyTradeRelation",
+    "SocialTradingPlatform",
+    "CopyTradingManager",
+    "LeaderboardManager",
+    "CommunityAnalytics",
+    "SocialTradingSystem",
+    "get_social_trading_system",
 ]

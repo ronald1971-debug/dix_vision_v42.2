@@ -21,7 +21,7 @@ class Side(StrEnum):
 
 class ExecutionStatus(StrEnum):
     """Execution event status types."""
-    
+
     PENDING = "PENDING"
     SUBMITTED = "SUBMITTED"
     FILLED = "FILLED"
@@ -35,7 +35,7 @@ class ExecutionStatus(StrEnum):
 @dataclass(frozen=True)
 class SignalEvent:
     """Base signal event for unified execution system."""
-    
+
     symbol: str
     side: Side
     quantity: float
@@ -47,7 +47,7 @@ class SignalEvent:
 @dataclass(frozen=True)
 class ExecutionEvent:
     """Base execution event for unified execution system."""
-    
+
     status: ExecutionStatus
     symbol: str
     side: Side
@@ -63,7 +63,7 @@ class ExecutionEvent:
 # This allows adapters that import from core.contracts.events to work
 class EventKind(StrEnum):
     """Discriminator for the four canonical event kinds."""
-    
+
     SIGNAL = "SIGNAL_EVENT"
     EXECUTION = "EXECUTION_EVENT"
     SYSTEM = "SYSTEM_EVENT"

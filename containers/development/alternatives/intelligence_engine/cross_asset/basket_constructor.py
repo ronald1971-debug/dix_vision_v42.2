@@ -46,10 +46,7 @@ class BasketConstructor:
         normed = {s: w / total for s, w in weights.items()} if normalize else weights
         basket = SyntheticBasket(
             basket_id=basket_id,
-            weights=tuple(
-                BasketWeight(symbol=s, weight=w)
-                for s, w in sorted(normed.items())
-            ),
+            weights=tuple(BasketWeight(symbol=s, weight=w) for s, w in sorted(normed.items())),
             description=description,
         )
         self._baskets[basket_id] = basket

@@ -30,6 +30,7 @@ class RuntimeThreat(StrEnum):
 @dataclass(frozen=True, slots=True)
 class RuntimeLimits:
     """Resource limits for the runtime guardian."""
+
     max_memory_mb: float = 4096.0
     max_threads: int = 512
     max_open_fds: int = 1024
@@ -41,6 +42,7 @@ class RuntimeLimits:
 @dataclass(frozen=True, slots=True)
 class RuntimeSnapshot:
     """Point-in-time resource snapshot."""
+
     memory_mb: float
     thread_count: int
     open_fds: int
@@ -53,6 +55,7 @@ class RuntimeSnapshot:
 def _get_memory_mb() -> float:
     try:
         import resource
+
         rusage = resource.getrusage(resource.RUSAGE_SELF)
         return rusage.ru_maxrss / 1024.0
     except Exception:
@@ -124,7 +127,7 @@ class RuntimeGuardian:
         with self._lock:
             self._snapshots.append(snap)
             if len(self._snapshots) > self._max_history:
-                self._snapshots = self._snapshots[-self._max_history:]
+                self._snapshots = self._snapshots[-self._max_history :]
         return snap
 
     def _sample_cpu(self) -> float:

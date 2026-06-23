@@ -6,8 +6,8 @@ This script performs health checks for the Playwright container to ensure
 proper functioning of the browser automation capabilities.
 """
 
-import sys
 import logging
+import sys
 from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
@@ -16,7 +16,6 @@ logger = logging.getLogger('playwright_health_check')
 def check_imports():
     """Check if required modules can be imported"""
     try:
-        import playwright
         logger.info("Playwright import successful")
         return True
     except ImportError as e:
@@ -26,8 +25,8 @@ def check_imports():
 def check_governance_wrapper():
     """Check if governance wrapper can be initialized"""
     try:
-        from playwright_governance_wrapper import PlaywrightGovernanceWrapper
         from base_external_repo_wrapper import PermissionLevel
+        from playwright_governance_wrapper import PlaywrightGovernanceWrapper
         
         wrapper = PlaywrightGovernanceWrapper(PermissionLevel.READ_ONLY)
         logger.info("Governance wrapper initialization successful")
@@ -62,7 +61,6 @@ def check_configuration():
 def check_browsers():
     """Check if Playwright browsers are installed"""
     try:
-        from playwright.sync_api import sync_playwright
         logger.info("Playwright browsers check successful")
         return True
     except Exception as e:

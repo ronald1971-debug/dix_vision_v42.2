@@ -1,0 +1,316 @@
+# Trading Form Optimization Registry
+# DIX VISION v42.2 - Phase 1 Trading Form Configuration
+# Optimal signal-world ratios for each trading form
+
+trading_forms:
+  # Market Trading Categories
+  discretionary_hybrid:
+    id: tf_001
+    name: Discretionary Hybrid
+    category: discretionary_hybrid
+    domain: crypto
+    timeframe: swing
+    execution_mode: semi_auto
+    description: "Combination of discretionary and systematic approaches"
+    
+    # Signal-First Configuration
+    signal_first:
+      optimal_ratio:
+        signal: 0.85
+        world: 0.15
+      allowed_range:
+        signal: [0.70, 0.95]
+        world: [0.05, 0.30]
+      auto_adjust_for_regime: true
+      preferred_signal_ratio: 0.85
+      
+    # Performance Characteristics
+    performance:
+      typical_win_rate: 0.65
+      sharpe_ratio_target: 1.8
+      max_drawdown_limit: 0.15
+      
+    # Operational Requirements
+    operational:
+      latency_requirement_ms: 100
+      data_sources:
+        - orderbook
+        - trades
+        - social
+        - news
+      min_account_balance_usd: 10000
+      
+    # Signal-First Integration
+    signal_first_compatibility: true
+    dashboard_control_enabled: true
+    world_context_integration: true
+    
+  liquidity_focused:
+    id: tf_002
+    name: Liquidity Focused
+    category: liquidity_focused
+    domain: crypto
+    timeframe: intraday
+    execution_mode: auto
+    description: "Focuses on liquid market opportunities"
+    
+    signal_first:
+      optimal_ratio:
+        signal: 0.80
+        world: 0.20
+      allowed_range:
+        signal: [0.65, 0.90]
+        world: [0.10, 0.35]
+      auto_adjust_for_regime: true
+      preferred_signal_ratio: 0.80
+      
+    performance:
+      typical_win_rate: 0.70
+      sharpe_ratio_target: 2.1
+      max_drawdown_limit: 0.12
+      
+    operational:
+      latency_requirement_ms: 50
+      data_sources:
+        - orderbook
+        - trades
+        - funding_rates
+      min_account_balance_usd: 5000
+      
+    signal_first_compatibility: true
+    dashboard_control_enabled: true
+    world_context_integration: true
+    
+  trend_following:
+    id: tf_003
+    name: Trend Following
+    category: trend_momentum
+    domain: crypto
+    timeframe: swing
+    execution_mode: semi_auto
+    description: "Follows established market trends"
+    
+    signal_first:
+      optimal_ratio:
+        signal: 0.82
+        world: 0.18
+      allowed_range:
+        signal: [0.67, 0.92]
+        world: [0.08, 0.33]
+      auto_adjust_for_regime: true
+      preferred_signal_ratio: 0.82
+      
+    performance:
+      typical_win_rate: 0.68
+      sharpe_ratio_target: 2.0
+      max_drawdown_limit: 0.14
+      
+    operational:
+      latency_requirement_ms: 100
+      data_sources:
+        - orderbook
+        - trades
+        - social
+        - onchain
+      min_account_balance_usd: 10000
+      
+    signal_first_compatibility: true
+    dashboard_control_enabled: true
+    world_context_integration: true
+    
+  mean_reversion:
+    id: tf_004
+    name: Mean Reversion
+    category: trend_momentum
+    domain: crypto
+    timeframe: swing
+    execution_mode: semi_auto
+    description: "Profits from price returning to mean"
+    
+    signal_first:
+      optimal_ratio:
+        signal: 0.78
+        world: 0.22
+      allowed_range:
+        signal: [0.63, 0.88]
+        world: [0.12, 0.37]
+      auto_adjust_for_regime: true
+      preferred_signal_ratio: 0.78
+      
+    performance:
+      typical_win_rate: 0.72
+      sharpe_ratio_target: 2.2
+      max_drawdown_limit: 0.11
+      
+    operational:
+      latency_requirement_ms: 100
+      data_sources:
+        - orderbook
+        - trades
+        - volatility
+        - social
+      min_account_balance_usd: 10000
+      
+    signal_first_compatibility: true
+    dashboard_control_enabled: true
+    world_context_integration: true
+    
+  volatility_exploitation:
+    id: tf_005
+    name: Volatility Exploitation
+    category: volatility_options
+    domain: crypto
+    timeframe: intraday
+    execution_mode: auto
+    description: "Exploits volatility in options markets"
+    
+    signal_first:
+      optimal_ratio:
+        signal: 0.75
+        world: 0.25
+      allowed_range:
+        signal: [0.60, 0.85]
+        world: [0.15, 0.40]
+      auto_adjust_for_regime: true
+      preferred_signal_ratio: 0.75
+      
+    performance:
+      typical_win_rate: 0.75
+      sharpe_ratio_target: 2.5
+      max_drawdown_limit: 0.10
+      
+    operational:
+      latency_requirement_ms: 30
+      data_sources:
+        - orderbook
+        - options_chain
+        - greeks
+        - volatility_surface
+      min_account_balance_usd: 20000
+      
+    signal_first_compatibility: true
+    dashboard_control_enabled: true
+    world_context_integration: true
+    
+  crypto_arbitrage:
+    id: tf_006
+    name: Crypto Arbitrage
+    category: arbitrage
+    domain: crypto
+    timeframe: scalping
+    execution_mode: auto
+    description: "Exploits price differences across exchanges"
+    
+    signal_first:
+      optimal_ratio:
+        signal: 0.90
+        world: 0.10
+      allowed_range:
+        signal: [0.75, 0.95]
+        world: [0.05, 0.25]
+      auto_adjust_for_regime: false
+      preferred_signal_ratio: 0.90
+      
+    performance:
+      typical_win_rate: 0.85
+      sharpe_ratio_target: 3.0
+      max_drawdown_limit: 0.05
+      
+    operational:
+      latency_requirement_ms: 10
+      data_sources:
+        - orderbook
+        - trades
+        - funding_rates
+      min_account_balance_usd: 50000
+      
+    signal_first_compatibility: true
+    dashboard_control_enabled: true
+    world_context_integration: true
+    
+  portfolio_hybrid:
+    id: tf_007
+    name: Portfolio Hybrid
+    category: portfolio_hybrid
+    domain: crypto
+    timeframe: swing
+    execution_mode: semi_auto
+    description: "Manages diversified crypto portfolio"
+    
+    signal_first:
+      optimal_ratio:
+        signal: 0.85
+        world: 0.15
+      allowed_range:
+        signal: [0.70, 0.95]
+        world: [0.05, 0.30]
+      auto_adjust_for_regime: true
+      preferred_signal_ratio: 0.85
+      
+    performance:
+      typical_win_rate: 0.70
+      sharpe_ratio_target: 2.3
+      max_drawdown_limit: 0.10
+      
+    operational:
+      latency_requirement_ms: 100
+      data_sources:
+        - orderbook
+        - trades
+        - social
+        - onchain
+      min_account_balance_usd: 25000
+      
+    signal_first_compatibility: true
+    dashboard_control_enabled: true
+    world_context_integration: true
+
+# Execution Mode Specific Ratios
+execution_modes:
+  auto:
+    default_signal_ratio: 0.82
+    world_context_weight: 0.18
+    description: "Automated execution requires higher signal"
+    
+  semi_auto:
+    default_signal_ratio: 0.85
+    world_context_weight: 0.15
+    description: "Semi-automated uses standard baseline"
+    
+  manual:
+    default_signal_ratio: 0.88
+    world_context_weight: 0.12
+    description: "Manual execution relies on operator"
+    
+  discretionary:
+    default_signal_ratio: 0.85
+    world_context_weight: 0.15
+    description: "Discretionary trading uses standard baseline"
+
+# Timeframe Specific Ratios
+timeframes:
+  scalping:
+    default_signal_ratio: 0.88
+    world_context_weight: 0.12
+    description: "Fast trading requires higher signal"
+    
+  intraday:
+    default_signal_ratio: 0.82
+    world_context_weight: 0.18
+    description: "Intraday benefits from world context"
+    
+  swing:
+    default_signal_ratio: 0.85
+    world_context_weight: 0.15
+    description: "Swing uses standard baseline"
+    
+  position:
+    default_signal_ratio: 0.80
+    world_context_weight: 0.20
+    description: "Position trading uses more world context"
+
+# Version information
+version: "1.0.0"
+created_date: "2026-06-21"
+updated_date: "2026-06-21"
+compatible_with: "DIX VISION v42.2+"

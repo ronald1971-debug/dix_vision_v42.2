@@ -101,21 +101,13 @@ class RegretEntry:
 
     def __post_init__(self) -> None:
         if not isinstance(self.entry_id, str) or not self.entry_id:
-            raise ValueError(
-                f"RegretEntry.entry_id must be non-empty str, got {self.entry_id!r}"
-            )
+            raise ValueError(f"RegretEntry.entry_id must be non-empty str, got {self.entry_id!r}")
         if not isinstance(self.ts_ns, int) or isinstance(self.ts_ns, bool):
-            raise ValueError(
-                f"RegretEntry.ts_ns must be int, got {type(self.ts_ns).__name__}"
-            )
+            raise ValueError(f"RegretEntry.ts_ns must be int, got {type(self.ts_ns).__name__}")
         if not isinstance(self.kind, RegretKind):
-            raise ValueError(
-                f"RegretEntry.kind must be RegretKind, got {type(self.kind).__name__}"
-            )
+            raise ValueError(f"RegretEntry.kind must be RegretKind, got {type(self.kind).__name__}")
         if not isinstance(self.symbol, str) or not self.symbol:
-            raise ValueError(
-                f"RegretEntry.symbol must be non-empty str, got {self.symbol!r}"
-            )
+            raise ValueError(f"RegretEntry.symbol must be non-empty str, got {self.symbol!r}")
         if not isinstance(self.realised_pnl, float):
             raise ValueError(
                 f"RegretEntry.realised_pnl must be float, got {type(self.realised_pnl).__name__}"
@@ -130,9 +122,7 @@ class RegretEntry:
                 f"RegretEntry.regret_pnl must be float, got {type(self.regret_pnl).__name__}"
             )
         if not isinstance(self.detail, str):
-            raise ValueError(
-                f"RegretEntry.detail must be str, got {type(self.detail).__name__}"
-            )
+            raise ValueError(f"RegretEntry.detail must be str, got {type(self.detail).__name__}")
 
 
 # ---------------------------------------------------------------------------
@@ -163,9 +153,7 @@ class RegretLog:
             If *entry* is not a :class:`RegretEntry`.
         """
         if not isinstance(entry, RegretEntry):
-            raise TypeError(
-                f"RegretLog.append: expected RegretEntry, got {type(entry).__name__}"
-            )
+            raise TypeError(f"RegretLog.append: expected RegretEntry, got {type(entry).__name__}")
         with self._lock:
             self._entries.append(entry)
 

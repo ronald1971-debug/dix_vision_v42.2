@@ -32,16 +32,54 @@ from execution_unified.core.paper_trading.venue_config import (
 )
 
 # Equity ticker prefixes that suggest Alpaca/IBKR routing
-_EQUITY_SYMBOLS: frozenset[str] = frozenset({
-    "AAPL", "TSLA", "AMZN", "GOOG", "GOOGL", "META", "MSFT", "NVDA",
-    "SPY", "QQQ", "IWM", "GLD", "TLT", "XLF", "XLE", "XLK",
-    "NFLX", "AMD", "INTC", "CRM", "ORCL", "JPM", "GS", "BAC",
-})
+_EQUITY_SYMBOLS: frozenset[str] = frozenset(
+    {
+        "AAPL",
+        "TSLA",
+        "AMZN",
+        "GOOG",
+        "GOOGL",
+        "META",
+        "MSFT",
+        "NVDA",
+        "SPY",
+        "QQQ",
+        "IWM",
+        "GLD",
+        "TLT",
+        "XLF",
+        "XLE",
+        "XLK",
+        "NFLX",
+        "AMD",
+        "INTC",
+        "CRM",
+        "ORCL",
+        "JPM",
+        "GS",
+        "BAC",
+    }
+)
 
-_FOREX_CURRENCIES: frozenset[str] = frozenset({
-    "EUR", "GBP", "USD", "JPY", "AUD", "CAD", "CHF", "NZD",
-    "SGD", "HKD", "NOK", "SEK", "DKK", "MXN", "ZAR",
-})
+_FOREX_CURRENCIES: frozenset[str] = frozenset(
+    {
+        "EUR",
+        "GBP",
+        "USD",
+        "JPY",
+        "AUD",
+        "CAD",
+        "CHF",
+        "NZD",
+        "SGD",
+        "HKD",
+        "NOK",
+        "SEK",
+        "DKK",
+        "MXN",
+        "ZAR",
+    }
+)
 
 
 def _infer_venue(symbol: str) -> str:
@@ -69,8 +107,7 @@ class PaperTradingHub:
     def __init__(self) -> None:
         self._lock = threading.Lock()
         self._adapters: dict[str, PaperVenueAdapter] = {
-            name: PaperVenueAdapter(cfg)
-            for name, cfg in VENUE_CONFIGS.items()
+            name: PaperVenueAdapter(cfg) for name, cfg in VENUE_CONFIGS.items()
         }
 
     # ------------------------------------------------------------------
@@ -89,9 +126,7 @@ class PaperTradingHub:
         adapter = self._adapters.get(venue_name) or self._adapters["binance_paper"]
         return adapter.submit(signal, mark_price)
 
-    def submit_to(
-        self, venue: str, signal: SignalEvent, mark_price: float
-    ) -> ExecutionEvent:
+    def submit_to(self, venue: str, signal: SignalEvent, mark_price: float) -> ExecutionEvent:
         """Submit directly to a named venue adapter."""
         adapter = self._adapters.get(venue)
         if adapter is None:
@@ -115,8 +150,7 @@ class PaperTradingHub:
     def snapshot(self) -> dict[str, Any]:
         """Full snapshot: all six portfolios + aggregate P&L."""
         portfolios = {
-            name: adapter.portfolio_snapshot()
-            for name, adapter in self._adapters.items()
+            name: adapter.portfolio_snapshot() for name, adapter in self._adapters.items()
         }
         return {
             "hub": "PaperTradingHub",
@@ -127,8 +161,7 @@ class PaperTradingHub:
 
     def pnl_summary(self) -> dict[str, Any]:
         portfolios = {
-            name: adapter.portfolio_snapshot()
-            for name, adapter in self._adapters.items()
+            name: adapter.portfolio_snapshot() for name, adapter in self._adapters.items()
         }
         return self._aggregate_summary(portfolios)
 
@@ -160,17 +193,14 @@ class PaperTradingHub:
         total_cash = sum(p.get("cash", 0.0) for p in portfolios.values())
         total_fills = sum(p.get("submit_count", 0) for p in portfolios.values())
         open_positions = sum(p.get("open_position_count", 0) for p in portfolios.values())
-        venue_pnls = {
-            name: round(p.get("realized_pnl", 0.0), 4)
-            for name, p in portfolios.items()
-        }
+        venue_pnls = {name: round(p.get("realized_pnl", 0.0), 4) for name, p in portfolios.items()}
         return {
             "total_initial_capital": round(total_initial, 2),
             "total_cash": round(total_cash, 2),
             "total_realized_pnl": round(total_pnl, 4),
-            "total_realized_pnl_pct": round(
-                total_pnl / total_initial * 100, 4
-            ) if total_initial else 0.0,
+            "total_realized_pnl_pct": (
+                round(total_pnl / total_initial * 100, 4) if total_initial else 0.0
+            ),
             "total_fills": total_fills,
             "total_open_positions": open_positions,
             "venue_pnl": venue_pnls,

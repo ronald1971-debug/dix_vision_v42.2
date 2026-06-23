@@ -23,41 +23,23 @@ Completed Phases Integrated:
 Total Integration: 121+ tests passing across all completed phases + Priority 3 enhancements.
 """
 
-# Core Cognitive OS Kernel
-from .core import (
-    CognitiveOSKernel,
-    get_cognitive_os_kernel,
-    SystemLayer,
-    SystemStatus,
-    CognitiveOSMetrics,
+from .agents import (
+    get_multi_agent_engine,
 )
-
-# Phase 3 Advanced Modules
-from .rl import (
-    get_rl_optimizer,
-)
-from .xai import (
-    get_xai_system,
-)
-from .multi_agent import (
-    get_multi_agent_system,
-)
-from .temporal import (
-    get_temporal_reasoner,
-)
-from .risk import (
-    get_dynamic_risk_manager,
-)
-
-# Phase 4 Advanced Modules
-from .neuro_symbolic import (
-    get_neuro_symbolic_ai,
-)
-from .meta_cognitive import (
-    get_meta_cognitive_system,
+from .automl import (
+    get_automl_engine,
 )
 from .causal import (
     get_advanced_causal_discovery,
+)
+
+# Core Cognitive OS Kernel
+from .core import (
+    CognitiveOSKernel,
+    CognitiveOSMetrics,
+    SystemLayer,
+    SystemStatus,
+    get_cognitive_os_kernel,
 )
 
 # Integration Layer
@@ -65,22 +47,41 @@ from .integration import (
     get_advanced_ai_integration,
     get_complete_system_integration,
 )
+from .knowledge import (
+    get_advanced_graph_engine,
+)
+from .meta_cognitive import (
+    get_meta_cognitive_system,
+)
+from .multi_agent import (
+    get_multi_agent_system,
+)
+from .multimodal import (
+    get_cross_modal_engine,
+)
+
+# Phase 4 Advanced Modules
+from .neuro_symbolic import (
+    get_neuro_symbolic_ai,
+)
+from .risk import (
+    get_dynamic_risk_manager,
+)
+
+# Phase 3 Advanced Modules
+from .rl import (
+    get_rl_optimizer,
+)
 
 # Priority 3 Advanced AI Capabilities
 from .semantic import (
     get_semantic_reasoning_engine,
 )
-from .automl import (
-    get_automl_engine,
+from .temporal import (
+    get_temporal_reasoner,
 )
-from .knowledge import (
-    get_advanced_graph_engine,
-)
-from .agents import (
-    get_multi_agent_engine,
-)
-from .multimodal import (
-    get_cross_modal_engine,
+from .xai import (
+    get_xai_system,
 )
 
 __all__ = [

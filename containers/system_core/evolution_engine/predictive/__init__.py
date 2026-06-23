@@ -1,16 +1,16 @@
 """Predictive Evolution Module."""
 
 from .evolution_forecasting import (
-    TrendDirection,
-    TrendAnalysis,
-    RequirementPrediction,
     CapabilityGap,
-    EvolutionPlan,
-    EvolutionForecast,
-    SystemTrendAnalyzer,
-    RequirementPredictor,
     CapabilityGapAnalyzer,
+    EvolutionForecast,
+    EvolutionPlan,
     EvolutionPlanningSystem,
+    RequirementPrediction,
+    RequirementPredictor,
+    SystemTrendAnalyzer,
+    TrendAnalysis,
+    TrendDirection,
     get_evolution_planning_system,
 )
 

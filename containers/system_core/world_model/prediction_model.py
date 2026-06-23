@@ -9,8 +9,8 @@ and production-ready prediction accuracy tracking.
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass, field
-from typing import Any, Dict, List
+from dataclasses import dataclass
+from typing import Any, List
 
 from system.time_source import now
 
@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class Prediction:
     """A prediction made by the model."""
+
     prediction_id: str
     target: str
     predicted_value: Any
@@ -30,19 +31,21 @@ class Prediction:
 
 class ProductionPredictionModel:
     """Production-grade prediction model."""
-    
+
     def __init__(self) -> None:
         self._predictions: List[Prediction] = []
-        
+
     def start(self) -> bool:
         logger.info("[PREDICTION_MODEL] Production prediction model started")
         return True
-    
+
     def stop(self) -> bool:
         logger.info("[PREDICTION_MODEL] Production prediction model stopped")
         return True
-    
-    def make_prediction(self, target: str, predicted_value: Any, confidence: float, horizon: str) -> Prediction:
+
+    def make_prediction(
+        self, target: str, predicted_value: Any, confidence: float, horizon: str
+    ) -> Prediction:
         """Make a prediction."""
         prediction = Prediction(
             prediction_id=f"pred_{now().sequence}",
@@ -50,7 +53,7 @@ class ProductionPredictionModel:
             predicted_value=predicted_value,
             confidence=confidence,
             horizon=horizon,
-            timestamp=now().utc_time.isoformat()
+            timestamp=now().utc_time.isoformat(),
         )
         self._predictions.append(prediction)
         return prediction

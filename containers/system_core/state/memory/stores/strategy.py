@@ -17,7 +17,7 @@ from typing import Any
 
 from state.memory.contracts import MemoryKind, MemoryRecord
 
-_logger   = logging.getLogger(__name__)
+_logger = logging.getLogger(__name__)
 _MAX_SIZE = 2_000
 
 
@@ -25,12 +25,12 @@ class StrategyMemoryStore:
     """In-process ring-buffer store for strategy lifecycle events."""
 
     def __init__(self, max_size: int = _MAX_SIZE) -> None:
-        self._max_size  = max_size
-        self._lock      = threading.Lock()
-        self._records:  deque[MemoryRecord] = deque(maxlen=max_size)
-        self._by_id:    dict[str, MemoryRecord] = {}
-        self._fitness:  dict[str, list[float]] = {}   # strategy_id → fitness history
-        self._outcomes: dict[str, list[str]]   = {}   # strategy_id → outcome tags
+        self._max_size = max_size
+        self._lock = threading.Lock()
+        self._records: deque[MemoryRecord] = deque(maxlen=max_size)
+        self._by_id: dict[str, MemoryRecord] = {}
+        self._fitness: dict[str, list[float]] = {}  # strategy_id → fitness history
+        self._outcomes: dict[str, list[str]] = {}  # strategy_id → outcome tags
 
     # ------------------------------------------------------------------
     # Write
@@ -39,21 +39,21 @@ class StrategyMemoryStore:
     def record_proposal(
         self,
         *,
-        record_id:   str,
+        record_id: str,
         strategy_id: str,
-        ts_ns:       int,
+        ts_ns: int,
         description: str,
-        source:      str = "evolution_engine",
-        tags:        frozenset[str] = frozenset(),
+        source: str = "evolution_engine",
+        tags: frozenset[str] = frozenset(),
     ) -> MemoryRecord:
         rec = MemoryRecord(
-            record_id  = record_id,
-            kind       = MemoryKind.STRATEGY,
-            ts_ns      = ts_ns,
-            source     = source,
-            summary    = f"PROPOSAL {strategy_id}: {description}",
-            body       = MappingProxyType({"strategy_id": strategy_id, "event": "proposal"}),
-            tags       = tags | frozenset(["proposal", strategy_id]),
+            record_id=record_id,
+            kind=MemoryKind.STRATEGY,
+            ts_ns=ts_ns,
+            source=source,
+            summary=f"PROPOSAL {strategy_id}: {description}",
+            body=MappingProxyType({"strategy_id": strategy_id, "event": "proposal"}),
+            tags=tags | frozenset(["proposal", strategy_id]),
         )
         self._store(rec)
         return rec
@@ -61,28 +61,30 @@ class StrategyMemoryStore:
     def record_mutation(
         self,
         *,
-        record_id:   str,
+        record_id: str,
         strategy_id: str,
-        ts_ns:       int,
-        mutation:    str,
-        fitness:     float,
-        source:      str = "evolution_engine",
-        tags:        frozenset[str] = frozenset(),
+        ts_ns: int,
+        mutation: str,
+        fitness: float,
+        source: str = "evolution_engine",
+        tags: frozenset[str] = frozenset(),
     ) -> MemoryRecord:
         rec = MemoryRecord(
-            record_id  = record_id,
-            kind       = MemoryKind.STRATEGY,
-            ts_ns      = ts_ns,
-            source     = source,
-            summary    = f"MUTATION {strategy_id}: {mutation} fitness={fitness:.3f}",
-            body       = MappingProxyType({
-                "strategy_id": strategy_id,
-                "mutation":    mutation,
-                "fitness":     str(fitness),
-                "event":       "mutation",
-            }),
-            tags       = tags | frozenset(["mutation", strategy_id]),
-            confidence = max(0.0, min(1.0, fitness)),
+            record_id=record_id,
+            kind=MemoryKind.STRATEGY,
+            ts_ns=ts_ns,
+            source=source,
+            summary=f"MUTATION {strategy_id}: {mutation} fitness={fitness:.3f}",
+            body=MappingProxyType(
+                {
+                    "strategy_id": strategy_id,
+                    "mutation": mutation,
+                    "fitness": str(fitness),
+                    "event": "mutation",
+                }
+            ),
+            tags=tags | frozenset(["mutation", strategy_id]),
+            confidence=max(0.0, min(1.0, fitness)),
         )
         with self._lock:
             self._fitness.setdefault(strategy_id, []).append(fitness)
@@ -92,25 +94,26 @@ class StrategyMemoryStore:
     def record_outcome(
         self,
         *,
-        record_id:   str,
+        record_id: str,
         strategy_id: str,
-        ts_ns:       int,
-        outcome:     str,
-        pnl:         float | None = None,
-        source:      str = "evolution_engine",
-        tags:        frozenset[str] = frozenset(),
+        ts_ns: int,
+        outcome: str,
+        pnl: float | None = None,
+        source: str = "evolution_engine",
+        tags: frozenset[str] = frozenset(),
     ) -> MemoryRecord:
         body: dict[str, str] = {"strategy_id": strategy_id, "outcome": outcome, "event": "outcome"}
         if pnl is not None:
             body["pnl"] = str(pnl)
         rec = MemoryRecord(
-            record_id = record_id,
-            kind      = MemoryKind.STRATEGY,
-            ts_ns     = ts_ns,
-            source    = source,
-            summary   = f"OUTCOME {strategy_id}: {outcome}" + (f" pnl={pnl:.4f}" if pnl is not None else ""),
-            body      = MappingProxyType(body),
-            tags      = tags | frozenset(["outcome", strategy_id, outcome.lower()]),
+            record_id=record_id,
+            kind=MemoryKind.STRATEGY,
+            ts_ns=ts_ns,
+            source=source,
+            summary=f"OUTCOME {strategy_id}: {outcome}"
+            + (f" pnl={pnl:.4f}" if pnl is not None else ""),
+            body=MappingProxyType(body),
+            tags=tags | frozenset(["outcome", strategy_id, outcome.lower()]),
         )
         with self._lock:
             self._outcomes.setdefault(strategy_id, []).append(outcome)
@@ -138,9 +141,9 @@ class StrategyMemoryStore:
     def snapshot(self) -> dict[str, Any]:
         with self._lock:
             return {
-                "active":    True,
-                "size":      len(self._records),
-                "max_size":  self._max_size,
+                "active": True,
+                "size": len(self._records),
+                "max_size": self._max_size,
                 "strategies": len(self._fitness),
                 "fitness_tracked": sum(len(v) for v in self._fitness.values()),
                 "outcomes_tracked": sum(len(v) for v in self._outcomes.values()),

@@ -27,7 +27,6 @@ from dataclasses import dataclass
 from typing import Any
 
 import httpx
-
 from core.contracts.market import MarketTick
 
 LOG = logging.getLogger(__name__)
@@ -63,29 +62,29 @@ def parse_pool_data(
         token0 = pool_data.get("token0", {})
         token1 = pool_data.get("token1", {})
         pool_symbol = f"{token0.get('symbol', 'UNKNOWN')}/{token1.get('symbol', 'UNKNOWN')}"
-        
+
         # Use sqrtPrice to calculate price
         sqrt_price = float(pool_data.get("sqrtPrice", "0"))
         if sqrt_price == 0:
             return None
-            
+
         # Convert sqrtPrice to actual price (simplified)
         # In reality, this would need proper token decimals handling
-        price = sqrt_price / (2 ** 96)
-        
+        price = sqrt_price / (2**96)
+
         # Approximate bid/ask from pool liquidity and tick data
         tick = int(pool_data.get("tick", "0"))
         tick_spacing = int(pool_data.get("tickSpacing", "10"))
-        
+
         # Approximate spread based on tick spacing
         spread = 0.001 * (tick_spacing / 10)
         bid = price * (1 - spread)
         ask = price * (1 + spread)
-        
+
         # Use TVL as volume approximation
         tvl_usd = float(pool_data.get("totalValueLockedUSD", "0"))
         volume = tvl_usd / 1000.0  # Rough approximation
-        
+
     except (KeyError, ValueError, TypeError):
         return None
 

@@ -15,14 +15,15 @@ Dependencies: external_adapter_base
 # In a full implementation, the actual adapter code would be migrated here
 # along with necessary compatibility adjustments.
 
+
 class BacktraderadapterIntegrated:
     """Integrated backtrader_adapter adapter."""
-    
+
     def __init__(self):
         self.name = "backtrader_adapter"
         self.source = "execution_engine/adapters/external/backtrader.py"
         self.priority = "LOW"
-        
+
     def execute(self, order_data: dict) -> dict:
         """Execute order using integrated adapter."""
         # Placeholder for actual execution logic

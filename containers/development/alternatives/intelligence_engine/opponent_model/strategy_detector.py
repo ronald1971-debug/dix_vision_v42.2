@@ -15,7 +15,7 @@ __all__ = ["DetectedStrategy", "StrategyDetector"]
 class DetectedStrategy:
     ts_ns: int
     symbol: str
-    dominant_strategy: str    # "MOMENTUM", "MEAN_REVERSION", "MARKET_MAKING", "UNKNOWN"
+    dominant_strategy: str  # "MOMENTUM", "MEAN_REVERSION", "MARKET_MAKING", "UNKNOWN"
     confidence: float
     secondary_strategy: str = ""
     detail: str = ""
@@ -38,9 +38,9 @@ class StrategyDetector:
         ts_ns: int,
         symbol: str,
         *,
-        return_autocorr: float,    # lag-1 autocorrelation of returns
+        return_autocorr: float,  # lag-1 autocorrelation of returns
         spread_bps: float = 5.0,
-        fill_rate: float = 0.5,    # fraction of orders filled at mid
+        fill_rate: float = 0.5,  # fraction of orders filled at mid
     ) -> DetectedStrategy:
         strategies: list[tuple[str, float]] = []
 

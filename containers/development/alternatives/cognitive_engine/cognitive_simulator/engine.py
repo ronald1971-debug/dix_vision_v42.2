@@ -17,7 +17,9 @@ class CognitiveSimulator:
     def __init__(self) -> None:
         self._results: list[SimulationResult] = []
 
-    def simulate(self, scenario: Scenario, knowledge: dict[str, Any] | None = None) -> SimulationResult:
+    def simulate(
+        self, scenario: Scenario, knowledge: dict[str, Any] | None = None
+    ) -> SimulationResult:
         """Run simulation against a scenario."""
         risk_level = self._assess_risk(scenario)
         pnl_impact = self._estimate_pnl_impact(scenario, knowledge)
@@ -49,9 +51,7 @@ class CognitiveSimulator:
     def _estimate_pnl_impact(self, scenario: Scenario, knowledge: dict[str, Any] | None) -> float:
         """Estimate PnL impact from scenario."""
         # Simplified - real implementation would use risk models
-        base_impact = sum(
-            abs(v) * 0.1 for v in scenario.impact_factors.values()
-        )
+        base_impact = sum(abs(v) * 0.1 for v in scenario.impact_factors.values())
 
         if knowledge:
             hedges = knowledge.get("hedges", {})
@@ -60,7 +60,9 @@ class CognitiveSimulator:
 
         return base_impact
 
-    def _generate_recommendations(self, scenario: Scenario, risk_level: RiskLevel) -> tuple[str, ...]:
+    def _generate_recommendations(
+        self, scenario: Scenario, risk_level: RiskLevel
+    ) -> tuple[str, ...]:
         """Generate recommendations based on scenario and risk."""
         recs = []
 
@@ -95,41 +97,57 @@ class CognitiveSimulator:
 
     def run_fed_surprise(self, assets: tuple[str, ...] = ("SPY", "BTC", "ETH")) -> SimulationResult:
         """Run Fed surprise simulation."""
-        scenario = Scenario(
-            scenario_type=ScenarioType.FED_SURPRISE,
-            description="Unexpected Fed policy change",
-            affected_assets=assets,
-        ).with_impact("equity_beta", 0.4).with_impact("bond_duration", 0.6)
+        scenario = (
+            Scenario(
+                scenario_type=ScenarioType.FED_SURPRISE,
+                description="Unexpected Fed policy change",
+                affected_assets=assets,
+            )
+            .with_impact("equity_beta", 0.4)
+            .with_impact("bond_duration", 0.6)
+        )
 
         return self.simulate(scenario)
 
     def run_exchange_failure(self, exchange: str, assets: tuple[str, ...]) -> SimulationResult:
         """Run exchange failure simulation."""
-        scenario = Scenario(
-            scenario_type=ScenarioType.EXCHANGE_FAILURE,
-            description=f"{exchange} exchange outage",
-            affected_assets=assets,
-        ).with_impact("correlation_spike", 0.8).with_impact("volume_drop", 0.9)
+        scenario = (
+            Scenario(
+                scenario_type=ScenarioType.EXCHANGE_FAILURE,
+                description=f"{exchange} exchange outage",
+                affected_assets=assets,
+            )
+            .with_impact("correlation_spike", 0.8)
+            .with_impact("volume_drop", 0.9)
+        )
 
         return self.simulate(scenario)
 
     def run_liquidity_collapse(self, assets: tuple[str, ...] = ("BTC", "ETH")) -> SimulationResult:
         """Run liquidity collapse simulation."""
-        scenario = Scenario(
-            scenario_type=ScenarioType.LIQUIDITY_COLLAPSE,
-            description="Market liquidity dries up",
-            affected_assets=assets,
-        ).with_impact("spread_widening", 0.7).with_impact("depth_depletion", 0.85)
+        scenario = (
+            Scenario(
+                scenario_type=ScenarioType.LIQUIDITY_COLLAPSE,
+                description="Market liquidity dries up",
+                affected_assets=assets,
+            )
+            .with_impact("spread_widening", 0.7)
+            .with_impact("depth_depletion", 0.85)
+        )
 
         return self.simulate(scenario)
 
     def run_volatility_explosion(self, assets: tuple[str, ...] = ("ALL",)) -> SimulationResult:
         """Run volatility explosion simulation."""
-        scenario = Scenario(
-            scenario_type=ScenarioType.VOLATILITY_EXPLOSION,
-            description="Volatility spikes across markets",
-            affected_assets=assets,
-        ).with_impact("volatility_mult", 3.0).with_impact("correlation_climb", 0.9)
+        scenario = (
+            Scenario(
+                scenario_type=ScenarioType.VOLATILITY_EXPLOSION,
+                description="Volatility spikes across markets",
+                affected_assets=assets,
+            )
+            .with_impact("volatility_mult", 3.0)
+            .with_impact("correlation_climb", 0.9)
+        )
 
         return self.simulate(scenario)
 
@@ -139,7 +157,4 @@ class CognitiveSimulator:
 
     def get_high_risk_results(self) -> list[SimulationResult]:
         """Get results with high risk levels."""
-        return [
-            r for r in self._results
-            if r.risk_level in (RiskLevel.HIGH, RiskLevel.EXTREME)
-        ]
+        return [r for r in self._results if r.risk_level in (RiskLevel.HIGH, RiskLevel.EXTREME)]

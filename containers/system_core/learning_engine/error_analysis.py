@@ -14,13 +14,13 @@ from typing import Any
 
 
 class ErrorCategory(Enum):
-    BELIEF_ERROR = auto()       # wrong market belief
-    TIMING_ERROR = auto()       # right direction, wrong timing
-    SIZING_ERROR = auto()       # right trade, wrong size
-    EXECUTION_ERROR = auto()    # slippage, latency, fill issues
-    REGIME_ERROR = auto()       # misidentified market regime
-    DATA_ERROR = auto()         # stale or incorrect data
-    GOVERNANCE_ERROR = auto()   # policy misconfiguration
+    BELIEF_ERROR = auto()  # wrong market belief
+    TIMING_ERROR = auto()  # right direction, wrong timing
+    SIZING_ERROR = auto()  # right trade, wrong size
+    EXECUTION_ERROR = auto()  # slippage, latency, fill issues
+    REGIME_ERROR = auto()  # misidentified market regime
+    DATA_ERROR = auto()  # stale or incorrect data
+    GOVERNANCE_ERROR = auto()  # policy misconfiguration
 
 
 @dataclass
@@ -67,9 +67,7 @@ class ErrorAnalyzer:
         self._category_counts[cat_name] = self._category_counts.get(cat_name, 0) + 1
         return error
 
-    def get_errors(
-        self, category: ErrorCategory | None = None
-    ) -> list[ErrorRecord]:
+    def get_errors(self, category: ErrorCategory | None = None) -> list[ErrorRecord]:
         if category:
             return [e for e in self._errors if e.category == category]
         return list(self._errors)

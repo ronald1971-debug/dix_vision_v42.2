@@ -70,18 +70,18 @@ _DOMAIN_TRUST: dict[str, float] = {
     "beincrypto.com": 0.68,
     "coinjournal.net": 0.65,
     # AIX: Multilingual financial news (all languages)
-    "nikkei.com": 0.88,          # Japanese
-    "eastmoney.com": 0.80,       # Mandarin (SSE)
-    "infomoney.com.br": 0.78,    # Portuguese (B3)
-    "argaam.com": 0.78,          # Arabic (Tadawul)
-    "moneycontrol.com": 0.80,    # Hindi / English (NSE/BSE)
-    "livemint.com": 0.78,        # India
-    "handelsblatt.com": 0.82,    # German
-    "lesechos.fr": 0.82,         # French
-    "expansion.com": 0.78,       # Spanish
-    "interfax.ru": 0.75,         # Russian
-    "chosun.com": 0.75,          # Korean
-    "bangkokpost.com": 0.72,     # Thai / English
+    "nikkei.com": 0.88,  # Japanese
+    "eastmoney.com": 0.80,  # Mandarin (SSE)
+    "infomoney.com.br": 0.78,  # Portuguese (B3)
+    "argaam.com": 0.78,  # Arabic (Tadawul)
+    "moneycontrol.com": 0.80,  # Hindi / English (NSE/BSE)
+    "livemint.com": 0.78,  # India
+    "handelsblatt.com": 0.82,  # German
+    "lesechos.fr": 0.82,  # French
+    "expansion.com": 0.78,  # Spanish
+    "interfax.ru": 0.75,  # Russian
+    "chosun.com": 0.75,  # Korean
+    "bangkokpost.com": 0.72,  # Thai / English
     "thejakartapost.com": 0.70,  # Indonesian
     "businessdailyafrica.com": 0.68,  # East Africa / English
     # AIX: Commodities-specific
@@ -127,6 +127,7 @@ def score_source_trust(url: str) -> float:
         return _DEFAULT_TRUST
     try:
         from urllib.parse import urlparse
+
         domain = urlparse(url).netloc.lower()
         if domain.startswith("www."):
             domain = domain[4:]
@@ -183,8 +184,8 @@ class ResearchTopic:
     task_type: ResearchTaskType = ResearchTaskType.MARKET_ANALYSIS
     target_urls: tuple[str, ...] = ()
     max_pages: int = 3
-    priority: int = 5      # 1 (highest) to 10 (lowest); lower = dequeued sooner
-    ts_ns: int = 0         # enqueue timestamp for FIFO within same priority
+    priority: int = 5  # 1 (highest) to 10 (lowest); lower = dequeued sooner
+    ts_ns: int = 0  # enqueue timestamp for FIFO within same priority
 
 
 # ---------------------------------------------------------------------------
@@ -231,6 +232,7 @@ def _firecrawl_fetch(url: str) -> tuple[str, str] | None:
     try:
         import json as _json
         import urllib.request as _req
+
         body = _json.dumps({"url": url, "formats": ["markdown"]}).encode()
         request = _req.Request(
             "https://api.firecrawl.dev/v1/scrape",
@@ -254,6 +256,7 @@ def _playwright_fetch(url: str) -> tuple[str, str] | None:
     """Fetch url via Playwright headless chromium. Returns (title, text) or None."""
     try:
         from playwright.sync_api import sync_playwright  # type: ignore[import]
+
         with sync_playwright() as pw:
             browser = pw.chromium.launch(headless=True)
             page = browser.new_page()
@@ -293,7 +296,7 @@ class AutonomousResearchRuntime:
         fetch_interval_s: float = 60.0,
     ) -> None:
         self._lock = threading.Lock()
-        self._queue: list[ResearchTopic] = []         # sorted by (priority, ts_ns)
+        self._queue: list[ResearchTopic] = []  # sorted by (priority, ts_ns)
         self._max_queue = max_queue_depth
         self._history: deque[ResearchSnapshot] = deque(maxlen=max_history)
         self._fetch_interval = fetch_interval_s
@@ -302,7 +305,7 @@ class AutonomousResearchRuntime:
         self._total_ok: int = 0
         self._running: bool = False
         self._thread: threading.Thread | None = None
-        self._semantic_store: Any = None   # SemanticMemoryStore, lazy-init
+        self._semantic_store: Any = None  # SemanticMemoryStore, lazy-init
 
     # ------------------------------------------------------------------
     # Queue management
@@ -323,6 +326,7 @@ class AutonomousResearchRuntime:
         # Persist new task so it survives restart (best-effort)
         try:
             from state.cognition_persistence import get_cognition_persistence_store
+
             get_cognition_persistence_store().enqueue_research(
                 topic=topic.topic,
                 task_type=topic.task_type.value,
@@ -353,15 +357,14 @@ class AutonomousResearchRuntime:
             self._running = True
         # Reload any tasks that were pending when the process last stopped.
         self._restore_queue_from_persistence()
-        self._thread = threading.Thread(
-            target=self._loop, daemon=True, name="indira-research"
-        )
+        self._thread = threading.Thread(target=self._loop, daemon=True, name="indira-research")
         self._thread.start()
 
     def _restore_queue_from_persistence(self) -> None:
         """Re-enqueue PENDING tasks from the SQLite persistence store."""
         try:
             from state.cognition_persistence import get_cognition_persistence_store
+
             rows = get_cognition_persistence_store().load_pending_queue()
             for row in rows:
                 try:
@@ -415,6 +418,7 @@ class AutonomousResearchRuntime:
     def _run_research(self, topic: ResearchTopic) -> None:
         """Execute one research run: fetch → score → store → emit."""
         from system.time_source import wall_ns as _wall_ns
+
         ts_ns = _wall_ns()
 
         # ---- 1. Fetch ----
@@ -431,6 +435,7 @@ class AutonomousResearchRuntime:
                     from intelligence_engine.research.browser_research_service import (
                         _fetch_url,
                     )
+
                     result = _fetch_url(url)
                 except Exception:
                     continue
@@ -456,6 +461,7 @@ class AutonomousResearchRuntime:
 
         total_words = sum(len(p["body"].split()) for p in pages.values())
         from intelligence_engine.research.browser_research_service import _score_confidence
+
         raw_confidence = _score_confidence(len(pages), len(urls) or 1, total_words)
         # Blend with source trust
         confidence = round(raw_confidence * 0.7 + trust_score * 0.3, 4)
@@ -509,6 +515,7 @@ class AutonomousResearchRuntime:
         # ---- 7. Persist result and mark queue item done ----
         try:
             from state.cognition_persistence import get_cognition_persistence_store
+
             ps = get_cognition_persistence_store()
             ps.save_research_result(
                 topic=topic.topic,
@@ -525,14 +532,18 @@ class AutonomousResearchRuntime:
             pass
         try:
             from state.event_bus import CognitiveChannel, get_event_bus
-            get_event_bus().publish(CognitiveChannel.RESEARCH_COMPLETE, {
-                "topic": topic.topic,
-                "status": status,
-                "pages_fetched": len(pages),
-                "confidence": confidence,
-                "trust_score": trust_score,
-                "ts_ns": ts_ns,
-            })
+
+            get_event_bus().publish(
+                CognitiveChannel.RESEARCH_COMPLETE,
+                {
+                    "topic": topic.topic,
+                    "status": status,
+                    "pages_fetched": len(pages),
+                    "confidence": confidence,
+                    "trust_score": trust_score,
+                    "ts_ns": ts_ns,
+                },
+            )
         except Exception:
             pass
 
@@ -561,14 +572,16 @@ class AutonomousResearchRuntime:
                 ts_ns=ts_ns,
                 episode_id=f"research_{ts_ns}_{hash(topic) & 0xFFFFFFFF:08x}",
                 embedding=embedding,
-                payload=MappingProxyType({
-                    "subject": topic[:64],
-                    "content_summary": text[:256],
-                    "source": source_url[:128],
-                    "trust_score": f"{trust_score:.4f}",
-                    "confidence": f"{confidence:.4f}",
-                    "memory_kind": "research",
-                }),
+                payload=MappingProxyType(
+                    {
+                        "subject": topic[:64],
+                        "content_summary": text[:256],
+                        "source": source_url[:128],
+                        "trust_score": f"{trust_score:.4f}",
+                        "confidence": f"{confidence:.4f}",
+                        "memory_kind": "research",
+                    }
+                ),
             )
             self._semantic_store.add(episode)
         except Exception:
@@ -589,6 +602,7 @@ class AutonomousResearchRuntime:
             from intelligence_engine.cognitive.observability_emitter import (
                 emit_research_discovery,
             )
+
             discovery_id = f"auto_research_{ts_ns}_{hash(topic) & 0xFFFF:04x}"
             emit_research_discovery(
                 ts_ns=ts_ns,

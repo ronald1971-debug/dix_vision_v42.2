@@ -860,7 +860,7 @@ class NengoCognitiveAnalyser:
         symbol: str,
         regime_label: str,
         weights: NengoEnsembleWeights,
-        window: (Sequence[Sequence[float]] | Iterable[Sequence[float]]),
+        window: Sequence[Sequence[float]] | Iterable[Sequence[float]],
         config: NengoEnsembleConfig | None = None,
         evidence: Mapping[str, str] | None = None,
         polarity_axis: int = 0,

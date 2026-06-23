@@ -48,7 +48,7 @@ from typing import Any
 
 _logger = logging.getLogger(__name__)
 
-_HANDLER_TIMEOUT_S = 0.05   # 50 ms max per handler; slower ones are warned
+_HANDLER_TIMEOUT_S = 0.05  # 50 ms max per handler; slower ones are warned
 
 
 # ---------------------------------------------------------------------------
@@ -65,8 +65,8 @@ class CognitiveChannel(StrEnum):
     INDIRA_THOUGHT = auto()
     INDIRA_INSIGHT = auto()
     RESEARCH_COMPLETE = auto()
-    MARKET_TICK = auto()          # PriceTick from live ingestion or paper feed
-    RISK_BREACH = auto()          # RiskTracker kill condition triggered
+    MARKET_TICK = auto()  # PriceTick from live ingestion or paper feed
+    RISK_BREACH = auto()  # RiskTracker kill condition triggered
     # Manifest §5: governance.market_context_projector → INDIRA learning bridge
     GOVERNED_MARKET_CONTEXT = auto()
 
@@ -141,7 +141,8 @@ class CognitiveEventBus:
                 self._error_count[key] += 1
                 _logger.debug(
                     "CognitiveEventBus handler error on channel %s: %s",
-                    key, exc,
+                    key,
+                    exc,
                 )
         return notified
 

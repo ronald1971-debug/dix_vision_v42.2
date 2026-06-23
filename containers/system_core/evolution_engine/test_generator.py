@@ -51,17 +51,13 @@ class TestGenerator:
         self._proposals.append(proposal)
         return proposal
 
-    def get_proposals(
-        self, module: str | None = None
-    ) -> list[TestProposal]:
+    def get_proposals(self, module: str | None = None) -> list[TestProposal]:
         if module:
             return [p for p in self._proposals if p.target_module == module]
         return list(self._proposals)
 
     def get_pending(self) -> list[TestProposal]:
-        return [
-            p for p in self._proposals if p.approval_status == ApprovalStatus.PENDING
-        ]
+        return [p for p in self._proposals if p.approval_status == ApprovalStatus.PENDING]
 
     @property
     def proposal_count(self) -> int:

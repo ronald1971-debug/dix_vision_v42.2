@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from system_unified.time_source import now
 
@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class ValidationReport:
     """Model validation report."""
+
     validation_id: str
     model_id: str
     metrics: Dict[str, float] = field(default_factory=dict)
@@ -31,27 +32,27 @@ class ValidationReport:
 
 class ProductionModelValidator:
     """Production-grade model validation."""
-    
+
     def __init__(self) -> None:
         self._validation_reports: Dict[str, ValidationReport] = {}
-        
+
     def start(self) -> bool:
         """Start the model validator."""
         logger.info("[MODEL_VALIDATOR] Production model validator started")
         return True
-    
+
     def validate_model(self, model_id: str, test_data: Any) -> ValidationReport:
         """Validate a trained model."""
         validation_id = f"validation_{now().sequence}"
-        
+
         report = ValidationReport(
             validation_id=validation_id,
             model_id=model_id,
             metrics={"accuracy": 0.85, "precision": 0.83, "recall": 0.87},
             cross_val_scores=[0.82, 0.85, 0.84, 0.86, 0.83],
-            timestamp=now().utc_time.isoformat()
+            timestamp=now().utc_time.isoformat(),
         )
-        
+
         self._validation_reports[validation_id] = report
         return report
 

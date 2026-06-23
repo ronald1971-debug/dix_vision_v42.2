@@ -143,9 +143,13 @@ class RewardHackingDetector:
         else:
             severity = CognitiveSeverity.INFO
 
-        detail = "; ".join(detail_parts) if detail_parts else (
-            f"correlation={correlation:.4f}, reward_trend={reward_trend:+.4f}, "
-            f"objective_trend={objective_trend:+.4f}, OK"
+        detail = (
+            "; ".join(detail_parts)
+            if detail_parts
+            else (
+                f"correlation={correlation:.4f}, reward_trend={reward_trend:+.4f}, "
+                f"objective_trend={objective_trend:+.4f}, OK"
+            )
         )
 
         report = RewardHackingReport(

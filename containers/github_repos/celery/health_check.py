@@ -6,8 +6,8 @@ This script performs health checks for the Celery container to ensure
 proper functioning of the distributed task queue capabilities.
 """
 
-import sys
 import logging
+import sys
 from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
@@ -16,7 +16,6 @@ logger = logging.getLogger('celery_health_check')
 def check_imports():
     """Check if required modules can be imported"""
     try:
-        import celery
         logger.info("Celery import successful")
         return True
     except ImportError as e:
@@ -26,8 +25,8 @@ def check_imports():
 def check_governance_wrapper():
     """Check if governance wrapper can be initialized"""
     try:
-        from celery_governance_wrapper import CeleryGovernanceWrapper
         from base_external_repo_wrapper import PermissionLevel
+        from celery_governance_wrapper import CeleryGovernanceWrapper
         
         wrapper = CeleryGovernanceWrapper(PermissionLevel.READ_ONLY)
         logger.info("Governance wrapper initialization successful")

@@ -19,10 +19,10 @@ from typing import Any
 
 
 class VenueLatencyProfile(StrEnum):
-    TIER1_CEX = "TIER1_CEX"       # Binance, Kraken: 50-200ms
-    TIER2_CEX = "TIER2_CEX"       # IG, Oanda: 100-500ms
-    DEX = "DEX"                    # Uniswap etc: 500-5000ms (block time)
-    PAPER = "PAPER"                # instant
+    TIER1_CEX = "TIER1_CEX"  # Binance, Kraken: 50-200ms
+    TIER2_CEX = "TIER2_CEX"  # IG, Oanda: 100-500ms
+    DEX = "DEX"  # Uniswap etc: 500-5000ms (block time)
+    PAPER = "PAPER"  # instant
     CUSTOM = "CUSTOM"
 
 
@@ -39,17 +39,19 @@ _PROFILE_PARAMS: dict[VenueLatencyProfile, tuple[float, float]] = {
 @dataclass(frozen=True, slots=True)
 class LatencyConfig:
     """Latency model configuration for one venue."""
+
     venue: str
     profile: VenueLatencyProfile
     custom_mean_ms: float = 100.0
     custom_std_ms: float = 50.0
-    network_jitter_pct: float = 0.1    # additional ±% jitter
-    congestion_factor: float = 1.0     # multiplier during congestion
+    network_jitter_pct: float = 0.1  # additional ±% jitter
+    congestion_factor: float = 1.0  # multiplier during congestion
 
 
 @dataclass(frozen=True, slots=True)
 class LatencyDraw:
     """One sampled latency value."""
+
     venue: str
     latency_ms: float
     fill_ts_ns: int

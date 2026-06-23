@@ -285,9 +285,7 @@ _MONEY_PATTERN: Final[re.Pattern[str]] = re.compile(
 # Percent: optional sign, number with optional decimal, optional space,
 # then ``%`` or ``percent``.
 _PERCENT_PATTERN: Final[re.Pattern[str]] = re.compile(
-    r"(?<![A-Za-z0-9_])"
-    r"[+\-]?[0-9]+(?:\.[0-9]+)?\s?(?:%|percent)"
-    r"(?![A-Za-z0-9_])"
+    r"(?<![A-Za-z0-9_])" r"[+\-]?[0-9]+(?:\.[0-9]+)?\s?(?:%|percent)" r"(?![A-Za-z0-9_])"
 )
 
 # Dates: ISO-8601 (``2024-01-15``), short year (``2024``), quarter

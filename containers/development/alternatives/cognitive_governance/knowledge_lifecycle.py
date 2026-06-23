@@ -41,6 +41,7 @@ class KnowledgePhase(StrEnum):
 @dataclass(frozen=True, slots=True)
 class KnowledgeEvent:
     """A lifecycle event for a knowledge item."""
+
     knowledge_id: str
     phase: KnowledgePhase
     ts_ns: int
@@ -55,6 +56,7 @@ class KnowledgeEvent:
 @dataclass(frozen=True, slots=True)
 class KnowledgeState:
     """Current lifecycle state for a knowledge item."""
+
     knowledge_id: str
     phase: KnowledgePhase
     birth_ts_ns: int
@@ -85,9 +87,10 @@ class KnowledgeLifecycleManager:
         """Lazy-init cognitive ledger if available."""
         if self._ledger is None:
             try:
-                from knowledge_engine.cognitive_ledger.ledger import (
-                    CognitiveLedger,  # noqa: PLC0415
+                from knowledge_engine.cognitive_ledger.ledger import (  # noqa: PLC0415
+                    CognitiveLedger,
                 )
+
                 self._ledger = CognitiveLedger()
             except ImportError:
                 self._ledger = False  # type: ignore[assignment]
@@ -146,9 +149,12 @@ class KnowledgeLifecycleManager:
                 age_days=age_days,
             )
             self._states[knowledge_id] = new_state
-        self._emit_event(knowledge_id, KnowledgePhase.GROWTH,
-                         evidence_count=state.evidence_count + evidence_delta,
-                         confidence_after=new_confidence)
+        self._emit_event(
+            knowledge_id,
+            KnowledgePhase.GROWTH,
+            evidence_count=state.evidence_count + evidence_delta,
+            confidence_after=new_confidence,
+        )
         return new_state
 
     def validate(self, knowledge_id: str, passed: bool) -> KnowledgeState | None:
@@ -174,9 +180,12 @@ class KnowledgeLifecycleManager:
                 age_days=(ts_ns - state.birth_ts_ns) / 86_400_000_000_000,
             )
             self._states[knowledge_id] = new_state
-        self._emit_event(knowledge_id, KnowledgePhase.VALIDATION,
-                         outcome="passed" if passed else "failed",
-                         detail=f"validation {'passed' if passed else 'failed'}")
+        self._emit_event(
+            knowledge_id,
+            KnowledgePhase.VALIDATION,
+            outcome="passed" if passed else "failed",
+            detail=f"validation {'passed' if passed else 'failed'}",
+        )
         return new_state
 
     def challenge(self, knowledge_id: str, challenger: str) -> KnowledgeState | None:
@@ -202,9 +211,12 @@ class KnowledgeLifecycleManager:
                 age_days=(ts_ns - state.birth_ts_ns) / 86_400_000_000_000,
             )
             self._states[knowledge_id] = new_state
-        self._emit_event(knowledge_id, KnowledgePhase.CHALLENGE,
-                         challenger=challenger,
-                         detail=f"challenged by {challenger}")
+        self._emit_event(
+            knowledge_id,
+            KnowledgePhase.CHALLENGE,
+            challenger=challenger,
+            detail=f"challenged by {challenger}",
+        )
         return new_state
 
     def decay(self, knowledge_id: str, reason: str = "age") -> KnowledgeState | None:
@@ -233,10 +245,13 @@ class KnowledgeLifecycleManager:
                 age_days=(ts_ns - state.birth_ts_ns) / 86_400_000_000_000,
             )
             self._states[knowledge_id] = new_state
-        self._emit_event(knowledge_id, KnowledgePhase.DECAY,
-                         confidence_before=state.confidence,
-                         confidence_after=new_confidence,
-                         detail=f"decayed due to {reason}")
+        self._emit_event(
+            knowledge_id,
+            KnowledgePhase.DECAY,
+            confidence_before=state.confidence,
+            confidence_after=new_confidence,
+            detail=f"decayed due to {reason}",
+        )
 
         if new_confidence < 0.1:
             self.retire(knowledge_id, reason="low_confidence")
@@ -267,8 +282,7 @@ class KnowledgeLifecycleManager:
             )
             self._states[knowledge_id] = new_state
 
-        self._emit_event(knowledge_id, KnowledgePhase.RETIREMENT,
-                         detail=f"retired: {reason}")
+        self._emit_event(knowledge_id, KnowledgePhase.RETIREMENT, detail=f"retired: {reason}")
 
         lifecycle_violation = None
         if reason == "failed_challenge":
@@ -298,15 +312,13 @@ class KnowledgeLifecycleManager:
     def get_retired(self, limit: int = 50) -> list[KnowledgeState]:
         """Get recently retired knowledge items."""
         with self._lock:
-            retired = [s for s in self._states.values()
-                      if s.phase == KnowledgePhase.RETIREMENT]
+            retired = [s for s in self._states.values() if s.phase == KnowledgePhase.RETIREMENT]
             return retired[-limit:] if retired else []
 
     def get_active(self, limit: int = 100) -> list[KnowledgeState]:
         """Get active (non-retired) knowledge items."""
         with self._lock:
-            active = [s for s in self._states.values()
-                     if s.phase != KnowledgePhase.RETIREMENT]
+            active = [s for s in self._states.values() if s.phase != KnowledgePhase.RETIREMENT]
             return active[-limit:] if active else []
 
     def _emit_event(

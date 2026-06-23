@@ -24,7 +24,7 @@ LOG = logging.getLogger(__name__)
 @dataclass(frozen=True, slots=True)
 class UniversalCryptoObservation:
     """Unified crypto observation from any crypto provider."""
-    
+
     provider: str
     symbol: str
     price: float
@@ -37,7 +37,7 @@ class UniversalCryptoObservation:
 @dataclass(frozen=True, slots=True)
 class UniversalForexObservation:
     """Unified forex observation from any forex provider."""
-    
+
     provider: str
     from_currency: str
     to_currency: str
@@ -48,7 +48,7 @@ class UniversalForexObservation:
 @dataclass(frozen=True, slots=True)
 class UniversalStockObservation:
     """Unified stock observation from any stock provider."""
-    
+
     provider: str
     symbol: str
     price: float
@@ -61,7 +61,7 @@ class UniversalStockObservation:
 @dataclass(frozen=True, slots=True)
 class UniversalMacroObservation:
     """Unified macro observation from any macro provider."""
-    
+
     provider: str
     indicator: str
     value: float
@@ -70,10 +70,10 @@ class UniversalMacroObservation:
 
 class UniversalCryptoAdapter:
     """Universal adapter for crypto data sources."""
-    
+
     def __init__(self):
         self.providers: dict[str, Any] = {}
-    
+
     def fetch_price(self, provider: str, symbol: str) -> UniversalCryptoObservation:
         """Fetch crypto price from a provider."""
         # TODO: Implement actual API calls to providers
@@ -92,10 +92,10 @@ class UniversalCryptoAdapter:
 
 class UniversalForexAdapter:
     """Universal adapter for forex data sources."""
-    
+
     def __init__(self):
         self.providers: dict[str, Any] = {}
-    
+
     def fetch_rate(self, provider: str, from_curr: str, to_curr: str) -> UniversalForexObservation:
         """Fetch forex rate from a provider."""
         # TODO: Implement actual API calls to providers
@@ -111,10 +111,10 @@ class UniversalForexAdapter:
 
 class UniversalStockAdapter:
     """Universal adapter for stock data sources."""
-    
+
     def __init__(self):
         self.providers: dict[str, Any] = {}
-    
+
     def fetch_quote(self, provider: str, symbol: str) -> UniversalStockObservation:
         """Fetch stock quote from a provider."""
         # TODO: Implement actual API calls to providers
@@ -132,10 +132,10 @@ class UniversalStockAdapter:
 
 class UniversalMacroAdapter:
     """Universal adapter for macro data sources."""
-    
+
     def __init__(self):
         self.providers: dict[str, Any] = {}
-    
+
     def fetch_indicator(self, provider: str, indicator: str) -> UniversalMacroObservation:
         """Fetch macro indicator from a provider."""
         # TODO: Implement actual API calls to providers

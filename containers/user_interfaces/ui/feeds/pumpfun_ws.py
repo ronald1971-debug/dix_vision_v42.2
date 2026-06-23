@@ -281,9 +281,7 @@ class PumpFunLaunchPump:
                     self._errors += 1
                     self._consecutive_errors += 1
                     # 403 = permanent auth failure — retrying won't help.
-                    _http_status = getattr(
-                        getattr(_exc, "response", None), "status_code", None
-                    )
+                    _http_status = getattr(getattr(_exc, "response", None), "status_code", None)
                     if _http_status == 403:
                         LOG.warning(
                             "pumpfun_ws: HTTP 403 Forbidden — PumpPortal requires "

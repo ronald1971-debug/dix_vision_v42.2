@@ -227,10 +227,16 @@ class LiveTradingLedgerBackedOperations:
         payload = {
             "signal_id": str(signal.event_id) if hasattr(signal, "event_id") else "",
             "execution_id": str(execution.event_id) if hasattr(execution, "event_id") else "",
-            "side": execution.side.value if hasattr(execution.side, "value") else str(execution.side),
+            "side": (
+                execution.side.value if hasattr(execution.side, "value") else str(execution.side)
+            ),
             "qty": execution.qty,
             "price": execution.price,
-            "status": execution.status.value if hasattr(execution.status, "value") else str(execution.status),
+            "status": (
+                execution.status.value
+                if hasattr(execution.status, "value")
+                else str(execution.status)
+            ),
             "venue": execution.venue,
             "governance_approved": governance_approved,
             "risk_constraints_passed": risk_constraints_passed,

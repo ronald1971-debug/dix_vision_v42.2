@@ -46,6 +46,7 @@ from core.contracts.governance import (
     OperatorRequest,
     SystemMode,
 )
+
 from .ledger_authority_writer import (
     LedgerAuthorityWriter,
 )

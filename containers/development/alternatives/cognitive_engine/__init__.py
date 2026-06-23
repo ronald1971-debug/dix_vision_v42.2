@@ -41,7 +41,7 @@ from cognitive_engine.hypothesis_engine.test_runner import TestRunner
 from cognitive_engine.identity_layer.capabilities import Capability, CapabilityStatus
 from cognitive_engine.identity_layer.identity import Identity
 from cognitive_engine.identity_layer.maturity import MaturityAssessment, MaturityLevel
-from cognitive_engine.knowledge_graph.edge import EdgeType, KnowledgeEdge
+from cognitive_engine.knowledge_graph.edge import EdgeType
 from cognitive_engine.knowledge_graph.graph import KnowledgeGraph
 from cognitive_engine.knowledge_graph.node import KnowledgeNode, NodeType
 from cognitive_engine.knowledge_preservation.archive import KnowledgeArchive
@@ -50,7 +50,7 @@ from cognitive_engine.knowledge_preservation.snapshot import KnowledgeSnapshot
 from cognitive_engine.maturity_model.levels import DomainMaturity, MaturityDomain
 from cognitive_engine.maturity_model.model import CognitiveMaturityModel
 from cognitive_engine.maturity_model.report import MaturityReport
-from cognitive_engine.meta_governance.meta_governance import GovernanceQuestion, MetaGovernance
+from cognitive_engine.meta_governance.meta_governance import GovernanceQuestion
 from cognitive_engine.meta_governance.rules import GovernanceRule, RuleType
 from cognitive_engine.narrative_engine.engine import NarrativeEngine
 from cognitive_engine.narrative_engine.narrative import Narrative, NarrativeStage

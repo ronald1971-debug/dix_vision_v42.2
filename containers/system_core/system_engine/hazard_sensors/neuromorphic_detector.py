@@ -151,7 +151,6 @@ class NeuromorphicDetector:
             ),
         )
 
-
     def reset(self) -> None:
         """Disarm the latch and clear all buffered samples."""
         self._armed = False

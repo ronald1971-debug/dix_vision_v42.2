@@ -4,27 +4,27 @@ Contract-Compliant Real Implementation
 """
 
 from .self_improving_architecture import (
-    ArchitectureType,
     ArchitectureEvaluation,
+    ArchitectureEvolution,
     ArchitectureImprovement,
-    NeuralArchitectureSearch,
+    ArchitectureType,
+    AutomatedFeatureEngineering,
     AutoMLStrategyOptimizer,
     HyperparameterSelfTuning,
-    AutomatedFeatureEngineering,
-    ArchitectureEvolution,
+    NeuralArchitectureSearch,
     SelfImprovingArchitecture,
-    get_self_improving_architecture
+    get_self_improving_architecture,
 )
 
 __all__ = [
-    'ArchitectureType',
-    'ArchitectureEvaluation',
-    'ArchitectureImprovement',
-    'NeuralArchitectureSearch',
-    'AutoMLStrategyOptimizer',
-    'HyperparameterSelfTuning',
-    'AutomatedFeatureEngineering',
-    'ArchitectureEvolution',
-    'SelfImprovingArchitecture',
-    'get_self_improving_architecture'
+    "ArchitectureType",
+    "ArchitectureEvaluation",
+    "ArchitectureImprovement",
+    "NeuralArchitectureSearch",
+    "AutoMLStrategyOptimizer",
+    "HyperparameterSelfTuning",
+    "AutomatedFeatureEngineering",
+    "ArchitectureEvolution",
+    "SelfImprovingArchitecture",
+    "get_self_improving_architecture",
 ]

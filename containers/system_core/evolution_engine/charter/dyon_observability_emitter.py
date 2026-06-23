@@ -48,6 +48,7 @@ def _append(sub_type: str, payload: dict[str, Any]) -> None:
     """Best-effort ledger append — never raises."""
     try:
         from state.ledger.event_store import append_event
+
         append_event(_SYSTEM_EVENT_TYPE, sub_type, _DYON_SOURCE, payload)
     except Exception:  # pragma: no cover
         pass
@@ -56,6 +57,7 @@ def _append(sub_type: str, payload: dict[str, Any]) -> None:
 # ---------------------------------------------------------------------------
 # DYON engineering observability emitters
 # ---------------------------------------------------------------------------
+
 
 def emit_patch_proposal(
     *,

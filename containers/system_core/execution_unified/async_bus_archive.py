@@ -51,9 +51,7 @@ class AsyncBus:
         self._running = True
         if self._worker is not None and self._worker.is_alive():
             return
-        self._worker = threading.Thread(
-            target=self._dispatch_loop, daemon=True, name="AsyncBus"
-        )
+        self._worker = threading.Thread(target=self._dispatch_loop, daemon=True, name="AsyncBus")
         self._worker.start()
 
     def stop(self) -> None:

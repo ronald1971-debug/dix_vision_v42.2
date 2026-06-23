@@ -30,7 +30,6 @@ from enum import StrEnum
 from typing import Any
 
 from cognitive_control_center.core.operating_environment import (
-    CognitiveEntityType,
     get_cognitive_environment,
 )
 from cognitive_control_center.core.workspace_manager import (
@@ -41,6 +40,7 @@ from cognitive_control_center.core.workspace_manager import (
 
 class MemecoinDomainFeature(StrEnum):
     """Types of memecoin domain features."""
+
     TOKEN_SNIIPING = "token_sniping"
     BIG_SWAP_DETECTION = "big_swap_detection"
     COPY_TRADING = "copy_trading"
@@ -54,6 +54,7 @@ class MemecoinDomainFeature(StrEnum):
 @dataclass
 class MemecoinActivity:
     """Activity specific to memecoin domain."""
+
     activity_type: MemecoinDomainFeature
     token_address: str
     timestamp: datetime
@@ -64,6 +65,7 @@ class MemecoinActivity:
 @dataclass
 class MemecoinTradingSession:
     """Active memecoin trading session."""
+
     session_id: str
     operator_id: str
     token_address: str

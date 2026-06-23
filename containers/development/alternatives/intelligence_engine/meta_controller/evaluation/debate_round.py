@@ -25,15 +25,17 @@ _HOLD = "HOLD"
 @dataclass(frozen=True, slots=True)
 class DebatePosition:
     """A single agent's position in a debate round."""
+
     agent_id: str
-    direction: str       # BUY | SELL | HOLD
-    confidence: float    # [0, 1]
+    direction: str  # BUY | SELL | HOLD
+    confidence: float  # [0, 1]
     rationale: str = ""
 
 
 @dataclass(frozen=True, slots=True)
 class DebateRound:
     """Result of a completed debate round."""
+
     round_id: str
     ts_ns: int
     positions: tuple[DebatePosition, ...]
@@ -66,9 +68,9 @@ class DebateOrchestrator:
         """
         if not positions:
             return DebateRound(
-                round_id=hashlib.sha1(
-                    f"empty:{ts_ns}".encode(), usedforsecurity=False
-                ).hexdigest()[:16],
+                round_id=hashlib.sha1(f"empty:{ts_ns}".encode(), usedforsecurity=False).hexdigest()[
+                    :16
+                ],
                 ts_ns=ts_ns,
                 positions=(),
                 consensus_direction=_HOLD,
@@ -101,10 +103,7 @@ class DebateOrchestrator:
                 direction = best_dir
                 conf = best_score / total_weight
 
-        dissent = sum(
-            1 for p in positions
-            if p.direction.upper() != direction
-        )
+        dissent = sum(1 for p in positions if p.direction.upper() != direction)
 
         _pos_sig = ":".join(f"{p.direction}{p.confidence:.4f}" for p in positions)
         return DebateRound(

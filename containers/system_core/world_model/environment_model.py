@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class EnvironmentState:
     """Environment state snapshot."""
+
     state_id: str
     environment_type: str
     conditions: Dict[str, float] = field(default_factory=dict)
@@ -29,25 +30,25 @@ class EnvironmentState:
 
 class ProductionEnvironmentModel:
     """Production-grade environment model."""
-    
+
     def __init__(self) -> None:
         self._environment_states: List[EnvironmentState] = []
-        
+
     def start(self) -> bool:
         logger.info("[ENVIRONMENT_MODEL] Production environment model started")
         return True
-    
+
     def stop(self) -> bool:
         logger.info("[ENVIRONMENT_MODEL] Production environment model stopped")
         return True
-    
+
     def update_environment(self, env_type: str, conditions: Dict[str, float]) -> EnvironmentState:
         """Update environment state."""
         state = EnvironmentState(
             state_id=f"env_{now().sequence}",
             environment_type=env_type,
             conditions=conditions,
-            timestamp=now().utc_time.isoformat()
+            timestamp=now().utc_time.isoformat(),
         )
         self._environment_states.append(state)
         return state

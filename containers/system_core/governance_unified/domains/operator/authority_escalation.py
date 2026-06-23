@@ -203,7 +203,8 @@ class AuthorityEscalationGuard:
         now_ns = _time.time_ns()
         with self._lock:
             stale = [
-                req_id for req_id, req in self._pending.items()
+                req_id
+                for req_id, req in self._pending.items()
                 if (now_ns - req.ts_ns) > _DEFAULT_TIMEOUT_NS
             ]
             for req_id in stale:

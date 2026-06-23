@@ -46,18 +46,20 @@ from core.contracts.cognitive_governance import (
 
 class CognitiveGateKind(StrEnum):
     """Type of gate a cognitive violation can trigger."""
-    BLOCK_MUTATION      = "BLOCK_MUTATION"
-    BLOCK_LEARNING      = "BLOCK_LEARNING"
-    BLOCK_SIGNAL        = "BLOCK_SIGNAL"
-    BLOCK_STRATEGY_SEL  = "BLOCK_STRATEGY_SEL"
-    WARN_OPERATOR       = "WARN_OPERATOR"
-    ESCALATE_MODE       = "ESCALATE_MODE"
+
+    BLOCK_MUTATION = "BLOCK_MUTATION"
+    BLOCK_LEARNING = "BLOCK_LEARNING"
+    BLOCK_SIGNAL = "BLOCK_SIGNAL"
+    BLOCK_STRATEGY_SEL = "BLOCK_STRATEGY_SEL"
+    WARN_OPERATOR = "WARN_OPERATOR"
+    ESCALATE_MODE = "ESCALATE_MODE"
 
 
 @dataclass(frozen=True, slots=True)
 class GateDecision:
     """Result of applying the cognitive constitution to a proposed action."""
-    action_kind: str           # "mutation" | "learning_update" | "signal" | etc.
+
+    action_kind: str  # "mutation" | "learning_update" | "signal" | etc.
     allowed: bool
     gate_kind: CognitiveGateKind | None
     violations: tuple[CognitiveViolationKind, ...]
@@ -67,30 +69,32 @@ class GateDecision:
 
 # Mapping: violation → gate kind (BLOCKING violations)
 _BLOCKING_GATES: dict[CognitiveViolationKind, CognitiveGateKind] = {
-    CognitiveViolationKind.EPISTEMIC_DRIFT_CRITICAL:  CognitiveGateKind.BLOCK_LEARNING,
-    CognitiveViolationKind.MUTATION_IRREVERSIBLE:     CognitiveGateKind.BLOCK_MUTATION,
-    CognitiveViolationKind.MUTATION_OUT_OF_BUDGET:    CognitiveGateKind.BLOCK_MUTATION,
-    CognitiveViolationKind.HALLUCINATION_LOOP:        CognitiveGateKind.BLOCK_SIGNAL,
-    CognitiveViolationKind.CALIBRATION_DRIFT:         CognitiveGateKind.BLOCK_STRATEGY_SEL,
-    CognitiveViolationKind.REWARD_HACKING:            CognitiveGateKind.BLOCK_LEARNING,
-    CognitiveViolationKind.MEMORY_CONTAMINATION:      CognitiveGateKind.BLOCK_LEARNING,
-    CognitiveViolationKind.LINEAGE_CYCLE:             CognitiveGateKind.BLOCK_MUTATION,
-    CognitiveViolationKind.LINEAGE_GAP:               CognitiveGateKind.BLOCK_MUTATION,
-    CognitiveViolationKind.SELF_REFERENTIAL_REWARD:   CognitiveGateKind.BLOCK_LEARNING,
-    CognitiveViolationKind.SYNTHETIC_FEEDBACK:        CognitiveGateKind.BLOCK_LEARNING,
+    CognitiveViolationKind.EPISTEMIC_DRIFT_CRITICAL: CognitiveGateKind.BLOCK_LEARNING,
+    CognitiveViolationKind.MUTATION_IRREVERSIBLE: CognitiveGateKind.BLOCK_MUTATION,
+    CognitiveViolationKind.MUTATION_OUT_OF_BUDGET: CognitiveGateKind.BLOCK_MUTATION,
+    CognitiveViolationKind.HALLUCINATION_LOOP: CognitiveGateKind.BLOCK_SIGNAL,
+    CognitiveViolationKind.CALIBRATION_DRIFT: CognitiveGateKind.BLOCK_STRATEGY_SEL,
+    CognitiveViolationKind.REWARD_HACKING: CognitiveGateKind.BLOCK_LEARNING,
+    CognitiveViolationKind.MEMORY_CONTAMINATION: CognitiveGateKind.BLOCK_LEARNING,
+    CognitiveViolationKind.LINEAGE_CYCLE: CognitiveGateKind.BLOCK_MUTATION,
+    CognitiveViolationKind.LINEAGE_GAP: CognitiveGateKind.BLOCK_MUTATION,
+    CognitiveViolationKind.SELF_REFERENTIAL_REWARD: CognitiveGateKind.BLOCK_LEARNING,
+    CognitiveViolationKind.SYNTHETIC_FEEDBACK: CognitiveGateKind.BLOCK_LEARNING,
 }
 
 # Warning-only violations (not blocking)
-_WARNING_VIOLATIONS: frozenset[CognitiveViolationKind] = frozenset({
-    CognitiveViolationKind.EPISTEMIC_DRIFT_WARNING,
-    CognitiveViolationKind.LEARNING_NOT_GROUNDED,
-    CognitiveViolationKind.IDENTITY_INSTABILITY,
-    CognitiveViolationKind.CAUSAL_GHOST,
-    CognitiveViolationKind.CAUSAL_DOMAIN_LEAK,
-    CognitiveViolationKind.OVERCONFIDENCE,
-    CognitiveViolationKind.MAGICAL_BELIEF_JUMP,
-    CognitiveViolationKind.EMBEDDING_COLLAPSE,
-})
+_WARNING_VIOLATIONS: frozenset[CognitiveViolationKind] = frozenset(
+    {
+        CognitiveViolationKind.EPISTEMIC_DRIFT_WARNING,
+        CognitiveViolationKind.LEARNING_NOT_GROUNDED,
+        CognitiveViolationKind.IDENTITY_INSTABILITY,
+        CognitiveViolationKind.CAUSAL_GHOST,
+        CognitiveViolationKind.CAUSAL_DOMAIN_LEAK,
+        CognitiveViolationKind.OVERCONFIDENCE,
+        CognitiveViolationKind.MAGICAL_BELIEF_JUMP,
+        CognitiveViolationKind.EMBEDDING_COLLAPSE,
+    }
+)
 
 
 class CognitiveConstitution:
@@ -144,8 +148,11 @@ class CognitiveConstitution:
             GateDecision with allowed=False if any BLOCKING violation applies.
         """
         with self._lock:
-            violations = frozenset(override_violations) if override_violations is not None \
+            violations = (
+                frozenset(override_violations)
+                if override_violations is not None
                 else frozenset(self._active_violations)
+            )
 
         blocking_viols: list[CognitiveViolationKind] = []
         first_gate: CognitiveGateKind | None = None
@@ -178,7 +185,7 @@ class CognitiveConstitution:
         with self._lock:
             self._gate_log.append(decision)
             if len(self._gate_log) > self._max_log:
-                self._gate_log = self._gate_log[-self._max_log:]
+                self._gate_log = self._gate_log[-self._max_log :]
 
         return decision
 
