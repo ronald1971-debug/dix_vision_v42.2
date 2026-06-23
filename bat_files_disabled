@@ -1,0 +1,76 @@
+@echo off
+echo Advanced Language Server Error Fix...
+echo.
+
+echo Step 1: Clearing all IDE caches...
+if exist "%APPDATA%\Code\User\globalStorage" (
+    echo Clearing global storage...
+    rd /s /q "%APPDATA%\Code\User\globalStorage" 2>nul
+)
+
+if exist "%APPDATA%\Code\User\workspaceStorage" (
+    echo Clearing workspace storage...
+    rd /s /q "%APPDATA%\Code\User\workspaceStorage" 2>nul
+)
+
+if exist "%APPDATA%\Code\User\logs" (
+    echo Clearing logs...
+    rd /s /q "%APPDATA%\Code\User\logs" 2>nul
+)
+
+if exist "%APPDATA%\Code\User\CachedExtensions" (
+    echo Clearing cached extensions...
+    rd /s /q "%APPDATA%\Code\User\CachedExtensions" 2>nul
+)
+
+echo.
+echo Step 2: Checking IDE installations...
+if exist "%LOCALAPPDATA%\Programs\Microsoft VS Code" (
+    echo VS Code installation found
+)
+
+if exist "%LOCALAPPDATA%\Programs\Windsurf" (
+    echo Windsurf installation found
+)
+
+echo.
+echo Step 3: Creating workspace-specific fix...
+if exist ".vscode" (
+    echo Backing up current .vscode settings...
+    copy ".vscode\settings.json" ".vscode\settings.json.backup" >nul 2>&1
+    copy ".vscode\launch.json" ".vscode\launch.json.backup" >nul 2>&1
+    copy ".vscode\tasks.json" ".vscode\tasks.json.backup" >nul 2>&1
+)
+
+echo.
+echo Step 4: Creating minimal settings...
+echo Creating minimal .vscode/settings.json...
+echo { > .vscode\settings_minimal.json
+echo     "git.ignoreLimitWarning": true, >> .vscode\settings_minimal.json
+echo     "files.watcherExclude": { >> .vscode\settings_minimal.json
+echo         "**/node_modules/**": true, >> .vscode\settings_minimal.json
+echo         "**/__pycache__/**": true, >> .vscode\settings_minimal.json
+echo         "**/.git/**": true >> .vscode\settings_minimal.json
+echo     }, >> .vscode\settings_minimal.json
+echo     "search.exclude": { >> .vscode\settings_minimal.json
+echo         "**/node_modules/**": true, >> .vscode\settings_minimal.json
+echo         "**/__pycache__/**": true >> .vscode\settings_minimal.json
+echo     }, >> .vscode\settings_minimal.json
+echo     "telemetry.telemetryLevel": "off" >> .vscode\settings_minimal.json
+echo } >> .vscode\settings_minimal.json
+
+echo.
+echo =============================================
+echo ADVANCED FIX COMPLETED
+echo =============================================
+echo.
+echo Please perform these steps:
+echo 1. Completely close your IDE
+echo 2. Wait 10 seconds
+echo 3. Reopen the IDE
+echo 4. If error persists, try using minimal settings:
+echo    - Rename settings.json to settings_old.json
+echo    - Rename settings_minimal.json to settings.json
+echo    - Restart IDE
+echo.
+pause

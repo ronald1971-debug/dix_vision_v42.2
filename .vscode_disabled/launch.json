@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Memory Optimized Python",
+            "type": "python",
+            "request": "launch",
+            "python": "${command:python.interpreterPath}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {
+                "PYTHONMEMALLOC": "malloc_debug",
+                "PYTHONTRACEMALLOC": "25",
+                "MALLOC_TRIM_THRESHOLD_": "0"
+            },
+            "preLaunchTask": "memory-optimization"
+        }
+    ]
+}

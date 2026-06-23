@@ -1,0 +1,13 @@
+{ 
+    "git.ignoreLimitWarning": true, 
+    "files.watcherExclude": { 
+        "**/node_modules/**": true, 
+        "**/__pycache__/**": true, 
+        "**/.git/**": true 
+    }, 
+    "search.exclude": { 
+        "**/node_modules/**": true, 
+        "**/__pycache__/**": true 
+    }, 
+    "telemetry.telemetryLevel": "off" 
+} 
