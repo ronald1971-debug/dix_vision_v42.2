@@ -23,7 +23,6 @@ from typing import Any
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-
 from system_unified.time_source import utc_now, wall_ns
 
 _logger = logging.getLogger(__name__)
@@ -35,7 +34,7 @@ _logger = logging.getLogger(__name__)
 
 
 class GovernanceAction(BaseModel):
-    action: str                # "approve" | "reject"
+    action: str  # "approve" | "reject"
     operator_id: str = "operator"
     reason: str = ""
 
@@ -63,6 +62,7 @@ def build_evolution_router() -> APIRouter:
             from evolution_engine.lifecycle.coordinator import (
                 get_evolution_lifecycle_coordinator,
             )
+
             return get_evolution_lifecycle_coordinator()
         except Exception as exc:
             _logger.warning("evolution_routes: coordinator unavailable: %s", exc)
@@ -98,6 +98,7 @@ def build_evolution_router() -> APIRouter:
         """Full deterministic replay audit trail for one proposal."""
         try:
             from evolution_engine.lifecycle.audit import get_replay_audit_trail
+
             trail = get_replay_audit_trail()
             result = trail.replay_proposal(proposal_id)
             result["ts"] = utc_now().isoformat()
@@ -116,9 +117,7 @@ def build_evolution_router() -> APIRouter:
         ts_ns = int(wall_ns())
 
         if body.action == "approve":
-            ok = coord.approve_governance(
-                proposal_id, operator_id=body.operator_id, ts_ns=ts_ns
-            )
+            ok = coord.approve_governance(proposal_id, operator_id=body.operator_id, ts_ns=ts_ns)
             if not ok:
                 raise HTTPException(
                     status_code=404,
@@ -172,6 +171,7 @@ def build_evolution_router() -> APIRouter:
         """Deployment gate registry: all successfully deployed proposals."""
         try:
             from evolution_engine.lifecycle.deployment import get_deployment_gate
+
             gate = get_deployment_gate()
             return {
                 "deployed": gate.deployed_records(limit=min(limit, 200)),
@@ -191,9 +191,7 @@ def build_evolution_router() -> APIRouter:
             raise HTTPException(status_code=503, detail="coordinator unavailable")
 
         ts_ns = int(wall_ns())
-        ok = coord.approve_deployment(
-            proposal_id, operator_id=body.operator_id, ts_ns=ts_ns
-        )
+        ok = coord.approve_deployment(proposal_id, operator_id=body.operator_id, ts_ns=ts_ns)
         if not ok:
             raise HTTPException(
                 status_code=404,

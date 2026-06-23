@@ -87,7 +87,9 @@ class GovernanceDecision:
 
     def __post_init__(self) -> None:
         if not 0.0 <= self.confidence <= 1.0:
-            raise ValueError(f"GovernanceDecision.confidence must be 0.0-1.0, got {self.confidence}")
+            raise ValueError(
+                f"GovernanceDecision.confidence must be 0.0-1.0, got {self.confidence}"
+            )
 
 
 class CognitiveLearningGovernance:
@@ -180,9 +182,7 @@ class CognitiveLearningGovernance:
         if violated_constraints:
             # Check if any hard constraints are violated
             hard_violations = [
-                c_id
-                for c_id in violated_constraints
-                if self._constraints[c_id].is_hard
+                c_id for c_id in violated_constraints if self._constraints[c_id].is_hard
             ]
 
             if hard_violations:

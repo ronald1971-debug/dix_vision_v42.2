@@ -29,7 +29,6 @@ from dataclasses import dataclass
 from typing import Any, Protocol
 
 import httpx
-
 from core.contracts.launches import LaunchEvent
 
 LOG = logging.getLogger(__name__)
@@ -110,9 +109,7 @@ def _read_borsh_string(data: bytes, offset: int) -> tuple[str, int]:
     length = int.from_bytes(data[offset : offset + 4], "little")
     offset += 4
     if offset + length > len(data):
-        raise ValueError(
-            f"string of length {length} extends past buffer end {len(data)}"
-        )
+        raise ValueError(f"string of length {length} extends past buffer end {len(data)}")
     return data[offset : offset + length].decode("utf-8", errors="replace"), offset + length
 
 
@@ -344,9 +341,7 @@ class SolanaLaunchPump:
                 except Exception as exc:  # noqa: BLE001
                     self._errors += 1
                     self._consecutive_errors += 1
-                    _http_status = getattr(
-                        getattr(exc, "response", None), "status_code", None
-                    )
+                    _http_status = getattr(getattr(exc, "response", None), "status_code", None)
                     if _http_status == 403:
                         LOG.warning(
                             "solana_launch_ws: HTTP 403 — check SOLANA_WS_URL "
@@ -394,9 +389,7 @@ class SolanaLaunchPump:
             except Exception:  # noqa: BLE001
                 pass
 
-    async def _handle_notification(
-        self, raw: str | bytes, client: httpx.AsyncClient
-    ) -> None:
+    async def _handle_notification(self, raw: str | bytes, client: httpx.AsyncClient) -> None:
         """Parse one WS frame; fetch + emit LaunchEvent if it is a Create tx."""
         try:
             text = raw.decode("utf-8") if isinstance(raw, bytes) else raw
@@ -407,9 +400,7 @@ class SolanaLaunchPump:
         if msg.get("method") != "logsNotification":
             return
 
-        value: dict[str, Any] = (
-            (msg.get("params") or {}).get("result") or {}
-        ).get("value") or {}
+        value: dict[str, Any] = ((msg.get("params") or {}).get("result") or {}).get("value") or {}
 
         # Skip failed transactions immediately.
         if value.get("err") is not None:

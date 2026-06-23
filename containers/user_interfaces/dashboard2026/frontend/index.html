@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DIXVISION Dashboard2026 - Cognitive Trading Operating System</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h1><i class="fas fa-brain"></i> DIXVISION</h1>
+                <span class="version">v42.2</span>
+            </div>
+            
+            <ul class="sidebar-menu">
+                <li class="menu-item active" data-page="dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Mission Control</span>
+                </li>
+                <li class="menu-item" data-page="trading">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Trading Intelligence</span>
+                </li>
+                <li class="menu-item" data-page="portfolio">
+                    <i class="fas fa-wallet"></i>
+                    <span>Portfolio Management</span>
+                </li>
+                <li class="menu-item" data-page="strategies">
+                    <i class="fas fa-robot"></i>
+                    <span>Strategy Lab</span>
+                </li>
+                <li class="menu-item" data-page="analytics">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Analytics</span>
+                </li>
+                <li class="menu-item" data-page="monitoring">
+                    <i class="fas fa-heartbeat"></i>
+                    <span>System Health</span>
+                </li>
+                <li class="menu-item" data-page="memes">
+                    <i class="fas fa-fire"></i>
+                    <span>Meme Intelligence</span>
+                </li>
+                <li class="menu-item" data-page="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </li>
+            </ul>
+            
+            <div class="sidebar-footer">
+                <div class="status-indicator">
+                    <span class="status-dot online"></span>
+                    <span class="status-text">System Online</span>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <button class="menu-toggle" title="Toggle menu">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h2 id="page-title">Mission Control Center</h2>
+                </div>
+                
+                <div class="header-center">
+                    <div class="search-bar">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search commands, missions, assets...">
+                    </div>
+                </div>
+                
+                <div class="header-right">
+                    <div class="notifications">
+                        <button class="notification-btn">
+                            <i class="fas fa-bell"></i>
+                            <span class="badge">3</span>
+                        </button>
+                    </div>
+                    <div class="user-profile">
+                        <div class="user-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <span class="user-name">Operator</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Page -->
+            <div id="dashboard-page" class="page active">
+                <div class="dashboard-grid">
+                    <!-- System Status Cards -->
+                    <div class="status-cards">
+                        <div class="status-card">
+                            <div class="card-icon">
+                                <i class="fas fa-server"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3>System Health</h3>
+                                <div class="card-value">98.5%</div>
+                                <div class="card-trend positive">
+                                    <i class="fas fa-arrow-up"></i> +2.3%
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="status-card">
+                            <div class="card-icon">
+                                <i class="fas fa-bolt"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3>Execution Speed</h3>
+                                <div class="card-value">2.5ms</div>
+                                <div class="card-trend positive">
+                                    <i class="fas fa-arrow-down"></i> -0.8ms
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="status-card">
+                            <div class="card-icon">
+                                <i class="fas fa-exchange-alt"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3>Active Orders</h3>
+                                <div class="card-value">247</div>
+                                <div class="card-trend neutral">
+                                    <i class="fas fa-minus"></i> Stable
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="status-card">
+                            <div class="card-icon">
+                                <i class="fas fa-chart-pie"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3>Portfolio Value</h3>
+                                <div class="card-value">$1.2M</div>
+                                <div class="card-trend positive">
+                                    <i class="fas fa-arrow-up"></i> +5.7%
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="status-card compliance-card">
+                            <div class="card-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3>Regulatory Compliance</h3>
+                                <div class="card-value" id="compliance-level">100%</div>
+                                <div class="compliance-slider-container">
+                                    <input type="range" id="compliance-slider" min="0" max="100" value="100" 
+                                           class="compliance-slider" title="Adjust regulatory compliance level">
+                                    <div class="compliance-labels">
+                                        <span>0%</span>
+                                        <span>100%</span>
+                                    </div>
+                                </div>
+                                <div class="card-trend" id="compliance-trend">
+                                    <i class="fas fa-check-circle"></i> Fully Compliant
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mission Overview -->
+                    <div class="mission-section">
+                        <div class="section-header">
+                            <h3><i class="fas fa-tasks"></i> Active Missions</h3>
+                            <button class="btn btn-primary">New Mission</button>
+                        </div>
+                        
+                        <div class="mission-list">
+                            <div class="mission-item">
+                                <div class="mission-info">
+                                    <h4>Momentum Strategy Deployment</h4>
+                                    <p>Deploy momentum trading strategy across crypto domain</p>
+                                    <div class="mission-meta">
+                                        <span class="priority high">High Priority</span>
+                                        <span class="progress">75% Complete</span>
+                                    </div>
+                                </div>
+                                <div class="mission-actions">
+                                    <button class="btn btn-sm">View Details</button>
+                                </div>
+                            </div>
+                            
+                            <div class="mission-item">
+                                <div class="mission-info">
+                                    <h4>Portfolio Rebalancing</h4>
+                                    <p>Rebalance multi-domain portfolio to target allocation</p>
+                                    <div class="mission-meta">
+                                        <span class="priority medium">Medium Priority</span>
+                                        <span class="progress">40% Complete</span>
+                                    </div>
+                                </div>
+                                <div class="mission-actions">
+                                    <button class="btn btn-sm">View Details</button>
+                                </div>
+                            </div>
+                            
+                            <div class="mission-item">
+                                <div class="mission-info">
+                                    <h4>System Performance Optimization</h4>
+                                    <p>Optimize execution algorithms and reduce latency</p>
+                                    <div class="mission-meta">
+                                        <span class="priority low">Low Priority</span>
+                                        <span class="progress">10% Complete</span>
+                                    </div>
+                                </div>
+                                <div class="mission-actions">
+                                    <button class="btn btn-sm">View Details</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Real-time Analytics -->
+                    <div class="analytics-section">
+                        <div class="section-header">
+                            <h3><i class="fas fa-chart-line"></i> Real-time Analytics</h3>
+                            <div class="time-range-selector">
+                                <button class="time-btn active">1H</button>
+                                <button class="time-btn">24H</button>
+                                <button class="time-btn">7D</button>
+                                <button class="time-btn">30D</button>
+                            </div>
+                        </div>
+                        
+                        <div class="charts-container">
+                            <div class="chart-card">
+                                <h4>Portfolio Performance</h4>
+                                <canvas id="portfolio-chart"></canvas>
+                            </div>
+                            
+                            <div class="chart-card">
+                                <h4>Order Flow</h4>
+                                <canvas id="order-flow-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Component Status -->
+                    <div class="components-section">
+                        <div class="section-header">
+                            <h3><i class="fas fa-cubes"></i> Component Status</h3>
+                        </div>
+                        
+                        <div class="components-grid">
+                            <div class="component-card healthy">
+                                <div class="component-header">
+                                    <i class="fas fa-brain"></i>
+                                    <span>INDIRA</span>
+                                    <span class="status-badge">Healthy</span>
+                                </div>
+                                <div class="component-metrics">
+                                    <div class="metric">
+                                        <span>Signals/sec</span>
+                                        <span class="metric-value">85</span>
+                                    </div>
+                                    <div class="metric">
+                                        <span>Accuracy</span>
+                                        <span class="metric-value">92%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="component-card healthy">
+                                <div class="component-header">
+                                    <i class="fas fa-cogs"></i>
+                                    <span>DYON</span>
+                                    <span class="status-badge">Healthy</span>
+                                </div>
+                                <div class="component-metrics">
+                                    <div class="metric">
+                                        <span>Analysis/sec</span>
+                                        <span class="metric-value">42</span>
+                                    </div>
+                                    <div class="metric">
+                                        <span>Efficiency</span>
+                                        <span class="metric-value">88%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="component-card healthy">
+                                <div class="component-header">
+                                    <i class="fas fa-exchange-alt"></i>
+                                    <span>Execution</span>
+                                    <span class="status-badge">Healthy</span>
+                                </div>
+                                <div class="component-metrics">
+                                    <div class="metric">
+                                        <span>Latency</span>
+                                        <span class="metric-value">2.5ms</span>
+                                    </div>
+                                    <div class="metric">
+                                        <span>Success Rate</span>
+                                        <span class="metric-value">99.8%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="component-card degraded">
+                                <div class="component-header">
+                                    <i class="fas fa-globe"></i>
+                                    <span>Multi-Domain</span>
+                                    <span class="status-badge warning">Degraded</span>
+                                </div>
+                                <div class="component-metrics">
+                                    <div class="metric">
+                                        <span>Domains</span>
+                                        <span class="metric-value">5/7</span>
+                                    </div>
+                                    <div class="metric">
+                                        <span>Status</span>
+                                        <span class="metric-value">Pending</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trading Intelligence Page -->
+            <div id="trading-page" class="page">
+                <div class="trading-grid">
+                    <div class="market-overview">
+                        <h3><i class="fas fa-chart-area"></i> Market Overview</h3>
+                        <div class="market-cards">
+                            <div class="market-card">
+                                <h4>BTC/USDT</h4>
+                                <div class="price">$45,234.50</div>
+                                <div class="change positive">+2.34%</div>
+                            </div>
+                            <div class="market-card">
+                                <h4>ETH/USDT</h4>
+                                <div class="price">$2,345.20</div>
+                                <div class="change positive">+1.87%</div>
+                            </div>
+                            <div class="market-card">
+                                <h4>EUR/USD</h4>
+                                <div class="price">1.0876</div>
+                                <div class="change negative">-0.12%</div>
+                            </div>
+                            <div class="market-card">
+                                <h4>GOLD</h4>
+                                <div class="price">$1,945.30</div>
+                                <div class="change positive">+0.45%</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="signal-generator">
+                        <h3><i class="fas fa-bolt"></i> Signal Generator</h3>
+                        <div class="signal-controls">
+                            <div class="form-group">
+                                <label for="symbol-input">Symbol</label>
+                                <input type="text" id="symbol-input" placeholder="BTC/USDT">
+                            </div>
+                            <div class="form-group">
+                                <label for="strategy-select">Strategy</label>
+                                <select id="strategy-select" title="Select trading strategy">
+                                    <option>Momentum</option>
+                                    <option>Mean Reversion</option>
+                                    <option>Arbitrage</option>
+                                    <option>Pairs Trading</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary">Generate Signal</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Other pages would be implemented similarly -->
+            <div id="portfolio-page" class="page">
+                <h3>Portfolio Management</h3>
+                <p>Portfolio management interface coming soon...</p>
+            </div>
+
+            <div id="strategies-page" class="page">
+                <h3>Strategy Lab</h3>
+                <p>Strategy development and testing interface coming soon...</p>
+            </div>
+
+            <div id="analytics-page" class="page">
+                <h3>Analytics</h3>
+                <p>Advanced analytics interface coming soon...</p>
+            </div>
+
+            <div id="monitoring-page" class="page">
+                <h3>System Health Monitoring</h3>
+                <p>System monitoring interface coming soon...</p>
+            </div>
+
+            <div id="memes-page" class="page">
+                <h3>Meme Intelligence</h3>
+                <p>Meme token analysis interface coming soon...</p>
+            </div>
+
+            <div id="settings-page" class="page">
+                <h3>Settings</h3>
+                <p>System settings interface coming soon...</p>
+            </div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

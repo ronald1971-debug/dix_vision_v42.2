@@ -60,7 +60,11 @@ class HazardDetector:
                 hazard_type=HazardType.EXECUTION_LATENCY_SPIKE,
                 severity=HazardSeverity.MEDIUM,
                 source="dyon.detector",
-                details={"component": component, "latency_ms": latency_ms, "threshold_ms": self._latency_spike_ms},
+                details={
+                    "component": component,
+                    "latency_ms": latency_ms,
+                    "threshold_ms": self._latency_spike_ms,
+                },
             )
             self._bus.emit(event)
 

@@ -1,4 +1,5 @@
 """state.telemetry — live cognition traces (P3 Reality Layer)."""
+
 from state.telemetry.cognitive_telemetry import (
     CognitiveTelemetry,
     TelemetrySpan,

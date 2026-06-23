@@ -303,7 +303,7 @@ class PlaywrightCrawler:
         seed_urls: Mapping[str, str],
         *,
         config: PlaywrightCrawlerConfig | None = None,
-        runtime_factory: (Callable[[PlaywrightCrawlerConfig], _PlaywrightRuntime] | None) = None,
+        runtime_factory: Callable[[PlaywrightCrawlerConfig], _PlaywrightRuntime] | None = None,
     ) -> None:
         if not seed_urls:
             raise ValueError("PlaywrightCrawler.seed_urls must be non-empty")

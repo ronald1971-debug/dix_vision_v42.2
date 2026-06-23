@@ -66,7 +66,7 @@ class ProfileExtractor:
         )
 
     def _extract_handle(self, html: str) -> str:
-        m = re.search(r'@([\w_]{2,32})', html)
+        m = re.search(r"@([\w_]{2,32})", html)
         return m.group(1) if m else ""
 
     def _extract_bio(self, html: str) -> str:
@@ -78,4 +78,4 @@ class ProfileExtractor:
         return _parse_int(m.group(1)) if m else 0
 
     def _extract_tags(self, html: str) -> list[str]:
-        return re.findall(r'#([\w_]{2,30})', html)[:20]
+        return re.findall(r"#([\w_]{2,30})", html)[:20]

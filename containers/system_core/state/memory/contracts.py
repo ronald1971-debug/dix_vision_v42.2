@@ -15,14 +15,14 @@ from types import MappingProxyType
 class MemoryKind(str, enum.Enum):
     """Semantic category of a MemoryRecord."""
 
-    EPISODIC   = "EPISODIC"    # lived experience — thought, observation, tick
-    SEMANTIC   = "SEMANTIC"    # abstracted knowledge — belief, pattern, insight
+    EPISODIC = "EPISODIC"  # lived experience — thought, observation, tick
+    SEMANTIC = "SEMANTIC"  # abstracted knowledge — belief, pattern, insight
     PROCEDURAL = "PROCEDURAL"  # how-to — action-outcome sequences, repair plans
-    STRATEGY   = "STRATEGY"    # strategy proposals, mutations, fitness outcomes
-    TRADER     = "TRADER"      # trader archetype performance, regime history
+    STRATEGY = "STRATEGY"  # strategy proposals, mutations, fitness outcomes
+    TRADER = "TRADER"  # trader archetype performance, regime history
     GOVERNANCE = "GOVERNANCE"  # mode transitions, violations, operator actions
-    RUNTIME    = "RUNTIME"     # health events, failures, recovery, diagnostics
-    REGRET     = "REGRET"      # counterfactual — missed, early-exit, oversized
+    RUNTIME = "RUNTIME"  # health events, failures, recovery, diagnostics
+    REGRET = "REGRET"  # counterfactual — missed, early-exit, oversized
 
 
 @dataclasses.dataclass(frozen=True, slots=True)
@@ -45,15 +45,15 @@ class MemoryRecord:
         parent_id:  record_id of the record this derives from (lineage).
     """
 
-    record_id:  str
-    kind:       MemoryKind
-    ts_ns:      int
-    source:     str
-    summary:    str
-    body:       Mapping[str, str]                  = dataclasses.field(default_factory=lambda: MappingProxyType({}))
-    tags:       frozenset[str]                     = dataclasses.field(default_factory=frozenset)
-    confidence: float                              = -1.0
-    parent_id:  str | None                        = None
+    record_id: str
+    kind: MemoryKind
+    ts_ns: int
+    source: str
+    summary: str
+    body: Mapping[str, str] = dataclasses.field(default_factory=lambda: MappingProxyType({}))
+    tags: frozenset[str] = dataclasses.field(default_factory=frozenset)
+    confidence: float = -1.0
+    parent_id: str | None = None
 
     def __post_init__(self) -> None:
         if not self.record_id:
@@ -71,6 +71,7 @@ class MemoryRecord:
     def age_ns(self) -> int:
         """Nanoseconds since this record was created (not replay-safe; informational only)."""
         from system.time_source import wall_ns
+
         return wall_ns() - self.ts_ns
 
 
@@ -78,14 +79,14 @@ class MemoryRecord:
 class MemoryQuery:
     """Cross-store search request for the Unified Cognitive Memory Layer."""
 
-    query_id:   str
-    ts_ns:      int
-    kinds:      frozenset[MemoryKind]   = dataclasses.field(default_factory=frozenset)
-    keywords:   tuple[str, ...]         = ()
-    source:     str | None              = None
-    since_ns:   int | None             = None
-    until_ns:   int | None             = None
-    limit:      int                     = 20
+    query_id: str
+    ts_ns: int
+    kinds: frozenset[MemoryKind] = dataclasses.field(default_factory=frozenset)
+    keywords: tuple[str, ...] = ()
+    source: str | None = None
+    since_ns: int | None = None
+    until_ns: int | None = None
+    limit: int = 20
 
     def __post_init__(self) -> None:
         if not self.query_id:
@@ -101,9 +102,9 @@ class MemorySearchResult:
     """Response from a cross-store query."""
 
     query_id: str
-    ts_ns:    int
-    records:  tuple[MemoryRecord, ...]
-    total:    int
+    ts_ns: int
+    records: tuple[MemoryRecord, ...]
+    total: int
 
 
 __all__ = [

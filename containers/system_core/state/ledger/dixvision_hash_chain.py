@@ -42,13 +42,9 @@ class HashChain:
     def length(self) -> int:
         return len(self._entries)
 
-    def append(
-        self, stream: str, event_type: str, payload: dict[str, Any]
-    ) -> ChainEntry:
+    def append(self, stream: str, event_type: str, payload: dict[str, Any]) -> ChainEntry:
         payload_hash = self._hash_payload(payload)
-        entry_data = (
-            f"{self._sequence}:{stream}:{event_type}:{payload_hash}:{self._head_hash}"
-        )
+        entry_data = f"{self._sequence}:{stream}:{event_type}:{payload_hash}:{self._head_hash}"
         entry_hash = hashlib.sha256(entry_data.encode()).hexdigest()
 
         entry = ChainEntry(

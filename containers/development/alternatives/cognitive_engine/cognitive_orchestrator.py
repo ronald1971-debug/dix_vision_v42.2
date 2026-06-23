@@ -8,7 +8,6 @@ for cognitive enrichment and coordinates between different cognitive modules.
 
 from __future__ import annotations
 
-import asyncio
 import logging
 from dataclasses import dataclass
 from typing import Any
@@ -79,34 +78,34 @@ class CognitiveOrchestrator:
         self._narrative_engine = NarrativeEngine()
         self._curiosity_scorer = CuriosityScorer()
         self._attention_manager = AttentionManager()
-        
+
         self._initialized = False
         self._enabled = True
         self._mode = "observation"  # observation | shadow | active
-        
+
         # Performance tracking
         self._enrichment_count = 0
         self._total_enrichment_time_ms = 0.0
-        
+
     async def initialize(self) -> bool:
         """Initialize all cognitive subsystems."""
         try:
             logger.info("[COGNITIVE_ORCHESTRATOR] Initializing cognitive subsystems...")
-            
+
             # Initialize knowledge graph with seed data
             await self._initialize_knowledge_graph()
-            
+
             # Register common market narratives
             await self._register_common_narratives()
-            
+
             self._initialized = True
             logger.info("[COGNITIVE_ORCHESTRATOR] All cognitive subsystems initialized")
             return True
-            
+
         except Exception as e:
             logger.error(f"[COGNITIVE_ORCHESTRATOR] Initialization failed: {e}")
             return False
-    
+
     async def _initialize_knowledge_graph(self) -> None:
         """Initialize knowledge graph with seed data."""
         # Add common market conditions as nodes
@@ -116,16 +115,14 @@ class CognitiveOrchestrator:
             ("trending_up", "MARKET_CONDITION", {"trend": "upward"}),
             ("trending_down", "MARKET_CONDITION", {"trend": "downward"}),
         ]
-        
+
         for name, node_type, props in conditions:
-            self._knowledge_graph.add_node(
-                node_type=node_type,
-                name=name,
-                **props
-            )
-        
-        logger.info(f"[COGNITIVE_ORCHESTRATOR] Knowledge graph seeded with {len(conditions)} conditions")
-    
+            self._knowledge_graph.add_node(node_type=node_type, name=name, **props)
+
+        logger.info(
+            f"[COGNITIVE_ORCHESTRATOR] Knowledge graph seeded with {len(conditions)} conditions"
+        )
+
     async def _register_common_narratives(self) -> None:
         """Register common market narratives."""
         narratives = [
@@ -134,12 +131,12 @@ class CognitiveOrchestrator:
             ("regulatory_crackdown", "Increased regulatory scrutiny", ("CRYPTO",)),
             ("tech_bull_market", "Technology sector bull market", ("SPY", "QQQ")),
         ]
-        
+
         for name, description, assets in narratives:
             self._narrative_engine.register(name, description, assets)
-        
+
         logger.info(f"[COGNITIVE_ORCHESTRATOR] Registered {len(narratives)} common narratives")
-    
+
     def enrich_market_data(self, market_data: dict[str, Any]) -> CognitiveEnrichment:
         """Enrich market data with cognitive insights.
 
@@ -148,51 +145,51 @@ class CognitiveOrchestrator:
         """
         if not self._initialized or not self._enabled:
             return CognitiveEnrichment()
-        
+
         start_time = now().monotonic_ns()
-        
+
         try:
             enrichment = CognitiveEnrichment()
-            
+
             # Narrative context
             asset = market_data.get("asset", "")
             if asset:
                 enrichment.narratives = self._narrative_engine.narratives_for_asset(asset)
-            
+
             # Knowledge context
             enrichment.knowledge_context = self._query_knowledge_context(market_data)
-            
+
             # Risk assessment (simplified for synchronous call)
             enrichment.risk_assessment = self._quick_risk_assessment(market_data)
-            
+
             # Processing time tracking
             processing_time_ms = (now().monotonic_ns() - start_time) / 1_000_000
             enrichment.processing_time_ms = processing_time_ms
-            
+
             # Update metrics
             self._enrichment_count += 1
             self._total_enrichment_time_ms += processing_time_ms
-            
+
             # Alert if latency exceeds target
             if processing_time_ms > 10.0:
                 logger.warning(
                     f"[COGNITIVE_ORCHESTRATOR] Enrichment latency {processing_time_ms:.2f}ms exceeds 10ms target"
                 )
-            
+
             return enrichment
-            
+
         except Exception as e:
             logger.error(f"[COGNITIVE_ORCHESTRATOR] Enrichment failed: {e}")
             return CognitiveEnrichment()
-    
+
     def _query_knowledge_context(self, market_data: dict[str, Any]) -> dict[str, Any]:
         """Query knowledge graph for relevant context."""
         context = {}
-        
+
         try:
             # Simple context extraction based on market data
             signal = market_data.get("signal", 0.0)
-            
+
             if signal > 0.7:
                 context["regime"] = "bullish"
                 context["related_conditions"] = ["trending_up"]
@@ -201,37 +198,33 @@ class CognitiveOrchestrator:
                 context["related_conditions"] = ["trending_down"]
             else:
                 context["regime"] = "neutral"
-            
+
         except Exception as e:
             logger.error(f"[COGNITIVE_ORCHESTRATOR] Knowledge query failed: {e}")
-        
+
         return context
-    
+
     def _quick_risk_assessment(self, market_data: dict[str, Any]) -> dict[str, Any]:
         """Quick risk assessment without full simulation."""
-        risk = {
-            "level": "LOW",
-            "confidence": 0.7,
-            "factors": []
-        }
-        
+        risk = {"level": "LOW", "confidence": 0.7, "factors": []}
+
         try:
             signal = market_data.get("signal", 0.0)
             volatility = abs(signal)
-            
+
             if volatility > 0.8:
                 risk["level"] = "MEDIUM"
                 risk["factors"].append("high_signal_volatility")
-            
+
             if volatility > 0.9:
                 risk["level"] = "HIGH"
                 risk["factors"].append("extreme_signal_volatility")
-            
+
         except Exception as e:
             logger.error(f"[COGNITIVE_ORCHESTRATOR] Risk assessment failed: {e}")
-        
+
         return risk
-    
+
     def assess_cognitive_risk(self, context: dict[str, Any]) -> RiskAssessment:
         """Comprehensive risk assessment using cognitive simulation.
 
@@ -244,31 +237,35 @@ class CognitiveOrchestrator:
                 confidence=0.5,
                 scenarios_analyzed=0,
                 high_risk_scenarios=[],
-                recommended_actions=["proceed_with_caution"]
+                recommended_actions=["proceed_with_caution"],
             )
-        
+
         try:
             # Run scenario simulations
-            from cognitive_engine.cognitive_simulator.scenario import Scenario, ScenarioType
-            
+            pass
+
             scenarios = [
                 self._simulator.run_volatility_explosion(),
                 self._simulator.run_liquidity_collapse(),
             ]
-            
-            high_risk = [s.scenario_id for s in scenarios if s.risk_level.value in ("HIGH", "EXTREME")]
-            
+
+            high_risk = [
+                s.scenario_id for s in scenarios if s.risk_level.value in ("HIGH", "EXTREME")
+            ]
+
             overall_risk = "EXTREME" if high_risk else "MEDIUM" if len(scenarios) > 1 else "LOW"
-            
+
             return RiskAssessment(
                 overall_risk=overall_risk,
                 confidence=0.8,
                 scenarios_analyzed=len(scenarios),
                 high_risk_scenarios=high_risk,
                 recommended_actions=self._generate_risk_recommendations(overall_risk),
-                exposure_multiplier=0.7 if overall_risk == "HIGH" else 0.5 if overall_risk == "EXTREME" else 1.0
+                exposure_multiplier=(
+                    0.7 if overall_risk == "HIGH" else 0.5 if overall_risk == "EXTREME" else 1.0
+                ),
             )
-            
+
         except Exception as e:
             logger.error(f"[COGNITIVE_ORCHESTRATOR] Cognitive risk assessment failed: {e}")
             return RiskAssessment(
@@ -276,9 +273,9 @@ class CognitiveOrchestrator:
                 confidence=0.5,
                 scenarios_analyzed=0,
                 high_risk_scenarios=[],
-                recommended_actions=["proceed_with_caution"]
+                recommended_actions=["proceed_with_caution"],
             )
-    
+
     def _generate_risk_recommendations(self, risk_level: str) -> list[str]:
         """Generate recommendations based on risk level."""
         if risk_level == "EXTREME":
@@ -289,32 +286,32 @@ class CognitiveOrchestrator:
             return ["monitor_closely", "prepare_contingency"]
         else:
             return ["normal_operation"]
-    
+
     def generate_investigations(self, limit: int = 10) -> list[Any]:
         """Generate prioritized investigations based on curiosity scoring.
-        
+
         This identifies the most valuable questions to investigate.
         """
         if not self._initialized or not self._enabled:
             return []
-        
+
         try:
             # In a full implementation, this would:
             # 1. Identify anomalies and patterns
             # 2. Generate questions about them
             # 3. Score questions by curiosity
             # 4. Return prioritized investigations
-            
+
             # Placeholder implementation
             return []
-            
+
         except Exception as e:
             logger.error(f"[COGNITIVE_ORCHESTRATOR] Investigation generation failed: {e}")
             return []
-    
+
     def set_mode(self, mode: str) -> None:
         """Set cognitive orchestrator mode.
-        
+
         Args:
             mode: "observation" (read-only), "shadow" (recommendations only),
                   "active" (full integration)
@@ -323,27 +320,28 @@ class CognitiveOrchestrator:
         if mode not in valid_modes:
             logger.warning(f"[COGNITIVE_ORCHESTRATOR] Invalid mode: {mode}")
             return
-        
+
         self._mode = mode
         logger.info(f"[COGNITIVE_ORCHESTRATOR] Mode set to {mode}")
-    
+
     def enable(self) -> None:
         """Enable cognitive orchestrator."""
         self._enabled = True
         logger.info("[COGNITIVE_ORCHESTRATOR] Enabled")
-    
+
     def disable(self) -> None:
         """Disable cognitive orchestrator."""
         self._enabled = False
         logger.info("[COGNITIVE_ORCHESTRATOR] Disabled")
-    
+
     def get_metrics(self) -> dict[str, Any]:
         """Get cognitive orchestrator metrics."""
         avg_latency = (
             self._total_enrichment_time_ms / self._enrichment_count
-            if self._enrichment_count > 0 else 0.0
+            if self._enrichment_count > 0
+            else 0.0
         )
-        
+
         return {
             "initialized": self._initialized,
             "enabled": self._enabled,
@@ -366,20 +364,21 @@ def get_cognitive_orchestrator() -> CognitiveOrchestrator:
     global _orchestrator
     if _orchestrator is None:
         import threading
+
         global _lock
         if _lock is None:
             _lock = threading.Lock()
-        
+
         with _lock:
             if _orchestrator is None:
                 _orchestrator = CognitiveOrchestrator()
-    
+
     return _orchestrator
 
 
 __all__ = [
     "CognitiveEnrichment",
-    "CognitiveOrchestrator", 
+    "CognitiveOrchestrator",
     "RiskAssessment",
     "get_cognitive_orchestrator",
 ]

@@ -5,18 +5,24 @@ This simulates the dashboard integration testing when the actual server is not a
 """
 
 import json
-import time
 from datetime import datetime
-from typing import Dict, Any
+from typing import Any, Dict
+
 
 class MockDashboardIntegrationTester:
     """Mock tester for demonstrating testing framework."""
-    
+
     def __init__(self):
         self.mock_results = []
-        
-    def generate_mock_response(self, endpoint: str, method: str, success: bool = True, 
-                             response_time: float = 0.1, status_code: int = 200) -> Dict[str, Any]:
+
+    def generate_mock_response(
+        self,
+        endpoint: str,
+        method: str,
+        success: bool = True,
+        response_time: float = 0.1,
+        status_code: int = 200,
+    ) -> Dict[str, Any]:
         """Generate a mock API response."""
         return {
             "endpoint": endpoint,
@@ -25,19 +31,19 @@ class MockDashboardIntegrationTester:
             "response_time": response_time,
             "success": success,
             "timestamp": datetime.now().isoformat(),
-            "mock": True
+            "mock": True,
         }
-    
+
     def run_mock_tests(self) -> Dict[str, Any]:
         """Run mock integration tests to demonstrate framework."""
         print("Starting Mock Dashboard Integration Tests...")
         print("(Actual server not available - demonstrating testing framework)")
-        
+
         # Mock INDIRA API tests
         print("\nTesting INDIRA Cognitive Center API (mock)...")
         indira_endpoints = [
             "/api/indira/market/regimes",
-            "/api/indira/market/narratives", 
+            "/api/indira/market/narratives",
             "/api/indira/market/liquidity",
             "/api/indira/market/volatility",
             "/api/indira/market/orderflow",
@@ -62,15 +68,17 @@ class MockDashboardIntegrationTester:
             "/api/indira/research/knowledge-graph",
             "/api/indira/research/learning",
         ]
-        
+
         for endpoint in indira_endpoints:
-            response = self.generate_mock_response(endpoint, "GET", success=True, response_time=0.05 + (len(endpoint) * 0.001))
+            response = self.generate_mock_response(
+                endpoint, "GET", success=True, response_time=0.05 + (len(endpoint) * 0.001)
+            )
             self.mock_results.append(response)
             if endpoint == indira_endpoints[0]:
                 print(f"  Testing {len(indira_endpoints)} INDIRA endpoints...")
-        
+
         print(f"  [OK] {len(indira_endpoints)} INDIRA endpoints tested (mock)")
-        
+
         # Mock Markets API tests
         print("\nTesting Unified Markets API (mock)...")
         markets_endpoints = [
@@ -95,15 +103,17 @@ class MockDashboardIntegrationTester:
             "/api/markets/news/Crypto?limit=10",
             "/api/markets/events?limit=10",
         ]
-        
+
         for endpoint in markets_endpoints:
-            response = self.generate_mock_response(endpoint, "GET", success=True, response_time=0.08 + (len(endpoint) * 0.001))
+            response = self.generate_mock_response(
+                endpoint, "GET", success=True, response_time=0.08 + (len(endpoint) * 0.001)
+            )
             self.mock_results.append(response)
             if endpoint == markets_endpoints[0]:
                 print(f"  Testing {len(markets_endpoints)} Markets endpoints...")
-        
+
         print(f"  [OK] {len(markets_endpoints)} Markets endpoints tested (mock)")
-        
+
         # Mock error handling tests
         print("\nTesting Error Handling (mock)...")
         error_endpoints = [
@@ -111,31 +121,33 @@ class MockDashboardIntegrationTester:
             "/api/indira/traders/profile/invalid",
             "/api/markets/scanner?assetClass=INVALID",
         ]
-        
+
         for endpoint in error_endpoints:
-            response = self.generate_mock_response(endpoint, "GET", success=True, response_time=0.1, status_code=200)
+            response = self.generate_mock_response(
+                endpoint, "GET", success=True, response_time=0.1, status_code=200
+            )
             self.mock_results.append(response)
-        
+
         print(f"  [OK] {len(error_endpoints)} error handling tests (mock)")
-        
+
         # Calculate statistics
         total_tests = len(self.mock_results)
         successful_tests = sum(1 for r in self.mock_results if r["success"])
         failed_tests = total_tests - successful_tests
         success_rate = (successful_tests / total_tests * 100) if total_tests > 0 else 0
-        
+
         response_times = [r["response_time"] for r in self.mock_results if r["success"]]
         avg_response_time = sum(response_times) / len(response_times) if response_times else 0
         max_response_time = max(response_times) if response_times else 0
         min_response_time = min(response_times) if response_times else 0
-        
+
         summary = {
             "test_metadata": {
                 "timestamp": datetime.now().isoformat(),
                 "test_type": "MOCK",
                 "base_url": "http://localhost:8080 (not available)",
                 "note": "This is a mock test demonstrating the testing framework",
-                "actual_server_available": False
+                "actual_server_available": False,
             },
             "test_statistics": {
                 "total_tests": total_tests,
@@ -146,9 +158,9 @@ class MockDashboardIntegrationTester:
                 "max_response_time": round(max_response_time, 3),
                 "min_response_time": round(min_response_time, 3),
             },
-            "test_results": self.mock_results
+            "test_results": self.mock_results,
         }
-        
+
         # Print summary
         print(f"\n{'='*60}")
         print("MOCK TEST SUMMARY")
@@ -164,10 +176,12 @@ class MockDashboardIntegrationTester:
         print(f"NOTE: This is a MOCK test demonstrating the testing framework.")
         print(f"Actual integration testing requires the UI server to be running.")
         print(f"{'='*60}")
-        
+
         return summary
-    
-    def save_mock_results(self, summary: Dict[str, Any], filename: str = "mock_integration_test_results.json"):
+
+    def save_mock_results(
+        self, summary: Dict[str, Any], filename: str = "mock_integration_test_results.json"
+    ):
         """Save mock test results to file."""
         try:
             with open(filename, "w") as f:
@@ -178,29 +192,31 @@ class MockDashboardIntegrationTester:
             print(f"\nFailed to save mock results: {e}")
             return False
 
+
 def main():
     """Main entry point for mock testing."""
-    print("="*60)
+    print("=" * 60)
     print("DASHBOARD INTEGRATION TESTING - MOCK DEMONSTRATION")
-    print("="*60)
+    print("=" * 60)
     print()
     print("The actual UI server is not currently running.")
     print("This mock test demonstrates the testing framework functionality.")
     print()
-    
+
     tester = MockDashboardIntegrationTester()
     results = tester.run_mock_tests()
     tester.save_mock_results(results)
-    
-    print("\n" + "="*60)
+
+    print("\n" + "=" * 60)
     print("TESTING FRAMEWORK DEMONSTRATION COMPLETE")
-    print("="*60)
+    print("=" * 60)
     print("\nTo run actual integration tests:")
     print("1. Start the DIX VISION UI server container")
     print("2. Ensure server is accessible at http://localhost:8080")
     print("3. Run: python integration_test.py")
     print("\nTesting framework is ready for actual execution.")
-    print("="*60)
+    print("=" * 60)
+
 
 if __name__ == "__main__":
     main()

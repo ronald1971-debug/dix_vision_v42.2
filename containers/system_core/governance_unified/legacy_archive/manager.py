@@ -69,7 +69,9 @@ class PluginLifecycleManager:
                 "name": self.name,
                 "status": "healthy" if self._loaded else "not_loaded",
                 "plugin_count": len(self._plugins),
-                "active_count": sum(1 for p in self._plugins.values() if p.lifecycle == PluginLifecycleState.ACTIVE),
+                "active_count": sum(
+                    1 for p in self._plugins.values() if p.lifecycle == PluginLifecycleState.ACTIVE
+                ),
             }
 
     def set_mode(self, mode_name: str) -> None:
@@ -119,7 +121,9 @@ class PluginLifecycleManager:
                 }
                 for p in self._plugins.values()
             ]
-            active = sum(1 for p in self._plugins.values() if p.lifecycle == PluginLifecycleState.ACTIVE)
+            active = sum(
+                1 for p in self._plugins.values() if p.lifecycle == PluginLifecycleState.ACTIVE
+            )
         return {
             "manager": "PluginLifecycleManager",
             "loaded": self._loaded,
@@ -130,15 +134,15 @@ class PluginLifecycleManager:
             "plugins": plugins,
         }
 
-    def _set_lifecycle_unlocked(
-        self, plugin_name: str, lifecycle: PluginLifecycleState
-    ) -> bool:
+    def _set_lifecycle_unlocked(self, plugin_name: str, lifecycle: PluginLifecycleState) -> bool:
         mp = self._plugins.get(plugin_name)
         if mp is None:
             return False
         verdict = self._gate.check(plugin_name, self._mode_name)
         if lifecycle == PluginLifecycleState.ACTIVE and verdict == ActivationVerdict.DENIED:
-            _logger.debug("PluginLifecycleManager: denied ACTIVE for %s in %s", plugin_name, self._mode_name)
+            _logger.debug(
+                "PluginLifecycleManager: denied ACTIVE for %s in %s", plugin_name, self._mode_name
+            )
             return False
         self._plugins[plugin_name] = ManagedPlugin(
             name=mp.name,

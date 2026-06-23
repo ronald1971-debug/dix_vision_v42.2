@@ -46,7 +46,11 @@ from typing import Any, Protocol, runtime_checkable
 # ---------------------------------------------------------------------------
 # Module identity
 # ---------------------------------------------------------------------------
-NEW_PIP_DEPENDENCIES: tuple[str, ...] = ( "opentelemetry-sdk", "opentelemetry-instrumentation-fastapi", "opentelemetry-exporter-otlp-proto-http", )
+NEW_PIP_DEPENDENCIES: tuple[str, ...] = (
+    "opentelemetry-sdk",
+    "opentelemetry-instrumentation-fastapi",
+    "opentelemetry-exporter-otlp-proto-http",
+)
 OTEL_ADAPTER_VERSION: str = "1"
 
 MAX_ATTRIBUTE_VALUE_LEN: int = 256

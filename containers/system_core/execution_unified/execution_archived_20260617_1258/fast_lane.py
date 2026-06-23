@@ -26,9 +26,7 @@ __all__ = ["FastLane", "FastLaneHandler", "get_fast_lane"]
 
 FastLaneHandler = Callable[[SignalEvent | ExecutionEvent], None]
 
-_HOT_KINDS: Final[frozenset[EventKind]] = frozenset(
-    {EventKind.SIGNAL, EventKind.EXECUTION}
-)
+_HOT_KINDS: Final[frozenset[EventKind]] = frozenset({EventKind.SIGNAL, EventKind.EXECUTION})
 
 
 class FastLane:

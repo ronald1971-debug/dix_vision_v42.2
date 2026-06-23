@@ -20,16 +20,16 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from state.memory.contracts import MemoryKind
 
-_BUCKET_NS = 60_000_000_000          # 60 seconds in nanoseconds
-_CACHE_MAX  = 4_096                   # max fingerprints in dedup cache
+_BUCKET_NS = 60_000_000_000  # 60 seconds in nanoseconds
+_CACHE_MAX = 4_096  # max fingerprints in dedup cache
 
 
 class MemoryIdentitySystem:
     """Assigns stable ids and deduplicates cognitive memory records."""
 
     def __init__(self) -> None:
-        self._lock  = threading.Lock()
-        self._seen:  OrderedDict[str, str] = OrderedDict()  # fp → record_id
+        self._lock = threading.Lock()
+        self._seen: OrderedDict[str, str] = OrderedDict()  # fp → record_id
         self._total: int = 0
         self._dedup: int = 0
 
@@ -66,10 +66,10 @@ class MemoryIdentitySystem:
     def snapshot(self) -> dict:
         with self._lock:
             return {
-                "active":      True,
+                "active": True,
                 "total_issued": self._total,
-                "dedup_hits":   self._dedup,
-                "cache_size":   len(self._seen),
+                "dedup_hits": self._dedup,
+                "cache_size": len(self._seen),
             }
 
     # ------------------------------------------------------------------
@@ -79,7 +79,7 @@ class MemoryIdentitySystem:
     @staticmethod
     def _fingerprint(kind: MemoryKind, source: str, summary: str, ts_ns: int) -> str:
         bucket = ts_ns // _BUCKET_NS
-        raw    = f"{kind}|{source}|{summary}|{bucket}"
+        raw = f"{kind}|{source}|{summary}|{bucket}"
         return hashlib.sha256(raw.encode()).hexdigest()[:16]
 
     @staticmethod

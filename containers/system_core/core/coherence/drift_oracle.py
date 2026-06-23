@@ -161,10 +161,7 @@ class DriftOracle:
             one sample. Metrics with fewer than 2 samples will have
             z-score 0.0.
         """
-        return {
-            name: self._compute_z(window)
-            for name, window in self._windows.items()
-        }
+        return {name: self._compute_z(window) for name, window in self._windows.items()}
 
     def tracked_metrics(self) -> tuple[str, ...]:
         """Return a sorted tuple of all currently tracked metric names."""

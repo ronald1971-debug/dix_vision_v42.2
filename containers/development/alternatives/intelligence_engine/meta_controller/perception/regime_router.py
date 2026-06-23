@@ -30,7 +30,6 @@ from pathlib import Path
 from typing import Any
 
 import yaml
-
 from core.coherence.belief_state import BeliefState, Regime
 
 REGIME_ROUTER_VERSION = "v3.3-T1e"

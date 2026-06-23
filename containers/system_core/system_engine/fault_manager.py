@@ -9,8 +9,8 @@ and production-ready fault tolerance.
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass, field
-from typing import Any, Dict, List
+from dataclasses import dataclass
+from typing import List
 
 from system.time_source import now
 
@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class Fault:
     """A system fault."""
+
     fault_id: str
     component: str
     fault_type: str
@@ -30,18 +31,18 @@ class Fault:
 
 class ProductionFaultManager:
     """Production-grade fault manager."""
-    
+
     def __init__(self) -> None:
         self._faults: List[Fault] = []
-        
+
     def start(self) -> bool:
         logger.info("[FAULT_MANAGER] Production fault manager started")
         return True
-    
+
     def stop(self) -> bool:
         logger.info("[FAULT_MANAGER] Production fault manager stopped")
         return True
-    
+
     def detect_fault(self, component: str, fault_type: str, severity: str) -> Fault:
         """Detect a system fault."""
         fault = Fault(
@@ -50,11 +51,11 @@ class ProductionFaultManager:
             fault_type=fault_type,
             severity=severity,
             resolved=False,
-            timestamp=now().utc_time.isoformat()
+            timestamp=now().utc_time.isoformat(),
         )
         self._faults.append(fault)
         return fault
-    
+
     def resolve_fault(self, fault_id: str) -> Fault:
         """Resolve a fault."""
         for fault in self._faults:

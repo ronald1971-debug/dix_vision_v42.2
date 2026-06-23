@@ -1,14 +1,14 @@
 """Semantic Reasoning Module."""
 
 from .semantic_reasoning import (
-    SemanticRelation,
-    SemanticNode,
-    SemanticEdge,
-    ReasoningStep,
     ReasoningResult,
+    ReasoningStep,
+    SemanticEdge,
     SemanticKnowledgeGraph,
+    SemanticNode,
     SemanticReasoner,
     SemanticReasoningEngine,
+    SemanticRelation,
     get_semantic_reasoning_engine,
 )
 

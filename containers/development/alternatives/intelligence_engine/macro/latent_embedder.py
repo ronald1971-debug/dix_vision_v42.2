@@ -23,7 +23,7 @@ class LatentEmbedding:
     embedding: tuple[float, ...]
     dim: int
     seed: int
-    digest: str   # BLAKE2b-128 hex of (feature_id, embedding)
+    digest: str  # BLAKE2b-128 hex of (feature_id, embedding)
 
 
 class LatentEmbedder:
@@ -61,10 +61,15 @@ class LatentEmbedder:
 
         canonical = json.dumps(
             {"feature_id": feature_id, "embedding": list(vec)},
-            sort_keys=True, separators=(",", ":"),
+            sort_keys=True,
+            separators=(",", ":"),
         )
         digest = hashlib.blake2b(canonical.encode(), digest_size=16).hexdigest()
         return LatentEmbedding(
-            feature_id=feature_id, ts_ns=ts_ns,
-            embedding=vec, dim=self._dim, seed=self._seed, digest=digest,
+            feature_id=feature_id,
+            ts_ns=ts_ns,
+            embedding=vec,
+            dim=self._dim,
+            seed=self._seed,
+            digest=digest,
         )

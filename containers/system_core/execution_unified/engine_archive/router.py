@@ -38,28 +38,75 @@ class TradingDomain(StrEnum):
 
 
 # ── AIX: Supported exchanges / platforms (UCA registry) ──────────────
-SUPPORTED_EXCHANGES: frozenset[str] = frozenset({
-    # CEX
-    "binance", "coinbase", "kraken", "okx", "huobi", "bybit",
-    "bitfinex", "bitstamp", "kucoin", "gate_io", "gemini", "upbit",
-    "crypto_com", "bitget", "mexc", "coinex", "wazirx",
-    # DEX / AMM
-    "uniswap", "sushiswap", "pancakeswap", "raydium", "jupiter",
-    "gmx", "curve", "balancer", "orca", "trader_joe", "quickswap",
-    "1inch", "perpetual_protocol",
-    # Traditional
-    "alpaca", "ibkr", "oanda", "ig", "saxo", "fxcm", "pepperstone",
-    "ic_markets", "dukascopy", "cmc_markets", "etoro",
-    # Solana-native
-    "pumpfun", "solana_native",
-    # Paper
-    "paper",
-})
+SUPPORTED_EXCHANGES: frozenset[str] = frozenset(
+    {
+        # CEX
+        "binance",
+        "coinbase",
+        "kraken",
+        "okx",
+        "huobi",
+        "bybit",
+        "bitfinex",
+        "bitstamp",
+        "kucoin",
+        "gate_io",
+        "gemini",
+        "upbit",
+        "crypto_com",
+        "bitget",
+        "mexc",
+        "coinex",
+        "wazirx",
+        # DEX / AMM
+        "uniswap",
+        "sushiswap",
+        "pancakeswap",
+        "raydium",
+        "jupiter",
+        "gmx",
+        "curve",
+        "balancer",
+        "orca",
+        "trader_joe",
+        "quickswap",
+        "1inch",
+        "perpetual_protocol",
+        # Traditional
+        "alpaca",
+        "ibkr",
+        "oanda",
+        "ig",
+        "saxo",
+        "fxcm",
+        "pepperstone",
+        "ic_markets",
+        "dukascopy",
+        "cmc_markets",
+        "etoro",
+        # Solana-native
+        "pumpfun",
+        "solana_native",
+        # Paper
+        "paper",
+    }
+)
 
-SUPPORTED_ASSET_CLASSES: frozenset[str] = frozenset({
-    "spot", "futures", "options", "forex", "dex_amm", "dex_clob",
-    "memecoin", "defi", "nft", "commodities", "equity",
-})
+SUPPORTED_ASSET_CLASSES: frozenset[str] = frozenset(
+    {
+        "spot",
+        "futures",
+        "options",
+        "forex",
+        "dex_amm",
+        "dex_clob",
+        "memecoin",
+        "defi",
+        "nft",
+        "commodities",
+        "equity",
+    }
+)
 
 
 class RouterError(LookupError):
@@ -86,7 +133,7 @@ class AdapterRouter:
 
     def __init__(
         self,
-        adapters: (Mapping[tuple[TradingDomain, str], BrokerAdapter] | None) = None,
+        adapters: Mapping[tuple[TradingDomain, str], BrokerAdapter] | None = None,
         *,
         default_domain: TradingDomain = TradingDomain.NORMAL,
     ) -> None:

@@ -147,6 +147,7 @@ class EvolutionOrchestrator:
     def _try_auto_wire_critique(self) -> None:
         try:
             from evolution_engine.critique_loop import CritiqueLoop
+
             self._critique_loop = CritiqueLoop()
             _logger.info("EvolutionOrchestrator: auto-wired CritiqueLoop")
         except Exception:

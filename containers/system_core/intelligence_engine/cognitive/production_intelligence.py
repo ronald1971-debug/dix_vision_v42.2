@@ -7,19 +7,21 @@ and sophisticated pattern recognition for production autonomy.
 from __future__ import annotations
 
 import logging
+import math
 import threading
-import numpy as np
-from typing import Any, Dict, List, Optional, Tuple, Callable
+from collections import deque
 from dataclasses import dataclass, field
 from enum import Enum
-from collections import deque
-import math
+from typing import Any, Dict, List, Optional
+
+import numpy as np
 
 logger = logging.getLogger(__name__)
 
 
 class DecisionType(str, Enum):
     """Types of cognitive decisions."""
+
     TRADING = "TRADING"
     RISK_MANAGEMENT = "RISK_MANAGEMENT"
     PORTFOLIO_ALLOCATION = "PORTFOLIO_ALLOCATION"
@@ -29,6 +31,7 @@ class DecisionType(str, Enum):
 
 class ConfidenceLevel(str, Enum):
     """Confidence levels for decisions."""
+
     VERY_LOW = "VERY_LOW"  # 0.0-0.2
     LOW = "LOW"  # 0.2-0.4
     MEDIUM = "MEDIUM"  # 0.4-0.6
@@ -39,6 +42,7 @@ class ConfidenceLevel(str, Enum):
 @dataclass
 class MarketDataPoint:
     """Real market data point for analysis."""
+
     timestamp: float
     price: float
     volume: float
@@ -55,6 +59,7 @@ class MarketDataPoint:
 @dataclass
 class DecisionContext:
     """Context for cognitive decision-making."""
+
     current_time: float
     market_data: MarketDataPoint
     portfolio_state: Dict[str, Any]
@@ -67,6 +72,7 @@ class DecisionContext:
 @dataclass
 class CognitiveDecision:
     """Sophisticated cognitive decision with reasoning."""
+
     decision_id: str
     decision_type: DecisionType
     action: str
@@ -106,7 +112,7 @@ class ProductionPatternRecognition:
                 "rsi": 50.0,
                 "macd_signal": 0.0,
                 "pattern_confidence": 0.0,
-                "volume_trend": 0.0
+                "volume_trend": 0.0,
             }
 
         prices = np.array(list(self.price_history))
@@ -136,7 +142,7 @@ class ProductionPatternRecognition:
             "rsi": float(rsi),
             "macd_signal": float(macd_signal),
             "pattern_confidence": float(pattern_strength),
-            "volume_trend": float(np.polyfit(range(len(volumes)), volumes, 1)[0])
+            "volume_trend": float(np.polyfit(range(len(volumes)), volumes, 1)[0]),
         }
 
     def _calculate_rsi(self, prices: np.ndarray, period: int = 14) -> float:
@@ -171,7 +177,7 @@ class ProductionPatternRecognition:
         if len(prices) >= 35:
             macd_values = []
             for i in range(26, len(prices)):
-                slice_prices = prices[:i+1]
+                slice_prices = prices[: i + 1]
                 ema_12_i = self._calculate_ema(slice_prices, 12)
                 ema_26_i = self._calculate_ema(slice_prices, 26)
                 macd_values.append(ema_12_i - ema_26_i)
@@ -195,11 +201,15 @@ class ProductionPatternRecognition:
 
         return ema
 
-    def _calculate_pattern_strength(self, momentum: float, volatility: float, trend: float) -> float:
+    def _calculate_pattern_strength(
+        self, momentum: float, volatility: float, trend: float
+    ) -> float:
         """Calculate overall pattern strength."""
         # Combine multiple factors into confidence score
         momentum_score = min(1.0, abs(momentum) * 10)
-        trend_score = min(1.0, abs(trend) / np.std(self.price_history) if len(self.price_history) > 0 else 0.5)
+        trend_score = min(
+            1.0, abs(trend) / np.std(self.price_history) if len(self.price_history) > 0 else 0.5
+        )
         volatility_score = 1.0 - min(1.0, volatility / 0.1)
 
         pattern_strength = (momentum_score + trend_score + volatility_score) / 3.0
@@ -209,7 +219,9 @@ class ProductionPatternRecognition:
 class ProductionRiskAssessment:
     """Real risk assessment using quantitative methods."""
 
-    def assess_portfolio_risk(self, portfolio_state: Dict[str, Any], market_data: MarketDataPoint) -> Dict[str, float]:
+    def assess_portfolio_risk(
+        self, portfolio_state: Dict[str, Any], market_data: MarketDataPoint
+    ) -> Dict[str, float]:
         """Assess portfolio risk using real quantitative methods."""
         total_value = portfolio_state.get("total_value", 100000.0)
         positions = portfolio_state.get("positions", [])
@@ -241,10 +253,12 @@ class ProductionRiskAssessment:
             "max_drawdown": max_drawdown,
             "concentration_risk": concentration_risk,
             "leverage_risk": leverage_risk,
-            "overall_risk_score": (var_95 + concentration_risk + leverage_risk) / 3.0
+            "overall_risk_score": (var_95 + concentration_risk + leverage_risk) / 3.0,
         }
 
-    def _calculate_var(self, portfolio_state: Dict[str, Any], market_data: MarketDataPoint, confidence: float) -> float:
+    def _calculate_var(
+        self, portfolio_state: Dict[str, Any], market_data: MarketDataPoint, confidence: float
+    ) -> float:
         """Calculate Value at Risk using parametric method."""
         # Use market volatility and portfolio value
         portfolio_value = portfolio_state.get("total_value", 100000.0)
@@ -252,11 +266,13 @@ class ProductionRiskAssessment:
 
         # Parametric VaR
         z_score = 1.96 if confidence == 0.95 else 2.576  # 95% or 99% confidence
-        var = portfolio_value * volatility * z_score * math.sqrt(1/252)  # Daily VaR
+        var = portfolio_value * volatility * z_score * math.sqrt(1 / 252)  # Daily VaR
 
         return abs(var)
 
-    def _calculate_beta(self, portfolio_state: Dict[str, Any], market_data: MarketDataPoint) -> float:
+    def _calculate_beta(
+        self, portfolio_state: Dict[str, Any], market_data: MarketDataPoint
+    ) -> float:
         """Calculate portfolio beta."""
         # Simplified beta calculation
         portfolio_volatility = portfolio_state.get("volatility", 0.2)
@@ -329,22 +345,18 @@ class ProductionDecisionEngine:
         self._lock = threading.Lock()
 
     def make_production_decision(
-        self,
-        context: DecisionContext,
-        decision_type: DecisionType
+        self, context: DecisionContext, decision_type: DecisionType
     ) -> CognitiveDecision:
         """Make a production-grade cognitive decision with real analysis."""
 
         # Analyze current patterns
         pattern_analysis = self._pattern_recognition.analyze_price_patterns(
-            context.market_data.price,
-            context.market_data.volume
+            context.market_data.price, context.market_data.volume
         )
 
         # Assess risk
         risk_metrics = self._risk_assessment.assess_portfolio_risk(
-            context.portfolio_state,
-            context.market_data
+            context.portfolio_state, context.market_data
         )
 
         # Generate decision based on decision type
@@ -355,7 +367,9 @@ class ProductionDecisionEngine:
         elif decision_type == DecisionType.PORTFOLIO_ALLOCATION:
             decision = self._make_allocation_decision(context, pattern_analysis, risk_metrics)
         else:
-            decision = self._make_analytical_decision(context, pattern_analysis, risk_metrics, decision_type)
+            decision = self._make_analytical_decision(
+                context, pattern_analysis, risk_metrics, decision_type
+            )
 
         # Store decision
         with self._lock:
@@ -367,7 +381,7 @@ class ProductionDecisionEngine:
         self,
         context: DecisionContext,
         pattern_analysis: Dict[str, float],
-        risk_metrics: Dict[str, float]
+        risk_metrics: Dict[str, float],
     ) -> CognitiveDecision:
         """Make real trading decision using quantitative analysis."""
 
@@ -419,8 +433,16 @@ class ProductionDecisionEngine:
             reasoning = "No clear trading signals - maintain current position"
         else:
             # Calculate weighted score
-            buy_score = sum(score for signal, score in signals if "buy" in signal or "up" in signal or "bullish" in signal)
-            sell_score = sum(score for signal, score in signals if "sell" in signal or "down" in signal or "bearish" in signal)
+            buy_score = sum(
+                score
+                for signal, score in signals
+                if "buy" in signal or "up" in signal or "bullish" in signal
+            )
+            sell_score = sum(
+                score
+                for signal, score in signals
+                if "sell" in signal or "down" in signal or "bearish" in signal
+            )
             risk_adjustment = sum(score for signal, score in signals if "risk" in signal)
 
             if buy_score > sell_score and risk_adjustment < 0.8:
@@ -449,21 +471,28 @@ class ProductionDecisionEngine:
             confidence_level=confidence_level,
             expected_outcome=f"Expected return: {momentum * 100:.2f}%",
             risk_assessment={
-                "immediate_risk": risk_metrics["var_95"] / context.portfolio_state.get("total_value", 100000.0),
+                "immediate_risk": risk_metrics["var_95"]
+                / context.portfolio_state.get("total_value", 100000.0),
                 "overall_risk": overall_risk,
-                "drawdown_risk": risk_metrics["max_drawdown"]
+                "drawdown_risk": risk_metrics["max_drawdown"],
             },
-            alternative_actions=["HOLD", "REDUCE_POSITION"] if action != "HOLD" else ["BUY", "SELL"],
-            supporting_evidence=[f"RSI: {rsi:.2f}", f"Momentum: {momentum:.4f}", f"Trend: {trend:.4f}"],
+            alternative_actions=(
+                ["HOLD", "REDUCE_POSITION"] if action != "HOLD" else ["BUY", "SELL"]
+            ),
+            supporting_evidence=[
+                f"RSI: {rsi:.2f}",
+                f"Momentum: {momentum:.4f}",
+                f"Trend: {trend:.4f}",
+            ],
             contradictory_evidence=[f"Volatility: {volatility:.4f}"],
-            timestamp=context.current_time
+            timestamp=context.current_time,
         )
 
     def _make_risk_management_decision(
         self,
         context: DecisionContext,
         pattern_analysis: Dict[str, float],
-        risk_metrics: Dict[str, float]
+        risk_metrics: Dict[str, float],
     ) -> CognitiveDecision:
         """Make risk management decision using real risk analysis."""
 
@@ -502,14 +531,14 @@ class ProductionDecisionEngine:
             alternative_actions=["HEDGING", "STOP_LOSS"],
             supporting_evidence=[f"VaR 95%: {var_95:.2f}", f"Max Drawdown: {max_drawdown:.2f}"],
             contradictory_evidence=[],
-            timestamp=context.current_time
+            timestamp=context.current_time,
         )
 
     def _make_allocation_decision(
         self,
         context: DecisionContext,
         pattern_analysis: Dict[str, float],
-        risk_metrics: Dict[str, float]
+        risk_metrics: Dict[str, float],
     ) -> CognitiveDecision:
         """Make portfolio allocation decision using modern portfolio theory."""
         # Implement Kelly Criterion for position sizing
@@ -518,7 +547,9 @@ class ProductionDecisionEngine:
         loss_ratio = abs(expected_return) if expected_return < 0 else 0.01
 
         if loss_ratio > 0:
-            kelly_fraction = (win_probability * expected_return - (1 - win_probability) * loss_ratio) / loss_ratio
+            kelly_fraction = (
+                win_probability * expected_return - (1 - win_probability) * loss_ratio
+            ) / loss_ratio
             kelly_fraction = max(0.0, min(0.25, kelly_fraction))  # Cap at 25%
         else:
             kelly_fraction = 0.05
@@ -539,7 +570,7 @@ class ProductionDecisionEngine:
             alternative_actions=["EQUAL_WEIGHT", "MINIMUM_VARIANCE"],
             supporting_evidence=[f"Expected return: {expected_return:.4f}"],
             contradictory_evidence=[],
-            timestamp=context.current_time
+            timestamp=context.current_time,
         )
 
     def _make_analytical_decision(
@@ -547,7 +578,7 @@ class ProductionDecisionEngine:
         context: DecisionContext,
         pattern_analysis: Dict[str, float],
         risk_metrics: Dict[str, float],
-        decision_type: DecisionType
+        decision_type: DecisionType,
     ) -> CognitiveDecision:
         """Make analytical decision for other decision types."""
         action = "ANALYZE"
@@ -564,9 +595,11 @@ class ProductionDecisionEngine:
             expected_outcome="Enhanced understanding of market conditions",
             risk_assessment=risk_metrics,
             alternative_actions=["DEEPER_ANALYSIS"],
-            supporting_evidence=[f"Pattern confidence: {pattern_analysis['pattern_confidence']:.2f}"],
+            supporting_evidence=[
+                f"Pattern confidence: {pattern_analysis['pattern_confidence']:.2f}"
+            ],
             contradictory_evidence=[],
-            timestamp=context.current_time
+            timestamp=context.current_time,
         )
 
     def _get_confidence_level(self, confidence: float) -> ConfidenceLevel:
@@ -593,7 +626,9 @@ class ProductionDecisionEngine:
             confidence_distribution = {}
 
             for decision in decisions:
-                action_distribution[decision.action] = action_distribution.get(decision.action, 0) + 1
+                action_distribution[decision.action] = (
+                    action_distribution.get(decision.action, 0) + 1
+                )
                 level = decision.confidence_level
                 confidence_distribution[level] = confidence_distribution.get(level, 0) + 1
 
@@ -602,7 +637,7 @@ class ProductionDecisionEngine:
                 "action_distribution": action_distribution,
                 "confidence_distribution": confidence_distribution,
                 "average_confidence": np.mean([d.confidence for d in decisions]),
-                "decision_types": set(d.decision_type for d in decisions)
+                "decision_types": set(d.decision_type for d in decisions),
             }
 
 

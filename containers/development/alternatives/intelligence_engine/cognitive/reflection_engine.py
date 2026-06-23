@@ -61,7 +61,8 @@ class ReflectionEngine:
 
         # ---- 1. Confidence analysis ----------------------------------------
         confidences = [
-            t.confidence for t in window
+            t.confidence
+            for t in window
             if hasattr(t, "confidence") and isinstance(t.confidence, (int, float))
         ]
         mean_conf = sum(confidences) / len(confidences) if confidences else 0.5
@@ -70,21 +71,16 @@ class ReflectionEngine:
         # ---- 2. Reasoning step distribution --------------------------------
         steps = [getattr(t, "step", "") for t in window if getattr(t, "step", "")]
         step_counter = Counter(steps)
-        dominant_step, dom_count = step_counter.most_common(1)[0] if step_counter else ("unknown", 0)
+        dominant_step, dom_count = (
+            step_counter.most_common(1)[0] if step_counter else ("unknown", 0)
+        )
 
         # ---- 3. Conclusion theme extraction --------------------------------
-        conclusions = [
-            getattr(t, "conclusion", "") for t in window
-            if getattr(t, "conclusion", "")
-        ]
+        conclusions = [getattr(t, "conclusion", "") for t in window if getattr(t, "conclusion", "")]
         theme = self._extract_theme(conclusions)
 
         # ---- 4. Synthesise reflection text ---------------------------------
-        trend_str = (
-            "improving" if trend > 0.02 else
-            "declining" if trend < -0.02 else
-            "stable"
-        )
+        trend_str = "improving" if trend > 0.02 else "declining" if trend < -0.02 else "stable"
         synthesis = (
             f"Reflection #{self._reflection_seq}: over {len(window)} recent cycles, "
             f"confidence is {trend_str} (mean={mean_conf:.2f}). "
@@ -121,13 +117,51 @@ class ReflectionEngine:
     @staticmethod
     def _extract_theme(conclusions: list[str]) -> str:
         """Extract the most frequent non-trivial word across conclusions."""
-        _STOPWORDS = frozenset({
-            "the", "a", "an", "is", "are", "was", "were", "be", "been",
-            "to", "of", "in", "on", "at", "for", "with", "and", "or",
-            "it", "this", "that", "from", "by", "as", "not", "has",
-            "have", "had", "but", "all", "no", "so", "if", "its",
-            "will", "can", "may", "into", "than", "more", "within",
-        })
+        _STOPWORDS = frozenset(
+            {
+                "the",
+                "a",
+                "an",
+                "is",
+                "are",
+                "was",
+                "were",
+                "be",
+                "been",
+                "to",
+                "of",
+                "in",
+                "on",
+                "at",
+                "for",
+                "with",
+                "and",
+                "or",
+                "it",
+                "this",
+                "that",
+                "from",
+                "by",
+                "as",
+                "not",
+                "has",
+                "have",
+                "had",
+                "but",
+                "all",
+                "no",
+                "so",
+                "if",
+                "its",
+                "will",
+                "can",
+                "may",
+                "into",
+                "than",
+                "more",
+                "within",
+            }
+        )
         words: Counter[str] = Counter()
         for c in conclusions:
             for w in c.lower().split():
@@ -147,6 +181,7 @@ class ReflectionEngine:
             from intelligence_engine.cognitive.observability_emitter import (
                 emit_thought_stream,
             )
+
             emit_thought_stream(
                 ts_ns=ts_ns,
                 reasoning_step="reflection",

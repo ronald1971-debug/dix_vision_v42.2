@@ -8,23 +8,21 @@ Author: DIX VISION Machine Learning Governance
 Version: 42.2
 """
 
-import logging
-from typing import Any, Dict, List, Optional, Union
-from datetime import datetime, timedelta
-import time
-
 import sys
-import os
+import time
+from datetime import datetime
+from typing import Any, Dict
+
 sys.path.append('/app/governance')
 
 from base_external_repo_wrapper import (
     BaseExternalRepoGovernanceWrapper,
-    PermissionLevel,
-    GovernanceViolation,
-    SafetyViolation,
     ExternalRepositoryMetrics,
-    ExternalRepositoryHealthCheck
+    GovernanceViolation,
+    PermissionLevel,
+    SafetyViolation,
 )
+
 
 class ScikitLearnGovernanceWrapper(BaseExternalRepoGovernanceWrapper):
     """

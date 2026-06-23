@@ -1,0 +1,357 @@
+# Domain Registry
+# DIX VISION v42.2 - Multi-Domain Trading Configuration
+# Domain-specific configurations for crypto, forex, stocks, futures, options, commodities
+
+domains:
+  crypto:
+    id: dom_001
+    name: Cryptocurrency
+    enabled: true
+    description: "Cryptocurrency trading domain"
+    
+    # Exchange Configuration
+    exchanges:
+      binance:
+        enabled: true
+        api_endpoint: "https://api.binance.com"
+        websocket_endpoint: "wss://stream.binance.com:9443"
+        supported_assets:
+          - BTC
+          - ETH
+          - SOL
+          - ADA
+          - BNB
+        trading_pairs:
+          - BTC/USDT
+          - ETH/USDT
+          - SOL/USDT
+          - ADA/USDT
+        fee_rate: 0.001
+        maker_fee: 0.001
+        taker_fee: 0.001
+      coinbase:
+        enabled: true
+        api_endpoint: "https://api.exchange.coinbase.com"
+        supported_assets:
+          - BTC
+          - ETH
+          - USDC
+        fee_rate: 0.005
+      kraken:
+        enabled: true
+        api_endpoint: "https://api.kraken.com"
+        supported_assets:
+          - BTC
+          - ETH
+          - XRP
+        fee_rate: 0.0026
+    
+    # Base Currency
+    base_currency: USD
+    settlement_currency: USDT
+    
+    # Signal-First Configuration
+    signal_first:
+      enabled: true
+      domain_specific_ratios:
+        signal: 0.85
+        world: 0.15
+      allowed_range:
+        signal: [0.70, 0.95]
+        world: [0.05, 0.30]
+      description: "Crypto domain uses standard signal-first baseline"
+    
+    # Performance Requirements
+    performance:
+      latency_requirement_ms: 50
+      slippage_tolerance: 0.001
+      min_order_size_usd: 10
+      max_position_size_usd: 100000
+    
+    # Risk Parameters
+    risk:
+      max_leverage: 3.0
+      max_positions: 10
+      max_daily_drawdown: 0.05
+      position_size_limit: 0.02  # 2% of portfolio
+    
+    # Trading Hours
+    trading_hours:
+      type: "24x7"
+      maintenance_windows: []
+    
+    # World Context Sources
+    world_context_sources:
+      - onchain_data
+      - social_sentiment
+      - network_metrics
+      - ecosystem_news
+
+  forex:
+    id: dom_002
+    name: Foreign Exchange
+    enabled: false  # Can be enabled later
+    description: "Foreign exchange trading domain"
+    
+    exchanges:
+      oanda:
+        enabled: true
+        api_endpoint: "https://api.oanda.com"
+        supported_assets:
+          - EURUSD
+          - GBPUSD
+          - USDJPY
+          - USDCHF
+        trading_pairs:
+          - EUR/USD
+          - GBP/USD
+          - USD/JPY
+        fee_rate: 0.0002
+      ig:
+        enabled: true
+        api_endpoint: "https://api.ig.com"
+        supported_assets:
+          - EURUSD
+          - GBPUSD
+          - USDJPY
+        fee_rate: 0.0002
+    
+    base_currency: USD
+    
+    signal_first:
+      enabled: true
+      domain_specific_ratios:
+        signal: 0.80
+        world: 0.20
+      allowed_range:
+        signal: [0.65, 0.90]
+        world: [0.10, 0.35]
+      description: "Forex markets influenced by macro factors, higher world context"
+    
+    performance:
+      latency_requirement_ms: 20
+      slippage_tolerance: 0.0002
+      min_order_size_usd: 1000
+      max_position_size_usd: 1000000
+    
+    risk:
+      max_leverage: 2.0
+      max_positions: 20
+      max_daily_drawdown: 0.03
+      position_size_limit: 0.01
+    
+    trading_hours:
+      type: "24x5"
+      maintenance_windows:
+        - "weekend"
+
+  stocks:
+    id: dom_003
+    name: Stocks
+    enabled: false
+    description: "Equity markets trading domain"
+    
+    exchanges:
+      ibkr:
+        enabled: true
+        api_endpoint: "https://api.ibkr.com"
+        supported_assets:
+          - AAPL
+          - GOOGL
+          - MSFT
+          - TSLA
+        fee_rate: 0.0005
+      alpaca:
+        enabled: true
+        api_endpoint: "https://api.alpaca.markets"
+        supported_assets:
+          - AAPL
+          - GOOGL
+          - MSFT
+        fee_rate: 0.0005
+    
+    base_currency: USD
+    
+    signal_first:
+      enabled: true
+      domain_specific_ratios:
+        signal: 0.75
+        world: 0.25
+      allowed_range:
+        signal: [0.60, 0.85]
+        world: [0.15, 0.40]
+      description: "Stocks influenced by news and sentiment, higher world context"
+    
+    performance:
+      latency_requirement_ms: 100
+      slippage_tolerance: 0.0005
+      min_order_size_usd: 100
+      max_position_size_usd: 100000
+    
+    risk:
+      max_leverage: 1.5
+      max_positions: 50
+      max_daily_drawdown: 0.02
+      position_size_limit: 0.01
+    
+    trading_hours:
+      type: "market_hours"
+      market_hours:
+        open: "09:30"
+        close: "16:00"
+      timezone: "America/New_York"
+      maintenance_windows:
+        - "weekend"
+        - "holidays"
+
+  futures:
+    id: dom_004
+    name: Futures
+    enabled: false
+    description: "Futures contracts trading domain"
+    
+    exchanges:
+      cme:
+        enabled: true
+        supported_assets:
+          - ES (E-mini S&P 500)
+          - NQ (E-mini NASDAQ)
+          - YM (E-mini Dow Jones)
+        fee_rate: 0.0003
+    
+    base_currency: USD
+    
+    signal_first:
+      enabled: true
+      domain_specific_ratios:
+        signal: 0.82
+        world: 0.18
+      allowed_range:
+        signal: [0.67, 0.92]
+        world: [0.08, 0.33]
+      description: "Futures benefit from signal processing"
+    
+    performance:
+      latency_requirement_ms: 50
+      slippage_tolerance: 0.0003
+      min_order_size_usd: 1000
+      max_position_size_usd: 500000
+    
+    risk:
+      max_leverage: 2.5
+      max_positions: 15
+      max_daily_drawdown: 0.04
+      position_size_limit: 0.015
+    
+    trading_hours:
+      type: "market_hours"
+      contracts_per_day: 2
+      timezone: "America/Chicago"
+
+  options:
+    id: dom_005
+    name: Options
+    enabled: false
+    description: "Options contracts trading domain"
+    
+    exchanges:
+      cme:
+        enabled: true
+        supported_assets:
+          - SPX (S&P 500 Options)
+          - VIX (CBOE Volatility Index)
+        fee_rate: 0.0004
+    
+    base_currency: USD
+    
+    signal_first:
+      enabled: true
+      domain_specific_ratios:
+        signal: 0.78
+        world: 0.22
+      allowed_range:
+        signal: [0.63, 0.88]
+        world: [0.12, 0.37]
+      description: "Options require understanding of volatility and regime"
+    
+    performance:
+      latency_requirement_ms: 50
+      slippage_tolerance: 0.0004
+      min_order_size_usd: 500
+      max_position_size_usd: 100000
+    
+    risk:
+      max_leverage: 2.0
+      max_positions: 25
+      max_daily_drawdown: 0.03
+      position_size_limit: 0.012
+    
+    trading_hours:
+      type: "market_hours"
+      contracts_per_day: 4
+      timezone: "America/Chicago"
+
+  commodities:
+    id: dom_006
+    name: Commodities
+    enabled: false
+    description: "Commodities trading domain"
+    
+    exchanges:
+      cme:
+        enabled: true
+        supported_assets:
+          - GC (Gold)
+          - SI (Silver)
+          - CL (Crude Oil)
+          - NG (Natural Gas)
+        fee_rate: 0.0003
+    
+    base_currency: USD
+    
+    signal_first:
+      enabled: true
+      domain_specific_ratios:
+        signal: 0.80
+        world: 0.20
+      allowed_range:
+        signal: [0.65, 0.90]
+        world: [0.10, 0.35]
+      description: "Commodities influenced by supply-demand and geopolitics"
+    
+    performance:
+      latency_requirement_ms: 100
+      slippage_tolerance: 0.0003
+      min_order_size_usd: 1000
+      max_position_size_usd: 500000
+    
+    risk:
+      max_leverage: 2.0
+      max_positions: 15
+      max_daily_drawdown: 0.03
+      position_size_limit: 0.01
+    
+    trading_hours:
+      type: "market_hours"
+      contracts_per_day: 3
+      timezone: "America/New_York"
+
+# Domain Abstraction Layer Configuration
+domain_abstraction:
+  enabled: true
+  implementation: "containers/trading/multi_domain/infrastructure/domain_abstraction.py"
+  unified_interface: true
+  domain_specific_adapters:
+    crypto: "crypto_domain.py"
+    forex: "forex_domain.py"
+    stocks: "stocks_domain.py"
+    futures: "futures_domain.py"
+    options: "options_domain.py"
+    commodities: "commodities_domain.py"
+  description: "Unified domain interface with specific implementations per domain"
+
+# Version information
+version: "1.0.0"
+created_date: "2026-06-21"
+updated_date: "2026-06-21"
+compatible_with: "DIX VISION v42.2+"

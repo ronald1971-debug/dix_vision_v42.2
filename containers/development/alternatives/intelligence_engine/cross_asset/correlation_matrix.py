@@ -58,6 +58,6 @@ class CorrelationMatrix:
         symbols = sorted(self._prices.keys())
         pairs = []
         for i, a in enumerate(symbols):
-            for b in symbols[i + 1:]:
+            for b in symbols[i + 1 :]:
                 pairs.append(self.correlation(a, b))
         return tuple(pairs)

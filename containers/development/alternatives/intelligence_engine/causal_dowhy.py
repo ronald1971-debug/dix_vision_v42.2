@@ -820,9 +820,11 @@ def dowhy_linear_regression_estimator() -> CausalEffectEstimator:
                     refutation_results.append(
                         CausalRefutationResult(
                             refuter_kind=refuter_kind,
-                            p_value=float(getattr(ref, "refutation_result", {}).get("p_value", 0.5))
-                            if isinstance(getattr(ref, "refutation_result", None), dict)
-                            else 0.5,
+                            p_value=(
+                                float(getattr(ref, "refutation_result", {}).get("p_value", 0.5))
+                                if isinstance(getattr(ref, "refutation_result", None), dict)
+                                else 0.5
+                            ),
                             passed=True,
                         )
                     )

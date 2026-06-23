@@ -4,22 +4,26 @@ Provides governance approval for live trading
 NO LAZY LOADING - All components load directly
 """
 
-from typing import Dict, List, Optional, Any
-from dataclasses import dataclass, field
-from enum import Enum
 import logging
+from dataclasses import dataclass
+from enum import Enum
+from typing import Optional
 
 logger = logging.getLogger(__name__)
 
+
 class GovernanceDecisionType(Enum):
     """Governance decision types"""
+
     APPROVED = "APPROVED"
     REJECTED = "REJECTED"
     MODIFIED = "MODIFIED"
 
+
 @dataclass
 class LiveTradeGovernanceContext:
     """Context for live trade governance decisions"""
+
     trade_id: str
     venue: str
     symbol: str
@@ -30,14 +34,17 @@ class LiveTradeGovernanceContext:
     timestamp_ns: int
     mode: str = "LIVE"
 
+
 @dataclass
 class GovernanceApprovalDecision:
     """Governance approval decision"""
+
     decision: GovernanceDecisionType
     context: LiveTradeGovernanceContext
     reason: str
     approver: str = ""
     approved_by: str = ""
+
 
 class LiveTradingGovernanceLayer:
     """Live trading governance layer"""
@@ -54,7 +61,9 @@ class LiveTradingGovernanceLayer:
         self._live_trading_enabled = True
         return True
 
-    def request_approval(self, context: LiveTradeGovernanceContext) -> Optional[GovernanceApprovalDecision]:
+    def request_approval(
+        self, context: LiveTradeGovernanceContext
+    ) -> Optional[GovernanceApprovalDecision]:
         """Request governance approval for a trade"""
         if not self._live_trading_enabled:
             return GovernanceApprovalDecision(
@@ -69,7 +78,9 @@ class LiveTradingGovernanceLayer:
             approver="governance_layer",
         )
 
+
 _governance_layer = None
+
 
 def get_live_trading_governance_layer() -> LiveTradingGovernanceLayer:
     """Get live trading governance layer instance"""
@@ -78,10 +89,11 @@ def get_live_trading_governance_layer() -> LiveTradingGovernanceLayer:
         _governance_layer = LiveTradingGovernanceLayer()
     return _governance_layer
 
+
 __all__ = [
-    'GovernanceDecisionType',
-    'LiveTradeGovernanceContext',
-    'GovernanceApprovalDecision',
-    'LiveTradingGovernanceLayer',
-    'get_live_trading_governance_layer',
+    "GovernanceDecisionType",
+    "LiveTradeGovernanceContext",
+    "GovernanceApprovalDecision",
+    "LiveTradingGovernanceLayer",
+    "get_live_trading_governance_layer",
 ]

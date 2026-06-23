@@ -13,7 +13,6 @@ import enum
 import hashlib
 import json
 import logging
-import requests
 import sqlite3
 from collections import deque
 from collections.abc import Callable
@@ -21,6 +20,8 @@ from datetime import datetime
 from pathlib import Path
 from threading import Lock
 from typing import Any, Final
+
+import requests
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -41,6 +42,7 @@ NEW_PIP_DEPENDENCIES: Final[tuple[str, ...]] = ()
 
 class AuditEventType(enum.Enum):
     """Types of audit events."""
+
     ORDER_SUBMITTED = "ORDER_SUBMITTED"
     ORDER_ACCEPTED = "ORDER_ACCEPTED"
     ORDER_REJECTED = "ORDER_REJECTED"
@@ -62,6 +64,7 @@ class AuditEventType(enum.Enum):
 
 class AuditSeverity(enum.Enum):
     """Severity level of audit events."""
+
     INFO = "INFO"
     WARNING = "WARNING"
     ERROR = "ERROR"
@@ -70,12 +73,14 @@ class AuditSeverity(enum.Enum):
 
 class OrderSide(enum.Enum):
     """Side of the order."""
+
     BUY = "BUY"
     SELL = "SELL"
 
 
 class OrderStatus(enum.Enum):
     """Status of the order."""
+
     PENDING = "PENDING"
     SUBMITTED = "SUBMITTED"
     ACCEPTED = "ACCEPTED"
@@ -94,6 +99,7 @@ class OrderStatus(enum.Enum):
 @dataclasses.dataclass(frozen=True, slots=True)
 class AuditConfig:
     """Configuration for audit trail."""
+
     max_audit_size: int = DEFAULT_MAX_AUDIT_SIZE
     retention_days: int = DEFAULT_RETENTION_DAYS
     enable_persistence: bool = DEFAULT_ENABLE_PERSISTENCE
@@ -112,6 +118,7 @@ class AuditConfig:
 @dataclasses.dataclass(frozen=True, slots=True)
 class AuditEvent:
     """An audit event record."""
+
     event_id: str
     event_type: AuditEventType
     severity: AuditSeverity
@@ -143,6 +150,7 @@ class AuditEvent:
 @dataclasses.dataclass(frozen=True, slots=True)
 class AuditQuery:
     """Query for audit events."""
+
     adapter_name: str | None = None
     event_type: AuditEventType | None = None
     severity: AuditSeverity | None = None
@@ -156,6 +164,7 @@ class AuditQuery:
 @dataclasses.dataclass(frozen=True, slots=True)
 class AuditMetrics:
     """Metrics about audit trail performance."""
+
     total_events: int
     events_by_type: dict[str, int]
     events_by_severity: dict[str, int]
@@ -169,6 +178,7 @@ class AuditMetrics:
 @dataclasses.dataclass(frozen=True, slots=True)
 class OrderAuditTrail:
     """Complete audit trail for a single order."""
+
     order_id: str
     symbol: str
     side: OrderSide
@@ -187,37 +197,37 @@ class OrderAuditTrail:
 
 class ExecutionAuditTrail:
     """Comprehensive audit trail for execution activities.
-    
+
     Records all execution events with full context for audit purposes,
     regulatory compliance, and debugging. Provides query and analysis
     capabilities with optional persistence and encryption.
     """
-    
+
     def __init__(
         self,
         config: AuditConfig | None = None,
     ) -> None:
         """Initialize the execution audit trail.
-        
+
         Args:
             config: Audit trail configuration
         """
         self._config = config or AuditConfig()
         self._lock = Lock()
-        
+
         # Event storage
         self._events: deque[AuditEvent] = deque(maxlen=self._config.max_audit_size)
-        
+
         # Indexes for querying
         self._events_by_order: dict[str, list[str]] = {}  # order_id -> [event_ids]
         self._events_by_adapter: dict[str, list[str]] = {}  # adapter_name -> [event_ids]
         self._events_by_symbol: dict[str, list[str]] = {}  # symbol -> [event_ids]
-        
+
         # Metrics
         self._total_events = 0
         self._events_by_type: dict[str, int] = {}
         self._events_by_severity: dict[str, int] = {}
-    
+
     def log_event(
         self,
         event_type: AuditEventType,
@@ -236,7 +246,7 @@ class ExecutionAuditTrail:
         timestamp_ns: int | None = None,
     ) -> AuditEvent:
         """Log an execution event.
-        
+
         Args:
             event_type: Type of event
             adapter_name: Name of the adapter
@@ -252,18 +262,18 @@ class ExecutionAuditTrail:
             error_message: Error message if applicable
             metadata: Additional metadata
             timestamp_ns: Event timestamp
-            
+
         Returns:
             The logged audit event
         """
         import secrets
         import time
-        
+
         if timestamp_ns is None:
             timestamp_ns = time.time_ns()
-        
+
         event_id = secrets.token_hex(16)
-        
+
         # Create event
         event = AuditEvent(
             event_id=event_id,
@@ -282,84 +292,88 @@ class ExecutionAuditTrail:
             error_message=error_message,
             metadata=metadata or {},
         )
-        
+
         # Add signature if enabled
         if self._config.enable_signature:
             signature = self._compute_signature(event)
             event = dataclasses.replace(event, signature=signature)
-        
+
         with self._lock:
             self._events.append(event)
             self._total_events += 1
-            
+
             # Update indexes
             self._events_by_order.setdefault(order_id, []).append(event_id)
             self._events_by_adapter.setdefault(adapter_name, []).append(event_id)
             self._events_by_symbol.setdefault(symbol, []).append(event_id)
-            
+
             # Update metrics
-            self._events_by_type[event_type.value] = self._events_by_type.get(event_type.value, 0) + 1
-            self._events_by_severity[severity.value] = self._events_by_severity.get(severity.value, 0) + 1
-        
+            self._events_by_type[event_type.value] = (
+                self._events_by_type.get(event_type.value, 0) + 1
+            )
+            self._events_by_severity[severity.value] = (
+                self._events_by_severity.get(severity.value, 0) + 1
+            )
+
         # Persist if enabled
         if self._config.enable_persistence and self._config.storage_path:
             self._persist_event(event)
-        
+
         return event
-    
+
     def query(self, query: AuditQuery) -> list[AuditEvent]:
         """Query audit events.
-        
+
         Args:
             query: Query parameters
-            
+
         Returns:
             List of matching events
         """
         with self._lock:
             results = list(self._events)
-            
+
             # Filter by adapter
             if query.adapter_name:
                 event_ids = set(self._events_by_adapter.get(query.adapter_name, []))
                 results = [e for e in results if e.event_id in event_ids]
-            
+
             # Filter by event type
             if query.event_type:
                 results = [e for e in results if e.event_type == query.event_type]
-            
+
             # Filter by severity
             if query.severity:
                 results = [e for e in results if e.severity == query.severity]
-            
+
             # Filter by order ID
             if query.order_id:
                 event_ids = set(self._events_by_order.get(query.order_id, []))
                 results = [e for e in results if e.event_id in event_ids]
-            
+
             # Filter by symbol
             if query.symbol:
                 event_ids = set(self._events_by_symbol.get(query.symbol, []))
                 results = [e for e in results if e.event_id in event_ids]
-            
+
             # Filter by timestamp range
             if query.start_timestamp_ns:
                 results = [e for e in results if e.timestamp_ns >= query.start_timestamp_ns]
-            
+
             if query.end_timestamp_ns:
                 results = [e for e in results if e.timestamp_ns <= query.end_timestamp_ns]
-            
+
             # Apply limit
-            results = results[:query.limit]
-            
+            results = results[: query.limit]
+
             return results
-    
+
     def get_order_trail(self, order_id: str) -> OrderAuditTrail | None:
         """Get the complete audit trail for an order.
-        
+
         Args:
             order_id: Order identifier
-            
+
         Returns:
             Complete order audit trail or None if not found
         """
@@ -367,35 +381,42 @@ class ExecutionAuditTrail:
             event_ids = self._events_by_order.get(order_id, [])
             if not event_ids:
                 return None
-            
+
             events = []
             for event in self._events:
                 if event.order_id == order_id:
                     events.append(event)
-            
+
             if not events:
                 return None
-            
+
             # Sort by timestamp
             events.sort(key=lambda e: e.timestamp_ns)
-            
+
             # Determine order status
             last_event = events[-1]
             status = self._determine_order_status(last_event.event_type)
-            
+
             # Calculate metrics
             submission_timestamp = events[0].timestamp_ns
-            completion_timestamp = events[-1].timestamp_ns if status != OrderStatus.PENDING else None
-            
+            completion_timestamp = (
+                events[-1].timestamp_ns if status != OrderStatus.PENDING else None
+            )
+
             # Calculate slippage (simplified)
             total_slippage = 0.0
-            fills = [e for e in events if e.event_type in (AuditEventType.ORDER_FILLED, AuditEventType.ORDER_PARTIALLY_FILLED)]
+            fills = [
+                e
+                for e in events
+                if e.event_type
+                in (AuditEventType.ORDER_FILLED, AuditEventType.ORDER_PARTIALLY_FILLED)
+            ]
             if fills:
                 for fill in fills:
                     if fill.price and fill.execution_price:
                         slippage = abs(fill.execution_price - fill.price) / fill.price
                         total_slippage += slippage * 100
-            
+
             return OrderAuditTrail(
                 order_id=order_id,
                 symbol=events[0].symbol,
@@ -406,10 +427,10 @@ class ExecutionAuditTrail:
                 total_slippage_pct=total_slippage,
                 status=status,
             )
-    
+
     def get_metrics(self) -> AuditMetrics:
         """Get audit trail metrics.
-        
+
         Returns:
             Current metrics
         """
@@ -422,30 +443,28 @@ class ExecutionAuditTrail:
                 avg_per_hour = len(self._events) / hours
             else:
                 avg_per_hour = 0.0
-            
+
             return AuditMetrics(
                 total_events=self._total_events,
                 events_by_type=dict(self._events_by_type),
                 events_by_severity=dict(self._events_by_severity),
                 events_by_adapter={
-                    name: len(event_ids)
-                    for name, event_ids in self._events_by_adapter.items()
+                    name: len(event_ids) for name, event_ids in self._events_by_adapter.items()
                 },
                 events_by_symbol={
-                    symbol: len(event_ids)
-                    for symbol, event_ids in self._events_by_symbol.items()
+                    symbol: len(event_ids) for symbol, event_ids in self._events_by_symbol.items()
                 },
                 average_events_per_hour=avg_per_hour,
                 retention_compliance=1.0,  # Placeholder - would check actual retention
                 signature_validity=1.0,  # Placeholder - would verify signatures
             )
-    
+
     def export(self, format: str = "json") -> str:
         """Export audit trail to a file format.
-        
+
         Args:
             format: Export format (json, csv)
-            
+
         Returns:
             Exported data as string
         """
@@ -456,7 +475,7 @@ class ExecutionAuditTrail:
                 return self._export_csv()
             else:
                 raise ValueError(f"Unsupported export format: {format}")
-    
+
     def _determine_order_status(self, event_type: AuditEventType) -> OrderStatus:
         """Determine order status from last event type."""
         mapping = {
@@ -469,24 +488,27 @@ class ExecutionAuditTrail:
             AuditEventType.ORDER_EXPIRED: OrderStatus.EXPIRED,
         }
         return mapping.get(event_type, OrderStatus.PENDING)
-    
+
     def _compute_signature(self, event: AuditEvent) -> str:
         """Compute a cryptographic signature for the event."""
         # Create a canonical representation
-        canonical = json.dumps({
-            "event_type": event.event_type.value,
-            "adapter_name": event.adapter_name,
-            "timestamp_ns": event.timestamp_ns,
-            "order_id": event.order_id,
-            "symbol": event.symbol,
-            "side": event.side.value if event.side else None,
-            "quantity": event.quantity,
-            "price": event.price,
-        }, sort_keys=True)
-        
+        canonical = json.dumps(
+            {
+                "event_type": event.event_type.value,
+                "adapter_name": event.adapter_name,
+                "timestamp_ns": event.timestamp_ns,
+                "order_id": event.order_id,
+                "symbol": event.symbol,
+                "side": event.side.value if event.side else None,
+                "quantity": event.quantity,
+                "price": event.price,
+            },
+            sort_keys=True,
+        )
+
         # Compute SHA-256 hash
         return hashlib.sha256(canonical.encode()).hexdigest()
-    
+
     def _persist_event(self, event: AuditEvent) -> None:
         """Persist event to storage with compliance level integration."""
         try:
@@ -502,14 +524,14 @@ class ExecutionAuditTrail:
                 f"Failed to fetch compliance weights, using full audit: {e}"
             )
             audit_weight = 1.0
-        
+
         # If audit weight is very low, skip persistence (memory only)
         if audit_weight < 0.3:
             logging.getLogger("audit_trail").info(
                 f"Audit compliance weight {audit_weight:.2f} < 0.3, skipping persistence (memory only)"
             )
             return
-        
+
         # Determine persistence method based on compliance level
         if audit_weight >= 0.7:
             # High compliance: Use both file and database persistence
@@ -521,21 +543,23 @@ class ExecutionAuditTrail:
         else:
             # Low compliance: Use database persistence only (faster)
             self._persist_to_database(event)
-        
+
         logging.getLogger("audit_trail").debug(
             f"Event {event.event_id} persisted with audit weight {audit_weight:.2f}"
         )
-    
+
     def _persist_to_file(self, event: AuditEvent) -> None:
         """Persist event to file-based audit log."""
         try:
             audit_dir = Path("data/audit")
             audit_dir.mkdir(parents=True, exist_ok=True)
-            
+
             # Use daily log files
-            date_str = datetime.fromtimestamp(event.timestamp_ns / 1_000_000_000).strftime("%Y-%m-%d")
+            date_str = datetime.fromtimestamp(event.timestamp_ns / 1_000_000_000).strftime(
+                "%Y-%m-%d"
+            )
             audit_file = audit_dir / f"audit_{date_str}.log"
-            
+
             # Serialize event to JSON
             event_data = {
                 "event_id": event.event_id,
@@ -543,7 +567,9 @@ class ExecutionAuditTrail:
                 "severity": event.severity.value,
                 "adapter_name": event.adapter_name,
                 "timestamp_ns": event.timestamp_ns,
-                "timestamp_iso": datetime.fromtimestamp(event.timestamp_ns / 1_000_000_000).isoformat(),
+                "timestamp_iso": datetime.fromtimestamp(
+                    event.timestamp_ns / 1_000_000_000
+                ).isoformat(),
                 "order_id": event.order_id,
                 "symbol": event.symbol,
                 "side": event.side.value if event.side else None,
@@ -555,24 +581,24 @@ class ExecutionAuditTrail:
                 "error_message": event.error_message,
                 "signature": event.signature,
             }
-            
+
             # Append to file
             with open(audit_file, "a", encoding="utf-8") as f:
                 f.write(json.dumps(event_data) + "\n")
-                
+
         except Exception as e:
             logging.getLogger("audit_trail").error(f"Failed to persist event to file: {e}")
-    
+
     def _persist_to_database(self, event: AuditEvent) -> None:
         """Persist event to SQLite database."""
         try:
             db_dir = Path("data/audit")
             db_dir.mkdir(parents=True, exist_ok=True)
             db_file = db_dir / "audit.db"
-            
+
             conn = sqlite3.connect(db_file)
             cursor = conn.cursor()
-            
+
             # Create table if not exists
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS audit_events (
@@ -594,76 +620,100 @@ class ExecutionAuditTrail:
                     signature TEXT
                 )
             """)
-            
+
             # Insert event
-            cursor.execute("""
+            cursor.execute(
+                """
                 INSERT OR REPLACE INTO audit_events 
                 (event_id, event_type, severity, adapter_name, timestamp_ns, timestamp_iso,
                  order_id, symbol, side, quantity, price, execution_price, fill_quantity,
                  message, error_message, signature)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (
-                event.event_id,
-                event.event_type.value,
-                event.severity.value,
-                event.adapter_name,
-                event.timestamp_ns,
-                datetime.fromtimestamp(event.timestamp_ns / 1_000_000_000).isoformat(),
-                event.order_id,
-                event.symbol,
-                event.side.value if event.side else None,
-                event.quantity,
-                event.price,
-                event.execution_price,
-                event.fill_quantity,
-                event.message,
-                event.error_message,
-                event.signature,
-            ))
-            
+            """,
+                (
+                    event.event_id,
+                    event.event_type.value,
+                    event.severity.value,
+                    event.adapter_name,
+                    event.timestamp_ns,
+                    datetime.fromtimestamp(event.timestamp_ns / 1_000_000_000).isoformat(),
+                    event.order_id,
+                    event.symbol,
+                    event.side.value if event.side else None,
+                    event.quantity,
+                    event.price,
+                    event.execution_price,
+                    event.fill_quantity,
+                    event.message,
+                    event.error_message,
+                    event.signature,
+                ),
+            )
+
             conn.commit()
             conn.close()
-            
+
         except Exception as e:
             logging.getLogger("audit_trail").error(f"Failed to persist event to database: {e}")
-    
+
     def _export_json(self) -> str:
         """Export as JSON."""
         events_data = []
         for event in self._events:
-            events_data.append({
-                "event_id": event.event_id,
-                "event_type": event.event_type.value,
-                "severity": event.severity.value,
-                "adapter_name": event.adapter_name,
-                "timestamp_ns": event.timestamp_ns,
-                "timestamp_iso": datetime.fromtimestamp(event.timestamp_ns / 1_000_000_000).isoformat(),
-                "order_id": event.order_id,
-                "symbol": event.symbol,
-                "side": event.side.value if event.side else None,
-                "quantity": event.quantity,
-                "price": event.price,
-                "execution_price": event.execution_price,
-                "fill_quantity": event.fill_quantity,
-                "message": event.message,
-                "error_message": event.error_message,
-                "signature": event.signature,
-            })
-        
-        return json.dumps({"events": events_data, "metadata": self.get_metrics().__dict__}, indent=2)
-    
+            events_data.append(
+                {
+                    "event_id": event.event_id,
+                    "event_type": event.event_type.value,
+                    "severity": event.severity.value,
+                    "adapter_name": event.adapter_name,
+                    "timestamp_ns": event.timestamp_ns,
+                    "timestamp_iso": datetime.fromtimestamp(
+                        event.timestamp_ns / 1_000_000_000
+                    ).isoformat(),
+                    "order_id": event.order_id,
+                    "symbol": event.symbol,
+                    "side": event.side.value if event.side else None,
+                    "quantity": event.quantity,
+                    "price": event.price,
+                    "execution_price": event.execution_price,
+                    "fill_quantity": event.fill_quantity,
+                    "message": event.message,
+                    "error_message": event.error_message,
+                    "signature": event.signature,
+                }
+            )
+
+        return json.dumps(
+            {"events": events_data, "metadata": self.get_metrics().__dict__}, indent=2
+        )
+
     def _export_csv(self) -> str:
         """Export as CSV."""
         import io
-        
+
         output = io.StringIO()
-        
+
         # Header
-        header = ["event_id", "event_type", "severity", "adapter_name", "timestamp_ns", 
-                 "timestamp_iso", "order_id", "symbol", "side", "quantity", "price",
-                 "execution_price", "fill_quantity", "message", "error_message", "signature"]
+        header = [
+            "event_id",
+            "event_type",
+            "severity",
+            "adapter_name",
+            "timestamp_ns",
+            "timestamp_iso",
+            "order_id",
+            "symbol",
+            "side",
+            "quantity",
+            "price",
+            "execution_price",
+            "fill_quantity",
+            "message",
+            "error_message",
+            "signature",
+        ]
         output.write(",".join(header) + "\n")
-        
+
         # Rows
         for event in self._events:
             row = [
@@ -685,7 +735,7 @@ class ExecutionAuditTrail:
                 event.signature,
             ]
             output.write(",".join(row) + "\n")
-        
+
         return output.getvalue()
 
 
@@ -699,17 +749,18 @@ def with_audit_trail(
     adapter_name: str,
 ):
     """Decorator to add audit trail logging to adapter methods.
-    
+
     Args:
         audit_trail: Execution audit trail instance
         adapter_name: Name of the adapter
     """
+
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             # Extract order info from kwargs if available
             order_id = kwargs.get("order_id", "unknown")
             symbol = kwargs.get("symbol", "unknown")
-            
+
             # Log submission
             audit_trail.log_event(
                 event_type=AuditEventType.ORDER_SUBMITTED,
@@ -718,10 +769,10 @@ def with_audit_trail(
                 symbol=symbol,
                 message=f"Submitting order via {func.__name__}",
             )
-            
+
             try:
                 result = func(*args, **kwargs)
-                
+
                 # Log success
                 audit_trail.log_event(
                     event_type=AuditEventType.ORDER_ACCEPTED,
@@ -730,7 +781,7 @@ def with_audit_trail(
                     symbol=symbol,
                     message=f"Order accepted via {func.__name__}",
                 )
-                
+
                 return result
             except Exception as e:
                 # Log error
@@ -744,7 +795,9 @@ def with_audit_trail(
                     error_message=str(e),
                 )
                 raise
+
         return wrapper
+
     return decorator
 
 

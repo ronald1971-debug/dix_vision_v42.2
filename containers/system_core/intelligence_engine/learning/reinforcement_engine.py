@@ -266,9 +266,13 @@ class ReinforcementEngine:
 
                 # Simple update: move towards positive reward direction
                 if avg_reward > 0:
-                    new_value = bounds.current_value + adaptive_rate * (bounds.max_value - bounds.current_value)
+                    new_value = bounds.current_value + adaptive_rate * (
+                        bounds.max_value - bounds.current_value
+                    )
                 else:
-                    new_value = bounds.current_value - adaptive_rate * (bounds.current_value - bounds.min_value)
+                    new_value = bounds.current_value - adaptive_rate * (
+                        bounds.current_value - bounds.min_value
+                    )
 
                 # Clamp to bounds
                 new_value = max(bounds.min_value, min(bounds.max_value, new_value))

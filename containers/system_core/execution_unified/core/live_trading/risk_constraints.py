@@ -4,31 +4,37 @@ Provides risk constraint checking for live trading
 NO LAZY LOADING - All components load directly
 """
 
-from typing import Dict, List, Optional, Any
+import logging
 from dataclasses import dataclass, field
 from enum import Enum
-import logging
+from typing import Any, Dict, List
 
 logger = logging.getLogger(__name__)
 
+
 class RiskConstraintType(Enum):
     """Risk constraint types"""
+
     MAX_POSITION = "MAX_POSITION"
     MAX_LEVERAGE = "MAX_LEVERAGE"
     MAX_DAILY_LOSS = "MAX_DAILY_LOSS"
     CONCENTRATION_LIMIT = "CONCENTRATION_LIMIT"
 
+
 @dataclass
 class RiskConstraintConfig:
     """Configuration for risk constraints"""
+
     max_position_usd: float = 100000.0
     max_leverage: float = 3.0
     max_daily_loss_pct: float = 5.0
     concentration_limit_pct: float = 20.0
 
+
 @dataclass
 class LiveTradeRiskContext:
     """Context for live trade risk checking"""
+
     trade_id: str
     venue: str
     symbol: str
@@ -39,15 +45,18 @@ class LiveTradeRiskContext:
     current_positions: Dict[str, Any] = field(default_factory=dict)
     daily_pnl_usd: float = 0.0
 
+
 @dataclass
 class RiskCheckResult:
     """Result of a risk constraint check"""
+
     constraint_type: RiskConstraintType
     passed: bool
     constraint_value: float
     actual_value: float
     reason: str = ""
     metadata: Dict[str, Any] = field(default_factory=dict)
+
 
 class RiskConstraints:
     """Risk constraints manager"""
@@ -64,7 +73,9 @@ class RiskConstraints:
         """Configure risk constraints"""
         self._config = config
 
-    def check_risk_constraints(self, context: LiveTradeRiskContext) -> tuple[bool, List[RiskCheckResult]]:
+    def check_risk_constraints(
+        self, context: LiveTradeRiskContext
+    ) -> tuple[bool, List[RiskCheckResult]]:
         """Check all risk constraints for a trade"""
         results = []
 
@@ -74,7 +85,11 @@ class RiskConstraints:
             passed=context.size_usd <= self._config.max_position_usd,
             constraint_value=self._config.max_position_usd,
             actual_value=context.size_usd,
-            reason="Position size within limit" if context.size_usd <= self._config.max_position_usd else "Position size exceeds limit",
+            reason=(
+                "Position size within limit"
+                if context.size_usd <= self._config.max_position_usd
+                else "Position size exceeds limit"
+            ),
         )
         results.append(position_check)
 
@@ -85,7 +100,11 @@ class RiskConstraints:
             passed=leverage <= self._config.max_leverage,
             constraint_value=self._config.max_leverage,
             actual_value=leverage,
-            reason="Leverage within limit" if leverage <= self._config.max_leverage else "Leverage exceeds limit",
+            reason=(
+                "Leverage within limit"
+                if leverage <= self._config.max_leverage
+                else "Leverage exceeds limit"
+            ),
         )
         results.append(leverage_check)
 
@@ -104,7 +123,9 @@ class RiskConstraints:
             },
         }
 
+
 _risk_constraints = None
+
 
 def get_live_trading_risk_constraints() -> RiskConstraints:
     """Get risk constraints instance"""
@@ -113,11 +134,12 @@ def get_live_trading_risk_constraints() -> RiskConstraints:
         _risk_constraints = RiskConstraints()
     return _risk_constraints
 
+
 __all__ = [
-    'RiskConstraintType',
-    'RiskConstraintConfig',
-    'LiveTradeRiskContext',
-    'RiskCheckResult',
-    'RiskConstraints',
-    'get_live_trading_risk_constraints',
+    "RiskConstraintType",
+    "RiskConstraintConfig",
+    "LiveTradeRiskContext",
+    "RiskCheckResult",
+    "RiskConstraints",
+    "get_live_trading_risk_constraints",
 ]

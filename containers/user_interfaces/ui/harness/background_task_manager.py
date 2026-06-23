@@ -51,7 +51,6 @@ from datetime import UTC, datetime
 from typing import Any
 
 from fastapi import Request
-
 from system_unified.time_source import utc_now
 
 SSE_CHANNEL_ALIASES: Mapping[str, str] = {

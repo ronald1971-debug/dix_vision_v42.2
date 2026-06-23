@@ -582,8 +582,8 @@ __all__ = [
     
     def _run_full_backtest(self, hypothesis: Hypothesis, compliance_weight: float) -> dict[str, Any]:
         """Run full backtest with historical data validation."""
-        import time
         import random
+        import time
         start_time = time.time()
         
         try:

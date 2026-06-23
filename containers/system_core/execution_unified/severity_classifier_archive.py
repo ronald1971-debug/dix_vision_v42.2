@@ -22,9 +22,7 @@ __all__ = [
     "is_safe_mode_condition",
 ]
 
-_HALT_SEVERITIES: Final[frozenset[HazardSeverity]] = frozenset(
-    {HazardSeverity.CRITICAL}
-)
+_HALT_SEVERITIES: Final[frozenset[HazardSeverity]] = frozenset({HazardSeverity.CRITICAL})
 _SAFE_MODE_SEVERITIES: Final[frozenset[HazardSeverity]] = frozenset(
     {HazardSeverity.HIGH, HazardSeverity.CRITICAL}
 )

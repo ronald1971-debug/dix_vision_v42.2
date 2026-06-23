@@ -109,7 +109,12 @@ import math
 from collections.abc import Mapping
 from typing import Protocol, runtime_checkable
 
-NEW_PIP_DEPENDENCIES: tuple[str, ...] = ( "pgmpy", "numpy", "pandas", "networkx", )
+NEW_PIP_DEPENDENCIES: tuple[str, ...] = (
+    "pgmpy",
+    "numpy",
+    "pandas",
+    "networkx",
+)
 
 MIN_N_SAMPLES: int = 1
 MAX_N_SAMPLES: int = 10_000_000

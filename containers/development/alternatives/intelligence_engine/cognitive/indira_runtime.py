@@ -124,6 +124,7 @@ class IndiraRuntime:
             from intelligence_engine.cognitive.long_horizon_memory import (
                 get_long_horizon_memory,
             )
+
             lhm = get_long_horizon_memory()
             snap["long_horizon"] = lhm.snapshot()
         except Exception:
@@ -132,6 +133,7 @@ class IndiraRuntime:
             from intelligence_engine.learning.learning_persistence import (
                 get_learning_persistence,
             )
+
             snap["learning"] = get_learning_persistence().snapshot()
         except Exception:
             pass
@@ -139,6 +141,7 @@ class IndiraRuntime:
             from intelligence_engine.cognitive.trader_intelligence_runtime import (
                 get_trader_intelligence_runtime,
             )
+
             snap["trader_intelligence"] = get_trader_intelligence_runtime().snapshot()
         except Exception:
             pass
@@ -147,11 +150,13 @@ class IndiraRuntime:
             from intelligence_engine.cognitive.consciousness_stream import (
                 get_consciousness_stream,
             )
+
             snap["consciousness"] = get_consciousness_stream().snapshot()
         except Exception:
             pass
         try:
             from intelligence_engine.cognitive.causal_graph import get_causal_graph
+
             snap["causal_graph"] = get_causal_graph().snapshot()
         except Exception:
             pass
@@ -159,6 +164,7 @@ class IndiraRuntime:
             from intelligence_engine.cognitive.behavioral_cluster import (
                 get_behavioral_cluster_tracker,
             )
+
             snap["behavioral_clusters"] = get_behavioral_cluster_tracker().snapshot()
         except Exception:
             pass
@@ -166,6 +172,7 @@ class IndiraRuntime:
             from intelligence_engine.cognitive.market_observation_session import (
                 get_observation_session_manager,
             )
+
             snap["observation_sessions"] = get_observation_session_manager().snapshot()
         except Exception:
             pass
@@ -193,6 +200,7 @@ class IndiraRuntime:
             import json as _json
 
             from state.ledger.event_store import get_event_store
+
             store = get_event_store()
             # Overfetch by 3× because INDIRA emits non-thought events too;
             # they share the same event_type/source bucket.
@@ -219,14 +227,16 @@ class IndiraRuntime:
                 except (ValueError, IndexError):
                     ts_ns = 0
                 try:
-                    thoughts.append(Thought(
-                        thought_id=thought_id,
-                        ts_ns=ts_ns,
-                        step=str(p.get("reasoning_step", "self_reflection")),
-                        context=str(p.get("context", "")),
-                        conclusion=str(p.get("conclusion", "")),
-                        confidence=float(p.get("confidence", 0.65)),
-                    ))
+                    thoughts.append(
+                        Thought(
+                            thought_id=thought_id,
+                            ts_ns=ts_ns,
+                            step=str(p.get("reasoning_step", "self_reflection")),
+                            context=str(p.get("context", "")),
+                            conclusion=str(p.get("conclusion", "")),
+                            confidence=float(p.get("confidence", 0.65)),
+                        )
+                    )
                 except (ValueError, TypeError):
                     continue
                 if len(thoughts) >= limit:
@@ -234,6 +244,7 @@ class IndiraRuntime:
             loaded = self._thought.restore(thoughts)
             if loaded:
                 import logging
+
                 logging.getLogger(__name__).info(
                     "IndiraRuntime: restored %d thoughts from ledger", loaded
                 )
@@ -252,6 +263,7 @@ class IndiraRuntime:
             from intelligence_engine.cognitive.environment_awareness import (
                 get_environment_awareness,
             )
+
             env = get_environment_awareness().build_context(ts_ns=ts_ns)
             if env:
                 parts.append(env)
@@ -261,6 +273,7 @@ class IndiraRuntime:
             from intelligence_engine.cognitive.long_horizon_memory import (
                 get_long_horizon_memory,
             )
+
             lhm_ctx = get_long_horizon_memory().format_for_context(ts_ns=ts_ns, limit=2)
             if lhm_ctx:
                 parts.append(lhm_ctx)
@@ -270,6 +283,7 @@ class IndiraRuntime:
             from intelligence_engine.cognitive.trader_intelligence_runtime import (
                 get_trader_intelligence_runtime,
             )
+
             ti_ctx = get_trader_intelligence_runtime().format_for_context()
             if ti_ctx:
                 parts.append(ti_ctx)
@@ -278,6 +292,7 @@ class IndiraRuntime:
         # Stage 2 — Inject causal graph top chain into thought context.
         try:
             from intelligence_engine.cognitive.causal_graph import get_causal_graph
+
             causal_ctx = get_causal_graph().format_for_context()
             if causal_ctx:
                 parts.append(causal_ctx)
@@ -288,6 +303,7 @@ class IndiraRuntime:
             from intelligence_engine.cognitive.behavioral_cluster import (
                 get_behavioral_cluster_tracker,
             )
+
             cluster_ctx = get_behavioral_cluster_tracker().format_for_context()
             if cluster_ctx:
                 parts.append(cluster_ctx)
@@ -298,6 +314,7 @@ class IndiraRuntime:
             from intelligence_engine.cognitive.market_observation_session import (
                 get_observation_session_manager,
             )
+
             obs_ctx = get_observation_session_manager().format_for_context()
             if obs_ctx:
                 parts.append(obs_ctx)
@@ -311,6 +328,7 @@ class IndiraRuntime:
             from intelligence_engine.cognitive.meta_learning_adapter import (
                 get_meta_learning_adapter,
             )
+
             get_meta_learning_adapter().update(ts_ns=ts_ns)
         except Exception:
             pass
@@ -321,6 +339,7 @@ class IndiraRuntime:
             from intelligence_engine.cognitive.reflection_engine import (
                 get_reflection_engine,
             )
+
             thoughts = list(self._thought.recent(20))
             get_reflection_engine().reflect(thoughts, ts_ns=ts_ns)
         except Exception:
@@ -331,6 +350,7 @@ class IndiraRuntime:
             from intelligence_engine.cognitive.debate_graph import (
                 get_debate_graph,  # type: ignore[attr-defined]
             )
+
             graph = get_debate_graph()
             if hasattr(graph, "tick"):
                 graph.tick(ts_ns=ts_ns)
@@ -340,6 +360,7 @@ class IndiraRuntime:
     def _try_memory_hook(self, ts_ns: int) -> None:
         try:
             from state.memory_tensor.memory_orchestrator import get_memory_orchestrator
+
             get_memory_orchestrator().consolidate(ts_ns=ts_ns)
         except Exception:
             pass
@@ -355,6 +376,7 @@ class IndiraRuntime:
             from intelligence_engine.cognitive.dyon_signal_bridge import (
                 get_dyon_signal_bridge,
             )
+
             get_dyon_signal_bridge().flush(ts_ns=ts_ns)
         except Exception:
             pass
@@ -362,6 +384,7 @@ class IndiraRuntime:
             from intelligence_engine.learning.learning_persistence import (
                 get_learning_persistence,
             )
+
             lp = get_learning_persistence()
             snap = lp.tick(ts_ns=ts_ns)
             # Propagate the learned confidence_baseline into ThoughtRuntime.
@@ -378,7 +401,8 @@ class IndiraRuntime:
             from intelligence_engine.cognitive.dyon_signal_bridge import (
                 get_dyon_signal_bridge,
             )
-            get_dyon_signal_bridge()   # activates on first access
+
+            get_dyon_signal_bridge()  # activates on first access
         except Exception:
             pass
 
@@ -388,6 +412,7 @@ class IndiraRuntime:
             from intelligence_engine.cognitive.long_horizon_memory import (
                 get_long_horizon_memory,
             )
+
             get_long_horizon_memory().consolidate(ts_ns=ts_ns)
         except Exception:
             pass
@@ -398,6 +423,7 @@ class IndiraRuntime:
             from intelligence_engine.cognitive.trader_intelligence_runtime import (
                 get_trader_intelligence_runtime,
             )
+
             get_trader_intelligence_runtime().tick(ts_ns=ts_ns)
         except Exception:
             pass
@@ -411,6 +437,7 @@ class IndiraRuntime:
             return
         try:
             from intelligence_engine.backtesting import get_platform_registry
+
             registry = get_platform_registry()
             registry.probe_cycle(ts_ns=ts_ns)
             registry.research_cycle(ts_ns=ts_ns)
@@ -425,6 +452,7 @@ class IndiraRuntime:
         """Feed thought context into the causal reasoning graph and advance hypotheses."""
         try:
             from intelligence_engine.cognitive.causal_graph import get_causal_graph
+
             graph = get_causal_graph()
             graph.observe_context(context, ts_ns)
             graph.tick(ts_ns)
@@ -437,6 +465,7 @@ class IndiraRuntime:
             from intelligence_engine.cognitive.behavioral_cluster import (
                 get_behavioral_cluster_tracker,
             )
+
             get_behavioral_cluster_tracker().tick(ts_ns)
         except Exception:
             pass
@@ -447,6 +476,7 @@ class IndiraRuntime:
             from intelligence_engine.cognitive.market_observation_session import (
                 get_observation_session_manager,
             )
+
             get_observation_session_manager().tick(ts_ns, thought_context)
         except Exception:
             pass
@@ -458,6 +488,7 @@ class IndiraRuntime:
             from intelligence_engine.cognitive.consciousness_stream import (
                 get_consciousness_stream,
             )
+
             get_consciousness_stream().activate()
         except Exception:
             pass
@@ -465,6 +496,7 @@ class IndiraRuntime:
             from intelligence_engine.cognitive.behavioral_cluster import (
                 get_behavioral_cluster_tracker,
             )
+
             get_behavioral_cluster_tracker().activate()
         except Exception:
             pass
@@ -472,6 +504,7 @@ class IndiraRuntime:
             from intelligence_engine.cognitive.market_observation_session import (
                 get_observation_session_manager,
             )
+
             get_observation_session_manager().activate()
         except Exception:
             pass

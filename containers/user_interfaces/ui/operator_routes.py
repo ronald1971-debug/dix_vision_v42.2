@@ -41,8 +41,6 @@ from dataclasses import asdict, is_dataclass
 from threading import Lock
 from typing import Any, Protocol
 
-from fastapi import APIRouter, HTTPException
-
 from core.contracts.api.operator import (
     DevelopmentModeRequest,
     DevelopmentModeResponse,
@@ -69,10 +67,10 @@ from core.contracts.api.source_trust import (
     SourceTrustPromotionResponse,
     SourceTrustRow,
 )
+from core.contracts.development_mode import POLICY_VERSION as DEVELOPMENT_MODE_POLICY_VERSION
 from core.contracts.development_mode import (
-    POLICY_VERSION as DEVELOPMENT_MODE_POLICY_VERSION,
+    DevelopmentModePolicy,
 )
-from core.contracts.development_mode import DevelopmentModePolicy
 from core.contracts.governance import (
     OperatorAction,
     OperatorRequest,
@@ -87,6 +85,7 @@ from core.contracts.source_trust_promotions import (
     PROMOTION_LEDGER_KIND,
     is_promotable_target,
 )
+from fastapi import APIRouter, HTTPException
 from system_unified.time_source import wall_ns
 
 _STRATEGY_STATE_KEYS = (
@@ -769,7 +768,7 @@ def build_operator_router(
                 response_id="fallback",
                 request_id="fallback",
                 status="unavailable",
-                message=f"Development mode snapshot unavailable: {str(e)}"
+                message=f"Development mode snapshot unavailable: {str(e)}",
             )
 
     @router.post(
@@ -875,6 +874,7 @@ def build_operator_router(
             auth = getattr(state, "operator_authority", None)
             if auth is None:
                 from registry.operator import DEFAULT_AUTHORITY  # noqa: PLC0415
+
                 auth = DEFAULT_AUTHORITY
         return _project_operator_authority(auth)
 
@@ -895,6 +895,7 @@ def build_operator_router(
         existing = getattr(state, "operator_authority", None)
         if existing is None:
             from registry.operator import DEFAULT_AUTHORITY  # noqa: PLC0415
+
             existing = DEFAULT_AUTHORITY
         new_auth = OperatorAuthority(
             learning=learning,
@@ -946,6 +947,7 @@ def build_operator_router(
             existing = getattr(state, "operator_authority", None)
             if existing is not None:
                 import dataclasses  # noqa: PLC0415
+
                 new_tm = dict(existing.trading_mode)
                 new_tm[domain] = mode
                 updated = dataclasses.replace(
@@ -997,6 +999,7 @@ def build_operator_router(
             existing = getattr(state, "operator_authority", None)
             if existing is not None:
                 import dataclasses  # noqa: PLC0415
+
                 new_sap = dict(existing.semi_auto_policy)
                 new_sap[domain] = policy
                 updated = dataclasses.replace(
@@ -1111,7 +1114,11 @@ def build_operator_router(
             queue = state.semi_auto_approval_queue
             item = queue.reject(body.request_id)
             kind = "SEMI_AUTO_REJECTED"
-            summary = f"rejected {body.request_id}" if item is not None else f"not found: {body.request_id}"
+            summary = (
+                f"rejected {body.request_id}"
+                if item is not None
+                else f"not found: {body.request_id}"
+            )
             state.governance.ledger.append(
                 ts_ns=ts_ns,
                 kind=kind,

@@ -39,16 +39,22 @@ class RegimeClassifier:
         *,
         return_zscore: float,
         volatility_zscore: float,
-        trend_strength: float,   # 0.0 = flat, 1.0 = strong trend
+        trend_strength: float,  # 0.0 = flat, 1.0 = strong trend
     ) -> RegimeClassification:
         scores: dict[str, float] = {
-            "bull": max(0.0, return_zscore) * 0.5 + trend_strength * 0.3 + (1.0 - volatility_zscore * 0.1),
-            "bear": max(0.0, -return_zscore) * 0.5 + trend_strength * 0.3 + (1.0 - volatility_zscore * 0.1),
+            "bull": max(0.0, return_zscore) * 0.5
+            + trend_strength * 0.3
+            + (1.0 - volatility_zscore * 0.1),
+            "bear": max(0.0, -return_zscore) * 0.5
+            + trend_strength * 0.3
+            + (1.0 - volatility_zscore * 0.1),
             "ranging": (1.0 - trend_strength) * 0.6 + max(0.0, 1.0 - volatility_zscore) * 0.4,
             "volatile": max(0.0, volatility_zscore) * 0.7 + (1.0 - trend_strength) * 0.3,
         }
         total = sum(scores.values()) or 1.0
-        probs = {r: (scores[r] / total) * (1 - self._smoothing) + self._smoothing / 4 for r in _REGIMES}
+        probs = {
+            r: (scores[r] / total) * (1 - self._smoothing) + self._smoothing / 4 for r in _REGIMES
+        }
         total_p = sum(probs.values())
         probs = {r: p / total_p for r, p in probs.items()}
 

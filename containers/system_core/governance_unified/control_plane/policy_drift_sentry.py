@@ -41,6 +41,7 @@ from dataclasses import dataclass
 from typing import Protocol
 
 from core.contracts.events import Event, HazardEvent
+
 from .policy_hash_anchor import PolicyHashAnchor
 
 __all__ = ["PolicyDriftSentry", "GovernanceProcessor"]

@@ -117,9 +117,7 @@ class CausalConsistencyGuard:
     # Private helpers
     # ------------------------------------------------------------------
 
-    def _check_ghost_causality(
-        self, decision_ts_ns: int, parents: list[dict]
-    ) -> list[str]:
+    def _check_ghost_causality(self, decision_ts_ns: int, parents: list[dict]) -> list[str]:
         """
         Detect CAUSAL_GHOST: parent signals with ts_ns > decision ts_ns.
 
@@ -139,9 +137,7 @@ class CausalConsistencyGuard:
                 )
         return details
 
-    def _check_domain_leak(
-        self, decision_domain: str, parents: list[dict]
-    ) -> list[str]:
+    def _check_domain_leak(self, decision_domain: str, parents: list[dict]) -> list[str]:
         """
         Detect CAUSAL_DOMAIN_LEAK: system-domain signals in market-domain
         decision attribution chains.

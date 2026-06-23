@@ -332,10 +332,7 @@ class IntelligenceEngine(RuntimeEngine):
             ),
             confidence=new_conf,
             inputs=(f"signal_window_size={len(self._signal_window)}",),
-            conclusion=(
-                f"ExecutionDecision: {decision.side.value} "
-                f"confidence={new_conf:.3f}"
-            ),
+            conclusion=(f"ExecutionDecision: {decision.side.value} " f"confidence={new_conf:.3f}"),
         )
         _obs.emit_confidence_shift(
             ts_ns=ts_ns,
@@ -356,7 +353,9 @@ class IntelligenceEngine(RuntimeEngine):
                     ts_ns=ts_ns,
                     belief_id=f"regime_belief_{ts_ns}",
                     subject="market.committed_regime",
-                    old_value=self._last_regime_confidence if self._last_regime != "UNKNOWN" else None,
+                    old_value=(
+                        self._last_regime_confidence if self._last_regime != "UNKNOWN" else None
+                    ),
                     new_value=new_regime_conf,
                     driver=f"regime_transition:{self._last_regime}→{new_regime}",
                     confidence=new_regime_conf,
@@ -368,6 +367,7 @@ class IntelligenceEngine(RuntimeEngine):
                     from intelligence_engine.cognitive.observability_emitter import (
                         emit_causal_chain,
                     )
+
                     emit_causal_chain(
                         ts_ns=ts_ns,
                         hypothesis=(
@@ -394,6 +394,7 @@ class IntelligenceEngine(RuntimeEngine):
         # reasoning loop reflects the live meta-controller decision.
         try:
             from intelligence_engine.cognitive.thought_runtime import get_thought_runtime
+
             regime_str = self._last_regime
             get_thought_runtime().tick(
                 ts_ns=ts_ns,

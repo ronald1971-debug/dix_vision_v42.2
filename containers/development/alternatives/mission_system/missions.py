@@ -64,8 +64,13 @@ class MissionSystem:
         self._missions: dict[str, Mission] = {}
         self._active_missions: list[str] = []
 
-    def create_mission(self, mission_id: str, title: str, description: str,
-                       priority: MissionPriority = MissionPriority.MEDIUM) -> Mission:
+    def create_mission(
+        self,
+        mission_id: str,
+        title: str,
+        description: str,
+        priority: MissionPriority = MissionPriority.MEDIUM,
+    ) -> Mission:
         mission = Mission(
             mission_id=mission_id,
             title=title,
@@ -79,8 +84,9 @@ class MissionSystem:
     def get_mission(self, mission_id: str) -> Mission | None:
         return self._missions.get(mission_id)
 
-    def update_progress(self, mission_id: str, progress: float,
-                      result: str | None = None, value: float = 0.0) -> bool:
+    def update_progress(
+        self, mission_id: str, progress: float, result: str | None = None, value: float = 0.0
+    ) -> bool:
         mission = self._missions.get(mission_id)
         if mission is None:
             return False

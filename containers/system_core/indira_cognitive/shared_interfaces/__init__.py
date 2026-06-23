@@ -7,17 +7,17 @@ INDIRA, DYON, and the Coordination Layer for the distributed cognitive architect
 """
 
 from .enhanced_types import (
+    ACLMessage,
+    AdvancedAttentionAllocation,
     AttentionType,
     ConfidenceLevel,
-    NeuroSymbolicReasoningMode,
-    SelfAwarenessLevel,
-    MetacognitiveState,
-    CuriosityScore,
-    NeuroSymbolicReasoningResult,
-    AdvancedAttentionAllocation,
-    MemoryRetrievalResult,
-    ACLMessage,
     ConflictResolutionProposal,
+    CuriosityScore,
+    MemoryRetrievalResult,
+    MetacognitiveState,
+    NeuroSymbolicReasoningMode,
+    NeuroSymbolicReasoningResult,
+    SelfAwarenessLevel,
     SharedMentalModel,
 )
 

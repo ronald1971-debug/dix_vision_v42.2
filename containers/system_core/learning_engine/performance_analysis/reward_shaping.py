@@ -37,6 +37,7 @@ class ShapingConfig:
 @dataclass(frozen=True, slots=True)
 class ShapedReward:
     """Shaped reward for one step."""
+
     strategy_id: str
     raw_pnl: float
     shaped_reward: float
@@ -145,7 +146,9 @@ def shape(
         return shape_risk_adjusted(pnl, drawdown, strategy_id, ts_ns, cfg.drawdown_eps)
     if cfg.kind == RewardShapeKind.SHARPE_INCREMENTAL:
         return shape_sharpe_incremental(pnl, history, strategy_id, ts_ns)
-    return shape_potential_based(pnl, prev_potential, curr_potential, strategy_id, ts_ns, cfg.potential_gamma)
+    return shape_potential_based(
+        pnl, prev_potential, curr_potential, strategy_id, ts_ns, cfg.potential_gamma
+    )
 
 
 __all__ = [

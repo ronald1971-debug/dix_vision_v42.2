@@ -647,7 +647,6 @@ class PortfolioSynchronizer:
         # Placeholder - would use the gateway to publish the snapshot
         # This would convert the snapshot to a StreamMessage and publish
         # to the PORTFOLIO channel
-        pass
     
     def _generate_event_id(self) -> str:
         """Generate a unique event ID."""

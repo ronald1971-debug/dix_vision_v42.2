@@ -684,9 +684,7 @@ def pettingzoo_multiagent_env_factory(*, scenario: MultiAgentScenario) -> Any:
             }
             return obs_dict, infos
 
-        def step(
-            self, actions: dict[str, int]
-        ) -> tuple[
+        def step(self, actions: dict[str, int]) -> tuple[
             dict[str, tuple[float, ...]],
             dict[str, float],
             dict[str, bool],

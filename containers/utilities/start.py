@@ -68,6 +68,7 @@ async def boot_system(args: argparse.Namespace) -> None:
         logging.info("Operator authority loaded from registry/operator.yaml")
     except Exception as e:
         import traceback
+
         logging.error("Failed to create app: %s", e)
         logging.error("Traceback: %s", traceback.format_exc())
         sys.exit(1)

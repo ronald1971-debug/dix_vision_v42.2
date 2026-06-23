@@ -190,7 +190,7 @@ class SwingTraderAgent(AgentBase, AgentIntrospection):
         if len(trs) >= 3:
             atr_mean = _mean(trs)
             atr_sq = sum((t - atr_mean) ** 2 for t in trs) / len(trs)
-            atr_std = atr_sq ** 0.5
+            atr_std = atr_sq**0.5
             current_atr = trs[-1] if trs else 0.0
             if atr_std > 0.0 and (current_atr - atr_mean) / atr_std > self.vol_spike_atr_z:
                 return _VOL_SPIKE
@@ -249,9 +249,7 @@ class SwingTraderAgent(AgentBase, AgentIntrospection):
             if regime in (_RANGE, _VOL_SPIKE):
                 direction = _HOLD
                 confidence = 0.0
-                rationale.append(
-                    "regime_range" if regime == _RANGE else "regime_vol_spike"
-                )
+                rationale.append("regime_range" if regime == _RANGE else "regime_vol_spike")
             elif self._chandelier_stop_violated(regime, mid):
                 direction = _HOLD
                 confidence = 0.0

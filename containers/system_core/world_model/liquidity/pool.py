@@ -56,10 +56,7 @@ class LiquidityStructureBuilder:
         if levels:
             all_levels.extend(levels)
 
-        total = (
-            sum(level.quantity for level in all_levels)
-            if all_levels else 0.0
-        )
+        total = sum(level.quantity for level in all_levels) if all_levels else 0.0
 
         structure = LiquidityStructure(
             symbol=symbol,

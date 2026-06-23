@@ -1,0 +1,36 @@
+DIX VISION Phase 2 - Installation Report
+============================================================
+
+Total packages: 159
+Successfully installed: 61
+Already installed: 73
+Failed: 25
+Success rate: 84.3%
+
+
+Failed packages:
+  - asyncio-enhanced
+  - celery-enhanced
+  - ray
+  - scipy-optimize
+  - tensorflow
+  - gensim
+  - pusher-python
+  - sqlalchemy-enhanced
+  - redis-cluster
+  - clickhouse
+  - kubernetes-python
+  - consul
+  - etcd
+  - airflow
+  - celery-enhanced
+  - fastapi-enhanced
+  - graphql
+  - scipy-optimize
+  - montecarlo-python
+  - pytest-enhanced
+  - tensorflow
+  - gensim
+  - discordbot
+  - telegrambot
+  - socket.io-client

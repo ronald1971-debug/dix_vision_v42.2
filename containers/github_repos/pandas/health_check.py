@@ -6,8 +6,8 @@ This script performs health checks for the Pandas container to ensure
 proper functioning of the data analysis capabilities.
 """
 
-import sys
 import logging
+import sys
 from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
@@ -16,7 +16,6 @@ logger = logging.getLogger('pandas_health_check')
 def check_imports():
     """Check if required modules can be imported"""
     try:
-        import pandas
         logger.info("Pandas import successful")
         return True
     except ImportError as e:
@@ -26,8 +25,8 @@ def check_imports():
 def check_governance_wrapper():
     """Check if governance wrapper can be initialized"""
     try:
-        from pandas_governance_wrapper import PandasGovernanceWrapper
         from base_external_repo_wrapper import PermissionLevel
+        from pandas_governance_wrapper import PandasGovernanceWrapper
         
         wrapper = PandasGovernanceWrapper(PermissionLevel.READ_ONLY)
         logger.info("Governance wrapper initialization successful")
@@ -63,6 +62,7 @@ def check_data_capability():
     """Check if Pandas data capabilities work"""
     try:
         import pandas as pd
+
         # Test basic operations
         test_df = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6]})
         result = test_df.describe()

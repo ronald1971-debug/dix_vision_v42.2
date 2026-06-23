@@ -8,14 +8,14 @@
 # Edge Cases:  EdgeCaseMemory              from state.memory.edge_case_memory
 
 from .edge_case_memory import (
-    EdgeCaseMemory,
     EdgeCase,
+    EdgeCaseCategory,
     EdgeCaseContext,
+    EdgeCaseMemory,
+    EdgeCaseSeverity,
+    EdgeCaseStatus,
     PatternInsights,
     Query,
-    EdgeCaseSeverity,
-    EdgeCaseCategory,
-    EdgeCaseStatus,
 )
 
 __all__ = [

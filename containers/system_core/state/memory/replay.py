@@ -30,19 +30,19 @@ class ReplaySession:
         self,
         *,
         session_id: str,
-        since_ns:   int,
-        until_ns:   int,
-        kinds:      list[str] | None = None,
+        since_ns: int,
+        until_ns: int,
+        kinds: list[str] | None = None,
         batch_size: int = 100,
     ) -> None:
         self.session_id = session_id
-        self.since_ns   = since_ns
-        self.until_ns   = until_ns
-        self.kinds      = kinds
+        self.since_ns = since_ns
+        self.until_ns = until_ns
+        self.kinds = kinds
         self.batch_size = batch_size
-        self._cursor:   int = since_ns
-        self._done:     bool = False
-        self._emitted:  int = 0
+        self._cursor: int = since_ns
+        self._done: bool = False
+        self._emitted: int = 0
 
     def __iter__(self) -> Iterator[dict]:
         return self._generate()
@@ -50,6 +50,7 @@ class ReplaySession:
     def _generate(self) -> Iterator[dict]:
         try:
             from state.memory.timeline import get_cognition_timeline
+
             tl = get_cognition_timeline()
             while not self._done:
                 batch = tl.query(
@@ -87,17 +88,17 @@ class MemoryReplayEngine:
     """Creates and tracks replay sessions over the CognitionTimeline."""
 
     def __init__(self) -> None:
-        self._lock:     threading.Lock              = threading.Lock()
-        self._sessions: dict[str, ReplaySession]   = {}
-        self._total:    int                         = 0
+        self._lock: threading.Lock = threading.Lock()
+        self._sessions: dict[str, ReplaySession] = {}
+        self._total: int = 0
 
     def start_replay(
         self,
         *,
         session_id: str,
-        since_ns:   int,
-        until_ns:   int,
-        kinds:      list[str] | None = None,
+        since_ns: int,
+        until_ns: int,
+        kinds: list[str] | None = None,
     ) -> ReplaySession:
         """Create a new ReplaySession. Replaces any existing session with same id."""
         session = ReplaySession(
@@ -120,10 +121,10 @@ class MemoryReplayEngine:
             return [
                 {
                     "session_id": s.session_id,
-                    "since_ns":   s.since_ns,
-                    "until_ns":   s.until_ns,
-                    "done":       s.done,
-                    "emitted":    s.emitted,
+                    "since_ns": s.since_ns,
+                    "until_ns": s.until_ns,
+                    "done": s.done,
+                    "emitted": s.emitted,
                 }
                 for s in self._sessions.values()
             ]
@@ -132,9 +133,9 @@ class MemoryReplayEngine:
         with self._lock:
             active = sum(1 for s in self._sessions.values() if not s.done)
             return {
-                "active":           True,
-                "total_sessions":   self._total,
-                "active_sessions":  active,
+                "active": True,
+                "total_sessions": self._total,
+                "active_sessions": active,
                 "completed_sessions": self._total - active,
             }
 

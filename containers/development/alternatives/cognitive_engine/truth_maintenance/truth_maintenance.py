@@ -21,6 +21,7 @@ from dataclasses import dataclass
 @dataclass(frozen=True, slots=True)
 class BeliefField:
     """A single claim within a belief domain."""
+
     field_id: str
     domain: str
     key: str
@@ -206,6 +207,7 @@ class TruthMaintenanceEngine:
 def _now_ns() -> int:
     try:
         from system.time_source import wall_ns
+
         return wall_ns()
     except Exception:
         return int(_time.time() * 1e9)

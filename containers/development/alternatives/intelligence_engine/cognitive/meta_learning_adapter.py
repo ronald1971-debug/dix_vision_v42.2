@@ -29,6 +29,7 @@ class MetaLearningAdapter:
         if self._loop is None:
             try:
                 from learning_engine.meta_learning_loop import MetaLearningLoop
+
                 self._loop = MetaLearningLoop()
             except Exception:
                 return None

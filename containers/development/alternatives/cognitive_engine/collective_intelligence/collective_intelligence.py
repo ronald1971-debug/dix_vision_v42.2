@@ -46,7 +46,9 @@ class CollectiveIntelligenceEngine:
         self._profiles: dict[str, TraderProfile] = {}
         self._clusters: dict[str, Cluster] = {}
 
-    def index_trader(self, trader_id: str, tags: list[str], cluster: str | None = None) -> TraderProfile:
+    def index_trader(
+        self, trader_id: str, tags: list[str], cluster: str | None = None
+    ) -> TraderProfile:
         prof = TraderProfile(
             trader_id=trader_id,
             cluster=cluster,
@@ -59,8 +61,7 @@ class CollectiveIntelligenceEngine:
                 self._clusters.setdefault(cluster, []).append(trader_id)
         return prof
 
-    def define_cluster(self, cluster_id: str, name: str,
-                       member_ids: list[str]) -> Cluster:
+    def define_cluster(self, cluster_id: str, name: str, member_ids: list[str]) -> Cluster:
         cl = Cluster(
             cluster_id=cluster_id,
             name=name,
@@ -108,6 +109,7 @@ class CollectiveIntelligenceEngine:
 def _now_ns() -> int:
     try:
         from system.time_source import wall_ns
+
         return wall_ns()
     except Exception:
         return int(_time.time() * 1e9)

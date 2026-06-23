@@ -72,9 +72,7 @@ class ExecutionOrchestrator:
             trade_result = self._router.route(intent, venue)
             self._ledger.write_trade_result(trade_result)
 
-        result = OrchestrationResult(
-            intent=intent, decision=decision, trade_result=trade_result
-        )
+        result = OrchestrationResult(intent=intent, decision=decision, trade_result=trade_result)
         self._results.append(result)
         return result
 

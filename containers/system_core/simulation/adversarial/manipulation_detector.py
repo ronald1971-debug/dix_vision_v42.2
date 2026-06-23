@@ -251,9 +251,9 @@ class _WashTradingDetector:
         if vol_ratio > 2.0 and participant_ratio < 0.1:
             return ManipulationAlert(
                 manipulation_type=ManipulationType.WASH_TRADING,
-                confidence=DetectionConfidence.MEDIUM
-                if vol_ratio < 5
-                else DetectionConfidence.HIGH,
+                confidence=(
+                    DetectionConfidence.MEDIUM if vol_ratio < 5 else DetectionConfidence.HIGH
+                ),
                 symbol=snapshot.symbol,
                 evidence={
                     "volume_ratio": round(vol_ratio, 2),

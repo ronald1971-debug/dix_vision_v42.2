@@ -10,11 +10,11 @@ from __future__ import annotations
 
 # System domain guards
 from .contract_integrity import ContractIntegrityGuard, get_contract_integrity_guard
-from .topology_guard import TopologyGuard, get_topology_guard
-from .runtime_consistency import RuntimeConsistencyMonitor, get_runtime_consistency_monitor
+from .convergence_monitor import ConvergenceMonitor, get_convergence_monitor
 from .dependency_validator import DependencyValidator, get_dependency_validator
 from .replay_integrity import ReplayIntegrityGuard, get_replay_integrity_guard
-from .convergence_monitor import ConvergenceMonitor, get_convergence_monitor
+from .runtime_consistency import RuntimeConsistencyMonitor, get_runtime_consistency_monitor
+from .topology_guard import TopologyGuard, get_topology_guard
 
 __all__ = [
     "ContractIntegrityGuard",

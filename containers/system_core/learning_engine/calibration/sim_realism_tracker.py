@@ -24,10 +24,11 @@ from core.contracts.learning import LearningUpdate
 @dataclass(frozen=True, slots=True)
 class EpisodeOutcome:
     """Key metrics from one trading episode (SIM or LIVE)."""
+
     strategy_id: str
-    mode: str              # SIM | LIVE
+    mode: str  # SIM | LIVE
     total_pnl: float
-    fill_rate: float       # fills / orders [0,1]
+    fill_rate: float  # fills / orders [0,1]
     mean_slippage_bps: float
     mean_latency_ms: float
     num_trades: int
@@ -37,19 +38,20 @@ class EpisodeOutcome:
 @dataclass(frozen=True, slots=True)
 class RealismReport:
     """Divergence report between SIM and LIVE for one strategy."""
+
     strategy_id: str
     sample_count_sim: int
     sample_count_live: int
-    pnl_divergence: float          # abs(mean_sim_pnl - mean_live_pnl) / max(|mean_live|, eps)
+    pnl_divergence: float  # abs(mean_sim_pnl - mean_live_pnl) / max(|mean_live|, eps)
     slippage_divergence_bps: float
     latency_divergence_ms: float
     fill_rate_divergence: float
-    realism_score: float           # 1 - composite_divergence, clamped [0,1]
+    realism_score: float  # 1 - composite_divergence, clamped [0,1]
     needs_calibration: bool
     ts_ns: int
 
 
-_CALIBRATION_THRESHOLD = 0.20   # >20% divergence triggers calibration
+_CALIBRATION_THRESHOLD = 0.20  # >20% divergence triggers calibration
 
 
 class SimRealismTracker:

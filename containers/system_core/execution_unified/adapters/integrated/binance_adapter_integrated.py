@@ -15,14 +15,15 @@ Dependencies: base_adapter
 # In a full implementation, the actual adapter code would be migrated here
 # along with necessary compatibility adjustments.
 
+
 class BinanceadapterIntegrated:
     """Integrated binance_adapter adapter."""
-    
+
     def __init__(self):
         self.name = "binance_adapter"
         self.source = "execution/adapters/binance.py"
         self.priority = "CRITICAL"
-        
+
     def execute(self, order_data: dict) -> dict:
         """Execute order using integrated adapter."""
         # Placeholder for actual execution logic

@@ -57,7 +57,10 @@ _DECAY_PER_TICK: float = 0.002
 _SEED_CHAINS: tuple[tuple[str, tuple[str, ...], tuple[str, ...]], ...] = (
     (
         "cpi_shock_risk_off",
-        ("CPI_SURPRISE", "INFLATION_BEAT",),
+        (
+            "CPI_SURPRISE",
+            "INFLATION_BEAT",
+        ),
         ("RISK_OFF", "USD_STRENGTH", "BTC_FLUSH", "ALT_RECOVERY"),
     ),
     (
@@ -151,7 +154,7 @@ class CausalHypothesis:
     confidence: float = 0.40
     ts_activated_ns: int = 0
     ts_last_evidence_ns: int = 0
-    status: str = "FORMING"       # FORMING | ACTIVE | CONFIRMED | WEAKENED | DISSOLVED
+    status: str = "FORMING"  # FORMING | ACTIVE | CONFIRMED | WEAKENED | DISSOLVED
     ticks_without_evidence: int = 0
     evidence_count: int = 0
 
@@ -208,7 +211,7 @@ class CausalReasoningGraph:
         self._hypotheses: dict[str, CausalHypothesis] = {}
         self._tick_count: int = 0
         self._max_active = max(2, max_active_hypotheses)
-        self._last_emit_ns: dict[str, int] = {}   # hypo_id → last emit ts_ns
+        self._last_emit_ns: dict[str, int] = {}  # hypo_id → last emit ts_ns
         # Emit throttle: same hypothesis won't emit more than once per 60s
         self._emit_throttle_ns: int = 60 * 1_000_000_000
 
@@ -226,9 +229,14 @@ class CausalReasoningGraph:
             return 0
         found = 0
         # Split on whitespace + common separators, lower-case
-        raw_tokens = context_str.replace("=", " ").replace(",", " ").replace(
-            ";", " "
-        ).replace("→", " ").replace("->", " ").split()
+        raw_tokens = (
+            context_str.replace("=", " ")
+            .replace(",", " ")
+            .replace(";", " ")
+            .replace("→", " ")
+            .replace("->", " ")
+            .split()
+        )
         for tok in raw_tokens:
             tok_l = tok.lower().strip(".'\"()")
             label = _TOKEN_MAP.get(tok_l)
@@ -335,13 +343,10 @@ class CausalReasoningGraph:
                         # Emit outside lock below
 
             # Cull excess hypotheses (keep highest-confidence active ones)
-            active = [
-                h for h in self._hypotheses.values()
-                if h.status not in ("DISSOLVED",)
-            ]
+            active = [h for h in self._hypotheses.values() if h.status not in ("DISSOLVED",)]
             if len(active) > self._max_active:
                 active.sort(key=lambda h: h.confidence)
-                for h in active[:len(active) - self._max_active]:
+                for h in active[: len(active) - self._max_active]:
                     h.status = "DISSOLVED"
 
         # Emit CausalChainEvents outside the lock
@@ -357,10 +362,7 @@ class CausalReasoningGraph:
     def active_hypotheses(self) -> list[CausalHypothesis]:
         """Return non-dissolved hypotheses sorted by confidence desc."""
         with self._lock:
-            live = [
-                h for h in self._hypotheses.values()
-                if h.status not in ("DISSOLVED",)
-            ]
+            live = [h for h in self._hypotheses.values() if h.status not in ("DISSOLVED",)]
         return sorted(live, key=lambda h: -h.confidence)
 
     def format_for_context(self) -> str:
@@ -426,6 +428,7 @@ class CausalReasoningGraph:
 
         try:
             from intelligence_engine.cognitive.observability_emitter import emit_causal_chain
+
             emit_causal_chain(
                 ts_ns=ts_ns,
                 hypothesis=f"{chain_name}: {snap['observed_causes']} → {snap['observed_effects']}",

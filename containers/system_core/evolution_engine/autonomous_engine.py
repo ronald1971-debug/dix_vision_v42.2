@@ -23,16 +23,15 @@ from __future__ import annotations
 
 import dataclasses
 import enum
+import hashlib
 import logging
 import threading
 import time
-import hashlib
-from collections.abc import Mapping
-from types import MappingProxyType
-from typing import TYPE_CHECKING, Protocol, Optional, Dict, List, Tuple
-from dataclasses import dataclass, field
 from collections import deque
+from collections.abc import Mapping
+from dataclasses import dataclass, field
 from datetime import datetime
+from typing import TYPE_CHECKING, Dict, List, Optional, Protocol, Tuple
 
 if TYPE_CHECKING:
     pass
@@ -40,6 +39,7 @@ if TYPE_CHECKING:
 # World context integration (Phase 14.1 enhancement)
 try:
     from world_model.indicator_integration import get_integration_bridge
+
     WORLD_MODEL_AVAILABLE = True
 except ImportError:
     WORLD_MODEL_AVAILABLE = False
@@ -50,11 +50,13 @@ try:
 except ImportError:
     # Fallback if core.time_source not available
     import time
+
     class TimeAuthority(Protocol):
         def now_ns(self) -> int: ...
     class WallClock:
         def now_ns(self) -> int:
             return int(time.time() * 1_000_000_000)
+
 
 _logger = logging.getLogger(__name__)
 
@@ -62,7 +64,7 @@ _logger = logging.getLogger(__name__)
 @dataclass
 class WorldContext:
     """World context for autonomous evolution decisions (Phase 14.1)."""
-    
+
     market_regime: str = "unknown"
     market_trend: str = "unknown"
     volatility_regime: str = "unknown"
@@ -76,7 +78,7 @@ class WorldContext:
 @dataclass
 class CodeChange:
     """Code change with validation (Phase 14.1)."""
-    
+
     change_id: str
     file_path: str
     change_type: str  # "mutation", "generation", "refactor"
@@ -92,7 +94,7 @@ class CodeChange:
 @dataclass
 class EvolutionSnapshot:
     """Evolution snapshot for rollback (Phase 14.1)."""
-    
+
     snapshot_id: str
     parameters: Dict[str, float]
     strategy_config: Dict[str, str]
@@ -144,9 +146,7 @@ class AutonomyDecision:
 
     def __post_init__(self) -> None:
         if not 0.0 <= self.confidence <= 1.0:
-            raise ValueError(
-                f"AutonomyDecision.confidence must be 0.0-1.0, got {self.confidence}"
-            )
+            raise ValueError(f"AutonomyDecision.confidence must be 0.0-1.0, got {self.confidence}")
 
 
 @dataclasses.dataclass(frozen=True, slots=True)
@@ -193,7 +193,7 @@ class AutonomousEvolutionEngine:
         self._total_evolutions: int = 0
         # Use provided time source or default to WallClock
         self._time_source: TimeAuthority = time_source if time_source is not None else WallClock()
-        
+
         # Phase 14.1 enhancements
         self._world_integration_bridge = None
         self._current_world_context: Optional[WorldContext] = None
@@ -202,10 +202,10 @@ class AutonomousEvolutionEngine:
         self._code_changes: List[CodeChange] = []
         self._performance_baseline: Dict[str, float] = {}
         self._regression_detected: bool = False
-        
+
         if WORLD_MODEL_AVAILABLE:
             self._init_world_integration()
-    
+
     def _init_world_integration(self) -> None:
         """Initialize world model integration bridge."""
         try:
@@ -214,55 +214,55 @@ class AutonomousEvolutionEngine:
         except Exception as e:
             _logger.warning(f"[AUTONOMOUS_ENGINE] Failed to initialize world integration: {e}")
             self._world_integration_bridge = None
-    
+
     def _get_world_context(self) -> Optional[WorldContext]:
         """Get current world context from world model."""
         if not self._world_integration_bridge:
             return None
-        
+
         try:
             world_state = self._world_integration_bridge.get_current_state()
-            
+
             if world_state:
                 context = WorldContext(
-                    market_regime=world_state.get('market_regime', 'unknown'),
-                    market_trend=world_state.get('market_trend', 'unknown'),
-                    volatility_regime=world_state.get('volatility_regime', 'unknown'),
-                    liquidity_state=world_state.get('liquidity_state', 'unknown'),
-                    agent_activity=world_state.get('agent_activity', {}),
-                    causal_factors=world_state.get('causal_factors', []),
-                    prediction_confidence=world_state.get('prediction_confidence', 0.0),
-                    timestamp=datetime.utcnow()
+                    market_regime=world_state.get("market_regime", "unknown"),
+                    market_trend=world_state.get("market_trend", "unknown"),
+                    volatility_regime=world_state.get("volatility_regime", "unknown"),
+                    liquidity_state=world_state.get("liquidity_state", "unknown"),
+                    agent_activity=world_state.get("agent_activity", {}),
+                    causal_factors=world_state.get("causal_factors", []),
+                    prediction_confidence=world_state.get("prediction_confidence", 0.0),
+                    timestamp=datetime.utcnow(),
                 )
                 self._current_world_context = context
                 self._world_context_history.append(context)
                 return context
-        
+
         except Exception as e:
             _logger.debug(f"[AUTONOMOUS_ENGINE] Failed to get world context: {e}")
-        
+
         return None
-    
+
     def _should_perform_evolution(self) -> Tuple[bool, str]:
         """Determine if evolution should proceed based on world context (Phase 14.1)."""
         world_context = self._get_world_context()
-        
+
         if not world_context:
             # Default to allow evolution if no world context
             return (True, "No world context available - proceeding")
-        
+
         # Suspend modifications during high volatility
         if world_context.volatility_regime == "high":
             return (False, "Suspended evolution due to high volatility")
-        
+
         # Prevent modifications during regime transitions
         if world_context.market_regime == "transition":
             return (False, "Suspended evolution during regime transition")
-        
+
         # Allow evolution during stable periods
         if world_context.volatility_regime == "low" and world_context.market_trend == "stable":
             return (True, "Proceeding with evolution in stable conditions")
-        
+
         # Default to allow with caution
         return (True, "Proceeding with caution in current conditions")
 
@@ -317,10 +317,10 @@ class AutonomousEvolutionEngine:
         """
         # Check if evolution should proceed based on world context
         should_evolve, evolution_reason = self._should_perform_evolution()
-        
+
         if not should_evolve:
             _logger.warning(f"[AUTONOMOUS_ENGINE] {evolution_reason}")
-            
+
             decision = AutonomyDecision(
                 decision_id=f"decision_{self._total_decisions}_{self._get_timestamp()}",
                 autonomy_level=AutonomyLevel.MANUAL,
@@ -330,7 +330,7 @@ class AutonomousEvolutionEngine:
                 approved=False,
                 timestamp_ns=self._get_timestamp(),
             )
-            
+
             return AutonomousEvolutionResult(
                 result_id=f"auto_tune_{self._total_evolutions}_{self._get_timestamp()}",
                 scope=AutonomyScope.PARAMETER_TUNING,
@@ -339,7 +339,7 @@ class AutonomousEvolutionEngine:
                 autonomous_decision=decision,
                 timestamp_ns=self._get_timestamp(),
             )
-        
+
         result_id = f"auto_tune_{self._total_evolutions}_{self._get_timestamp()}"
 
         if AutonomyScope.PARAMETER_TUNING not in self._autonomy_scopes:
@@ -365,13 +365,15 @@ class AutonomousEvolutionEngine:
 
         # Store performance baseline for regression detection
         world_context = self._get_world_context()
-        
+
         # Check for performance regression
         regression_detected = self._check_performance_regression(performance_metrics)
-        
+
         if regression_detected:
-            _logger.warning("[AUTONOMOUS_ENGINE] Performance regression detected - preventing parameter tuning")
-            
+            _logger.warning(
+                "[AUTONOMOUS_ENGINE] Performance regression detected - preventing parameter tuning"
+            )
+
             decision = AutonomyDecision(
                 decision_id=f"decision_{self._total_decisions}_{self._get_timestamp()}",
                 autonomy_level=AutonomyLevel.MANUAL,
@@ -381,7 +383,7 @@ class AutonomousEvolutionEngine:
                 approved=False,
                 timestamp_ns=self._get_timestamp(),
             )
-            
+
             return AutonomousEvolutionResult(
                 result_id=result_id,
                 scope=AutonomyScope.PARAMETER_TUNING,
@@ -405,7 +407,7 @@ class AutonomousEvolutionEngine:
 
         # Apply mutations (simplified)
         mutations_applied = 1 if fitness_improvement > 0 else 0
-        
+
         # Create evolution snapshot for rollback
         if mutations_applied > 0:
             self._create_evolution_snapshot(parameters, performance_metrics, world_context)
@@ -433,14 +435,14 @@ class AutonomousEvolutionEngine:
         )
 
         return result
-    
+
     def _check_performance_regression(self, current_metrics: Mapping[str, float]) -> bool:
         """Check for performance regression (Phase 14.1)."""
         if not self._performance_baseline:
             # No baseline - store current metrics
             self._performance_baseline = dict(current_metrics)
             return False
-        
+
         # Check if any metric has degraded significantly (>10%)
         for key, current_value in current_metrics.items():
             if key in self._performance_baseline:
@@ -449,13 +451,13 @@ class AutonomousEvolutionEngine:
                     change = (current_value - baseline_value) / baseline_value
                     if change < -0.10:  # More than 10% degradation
                         return True
-        
+
         return False
-    
+
     def _calculate_decision_confidence(self, world_context: Optional[WorldContext]) -> float:
         """Calculate decision confidence based on world context (Phase 14.1)."""
         base_confidence = 0.8
-        
+
         if world_context:
             # Higher confidence during stable periods
             if world_context.volatility_regime == "low" and world_context.market_trend == "stable":
@@ -463,46 +465,50 @@ class AutonomousEvolutionEngine:
             # Lower confidence during high volatility
             elif world_context.volatility_regime == "high":
                 return 0.60
-        
+
         return base_confidence
-    
+
     def _calculate_parameter_improvement(
         self,
         parameters: Mapping[str, float],
         performance_metrics: Mapping[str, float],
-        world_context: Optional[WorldContext]
+        world_context: Optional[WorldContext],
     ) -> float:
         """Calculate parameter improvement with world context (Phase 14.1)."""
         # Simplified improvement calculation
-        base_improvement = sum(performance_metrics.values()) / len(performance_metrics) if performance_metrics else 0.0
-        
+        base_improvement = (
+            sum(performance_metrics.values()) / len(performance_metrics)
+            if performance_metrics
+            else 0.0
+        )
+
         if world_context:
             # Adjust improvement based on world conditions
             if world_context.volatility_regime == "low" and world_context.market_trend == "stable":
                 return base_improvement * 1.2  # Better improvement in stable conditions
             elif world_context.volatility_regime == "high":
                 return base_improvement * 0.8  # Reduced improvement in high volatility
-        
+
         return base_improvement
-    
+
     def _create_evolution_snapshot(
         self,
         parameters: Mapping[str, float],
         performance_metrics: Mapping[str, float],
-        world_context: Optional[WorldContext]
+        world_context: Optional[WorldContext],
     ) -> None:
         """Create evolution snapshot for rollback (Phase 14.1)."""
         snapshot_id = hashlib.md5(f"{time.time()}{str(parameters)}".encode()).hexdigest()
-        
+
         snapshot = EvolutionSnapshot(
             snapshot_id=snapshot_id,
             parameters=dict(parameters),
             strategy_config={},
             code_changes=[],
             performance_metrics=dict(performance_metrics),
-            world_context=world_context
+            world_context=world_context,
         )
-        
+
         with self._lock:
             self._evolution_snapshots.append(snapshot)
 
@@ -659,12 +665,14 @@ class AutonomousEvolutionEngine:
                 "world_integration_available": WORLD_MODEL_AVAILABLE,
                 "world_integration_active": self._world_integration_bridge is not None,
                 "current_world_regime": world_context.market_regime if world_context else "unknown",
-                "current_volatility_regime": world_context.volatility_regime if world_context else "unknown",
+                "current_volatility_regime": (
+                    world_context.volatility_regime if world_context else "unknown"
+                ),
                 "evolution_snapshots_count": len(self._evolution_snapshots),
                 "code_changes_count": len(self._code_changes),
                 "regression_detected": self._regression_detected,
             }
-    
+
     def rollback_to_snapshot(self, snapshot_id: str) -> bool:
         """Rollback to a previous evolution snapshot (Phase 14.1)."""
         with self._lock:
@@ -675,10 +683,10 @@ class AutonomousEvolutionEngine:
                     _logger.info(f"[AUTONOMOUS_ENGINE] Rolling back to snapshot: {snapshot_id}")
                     _logger.info(f"[AUTONOMOUS_ENGINE] Restored parameters: {snapshot.parameters}")
                     return True
-            
+
             _logger.warning(f"[AUTONOMOUS_ENGINE] Snapshot not found: {snapshot_id}")
             return False
-    
+
     def generate_code_change(
         self,
         file_path: str,
@@ -688,16 +696,16 @@ class AutonomousEvolutionEngine:
     ) -> CodeChange:
         """Generate code change with validation (Phase 14.1)."""
         change_id = hashlib.md5(f"{file_path}{change_type}{time.time()}".encode()).hexdigest()
-        
+
         # Validate code change (simplified validation)
         validation_passed = self._validate_code_change(original_code, new_code)
-        
+
         # Check for performance regression
         regression_detected = self._check_code_regression(original_code, new_code)
-        
+
         # Calculate confidence
         confidence = 0.9 if validation_passed and not regression_detected else 0.5
-        
+
         code_change = CodeChange(
             change_id=change_id,
             file_path=file_path,
@@ -707,23 +715,23 @@ class AutonomousEvolutionEngine:
             validation_passed=validation_passed,
             performance_regression=regression_detected,
             confidence=confidence,
-            rollback_available=True
+            rollback_available=True,
         )
-        
+
         with self._lock:
             self._code_changes.append(code_change)
-        
+
         return code_change
-    
+
     def _validate_code_change(self, original_code: str, new_code: str) -> bool:
         """Validate code change (Phase 14.1)."""
         # Simplified validation - check if new code is syntactically valid
         try:
-            compile(new_code, '<string>', 'exec')
+            compile(new_code, "<string>", "exec")
             return True
         except SyntaxError:
             return False
-    
+
     def _check_code_regression(self, original_code: str, new_code: str) -> bool:
         """Check for performance regression in code change (Phase 14.1)."""
         # Simplified regression check - in production would use benchmarking
@@ -791,48 +799,54 @@ class AutonomousEvolutionEngine:
         """
         # Sophisticated improvement calculation considering:
         # - Performance trend direction
-        # - Metric volatility and stability  
+        # - Metric volatility and stability
         # - Performance saturation detection
         # - Cross-metric correlations
-        
+
         if not performance_metrics:
             return 0.0
 
         try:
             # Extract metric values for analysis
             metric_values = list(performance_metrics.values())
-            
+
             # Calculate basic statistics
             avg_performance = sum(metric_values) / len(metric_values)
-            
+
             # Calculate variance to detect stability/volatility
-            variance = sum((x - avg_performance) ** 2 for x in metric_values) / len(metric_values) if len(metric_values) > 1 else 0.0
-            volatility = variance ** 0.5 if variance > 0 else 0.0
-            
+            variance = (
+                sum((x - avg_performance) ** 2 for x in metric_values) / len(metric_values)
+                if len(metric_values) > 1
+                else 0.0
+            )
+            volatility = variance**0.5 if variance > 0 else 0.0
+
             # Performance saturation detection (if metrics are already near optimal)
             # Assume optimal is 1.0 for normalized metrics
-            saturation_penalty = max(0.0, avg_performance - 0.8) * 0.5 if avg_performance > 0.8 else 0.0
-            
+            saturation_penalty = (
+                max(0.0, avg_performance - 0.8) * 0.5 if avg_performance > 0.8 else 0.0
+            )
+
             # Trend analysis (higher metrics generally better)
             trend_boost = (avg_performance - 0.5) * 0.3  # Boost if above baseline
-            
+
             # Volatility penalty (high volatility reduces confidence in improvement)
             volatility_penalty = volatility * 0.2
-            
+
             # Sophisticated improvement calculation
             improvement = (trend_boost - volatility_penalty - saturation_penalty) * avg_performance
-            
+
             # Normalize improvement to reasonable range
             improvement = max(-0.5, min(0.5, improvement))
-            
+
             _logger.debug(
                 "[AUTONOMOUS_ENGINE] Parameter improvement calculation: "
                 f"avg={avg_performance:.4f}, volatility={volatility:.4f}, "
                 f"saturation={saturation_penalty:.4f}, improvement={improvement:.4f}"
             )
-            
+
             return improvement
-            
+
         except Exception as e:
             _logger.warning(f"[AUTONOMOUS_ENGINE] Error calculating parameter improvement: {e}")
             return 0.0
@@ -854,56 +868,56 @@ class AutonomousEvolutionEngine:
         # - Volatility and drawdown detection
         # - Rate of improvement/change
         # - Historical baseline comparison
-        
+
         if not performance_history:
             return 0.0
 
         try:
             # Analyze performance history with sophisticated metrics
             history_len = len(performance_history)
-            
+
             # Calculate recent performance (last 3 periods)
             recent_count = min(3, history_len)
             recent = performance_history[-recent_count:]
             recent_avg = sum(recent) / len(recent)
-            
+
             # Calculate overall average for baseline comparison
             overall_avg = sum(performance_history) / history_len
-            
+
             # Calculate trend (improvement rate)
             if history_len >= 2:
                 # Simple linear trend: last - first / length
                 trend = (performance_history[-1] - performance_history[0]) / history_len
             else:
                 trend = 0.0
-            
+
             # Calculate volatility in recent performance
             if len(recent) >= 2:
                 variance = sum((x - recent_avg) ** 2 for x in recent) / len(recent)
-                volatility = variance ** 0.5
+                volatility = variance**0.5
             else:
                 volatility = 0.0
-            
+
             # Momentum boost (positive trend + recent high performance)
             momentum_boost = (trend * 2.0) + (recent_avg - overall_avg)
-            
+
             # Volatility penalty (high volatility = less confidence)
             volatility_penalty = volatility * 0.3
-            
+
             # Sophisticated improvement calculation
             improvement = momentum_boost - volatility_penalty
-            
+
             # Normalize improvement to reasonable range
             improvement = max(-0.5, min(0.5, improvement))
-            
+
             _logger.debug(
                 "[AUTONOMOUS_ENGINE] Strategy improvement calculation: "
                 f"recent_avg={recent_avg:.4f}, overall_avg={overall_avg:.4f}, "
                 f"trend={trend:.4f}, volatility={volatility:.4f}, improvement={improvement:.4f}"
             )
-            
+
             return improvement
-            
+
         except Exception as e:
             _logger.warning(f"[AUTONOMOUS_ENGINE] Error calculating strategy improvement: {e}")
             return 0.0
@@ -927,53 +941,53 @@ class AutonomousEvolutionEngine:
         # - Resource utilization efficiency
         # - Bottleneck detection and potential
         # - Cross-system component synergy
-        
+
         if not system_metrics or not performance_metrics:
             return 0.0
 
         try:
             # Calculate system metrics average
             system_avg = sum(system_metrics.values()) / len(system_metrics)
-            
+
             # Calculate performance metrics average
             perf_avg = sum(performance_metrics.values()) / len(performance_metrics)
-            
+
             # Calculate combined baseline
             combined_avg = (system_avg + perf_avg) / 2
-            
+
             # Analyze system performance correlation
             # Higher system health should correlate with better performance
             correlation_boost = (system_avg * perf_avg) * 0.4  # Synergy effect
-            
+
             # Resource efficiency (if system is efficient, improvements are easier)
             efficiency_factor = min(1.0, system_avg) * 0.2
-            
+
             # Bottleneck potential (if system is struggling, more room for improvement)
             bottleneck_potential = (1.0 - system_avg) * 0.3 if system_avg < 0.8 else 0.0
-            
+
             # Performance headroom (if performance is suboptimal, more room for improvement)
             performance_headroom = (1.0 - perf_avg) * 0.2 if perf_avg < 0.8 else 0.0
-            
+
             # Sophisticated improvement calculation
             improvement = (
-                combined_avg +  # Baseline
-                correlation_boost +  # System-performance synergy
-                efficiency_factor +  # Resource efficiency
-                bottleneck_potential +  # Room for system improvement
-                performance_headroom  # Room for performance improvement
+                combined_avg  # Baseline
+                + correlation_boost  # System-performance synergy
+                + efficiency_factor  # Resource efficiency
+                + bottleneck_potential  # Room for system improvement
+                + performance_headroom  # Room for performance improvement
             )
-            
+
             # Normalize improvement to reasonable range
             improvement = max(-0.5, min(0.5, improvement - 0.5))  # Center around 0
-            
+
             _logger.debug(
                 "[AUTONOMOUS_ENGINE] System improvement calculation: "
                 f"system_avg={system_avg:.4f}, perf_avg={perf_avg:.4f}, "
                 f"combined={combined_avg:.4f}, improvement={improvement:.4f}"
             )
-            
+
             return improvement
-            
+
         except Exception as e:
             _logger.warning(f"[AUTONOMOUS_ENGINE] Error calculating system improvement: {e}")
             return 0.0
@@ -988,13 +1002,15 @@ _singleton: AutonomousEvolutionEngine | None = None
 _lock = threading.Lock()
 
 
-def get_autonomous_evolution_engine(time_source: TimeAuthority | None = None) -> AutonomousEvolutionEngine:
+def get_autonomous_evolution_engine(
+    time_source: TimeAuthority | None = None,
+) -> AutonomousEvolutionEngine:
     """Get the singleton autonomous evolution engine instance.
-    
+
     Args:
         time_source: Optional time source for timestamp generation.
                     If not provided, uses WallClock by default.
-    
+
     Returns:
         Singleton autonomous evolution engine instance
     """

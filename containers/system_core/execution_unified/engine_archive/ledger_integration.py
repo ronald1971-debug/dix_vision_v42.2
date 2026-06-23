@@ -101,12 +101,20 @@ class PaperTradeLedgerIntegrator:
                 trade_id=trade_id,
                 venue=venue,
                 symbol=execution.symbol,
-                side=execution.side.value if hasattr(execution.side, "value") else str(execution.side),
+                side=(
+                    execution.side.value
+                    if hasattr(execution.side, "value")
+                    else str(execution.side)
+                ),
                 qty=signal.qty,
                 price=signal.price,
                 executed_qty=execution.qty,
                 executed_price=execution.price,
-                status=execution.status.value if hasattr(execution.status, "value") else str(execution.status),
+                status=(
+                    execution.status.value
+                    if hasattr(execution.status, "value")
+                    else str(execution.status)
+                ),
                 timestamp_ns=execution.ts_ns,
                 paper_flag="1",  # INV-56: always mark as paper
                 pnl_usd=pnl_usd,
@@ -166,7 +174,9 @@ class PaperTradeLedgerIntegrator:
             return abs(execution.qty * price_diff)
         return 0.0
 
-    def _calculate_pnl(self, execution: ExecutionEvent, fee_usd: float, slippage_usd: float) -> float:
+    def _calculate_pnl(
+        self, execution: ExecutionEvent, fee_usd: float, slippage_usd: float
+    ) -> float:
         """Calculate realized P&L for the trade."""
         # P&L calculation simplified - would be more complex in production
         return -(fee_usd + slippage_usd)  # Paper trades have negative cost impact

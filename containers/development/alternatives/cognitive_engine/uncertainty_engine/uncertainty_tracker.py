@@ -71,7 +71,13 @@ class UncertaintyTracker:
         }
         self._domain_index: dict[str, list[str]] = {}
 
-    def track(self, domain: str, knowledge_type: KnowledgeType, confidence: float, evidence: str | tuple[str, ...] = ()) -> None:
+    def track(
+        self,
+        domain: str,
+        knowledge_type: KnowledgeType,
+        confidence: float,
+        evidence: str | tuple[str, ...] = (),
+    ) -> None:
         """Record a knowledge state."""
         if isinstance(evidence, str):
             evidence = (evidence,)
@@ -89,7 +95,9 @@ class UncertaintyTracker:
         if domain not in self._domain_index.get(knowledge_type.value, []):
             self._domain_index.setdefault(knowledge_type.value, []).append(domain)
 
-    def mark_known(self, domain: str, confidence: float, evidence: str | tuple[str, ...] = ()) -> None:
+    def mark_known(
+        self, domain: str, confidence: float, evidence: str | tuple[str, ...] = ()
+    ) -> None:
         """Mark a domain as having confirmed knowledge."""
         self.track(domain, KnowledgeType.KNOWN, confidence, evidence)
 
@@ -129,9 +137,8 @@ class UncertaintyTracker:
         total = len(self._states)
         if total == 0:
             return 0.0
-        unknown = (
-            len(self._by_type[KnowledgeType.KNOWN_UNKNOWN])
-            + len(self._by_type[KnowledgeType.UNKNOWN_UNKNOWN])
+        unknown = len(self._by_type[KnowledgeType.KNOWN_UNKNOWN]) + len(
+            self._by_type[KnowledgeType.UNKNOWN_UNKNOWN]
         )
         return unknown / total
 

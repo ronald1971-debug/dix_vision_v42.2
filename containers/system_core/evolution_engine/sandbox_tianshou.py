@@ -803,9 +803,7 @@ def tianshou_policy_trainer(
                     self, **kwargs: object
                 ) -> tuple[np.ndarray, dict]:
                     ep_count_box[0] += 1
-                    ep_seed = (
-                        arguments.random_seed * 1_000_003 + ep_count_box[0]
-                    ) & 0x7FFFFFFF
+                    ep_seed = (arguments.random_seed * 1_000_003 + ep_count_box[0]) & 0x7FFFFFFF
                     dix_obs, info = env.reset(seed=ep_seed, config=episode_config)
                     return self._arr(dix_obs), dict(info)
 
@@ -847,9 +845,7 @@ def tianshou_policy_trainer(
                     info: object = None,
                 ) -> tuple[torch.Tensor, object]:
                     if not isinstance(obs, torch.Tensor):
-                        obs = torch.as_tensor(
-                            np.asarray(obs), dtype=torch.float32, device=device
-                        )
+                        obs = torch.as_tensor(np.asarray(obs), dtype=torch.float32, device=device)
                     return self.net(obs), state
 
             class _CriticMLP(nn.Module):
@@ -867,9 +863,7 @@ def tianshou_policy_trainer(
                     self, obs: object, **kwargs: object
                 ) -> torch.Tensor:
                     if not isinstance(obs, torch.Tensor):
-                        obs = torch.as_tensor(
-                            np.asarray(obs), dtype=torch.float32, device=device
-                        )
+                        obs = torch.as_tensor(np.asarray(obs), dtype=torch.float32, device=device)
                     return self.net(obs).squeeze(-1)
 
             # ------------------------------------------------------------------
@@ -909,16 +903,12 @@ def tianshou_policy_trainer(
                     ppo_kw["action_space"] = gym_env.action_space
                 policy: object = PPOPolicy(**ppo_kw)
                 buf = ReplayBuffer(
-                    size=arguments.step_per_collect
-                    * arguments.repeat_per_collect
-                    * 4
+                    size=arguments.step_per_collect * arguments.repeat_per_collect * 4
                 )
             else:
                 # SAC/TD3/DDPG/DQN all mapped to DQN for discrete action space
                 q_net = _ActorMLP().to(device)
-                dqn_optim = torch.optim.Adam(
-                    q_net.parameters(), lr=arguments.learning_rate
-                )
+                dqn_optim = torch.optim.Adam(q_net.parameters(), lr=arguments.learning_rate)
                 dqn_kw: dict = dict(
                     model=q_net,
                     optim=dqn_optim,
@@ -932,9 +922,7 @@ def tianshou_policy_trainer(
                 except TypeError:
                     dqn_kw.pop("action_space", None)
                 policy = DQNPolicy(**dqn_kw)
-                buf = ReplayBuffer(
-                    size=max(arguments.step_per_collect * 40, 10_000)
-                )
+                buf = ReplayBuffer(size=max(arguments.step_per_collect * 40, 10_000))
 
             collector = Collector(policy, gym_env, buf)  # type: ignore[arg-type]
 
@@ -947,9 +935,7 @@ def tianshou_policy_trainer(
             critic_losses: list[float] = []
             total_steps_done = 0
 
-            callback.on_training_start(
-                ts_ns=ts_ns, step_per_epoch=arguments.step_per_epoch
-            )
+            callback.on_training_start(ts_ns=ts_ns, step_per_epoch=arguments.step_per_epoch)
 
             for _epoch in range(arguments.max_epoch):
                 try:
@@ -958,9 +944,7 @@ def tianshou_policy_trainer(
                         n_st = int(
                             stats.get(
                                 "n/st",
-                                stats.get(
-                                    "n_collected_steps", arguments.step_per_collect
-                                ),
+                                stats.get("n_collected_steps", arguments.step_per_collect),
                             )
                         )
                         rews = list(stats.get("rews", stats.get("returns", [])))
@@ -1001,9 +985,7 @@ def tianshou_policy_trainer(
                 pl = float(
                     update_result.get(
                         "loss/clip",
-                        update_result.get(
-                            "clip", update_result.get("loss", 0.0)
-                        ),
+                        update_result.get("clip", update_result.get("loss", 0.0)),
                     )
                 )
                 cl = float(

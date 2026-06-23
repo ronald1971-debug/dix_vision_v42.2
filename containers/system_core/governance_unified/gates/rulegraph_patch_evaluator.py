@@ -27,6 +27,7 @@ from typing import Any
 
 from core.constraint_engine import CompiledRule, RuleAction, RuleGraph
 from core.contracts.learning import PatchProposal
+
 from .quantitative_evaluator import QuantitativeMetrics
 
 

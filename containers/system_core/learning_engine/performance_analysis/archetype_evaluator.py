@@ -17,13 +17,14 @@ from dataclasses import dataclass
 @dataclass(frozen=True, slots=True)
 class ArchetypePerformanceRecord:
     """Performance metrics for one archetype over an evaluation period."""
+
     archetype_id: str
     strategy_id: str
     total_pnl: float
     num_trades: int
-    win_rate: float         # [0, 1]
+    win_rate: float  # [0, 1]
     sharpe: float
-    max_drawdown: float     # positive value, e.g. 0.15 = 15%
+    max_drawdown: float  # positive value, e.g. 0.15 = 15%
     regime: str
     ts_ns: int
 
@@ -31,14 +32,15 @@ class ArchetypePerformanceRecord:
 @dataclass(frozen=True, slots=True)
 class ArchetypeEvaluation:
     """Aggregated evaluation of an archetype across multiple strategies."""
+
     archetype_id: str
     strategy_count: int
     mean_pnl: float
     mean_sharpe: float
     mean_win_rate: float
     mean_drawdown: float
-    composite_score: float   # weighted aggregate
-    regime_affinity: dict[str, float]   # regime → mean composite score
+    composite_score: float  # weighted aggregate
+    regime_affinity: dict[str, float]  # regime → mean composite score
     ts_ns: int
 
 
@@ -90,8 +92,7 @@ def evaluate_archetype(
         score = 0.4 * sharpe_norm_r + 0.3 * r.win_rate + 0.3 * dd_r
         regime_scores.setdefault(r.regime, []).append(score)
     regime_affinity = {
-        regime: sum(scores) / len(scores)
-        for regime, scores in regime_scores.items()
+        regime: sum(scores) / len(scores) for regime, scores in regime_scores.items()
     }
 
     return ArchetypeEvaluation(

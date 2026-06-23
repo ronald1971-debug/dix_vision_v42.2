@@ -28,7 +28,6 @@ import logging
 import threading
 from collections.abc import Mapping
 from types import MappingProxyType
-from typing import TYPE_CHECKING, Any
 
 _logger = logging.getLogger(__name__)
 
@@ -206,14 +205,12 @@ class UnifiedExecutionKernel:
 
     def __init__(self) -> None:
         self._lock: threading.Lock = threading.Lock()
-        
+
         # Execution state
         self._active_requests: dict[str, ExecutionRequest] = {}
         self._execution_history: dict[str, ExecutionResult] = {}
-        self._lane_status: dict[ExecutionLane, bool] = {
-            lane: True for lane in ExecutionLane
-        }
-        
+        self._lane_status: dict[ExecutionLane, bool] = {lane: True for lane in ExecutionLane}
+
         # Statistics
         self._total_executions: int = 0
         self._total_strategic: int = 0
@@ -306,16 +303,16 @@ class UnifiedExecutionKernel:
             # Check active requests first
             if execution_id in self._active_requests:
                 return ExecutionStatus.EXECUTING
-            
+
             # Check execution history
             for result in self._execution_history.values():
                 if result.request_id == execution_id:
                     return result.status
-            
+
             # Also check if execution_id matches result_id (some systems use result_id for monitoring)
             if execution_id in self._execution_history:
                 return self._execution_history[execution_id].status
-            
+
             return None
 
     def handle_hazard(self, hazard: Mapping[str, str]) -> ExecutionResult:
@@ -368,7 +365,9 @@ class UnifiedExecutionKernel:
             action = dataclasses.replace(action, status="COMPLETED", result=result.outcome)
         else:
             # Unknown intent type
-            action = dataclasses.replace(action, status="FAILED", result={"error": "Unknown intent type"})
+            action = dataclasses.replace(
+                action, status="FAILED", result={"error": "Unknown intent type"}
+            )
 
         return action
 

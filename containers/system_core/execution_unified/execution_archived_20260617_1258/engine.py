@@ -48,8 +48,7 @@ from core.contracts.learning_sink import IntelligenceFeedbackSink
 from core.contracts.market import MarketTick
 from core.contracts.mode_effects import effect_for
 from core.contracts.risk import RiskSnapshot
-from execution_unified.core.offline import PaperBroker
-from execution_unified.core.offline import AuthorityGuard
+from execution_unified.core.offline import AuthorityGuard, PaperBroker
 from execution_unified.core.protections.feedback import FeedbackCollector
 from system_unified_engine.coupling import HazardThrottleAdapter
 

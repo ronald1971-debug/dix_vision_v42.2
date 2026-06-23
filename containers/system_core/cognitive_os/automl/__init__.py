@@ -1,16 +1,16 @@
 """AutoML Module."""
 
 from .autoML_capabilities import (
-    ModelType,
-    FeatureEngineeringType,
-    Hyperparameter,
-    ModelConfiguration,
-    ModelCandidate,
+    AutoMLEngine,
     AutoMLResult,
     FeatureEngineer,
+    FeatureEngineeringType,
+    Hyperparameter,
     HyperparameterOptimizer,
+    ModelCandidate,
+    ModelConfiguration,
     ModelSelector,
-    AutoMLEngine,
+    ModelType,
     get_automl_engine,
 )
 

@@ -92,9 +92,7 @@ class CorrelationEngine:
         if len(symbols) < 2:
             return 0.0
         pairs = [
-            abs(self.get_correlation(a, b))
-            for i, a in enumerate(symbols)
-            for b in symbols[i + 1:]
+            abs(self.get_correlation(a, b)) for i, a in enumerate(symbols) for b in symbols[i + 1 :]
         ]
         return sum(pairs) / len(pairs) if pairs else 0.0
 

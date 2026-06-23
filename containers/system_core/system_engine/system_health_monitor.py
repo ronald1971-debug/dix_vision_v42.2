@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from typing import Any, Dict, List
+from typing import Dict, List
 
 from system.time_source import now
 
@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class SystemHealth:
     """System health status."""
+
     health_id: str
     component: str
     health_score: float = 1.0
@@ -30,18 +31,18 @@ class SystemHealth:
 
 class ProductionSystemHealthMonitor:
     """Production-grade system health monitor."""
-    
+
     def __init__(self) -> None:
         self._health_status: List[SystemHealth] = {}
-        
+
     def start(self) -> bool:
         logger.info("[SYSTEM_HEALTH_MONITOR] Production system health monitor started")
         return True
-    
+
     def stop(self) -> bool:
         logger.info("[SYSTEM_HEALTH_MONITOR] Production system health monitor stopped")
         return True
-    
+
     def monitor_health(self, component: str, health_score: float) -> SystemHealth:
         """Monitor component health."""
         health = SystemHealth(
@@ -49,11 +50,11 @@ class ProductionSystemHealthMonitor:
             component=component,
             health_score=health_score,
             metrics={"cpu": 0.5, "memory": 0.6, "latency": 0.3},
-            timestamp=now().utc_time.isoformat()
+            timestamp=now().utc_time.isoformat(),
         )
         self._health_status[component] = health
         return health
-    
+
     def get_health(self, component: str) -> SystemHealth:
         """Get component health."""
         return self._health_status.get(component)

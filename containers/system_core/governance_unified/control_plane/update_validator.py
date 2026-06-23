@@ -40,6 +40,7 @@ from enum import StrEnum
 from core.contracts.governance import SystemMode
 from core.contracts.mode_effects import effect_for
 from core.contracts.strategy_registry import StrategyLifecycle
+
 from ..strategy_registry import StrategyRegistry
 
 

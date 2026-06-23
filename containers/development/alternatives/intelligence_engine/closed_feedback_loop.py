@@ -279,8 +279,8 @@ class ClosedFeedbackLoop:
         Returns:
             Feedback result or None if no feedback to process
         """
-        import time
         import secrets
+        import time
         
         with self._lock:
             if not self._feedback_signals:
@@ -483,7 +483,7 @@ class ClosedFeedbackLoop:
             New policy state
         """
         import time
-        
+
         # Simple policy update (actual implementation would be more sophisticated)
         new_policy_state = dict(self._policy_state)
         

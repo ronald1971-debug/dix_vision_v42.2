@@ -21,13 +21,14 @@ from typing import Any
 @dataclass(frozen=True, slots=True)
 class ProceduralRecord:
     """One procedural memory entry."""
+
     record_id: str
-    procedure_name: str     # e.g. "trend_entry", "drawdown_exit"
-    context_key: str        # hash of the context that activates this
+    procedure_name: str  # e.g. "trend_entry", "drawdown_exit"
+    context_key: str  # hash of the context that activates this
     action_sequence: tuple[str, ...]
-    outcome_score: float    # historical success score [0, 1]
+    outcome_score: float  # historical success score [0, 1]
     execution_count: int
-    last_outcome: str       # description of the most recent outcome
+    last_outcome: str  # description of the most recent outcome
     ts_ns: int
 
 

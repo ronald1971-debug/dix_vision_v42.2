@@ -18,15 +18,17 @@ from dataclasses import dataclass
 @dataclass(frozen=True, slots=True)
 class EncoderConfig:
     """Configuration for the feature encoder."""
-    price_window: int = 20       # rolling window for price features
+
+    price_window: int = 20  # rolling window for price features
     volume_window: int = 20
-    normalise: bool = True       # z-score normalise each feature group
+    normalise: bool = True  # z-score normalise each feature group
     max_features: int = 64
 
 
 @dataclass(frozen=True, slots=True)
 class EncodedObservation:
     """Fixed-length encoded observation vector."""
+
     strategy_id: str
     features: tuple[float, ...]
     feature_names: tuple[str, ...]
@@ -106,7 +108,7 @@ class TraderEncoder:
     def _price_features(self, prices: list[float]) -> list[float]:
         if not prices:
             return [0.0] * 4
-        w = prices[-self._cfg.price_window:]
+        w = prices[-self._cfg.price_window :]
         if len(w) < 2:
             return [0.0] * 4
         returns = [(w[i] - w[i - 1]) / (w[i - 1] or 1.0) for i in range(1, len(w))]
@@ -124,7 +126,7 @@ class TraderEncoder:
     def _volume_features(self, volumes: list[float]) -> list[float]:
         if not volumes:
             return [0.0] * 2
-        w = volumes[-self._cfg.volume_window:]
+        w = volumes[-self._cfg.volume_window :]
         mean_vol = sum(w) / len(w) if w else 0.0
         if self._cfg.normalise:
             norm = _zscore(w)

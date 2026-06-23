@@ -83,5 +83,6 @@ class GovernanceKillSwitch:
 def get_governance_kill_switch(*, mode_manager: Any | None = None) -> GovernanceKillSwitch:
     if mode_manager is None:
         from .mode.mode_manager import get_mode_manager
+
         mode_manager = get_mode_manager()
     return GovernanceKillSwitch(mode_manager=mode_manager)

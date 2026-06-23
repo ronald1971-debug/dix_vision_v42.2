@@ -74,9 +74,7 @@ class ScenarioRunner:
         self._scenarios.append(scenario)
         return scenario
 
-    def run_scenario(
-        self, scenario: Scenario, system_callback: Any = None
-    ) -> Scenario:
+    def run_scenario(self, scenario: Scenario, system_callback: Any = None) -> Scenario:
         start = time.time()
 
         if system_callback:

@@ -31,7 +31,7 @@ from typing import Any
 _logger = logging.getLogger(__name__)
 
 _STORE_KIND = "dyon_memory"
-_RECURRENCE_THRESHOLD = 3     # how many scans before flagged as structural
+_RECURRENCE_THRESHOLD = 3  # how many scans before flagged as structural
 
 
 # ---------------------------------------------------------------------------
@@ -43,7 +43,7 @@ _RECURRENCE_THRESHOLD = 3     # how many scans before flagged as structural
 class ViolationRecord:
     """What DYON knows about one recurring violation."""
 
-    violation_key: str          # "{invariant_id}:{source_module}"
+    violation_key: str  # "{invariant_id}:{source_module}"
     invariant_id: str
     source_module: str
     imported_module: str
@@ -59,7 +59,7 @@ class PatchOutcomeRecord:
 
     patch_id: str
     violation_key: str
-    outcome: str                # "PROPOSED" | "APPROVED" | "REJECTED" | "APPLIED"
+    outcome: str  # "PROPOSED" | "APPROVED" | "REJECTED" | "APPLIED"
     ts_ns: int
     notes: str = ""
 
@@ -126,10 +126,7 @@ class DyonMemory:
     def persistent_violations(self) -> list[ViolationRecord]:
         """Return violations seen at least RECURRENCE_THRESHOLD times."""
         with self._lock:
-            return [
-                r for r in self._violations.values()
-                if r.count >= _RECURRENCE_THRESHOLD
-            ]
+            return [r for r in self._violations.values() if r.count >= _RECURRENCE_THRESHOLD]
 
     def is_known(self, invariant_id: str, source_module: str) -> bool:
         """Whether DYON has seen this violation before."""
@@ -171,7 +168,8 @@ class DyonMemory:
         """How many patches for *violation_key* were rejected."""
         with self._lock:
             return sum(
-                1 for r in self._patch_outcomes.values()
+                1
+                for r in self._patch_outcomes.values()
                 if r.violation_key == violation_key and r.outcome == "REJECTED"
             )
 
@@ -209,6 +207,7 @@ class DyonMemory:
         self._save_seq += 1
         try:
             from state.cognition_persistence import get_cognition_persistence_store
+
             ps = get_cognition_persistence_store()
             with self._lock:
                 blobs = {k: self._violation_to_dict(r) for k, r in self._violations.items()}
@@ -225,9 +224,8 @@ class DyonMemory:
         """Load the most recent violation snapshot from SQLite."""
         try:
             from state.cognition_persistence import get_cognition_persistence_store
-            rows = get_cognition_persistence_store().load_episodes(
-                _STORE_KIND, limit=1
-            )
+
+            rows = get_cognition_persistence_store().load_episodes(_STORE_KIND, limit=1)
             if not rows:
                 return
             blobs = rows[0].get("violations", {})
@@ -256,6 +254,7 @@ class DyonMemory:
     def _persist_outcome(self, patch_id: str) -> None:
         try:
             from state.cognition_persistence import get_cognition_persistence_store
+
             with self._lock:
                 rec = self._patch_outcomes.get(patch_id)
             if rec is None:

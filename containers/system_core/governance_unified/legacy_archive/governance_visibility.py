@@ -62,9 +62,7 @@ class GovernanceVisibilityMonitor:
         window slot, it counts as suppressed.
         """
         with self._lock:
-            window = self._windows.setdefault(
-                subsystem, deque(maxlen=WINDOW_SIZE)
-            )
+            window = self._windows.setdefault(subsystem, deque(maxlen=WINDOW_SIZE))
             window.append(False)  # pending — not yet seen as visible
             self._suppressed.setdefault(subsystem, 0)
 
@@ -77,9 +75,7 @@ class GovernanceVisibilityMonitor:
         visible event (score improves).
         """
         with self._lock:
-            window = self._windows.setdefault(
-                subsystem, deque(maxlen=WINDOW_SIZE)
-            )
+            window = self._windows.setdefault(subsystem, deque(maxlen=WINDOW_SIZE))
             # Find the rightmost False slot and flip it
             items = list(window)
             for i in range(len(items) - 1, -1, -1):
@@ -129,9 +125,7 @@ class GovernanceVisibilityMonitor:
 
         events_expected = len(items)
         events_visible = sum(items)
-        visibility_score = (
-            events_visible / events_expected if events_expected > 0 else 1.0
-        )
+        visibility_score = events_visible / events_expected if events_expected > 0 else 1.0
         healthy = visibility_score >= VISIBILITY_WARNING_THRESHOLD
 
         record = VisibilityRecord(

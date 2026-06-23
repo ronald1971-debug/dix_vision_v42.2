@@ -176,9 +176,7 @@ class GDELTAdapter:
             LOG.error(f"Failed to fetch GDELT geopolitical events: {e}")
             return []
 
-    def fetch_events_by_actor(
-        self, actor: str, *, days: int = 30
-    ) -> list[GDELTEventObservation]:
+    def fetch_events_by_actor(self, actor: str, *, days: int = 30) -> list[GDELTEventObservation]:
         """Fetch events for a specific actor using Timeline API.
 
         Args:
@@ -229,9 +227,10 @@ class GDELTAdapter:
         """
         try:
             # Import required libraries
+            pass
+
             import requests
-            from datetime import datetime, timedelta
-            
+
             # Construct API URL and parameters
             url = f"{self.base_url}/doc/docquery"
             params = {
@@ -242,23 +241,23 @@ class GDELTAdapter:
                 "startdatetime": f"NOW-{days}DAYS",
                 "enddatetime": "NOW",
             }
-            
+
             # Add optional parameters
             if actor:
                 params["actor"] = actor
             if location:
                 params["location"] = location
-            
+
             LOG.info(f"Fetching GDELT events: mode={mode}, query={query}")
-            
+
             # Make API request
             response = requests.get(url, params=params, timeout=30)
             response.raise_for_status()
-            
+
             # Parse response
             data = response.json()
             events = []
-            
+
             # Normalize events
             for raw_event in data.get("data", []):
                 try:
@@ -267,13 +266,15 @@ class GDELTAdapter:
                 except Exception as e:
                     LOG.warning(f"Failed to normalize event: {e}")
                     continue
-            
+
             LOG.info(f"Successfully fetched {len(events)} GDELT events")
             return events
-            
+
         except requests.exceptions.RequestException as e:
             LOG.warning(f"GDELT API request failed: {e} - returning empty results")
-            LOG.debug(f"Would fetch: mode={mode}, query={query}, actor={actor}, location={location}, days={days}")
+            LOG.debug(
+                f"Would fetch: mode={mode}, query={query}, actor={actor}, location={location}, days={days}"
+            )
             return []
         except Exception as e:
             LOG.error(f"Unexpected error fetching GDELT events: {e} - returning empty results")

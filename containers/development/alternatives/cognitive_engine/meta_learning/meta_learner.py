@@ -61,8 +61,7 @@ class MetaLearner:
                 knowledge_gain=sum(p.knowledge_gain for p in existing),
                 compute_cost=sum(p.compute_cost for p in existing),
                 gain_per_cost=(
-                    sum(p.knowledge_gain for p in existing)
-                    / sum(p.compute_cost for p in existing)
+                    sum(p.knowledge_gain for p in existing) / sum(p.compute_cost for p in existing)
                     if sum(p.compute_cost for p in existing) > 0
                     else float("inf")
                 ),
@@ -82,8 +81,7 @@ class MetaLearner:
                 "total_knowledge_gain": sum(p.knowledge_gain for p in samples),
                 "total_compute_cost": sum(p.compute_cost for p in samples),
                 "gain_per_cost": (
-                    sum(p.knowledge_gain for p in samples)
-                    / sum(p.compute_cost for p in samples)
+                    sum(p.knowledge_gain for p in samples) / sum(p.compute_cost for p in samples)
                     if sum(p.compute_cost for p in samples) > 0
                     else float("inf")
                 ),
@@ -131,6 +129,7 @@ class MetaLearner:
 def _now_ns() -> int:
     try:
         from system.time_source import wall_ns
+
         return wall_ns()
     except Exception:
         return int(_time.time() * 1e9)

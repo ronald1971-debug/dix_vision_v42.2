@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-import sys
 import logging
+import sys
 from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
@@ -8,7 +8,6 @@ logger = logging.getLogger('jinja2_health_check')
 
 def check_imports():
     try:
-        import jinja2
         logger.info("Jinja2 import successful")
         return True
     except ImportError as e:
@@ -17,8 +16,8 @@ def check_imports():
 
 def check_governance_wrapper():
     try:
-        from jinja2_governance_wrapper import Jinja2GovernanceWrapper
         from base_external_repo_wrapper import PermissionLevel
+        from jinja2_governance_wrapper import Jinja2GovernanceWrapper
         wrapper = Jinja2GovernanceWrapper(PermissionLevel.READ_ONLY)
         logger.info("Governance wrapper initialization successful")
         return True

@@ -17,7 +17,7 @@ from typing import Any
 
 from state.memory.contracts import MemoryKind, MemoryRecord
 
-_logger   = logging.getLogger(__name__)
+_logger = logging.getLogger(__name__)
 _MAX_SIZE = 2_000
 
 
@@ -25,11 +25,11 @@ class GovernanceMemoryStore:
     """Auditable log of all governance events."""
 
     def __init__(self, max_size: int = _MAX_SIZE) -> None:
-        self._max_size  = max_size
-        self._lock      = threading.Lock()
-        self._records:  deque[MemoryRecord] = deque(maxlen=max_size)
+        self._max_size = max_size
+        self._lock = threading.Lock()
+        self._records: deque[MemoryRecord] = deque(maxlen=max_size)
         self._violations_by_type: dict[str, int] = {}
-        self._mode_history:       list[tuple[int, str]] = []  # (ts_ns, mode)
+        self._mode_history: list[tuple[int, str]] = []  # (ts_ns, mode)
 
     # ------------------------------------------------------------------
     # Write
@@ -40,25 +40,27 @@ class GovernanceMemoryStore:
         *,
         record_id: str,
         from_mode: str,
-        to_mode:   str,
-        ts_ns:     int,
-        reason:    str,
-        source:    str = "governance_router",
-        tags:      frozenset[str] = frozenset(),
+        to_mode: str,
+        ts_ns: int,
+        reason: str,
+        source: str = "governance_router",
+        tags: frozenset[str] = frozenset(),
     ) -> MemoryRecord:
         rec = MemoryRecord(
-            record_id = record_id,
-            kind      = MemoryKind.GOVERNANCE,
-            ts_ns     = ts_ns,
-            source    = source,
-            summary   = f"MODE {from_mode} → {to_mode}: {reason}",
-            body      = MappingProxyType({
-                "from_mode": from_mode,
-                "to_mode":   to_mode,
-                "reason":    reason,
-                "event":     "mode_transition",
-            }),
-            tags      = tags | frozenset(["mode_transition", from_mode.lower(), to_mode.lower()]),
+            record_id=record_id,
+            kind=MemoryKind.GOVERNANCE,
+            ts_ns=ts_ns,
+            source=source,
+            summary=f"MODE {from_mode} → {to_mode}: {reason}",
+            body=MappingProxyType(
+                {
+                    "from_mode": from_mode,
+                    "to_mode": to_mode,
+                    "reason": reason,
+                    "event": "mode_transition",
+                }
+            ),
+            tags=tags | frozenset(["mode_transition", from_mode.lower(), to_mode.lower()]),
         )
         with self._lock:
             self._records.append(rec)
@@ -68,28 +70,30 @@ class GovernanceMemoryStore:
     def record_violation(
         self,
         *,
-        record_id:      str,
+        record_id: str,
         violation_type: str,
-        severity:       str,
-        ts_ns:          int,
-        description:    str,
-        source:         str = "cognitive_governance",
-        tags:           frozenset[str] = frozenset(),
+        severity: str,
+        ts_ns: int,
+        description: str,
+        source: str = "cognitive_governance",
+        tags: frozenset[str] = frozenset(),
     ) -> MemoryRecord:
         rec = MemoryRecord(
-            record_id  = record_id,
-            kind       = MemoryKind.GOVERNANCE,
-            ts_ns      = ts_ns,
-            source     = source,
-            summary    = f"VIOLATION [{severity}] {violation_type}: {description}",
-            body       = MappingProxyType({
-                "violation_type": violation_type,
-                "severity":       severity,
-                "description":    description,
-                "event":          "violation",
-            }),
-            tags       = tags | frozenset(["violation", violation_type.lower(), severity.lower()]),
-            confidence = 1.0 if severity == "CRITICAL" else 0.5,
+            record_id=record_id,
+            kind=MemoryKind.GOVERNANCE,
+            ts_ns=ts_ns,
+            source=source,
+            summary=f"VIOLATION [{severity}] {violation_type}: {description}",
+            body=MappingProxyType(
+                {
+                    "violation_type": violation_type,
+                    "severity": severity,
+                    "description": description,
+                    "event": "violation",
+                }
+            ),
+            tags=tags | frozenset(["violation", violation_type.lower(), severity.lower()]),
+            confidence=1.0 if severity == "CRITICAL" else 0.5,
         )
         with self._lock:
             self._records.append(rec)
@@ -102,20 +106,20 @@ class GovernanceMemoryStore:
         self,
         *,
         record_id: str,
-        action:    str,
-        ts_ns:     int,
-        detail:    str,
-        source:    str = "operator",
-        tags:      frozenset[str] = frozenset(),
+        action: str,
+        ts_ns: int,
+        detail: str,
+        source: str = "operator",
+        tags: frozenset[str] = frozenset(),
     ) -> MemoryRecord:
         rec = MemoryRecord(
-            record_id = record_id,
-            kind      = MemoryKind.GOVERNANCE,
-            ts_ns     = ts_ns,
-            source    = source,
-            summary   = f"OPERATOR {action}: {detail}",
-            body      = MappingProxyType({"action": action, "detail": detail, "event": "operator_action"}),
-            tags      = tags | frozenset(["operator_action", action.lower()]),
+            record_id=record_id,
+            kind=MemoryKind.GOVERNANCE,
+            ts_ns=ts_ns,
+            source=source,
+            summary=f"OPERATOR {action}: {detail}",
+            body=MappingProxyType({"action": action, "detail": detail, "event": "operator_action"}),
+            tags=tags | frozenset(["operator_action", action.lower()]),
         )
         with self._lock:
             self._records.append(rec)
@@ -148,10 +152,10 @@ class GovernanceMemoryStore:
         with self._lock:
             total_violations = sum(self._violations_by_type.values())
             return {
-                "active":           True,
-                "size":             len(self._records),
-                "max_size":         self._max_size,
-                "current_mode":     self._mode_history[-1][1] if self._mode_history else None,
+                "active": True,
+                "size": len(self._records),
+                "max_size": self._max_size,
+                "current_mode": self._mode_history[-1][1] if self._mode_history else None,
                 "mode_transitions": len(self._mode_history),
                 "total_violations": total_violations,
                 "violations_by_type": dict(self._violations_by_type),

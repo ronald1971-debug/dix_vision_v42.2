@@ -80,13 +80,9 @@ class FeatureVersion:
                 f"FeatureVersion.feature_id must be non-empty str, got {self.feature_id!r}"
             )
         if not isinstance(self.ts_ns, int) or isinstance(self.ts_ns, bool):
-            raise ValueError(
-                f"FeatureVersion.ts_ns must be int, got {type(self.ts_ns).__name__}"
-            )
+            raise ValueError(f"FeatureVersion.ts_ns must be int, got {type(self.ts_ns).__name__}")
         if not isinstance(self.source, str) or not self.source:
-            raise ValueError(
-                f"FeatureVersion.source must be non-empty str, got {self.source!r}"
-            )
+            raise ValueError(f"FeatureVersion.source must be non-empty str, got {self.source!r}")
         if not isinstance(self.checksum, str) or not self.checksum:
             raise ValueError(
                 f"FeatureVersion.checksum must be non-empty str, got {self.checksum!r}"

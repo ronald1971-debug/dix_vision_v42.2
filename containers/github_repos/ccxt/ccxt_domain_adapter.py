@@ -8,20 +8,14 @@ Author: DIX VISION Trading Domain Adapter
 Version: 42.2
 """
 
-import logging
-from typing import Any, Dict, List, Optional, Union
-from datetime import datetime
-from decimal import Decimal
-
 import sys
-import os
+from datetime import datetime
+from typing import Any, Dict, List
+
 sys.path.append('/app/adapters')
 
-from base_domain_adapter import (
-    MarketDomainAdapter,
-    DomainType,
-    DataFormat
-)
+from base_domain_adapter import DataFormat, MarketDomainAdapter
+
 
 class CCXTDomainAdapter(MarketDomainAdapter):
     """

@@ -68,6 +68,7 @@ class GovernanceHardeningCoordinator:
         # 1. Policy lock — check first, fastest gate
         try:
             from .policy_lock import get_policy_lock_manager
+
             lock_state = get_policy_lock_manager().check_and_enforce(ts_ns)
             summary["policy_lock"] = lock_state.status.value
             if get_policy_lock_manager().governance_blocked():
@@ -78,9 +79,8 @@ class GovernanceHardeningCoordinator:
         # 2. Invariant monitor — formal proofs run on interval inside check_all()
         try:
             from .invariant_monitor import get_invariant_monitor
-            report = get_invariant_monitor(
-                check_interval=self._invariant_interval
-            ).check_all(ts_ns)
+
+            report = get_invariant_monitor(check_interval=self._invariant_interval).check_all(ts_ns)
             summary["invariants"] = {
                 "all_hold": report.all_hold,
                 "violated": list(report.violated_ids),
@@ -93,6 +93,7 @@ class GovernanceHardeningCoordinator:
         # 3. Trust scorer — passive recovery tick
         try:
             from .trust_scorer import get_trust_scorer
+
             get_trust_scorer().tick(ts_ns)
             summary["trust_scorer"] = "ticked"
         except Exception as exc:
@@ -102,6 +103,7 @@ class GovernanceHardeningCoordinator:
         if tick % self._replay_interval == 0:
             try:
                 from .replay_engine import get_replay_engine
+
                 batch = get_replay_engine().verify_all_streams(ts_ns)
                 summary["replay"] = {
                     "all_match": batch.all_match,
@@ -119,9 +121,7 @@ class GovernanceHardeningCoordinator:
             self._last_hazard_summary = hazards
         summary["hazards"] = hazards
         if hazards:
-            _logger.warning(
-                "GovernanceHardeningCoordinator tick=%d hazards=%s", tick, hazards
-            )
+            _logger.warning("GovernanceHardeningCoordinator tick=%d hazards=%s", tick, hazards)
         return summary
 
     # ------------------------------------------------------------------
@@ -132,6 +132,7 @@ class GovernanceHardeningCoordinator:
         """True if any hard block is in effect (policy lock drifted)."""
         try:
             from .policy_lock import get_policy_lock_manager
+
             return get_policy_lock_manager().governance_blocked()
         except Exception:
             return False
@@ -152,17 +153,34 @@ class GovernanceHardeningCoordinator:
 
         # Collect individual snapshots with graceful degradation
         subsystems: list[tuple[str, str, str]] = [
-            ("invariant_monitor", "governance_engine.hardening.invariant_monitor", "get_invariant_monitor"),
-            ("replay_engine",     "governance_engine.hardening.replay_engine",     "get_replay_engine"),
-            ("mutation_firewall", "governance_engine.hardening.mutation_firewall",  "get_mutation_firewall"),
-            ("policy_lock",       "governance_engine.hardening.policy_lock",        "get_policy_lock_manager"),
-            ("isolation_boundary","governance_engine.hardening.isolation_boundary", "get_isolation_boundary"),
-            ("trust_scorer",      "governance_engine.hardening.trust_scorer",       "get_trust_scorer"),
-            ("execution_auditor", "governance_engine.hardening.execution_auditor",  "get_execution_auditor"),
+            (
+                "invariant_monitor",
+                "governance_engine.hardening.invariant_monitor",
+                "get_invariant_monitor",
+            ),
+            ("replay_engine", "governance_engine.hardening.replay_engine", "get_replay_engine"),
+            (
+                "mutation_firewall",
+                "governance_engine.hardening.mutation_firewall",
+                "get_mutation_firewall",
+            ),
+            ("policy_lock", "governance_engine.hardening.policy_lock", "get_policy_lock_manager"),
+            (
+                "isolation_boundary",
+                "governance_engine.hardening.isolation_boundary",
+                "get_isolation_boundary",
+            ),
+            ("trust_scorer", "governance_engine.hardening.trust_scorer", "get_trust_scorer"),
+            (
+                "execution_auditor",
+                "governance_engine.hardening.execution_auditor",
+                "get_execution_auditor",
+            ),
         ]
         for key, module_path, factory in subsystems:
             try:
                 import importlib
+
                 mod = importlib.import_module(module_path)
                 obj = getattr(mod, factory)()
                 result[key] = obj.snapshot()

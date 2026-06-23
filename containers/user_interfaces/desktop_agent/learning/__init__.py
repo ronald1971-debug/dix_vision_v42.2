@@ -2,9 +2,9 @@
 Learning layer - Phase 4 implementation
 """
 
-from platform_profiler import PlatformProfiler, PlatformType, PlatformProfile
-from workflow_profiler import WorkflowProfiler, WorkflowType, WorkflowStep, WorkflowPattern
-from page_mapper import PageMapper, ElementType, ElementPurpose, UIElement, PageMap
+from page_mapper import ElementPurpose, ElementType, PageMap, PageMapper, UIElement
+from platform_profiler import PlatformProfile, PlatformProfiler, PlatformType
+from workflow_profiler import WorkflowPattern, WorkflowProfiler, WorkflowStep, WorkflowType
 
 __all__ = [
     "PlatformProfiler",

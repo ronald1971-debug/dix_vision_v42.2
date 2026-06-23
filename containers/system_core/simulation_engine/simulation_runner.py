@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class SimulationRun:
     """A simulation run."""
+
     run_id: str
     scenario_id: str
     status: str = "pending"
@@ -29,29 +30,29 @@ class SimulationRun:
 
 class ProductionSimulationRunner:
     """Production-grade simulation runner."""
-    
+
     def __init__(self) -> None:
         self._runs: List[SimulationRun] = []
-        
+
     def start(self) -> bool:
         logger.info("[SIMULATION_RUNNER] Production simulation runner started")
         return True
-    
+
     def stop(self) -> bool:
         logger.info("[SIMULATION_RUNNER] Production simulation runner stopped")
         return True
-    
+
     def run_simulation(self, scenario_id: str) -> SimulationRun:
         """Run a simulation scenario."""
         run = SimulationRun(
             run_id=f"run_{now().sequence}",
             scenario_id=scenario_id,
             status="running",
-            timestamp=now().utc_time.isoformat()
+            timestamp=now().utc_time.isoformat(),
         )
         self._runs.append(run)
         return run
-    
+
     def complete_simulation(self, run_id: str, results: Dict[str, Any]) -> SimulationRun:
         """Complete a simulation run with results."""
         for run in self._runs:

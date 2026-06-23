@@ -78,7 +78,7 @@ class LiquidityHunter:
         # Add to history
         self._history.append(snapshot)
         if len(self._history) > self._max_history:
-            self._history = self._history[-self._max_history:]
+            self._history = self._history[-self._max_history :]
 
         # Check for thin book
         total_depth = snapshot.bid_depth + snapshot.ask_depth

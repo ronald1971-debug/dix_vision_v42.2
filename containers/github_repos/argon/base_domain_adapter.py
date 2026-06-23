@@ -14,11 +14,12 @@ Author: DIX VISION Cognitive Architecture
 Version: 42.2
 """
 
-from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional, Union
 import logging
+from abc import ABC, abstractmethod
 from datetime import datetime
 from enum import Enum
+from typing import Any, Dict, Optional
+
 
 class DomainType(Enum):
     """Domain types for adapters"""
@@ -70,7 +71,6 @@ class BaseDomainAdapter(ABC):
         This is the main transformation method that converts external data
         into the format expected by DIX VISION's cognitive architecture.
         """
-        pass
     
     @abstractmethod
     def reverse_adapt_data(self, internal_data: Any, target_format: DataFormat) -> Any:
@@ -79,7 +79,6 @@ class BaseDomainAdapter(ABC):
         
         Used when sending data back to external repositories.
         """
-        pass
     
     def validate_data_integrity(self, data: Any) -> bool:
         """

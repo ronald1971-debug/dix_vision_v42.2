@@ -51,8 +51,8 @@ class ClassificationResult:
     ts_ns: int
     symbol: str
     archetype: str
-    confidence: float               # [0, 1]
-    scores: dict[str, float]        # archetype → raw score
+    confidence: float  # [0, 1]
+    scores: dict[str, float]  # archetype → raw score
     signal_count: int
     mean_aggression: float
     mean_direction: float
@@ -76,19 +76,20 @@ class BehavioralClassifier:
         # regime alignment: mean across signals
         regime_align = (
             sum(s.regime_alignment for s in batch.signals) / len(batch.signals)
-            if batch.signals else 0.5
+            if batch.signals
+            else 0.5
         )
         # size diversity: stddev of size_rank as proxy for size consistency
         sizes = [s.size_rank for s in batch.signals]
         mean_size = sum(sizes) / max(1, len(sizes))
 
         scores: dict[str, float] = {
-            ARCHETYPE_HFT_SCALPER:    self._score_hft(aggr, spd, mean_size),
-            ARCHETYPE_MOMENTUM:       self._score_momentum(aggr, dirn, regime_align),
-            ARCHETYPE_MEAN_REVERTER:  self._score_reverter(dirn, regime_align, mean_size),
-            ARCHETYPE_MACRO:          self._score_macro(spd, mean_size, regime_align),
-            ARCHETYPE_QUANT:          self._score_quant(spd, aggr, dirn),
-            ARCHETYPE_RETAIL:         self._score_retail(spd, dirn, mean_size),
+            ARCHETYPE_HFT_SCALPER: self._score_hft(aggr, spd, mean_size),
+            ARCHETYPE_MOMENTUM: self._score_momentum(aggr, dirn, regime_align),
+            ARCHETYPE_MEAN_REVERTER: self._score_reverter(dirn, regime_align, mean_size),
+            ARCHETYPE_MACRO: self._score_macro(spd, mean_size, regime_align),
+            ARCHETYPE_QUANT: self._score_quant(spd, aggr, dirn),
+            ARCHETYPE_RETAIL: self._score_retail(spd, dirn, mean_size),
         }
 
         ranked = sorted(scores.items(), key=lambda kv: kv[1], reverse=True)
@@ -116,32 +117,32 @@ class BehavioralClassifier:
     def _score_hft(aggression: float, speed: float, mean_size: float) -> float:
         # HFT: very fast, high aggression, small trades
         size_inv = 1.0 - mean_size  # small size → high score
-        return (0.4 * speed + 0.35 * aggression + 0.25 * size_inv)
+        return 0.4 * speed + 0.35 * aggression + 0.25 * size_inv
 
     @staticmethod
     def _score_momentum(aggression: float, directionality: float, regime_align: float) -> float:
         # Momentum: directional, moderate aggression, regime-aligned
-        return (0.35 * directionality + 0.30 * regime_align + 0.35 * aggression)
+        return 0.35 * directionality + 0.30 * regime_align + 0.35 * aggression
 
     @staticmethod
     def _score_reverter(directionality: float, regime_align: float, mean_size: float) -> float:
         # Mean reversion: counter-trend (low directionality), medium size
         counter = 1.0 - directionality
         counter_regime = 1.0 - regime_align
-        return (0.40 * counter + 0.30 * counter_regime + 0.30 * mean_size)
+        return 0.40 * counter + 0.30 * counter_regime + 0.30 * mean_size
 
     @staticmethod
     def _score_macro(speed: float, mean_size: float, regime_align: float) -> float:
         # Macro: slow, large size, regime-sensitive
         speed_inv = 1.0 - speed
-        return (0.35 * speed_inv + 0.40 * mean_size + 0.25 * regime_align)
+        return 0.35 * speed_inv + 0.40 * mean_size + 0.25 * regime_align
 
     @staticmethod
     def _score_quant(speed: float, aggression: float, directionality: float) -> float:
         # Quant: balanced speed and aggression, lower directionality
         balance = 1.0 - abs(speed - aggression)
         neutral_dir = 1.0 - directionality
-        return (0.40 * balance + 0.35 * speed + 0.25 * neutral_dir)
+        return 0.40 * balance + 0.35 * speed + 0.25 * neutral_dir
 
     @staticmethod
     def _score_retail(speed: float, directionality: float, mean_size: float) -> float:
@@ -149,7 +150,7 @@ class BehavioralClassifier:
         speed_inv = 1.0 - speed
         dir_noise = 1.0 - directionality
         size_inv = 1.0 - mean_size
-        return (0.35 * speed_inv + 0.35 * dir_noise + 0.30 * size_inv)
+        return 0.35 * speed_inv + 0.35 * dir_noise + 0.30 * size_inv
 
 
 # ---------------------------------------------------------------------------

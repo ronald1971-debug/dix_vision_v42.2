@@ -206,8 +206,8 @@ def enable_sentence_transformer_factory(
 
     if not isinstance(model_name, str) or not model_name:
         raise EmbedderError(f"model_name must be a non-empty str, got {model_name!r}")
-    from sentence_transformers import (
-        SentenceTransformer,  # type: ignore[import-not-found]  # noqa: F401 - lazy seam
+    from sentence_transformers import (  # type: ignore[import-not-found]  # noqa: F401 - lazy seam
+        SentenceTransformer,
     )
 
     model: Any = SentenceTransformer(model_name)

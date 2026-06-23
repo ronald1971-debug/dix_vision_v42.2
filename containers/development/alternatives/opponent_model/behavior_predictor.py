@@ -9,8 +9,8 @@ behavioral simulation, and production-ready prediction accuracy tracking.
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass, field
-from typing import Any, Dict, List
+from dataclasses import dataclass
+from typing import List
 
 from system.time_source import now
 
@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class BehaviorPrediction:
     """A behavior prediction."""
+
     prediction_id: str
     opponent_id: str
     predicted_action: str
@@ -30,19 +31,21 @@ class BehaviorPrediction:
 
 class ProductionBehaviorPredictor:
     """Production-grade behavior predictor."""
-    
+
     def __init__(self) -> None:
         self._predictions: List[BehaviorPrediction] = []
-        
+
     def start(self) -> bool:
         logger.info("[BEHAVIOR_PREDICTOR] Production behavior predictor started")
         return True
-    
+
     def stop(self) -> bool:
         logger.info("[BEHAVIOR_PREDICTOR] Production behavior predictor stopped")
         return True
-    
-    def predict_behavior(self, opponent_id: str, predicted_action: str, probability: float) -> BehaviorPrediction:
+
+    def predict_behavior(
+        self, opponent_id: str, predicted_action: str, probability: float
+    ) -> BehaviorPrediction:
         """Predict opponent behavior."""
         prediction = BehaviorPrediction(
             prediction_id=f"pred_{now().sequence}",
@@ -50,7 +53,7 @@ class ProductionBehaviorPredictor:
             predicted_action=predicted_action,
             probability=probability,
             confidence=0.75,
-            timestamp=now().utc_time.isoformat()
+            timestamp=now().utc_time.isoformat(),
         )
         self._predictions.append(prediction)
         return prediction

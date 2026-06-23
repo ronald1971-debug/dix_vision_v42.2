@@ -36,7 +36,6 @@ from pathlib import Path
 from typing import Any
 
 import yaml
-
 from core.contracts.events import Side, SignalEvent
 
 CONFIDENCE_ENGINE_VERSION = "v3.3-T1b"

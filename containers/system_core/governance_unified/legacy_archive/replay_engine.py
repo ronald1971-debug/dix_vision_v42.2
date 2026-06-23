@@ -26,7 +26,11 @@ _logger = logging.getLogger(__name__)
 _DEFAULT_DB = Path("data") / "replay_golden.db"
 
 KNOWN_STREAMS: tuple[str, ...] = (
-    "MARKET", "SYSTEM", "GOVERNANCE", "HAZARD", "AUTHORITY",
+    "MARKET",
+    "SYSTEM",
+    "GOVERNANCE",
+    "HAZARD",
+    "AUTHORITY",
 )
 
 
@@ -38,8 +42,8 @@ class ReplayResult:
     row_count: int
     current_digest: str
     golden_digest: str | None
-    matches: bool       # True when current == golden (or no golden yet)
-    chain_ok: bool      # EventStore hash-chain intact
+    matches: bool  # True when current == golden (or no golden yet)
+    chain_ok: bool  # EventStore hash-chain intact
     detail: str
 
 
@@ -81,14 +85,12 @@ class DeterministicReplayEngine:
 
     def _init_db(self) -> None:
         with self._connect() as conn:
-            conn.execute(
-                """CREATE TABLE IF NOT EXISTS golden_digests (
+            conn.execute("""CREATE TABLE IF NOT EXISTS golden_digests (
                     stream      TEXT PRIMARY KEY,
                     digest      TEXT NOT NULL,
                     row_count   INTEGER NOT NULL,
                     recorded_ns INTEGER NOT NULL
-                )"""
-            )
+                )""")
             conn.execute("PRAGMA journal_mode=WAL")
             conn.commit()
 
@@ -116,7 +118,9 @@ class DeterministicReplayEngine:
                 conn.commit()
         _logger.info(
             "DeterministicReplayEngine: snapshotted golden for stream=%s rows=%d digest=%s",
-            stream, len(rows), digest[:16],
+            stream,
+            len(rows),
+            digest[:16],
         )
         return digest
 
@@ -195,6 +199,7 @@ class DeterministicReplayEngine:
     def _load_rows(self, stream: str) -> list[dict[str, Any]]:
         try:
             from state.ledger.event_store import get_event_store
+
             store = get_event_store()
             return store.query(stream=stream, limit=self._row_limit)
         except Exception as exc:
@@ -204,6 +209,7 @@ class DeterministicReplayEngine:
     @staticmethod
     def _compute_digest(rows: list[dict[str, Any]]) -> str:
         from governance_unified.services.audit_replay import replay_audit_rows
+
         report = replay_audit_rows(rows)
         return report.digest
 
@@ -221,6 +227,7 @@ class DeterministicReplayEngine:
     def _verify_chain(stream: str) -> bool:
         try:
             from state.ledger.event_store import get_event_store
+
             store = get_event_store()
             if hasattr(store, "verify_chain"):
                 return store.verify_chain(stream=stream)
@@ -233,6 +240,7 @@ class DeterministicReplayEngine:
     def _emit_tamper_hazard(stream: str, ts_ns: int) -> None:
         try:
             from state.ledger.append import append_event
+
             append_event(
                 stream="GOVERNANCE",
                 kind="REPLAY_TAMPER",
@@ -243,12 +251,16 @@ class DeterministicReplayEngine:
             pass
         try:
             from state.event_bus import CognitiveChannel, get_event_bus
-            get_event_bus().publish(CognitiveChannel.DYON_VIOLATION, {
-                "source": "replay_engine",
-                "stream": stream,
-                "hazard": "TAMPER_DETECTED",
-                "ts_ns": ts_ns,
-            })
+
+            get_event_bus().publish(
+                CognitiveChannel.DYON_VIOLATION,
+                {
+                    "source": "replay_engine",
+                    "stream": stream,
+                    "hazard": "TAMPER_DETECTED",
+                    "ts_ns": ts_ns,
+                },
+            )
         except Exception:
             pass
 

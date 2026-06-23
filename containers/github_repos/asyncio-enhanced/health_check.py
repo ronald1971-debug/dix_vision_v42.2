@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-import sys
 import logging
+import sys
 from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
@@ -8,7 +8,6 @@ logger = logging.getLogger('asyncio_enhanced_health_check')
 
 def check_imports():
     try:
-        import asyncio
         logger.info("AsyncIO Enhanced import successful")
         return True
     except ImportError as e:

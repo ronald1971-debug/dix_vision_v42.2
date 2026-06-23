@@ -40,10 +40,6 @@ from core.contracts.events import (
     Side,
     SignalEvent,
 )
-from execution_unified.core.offline import (
-    AdapterState,
-    LiveAdapterBase,
-)
 from execution_unified.core.adapters._uniswapx_quote import (
     DEFAULT_API_URL,
     QuoteRequest,
@@ -54,6 +50,10 @@ from execution_unified.core.adapters._uniswapx_signer import (
     build_exclusive_dutch_order_typed_data,
     intent_from_quote_payload,
     sign_typed_data,
+)
+from execution_unified.core.offline import (
+    AdapterState,
+    LiveAdapterBase,
 )
 from system_unified.time_source import wall_ns
 

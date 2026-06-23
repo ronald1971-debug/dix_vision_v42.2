@@ -5,8 +5,8 @@ python-docx Container Health Check
 This script performs health checks for the python-docx container.
 """
 
-import sys
 import logging
+import sys
 from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
@@ -25,8 +25,8 @@ def check_imports():
 def check_governance_wrapper():
     """Check if governance wrapper can be initialized"""
     try:
-        from python_docx_governance_wrapper import Python_docxGovernanceWrapper
         from base_external_repo_wrapper import PermissionLevel
+        from python_docx_governance_wrapper import Python_docxGovernanceWrapper
         
         wrapper = Python_docxGovernanceWrapper(PermissionLevel.READ_ONLY)
         logger.info("Governance wrapper initialization successful")

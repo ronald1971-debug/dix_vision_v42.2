@@ -27,6 +27,7 @@ from core.contracts.market import MarketTick
 # DTOs
 # ---------------------------------------------------------------------------
 
+
 @dataclass(frozen=True, slots=True)
 class AgentSignal:
     symbol: str
@@ -43,6 +44,7 @@ class AgentSignal:
 # ---------------------------------------------------------------------------
 # Agent pool + selector (Wave 2)
 # ---------------------------------------------------------------------------
+
 
 class RegimeAgentPool:
     """Maps regime labels to agent subsets.
@@ -111,6 +113,7 @@ class AgentSelector:
 # ---------------------------------------------------------------------------
 # Orchestrator
 # ---------------------------------------------------------------------------
+
 
 class AgentOrchestrator:
     DEFAULT_RING = 128
@@ -234,9 +237,7 @@ class AgentOrchestrator:
             side = Side.HOLD
             conflict = "hold_dominant"
 
-        winner_w = (
-            buy_w if side is Side.BUY else sell_w if side is Side.SELL else hold_w
-        )
+        winner_w = buy_w if side is Side.BUY else sell_w if side is Side.SELL else hold_w
         total = buy_w + sell_w + hold_w
         confidence = min(1.0, winner_w / total) if total > 0 else 0.0
         return side, confidence, conflict

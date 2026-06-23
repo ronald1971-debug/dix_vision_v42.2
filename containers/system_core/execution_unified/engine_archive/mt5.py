@@ -125,6 +125,7 @@ class MT5Adapter:
         """
         try:
             import MetaTrader5 as mt5  # noqa: N813, PLC0415
+
             self._mt5 = mt5
 
             init_kwargs: dict[str, Any] = {}
@@ -191,19 +192,21 @@ class MT5Adapter:
                 # MT5 position_type: 0=POSITION_TYPE_BUY, 1=POSITION_TYPE_SELL
                 side = "buy" if int(p.type) == 0 else "sell"
                 ts_ns = int(p.time) * 1_000_000_000
-                positions.append(MT5Position(
-                    ticket=int(p.ticket),
-                    symbol=str(p.symbol),
-                    side=side,
-                    volume=float(p.volume),
-                    price_open=float(p.price_open),
-                    price_current=float(p.price_current),
-                    profit=float(p.profit),
-                    swap=float(p.swap),
-                    comment=str(p.comment),
-                    magic_number=int(p.magic),
-                    ts_open_ns=ts_ns,
-                ))
+                positions.append(
+                    MT5Position(
+                        ticket=int(p.ticket),
+                        symbol=str(p.symbol),
+                        side=side,
+                        volume=float(p.volume),
+                        price_open=float(p.price_open),
+                        price_current=float(p.price_current),
+                        profit=float(p.profit),
+                        swap=float(p.swap),
+                        comment=str(p.comment),
+                        magic_number=int(p.magic),
+                        ts_open_ns=ts_ns,
+                    )
+                )
             return positions
         except Exception as exc:  # noqa: BLE001
             logger.error("MT5Adapter.fetch_positions: %s", exc)
@@ -285,18 +288,20 @@ class MT5Adapter:
             # MT5 deal_type: 0=DEAL_TYPE_BUY, 1=DEAL_TYPE_SELL
             for d in deals[-limit:]:
                 side = "buy" if int(d.type) == 0 else "sell"
-                signals.append(MT5Signal(
-                    ea_name=str(d.comment) if d.comment else "EA",
-                    symbol=str(d.symbol),
-                    side=side,
-                    entry_price=float(d.price),
-                    stop_loss=0.0,
-                    take_profit=0.0,
-                    volume=float(d.volume),
-                    comment=str(d.comment),
-                    magic_number=int(d.magic),
-                    ts_ns=int(d.time) * 1_000_000_000,
-                ))
+                signals.append(
+                    MT5Signal(
+                        ea_name=str(d.comment) if d.comment else "EA",
+                        symbol=str(d.symbol),
+                        side=side,
+                        entry_price=float(d.price),
+                        stop_loss=0.0,
+                        take_profit=0.0,
+                        volume=float(d.volume),
+                        comment=str(d.comment),
+                        magic_number=int(d.magic),
+                        ts_ns=int(d.time) * 1_000_000_000,
+                    )
+                )
             return signals
         except Exception as exc:  # noqa: BLE001
             logger.error("MT5Adapter.fetch_signals: %s", exc)
@@ -346,20 +351,22 @@ class MT5Adapter:
 
             result: list[dict[str, Any]] = []
             for d in deals[-limit:]:
-                result.append({
-                    "ticket": int(d.ticket),
-                    "order": int(d.order),
-                    "symbol": str(d.symbol),
-                    "type": "buy" if int(d.type) == 0 else "sell",
-                    "volume": float(d.volume),
-                    "price": float(d.price),
-                    "profit": float(d.profit),
-                    "commission": float(d.commission),
-                    "swap": float(d.swap),
-                    "comment": str(d.comment),
-                    "magic": int(d.magic),
-                    "ts_ns": int(d.time) * 1_000_000_000,
-                })
+                result.append(
+                    {
+                        "ticket": int(d.ticket),
+                        "order": int(d.order),
+                        "symbol": str(d.symbol),
+                        "type": "buy" if int(d.type) == 0 else "sell",
+                        "volume": float(d.volume),
+                        "price": float(d.price),
+                        "profit": float(d.profit),
+                        "commission": float(d.commission),
+                        "swap": float(d.swap),
+                        "comment": str(d.comment),
+                        "magic": int(d.magic),
+                        "ts_ns": int(d.time) * 1_000_000_000,
+                    }
+                )
             return result
         except Exception as exc:  # noqa: BLE001
             logger.error("MT5Adapter.fetch_history: symbol=%s error=%s", symbol, exc)
@@ -392,9 +399,15 @@ class MT5Adapter:
             return []
         try:
             tf_map = {
-                "M1": 1, "M5": 5, "M15": 15, "M30": 30,
-                "H1": 16385, "H4": 16388,
-                "D1": 16408, "W1": 32769, "MN1": 49153,
+                "M1": 1,
+                "M5": 5,
+                "M15": 15,
+                "M30": 30,
+                "H1": 16385,
+                "H4": 16388,
+                "D1": 16408,
+                "W1": 32769,
+                "MN1": 49153,
             }
             tf_const = tf_map.get(timeframe.upper(), 16385)
 
@@ -404,17 +417,19 @@ class MT5Adapter:
 
             result: list[dict[str, Any]] = []
             for r in rates:
-                result.append({
-                    "time": int(r[0]),
-                    "ts_ns": int(r[0]) * 1_000_000_000,
-                    "open": float(r[1]),
-                    "high": float(r[2]),
-                    "low": float(r[3]),
-                    "close": float(r[4]),
-                    "tick_volume": int(r[5]),
-                    "spread": int(r[6]),
-                    "real_volume": int(r[7]),
-                })
+                result.append(
+                    {
+                        "time": int(r[0]),
+                        "ts_ns": int(r[0]) * 1_000_000_000,
+                        "open": float(r[1]),
+                        "high": float(r[2]),
+                        "low": float(r[3]),
+                        "close": float(r[4]),
+                        "tick_volume": int(r[5]),
+                        "spread": int(r[6]),
+                        "real_volume": int(r[7]),
+                    }
+                )
             return result
         except Exception as exc:  # noqa: BLE001
             logger.error("MT5Adapter.fetch_market_data: symbol=%s error=%s", symbol, exc)

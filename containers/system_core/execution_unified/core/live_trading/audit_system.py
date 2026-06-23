@@ -4,10 +4,11 @@ Provides audit system for live trading
 NO LAZY LOADING - All components load directly
 """
 
-from typing import Dict, List, Optional, Any
 import logging
+from typing import Any, Dict, List
 
 logger = logging.getLogger(__name__)
+
 
 class AuditSystem:
     """Audit system for live trading operations"""
@@ -22,7 +23,7 @@ class AuditSystem:
         audit_entry = {
             "audit_id": audit_id,
             "execution_data": execution_data,
-            "timestamp": __import__('datetime').datetime.now().isoformat()
+            "timestamp": __import__("datetime").datetime.now().isoformat(),
         }
         self._audit_log.append(audit_entry)
         return audit_id
@@ -39,7 +40,9 @@ class AuditSystem:
         """Enable audit system"""
         self._active = True
 
+
 _audit_system = None
+
 
 def get_live_trading_audit_system() -> AuditSystem:
     """Get live trading audit system instance"""
@@ -48,4 +51,5 @@ def get_live_trading_audit_system() -> AuditSystem:
         _audit_system = AuditSystem()
     return _audit_system
 
-__all__ = ['AuditSystem', 'get_live_trading_audit_system']
+
+__all__ = ["AuditSystem", "get_live_trading_audit_system"]

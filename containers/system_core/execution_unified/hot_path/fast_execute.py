@@ -44,11 +44,13 @@ from execution_unified.core.events import (
     SignalEvent,
 )
 
+
 # RiskSnapshot would need to be created locally or import from core system
 # For now, we'll create a simple placeholder
 @dataclass(frozen=True, slots=True)
 class RiskSnapshot:
     """Placeholder RiskSnapshot for hot path execution."""
+
     max_position_usd: float = 0.0
     current_position_usd: float = 0.0
     max_order_usd: float = 0.0

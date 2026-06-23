@@ -4,15 +4,14 @@ Author: DIX VISION System Domain Adapter
 Version: 42.2
 """
 
-import logging
-from typing import Any, Dict
-from datetime import datetime
-
 import sys
-import os
+from datetime import datetime
+from typing import Any, Dict
+
 sys.path.append('/app/adapters')
 
-from base_domain_adapter import SystemDomainAdapter, DataFormat
+from base_domain_adapter import DataFormat, SystemDomainAdapter
+
 
 class ClickHouseDomainAdapter(SystemDomainAdapter):
     def __init__(self):

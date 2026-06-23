@@ -210,9 +210,7 @@ class HallucinationGuard:
             # No parent: check if any live signal exists in the graph at all
             # and this paper signal lacks a live parent chain
             return any(
-                s["mode"] == "live"
-                for sid, s in self._signal_graph.items()
-                if sid != signal_id
+                s["mode"] == "live" for sid, s in self._signal_graph.items() if sid != signal_id
             )
 
         # Check siblings (signals sharing the same parent)

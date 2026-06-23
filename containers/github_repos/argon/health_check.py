@@ -5,8 +5,8 @@ argon Container Health Check
 This script performs health checks for the argon container.
 """
 
-import sys
 import logging
+import sys
 from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)

@@ -58,28 +58,32 @@ class EnforcementConfig:
     enabled: bool = True  # Master switch for enforcement
     block_live_trades: bool = True  # Block trades to live venues
     alert_on_live_attempt: bool = True  # Alert when live trading is attempted
-    allowed_paper_venues: set[str] = field(default_factory=lambda: {
-        "binance_paper",
-        "coinbase_paper",
-        "kraken_paper",
-        "alpaca_paper",
-        "oanda_paper",
-        "ibkr_paper",
-    })
-    blocked_live_venues: set[str] = field(default_factory=lambda: {
-        "binance",
-        "coinbase",
-        "kraken",
-        "alpaca",
-        "oanda",
-        "ibkr",
-        "binance_live",
-        "coinbase_live",
-        "kraken_live",
-        "alpaca_live",
-        "oanda_live",
-        "ibkr_live",
-    })
+    allowed_paper_venues: set[str] = field(
+        default_factory=lambda: {
+            "binance_paper",
+            "coinbase_paper",
+            "kraken_paper",
+            "alpaca_paper",
+            "oanda_paper",
+            "ibkr_paper",
+        }
+    )
+    blocked_live_venues: set[str] = field(
+        default_factory=lambda: {
+            "binance",
+            "coinbase",
+            "kraken",
+            "alpaca",
+            "oanda",
+            "ibkr",
+            "binance_live",
+            "coinbase_live",
+            "kraken_live",
+            "alpaca_live",
+            "oanda_live",
+            "ibkr_live",
+        }
+    )
     enforcement_override_allowed: bool = False  # Allow operator override (dangerous)
 
 
@@ -366,7 +370,6 @@ class PaperOnlyEnforcer:
         """Alert on live trading attempt."""
         # In production, this would trigger alarms, send notifications, etc.
         # For now, just log to the enforcement log (already done in _record_enforcement)
-        pass
 
     def _get_timestamp_ns(self) -> int:
         """Get current timestamp in nanoseconds."""

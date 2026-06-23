@@ -25,8 +25,8 @@ import threading
 from typing import Any
 
 from core.contracts.events import ExecutionEvent, SignalEvent
-from execution_unified.core.offline import AdapterState, AdapterStatus, LiveAdapterBase
 from execution_unified.core.adapters.paper import PaperBroker
+from execution_unified.core.offline import AdapterState, AdapterStatus, LiveAdapterBase
 from execution_unified.core.paper_trading.venue_config import VenueConfig
 
 
@@ -138,9 +138,11 @@ class PaperVenueAdapter(LiveAdapterBase):
             "cash": round(cash, 4),
             "initial_cash": self._config.initial_cash,
             "realized_pnl": round(realized_pnl, 4),
-            "realized_pnl_pct": round(
-                realized_pnl / self._config.initial_cash * 100, 4
-            ) if self._config.initial_cash else 0.0,
+            "realized_pnl_pct": (
+                round(realized_pnl / self._config.initial_cash * 100, 4)
+                if self._config.initial_cash
+                else 0.0
+            ),
             "positions": {sym: round(qty, 8) for sym, qty in positions.items()},
             "open_position_count": len(positions),
             "submit_count": submit_count,

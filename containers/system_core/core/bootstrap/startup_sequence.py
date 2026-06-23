@@ -123,6 +123,7 @@ def run_startup_sequence(*, skip_feeds: bool = False, skip_plugins: bool = False
     result.total_duration_ms = (time_source.now_ns() - start_ns) / 1_000_000
     if result.success:
         import os as _os
+
         result.final_mode = _os.environ.get("DIXVISION_BOOT_MODE", "LIVE").strip().upper()
 
     logger.info(
@@ -155,6 +156,7 @@ def _load_authority() -> None:
         LIVE_PRIORITY_STACK,
         GovernancePriority,
     )
+
     # Operator Sovereignty must be P2 in every phase (executive directive)
     live_op = LIVE_PRIORITY_STACK.get(GovernancePriority.P2_OPERATOR)
     dev_op = DEV_PRIORITY_STACK.get(GovernancePriority.P2_OPERATOR)
@@ -172,6 +174,7 @@ def _load_authority() -> None:
     import pathlib
 
     import yaml
+
     registry_root = pathlib.Path(__file__).parents[2] / "registry"
     for name in ("governance_constitution.yaml", "engines.yaml", "modes.yaml"):
         path = registry_root / name
@@ -191,6 +194,7 @@ def _boot_governance() -> None:
     import intelligence_engine.charter.indira  # noqa: F401
     from core.charter import Voice, all_charters
     from governance_engine import GovernanceEngine  # noqa: F401 — import validates
+
     # all_charters() is keyed by Voice enum; check both identities present
     charters = all_charters()
     if Voice.INDIRA not in charters:
@@ -213,9 +217,8 @@ def _boot_intelligence() -> None:
     # Verify memory stores
     from state.memory_tensor.episodic import EpisodicMemoryStore  # noqa: F401
     from state.memory_tensor.semantic import SemanticMemoryStore  # noqa: F401
-    logger.info(
-        "Intelligence: IntelligenceEngine + cognitive observability surface OK"
-    )
+
+    logger.info("Intelligence: IntelligenceEngine + cognitive observability surface OK")
 
 
 def _boot_execution() -> None:
@@ -225,6 +228,7 @@ def _boot_execution() -> None:
     # Verify the execution engine's core contracts
     from core.contracts.execution import ExecutionIntent  # noqa: F401
     from execution_engine import ExecutionEngine  # noqa: F401
+
     logger.info("Execution: ExecutionEngine importable")
 
 
@@ -234,6 +238,7 @@ def _boot_learning() -> None:
     from evolution_engine.dyon.topology_scanner import DyonTopologyScanner  # noqa: F401
     from evolution_engine.loops.structural_loop import StructuralEvolutionLoop  # noqa: F401
     from learning_engine import LearningEngine  # noqa: F401
+
     logger.info(
         "Learning/Evolution: LearningEngine + EvolutionEngine + "
         "StructuralEvolutionLoop + DyonTopologyScanner OK"
@@ -243,12 +248,15 @@ def _boot_learning() -> None:
 def _boot_system() -> None:
     """Verify system engine and ledger are accessible; emit BOOT_START event."""
     from observability.logs.log_sink import install_global_sink
+
     install_global_sink()
     from state.ledger.event_store import append_event
     from system_engine import SystemEngine  # noqa: F401
+
     # Confirm ledger is writable — emit BOOT_START
     ts_ns = time_source.now_ns()
     import os as _os
+
     append_event(
         event_type="SYSTEM",
         sub_type="BOOT_START",
@@ -267,6 +275,7 @@ def _register_plugins() -> None:
     import pathlib
 
     import yaml
+
     path = pathlib.Path(__file__).parents[2] / "registry" / "plugins.yaml"
     if not path.exists():
         raise FileNotFoundError(f"Missing plugins registry: {path}")
@@ -280,6 +289,7 @@ def _start_feeds() -> None:
     import pathlib
 
     import yaml
+
     path = pathlib.Path(__file__).parents[2] / "registry" / "integrations.yaml"
     if not path.exists():
         logger.info("Feeds: no integrations.yaml — skipping feed config validation")

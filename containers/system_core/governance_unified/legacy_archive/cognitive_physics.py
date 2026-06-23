@@ -86,9 +86,7 @@ class CognitivePhysicsEngine:
         self._decay_history: list[DecayRecord] = defaultdict(list)
         self._uncertainty_graph: dict[str, set[str]] = defaultdict(set)
 
-    def register_dependency(
-        self, source_belief_id: str, target_belief_id: str
-    ) -> None:
+    def register_dependency(self, source_belief_id: str, target_belief_id: str) -> None:
         """Register that target depends on source for uncertainty propagation."""
         with self._lock:
             self._uncertainty_graph[target_belief_id].add(source_belief_id)
@@ -209,7 +207,7 @@ class CognitivePhysicsEngine:
 
         uncertainty_product = 1.0
         for u in source_uncertainties:
-            uncertainty_product *= (1.0 - u)
+            uncertainty_product *= 1.0 - u
 
         propagated = 1.0 - uncertainty_product
         total_uncertainty = min(1.0, propagated + direct_uncertainty)
@@ -244,10 +242,8 @@ class CognitivePhysicsEngine:
         """Get propagation statistics for a belief or overall."""
         with self._lock:
             if belief_id:
-                incoming = [p for p in self._propagation_history
-                           if p.target_belief_id == belief_id]
-                outgoing = [p for p in self._propagation_history
-                           if p.source_belief_id == belief_id]
+                incoming = [p for p in self._propagation_history if p.target_belief_id == belief_id]
+                outgoing = [p for p in self._propagation_history if p.source_belief_id == belief_id]
                 return {
                     "belief_id": belief_id,
                     "incoming_propagation_count": len(incoming),

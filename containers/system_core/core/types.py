@@ -51,6 +51,7 @@ class PromotionStage(Enum):
 @dataclass(frozen=True)
 class ExecutionIntent:
     """An intent to execute a trade, produced by INDIRA, gated by Governance."""
+
     intent_id: str = ""
     symbol: str = ""
     direction: str = ""  # "long" | "short" | "close"
@@ -66,6 +67,7 @@ class ExecutionIntent:
 @dataclass(frozen=True)
 class TradeResult:
     """Outcome of an executed trade."""
+
     trade_id: str = ""
     intent_id: str = ""
     symbol: str = ""
@@ -82,6 +84,7 @@ class TradeResult:
 @dataclass(frozen=True)
 class HazardEvent:
     """System hazard detected by DYON."""
+
     hazard_id: str = ""
     hazard_type: str = ""  # stale_feed | dead_service | contract_violation | dependency_failure
     severity: Severity = Severity.WARNING

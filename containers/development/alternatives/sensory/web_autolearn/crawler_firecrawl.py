@@ -267,7 +267,7 @@ class FirecrawlCrawler:
         *,
         credentials: FirecrawlCredentials | None = None,
         request_formats: Sequence[str] = ("markdown",),
-        client_factory: (Callable[[FirecrawlCredentials], Any] | None) = None,
+        client_factory: Callable[[FirecrawlCredentials], Any] | None = None,
     ) -> None:
         if not seed_urls:
             raise ValueError("FirecrawlCrawler.seed_urls must be non-empty")

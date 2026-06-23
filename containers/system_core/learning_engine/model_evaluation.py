@@ -435,7 +435,7 @@ class ModelEvaluator:
             Model metrics
         """
         import time
-        
+
         # Extract metrics from test data if provided
         if test_data:
             sample_size = test_data.get("sample_size", self._config.min_evaluation_samples)

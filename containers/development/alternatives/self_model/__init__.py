@@ -8,8 +8,8 @@ representation, and self-awareness capabilities.
 """
 
 from self_model.orchestrator import (
-    SelfModelState,
     SelfModelOrchestrator,
+    SelfModelState,
     get_self_model_orchestrator,
 )
 

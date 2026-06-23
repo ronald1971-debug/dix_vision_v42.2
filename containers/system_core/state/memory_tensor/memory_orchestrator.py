@@ -27,14 +27,15 @@ from __future__ import annotations
 
 import logging
 import threading
+from collections import deque
+from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
-from dataclasses import dataclass, field
-from collections import deque
 
 # Try to import world model components
 try:
     from world_model.indicator_integration import get_integration_bridge
+
     WORLD_MODEL_AVAILABLE = True
 except ImportError:
     WORLD_MODEL_AVAILABLE = False
@@ -50,7 +51,7 @@ _MAX_EPISODES = 10_000
 @dataclass
 class WorldContext:
     """World context for tensor operations."""
-    
+
     market_regime: str = "unknown"
     market_trend: str = "unknown"
     volatility_regime: str = "unknown"
@@ -64,7 +65,7 @@ class WorldContext:
 @dataclass
 class TensorStats:
     """Tensor operation statistics."""
-    
+
     total_tensors_processed: int = 0
     total_tensor_elements: int = 0
     compression_savings_bytes: int = 0
@@ -94,7 +95,7 @@ class MemoryOrchestrator:
         self._meta: Any = None
         self._regret: Any = None
         self._consolidate_seq: int = 0
-        
+
         # Phase 15.2 enhancements
         self._lock = threading.Lock()
         self._world_integration_bridge = None
@@ -102,10 +103,10 @@ class MemoryOrchestrator:
         self._world_context_history: deque = deque(maxlen=100)
         self._tensor_stats = TensorStats()
         self._operation_latencies: deque = deque(maxlen=100)
-        
+
         if WORLD_MODEL_AVAILABLE:
             self._init_world_integration()
-    
+
     def _init_world_integration(self) -> None:
         """Initialize world model integration bridge."""
         try:
@@ -114,44 +115,42 @@ class MemoryOrchestrator:
         except Exception as e:
             logger.warning(f"[MEMORY_ORCHESTRATOR] Failed to initialize world integration: {e}")
             self._world_integration_bridge = None
-    
+
     def _get_world_context(self) -> Optional[WorldContext]:
         """Get current world context from world model."""
         if not self._world_integration_bridge:
             return None
-        
+
         try:
             world_state = self._world_integration_bridge.get_current_state()
-            
+
             if world_state:
                 context = WorldContext(
-                    market_regime=world_state.get('market_regime', 'unknown'),
-                    market_trend=world_state.get('market_trend', 'unknown'),
-                    volatility_regime=world_state.get('volatility_regime', 'unknown'),
-                    liquidity_state=world_state.get('liquidity_state', 'unknown'),
-                    agent_activity=world_state.get('agent_activity', {}),
-                    causal_factors=world_state.get('causal_factors', []),
-                    prediction_confidence=world_state.get('prediction_confidence', 0.0),
-                    timestamp=datetime.utcnow()
+                    market_regime=world_state.get("market_regime", "unknown"),
+                    market_trend=world_state.get("market_trend", "unknown"),
+                    volatility_regime=world_state.get("volatility_regime", "unknown"),
+                    liquidity_state=world_state.get("liquidity_state", "unknown"),
+                    agent_activity=world_state.get("agent_activity", {}),
+                    causal_factors=world_state.get("causal_factors", []),
+                    prediction_confidence=world_state.get("prediction_confidence", 0.0),
+                    timestamp=datetime.utcnow(),
                 )
                 self._current_world_context = context
                 self._world_context_history.append(context)
                 return context
-        
+
         except Exception as e:
             logger.debug(f"[MEMORY_ORCHESTRATOR] Failed to get world context: {e}")
-        
+
         return None
-    
+
     def _optimize_tensor_shape(
-        self,
-        tensor_shape: Tuple[int, ...],
-        world_context: Optional[WorldContext]
+        self, tensor_shape: Tuple[int, ...], world_context: Optional[WorldContext]
     ) -> Tuple[int, ...]:
         """Optimize tensor shape based on world context (Phase 15.2)."""
         if not world_context or not tensor_shape:
             return tensor_shape
-        
+
         # Optimize based on volatility regime
         if world_context.volatility_regime == "high":
             # Smaller tensor shapes during high volatility (faster processing)
@@ -161,43 +160,43 @@ class MemoryOrchestrator:
             # Larger tensor shapes during low volatility (more data for analysis)
             if len(tensor_shape) >= 2:
                 return tuple(dim * 2 for dim in tensor_shape)
-        
+
         return tensor_shape
-    
+
     def _calculate_compression_ratio(
-        self,
-        tensor_elements: int,
-        world_context: Optional[WorldContext]
+        self, tensor_elements: int, world_context: Optional[WorldContext]
     ) -> float:
         """Calculate compression ratio based on world context (Phase 15.2)."""
         base_compression = 0.5  # 50% compression by default
-        
+
         if world_context:
             # Higher compression during regime transitions (save memory)
             if world_context.market_regime == "transition":
                 return 0.7  # 70% compression
             # Lower compression during stable periods (better performance)
-            elif world_context.volatility_regime == "low" and world_context.market_trend == "stable":
+            elif (
+                world_context.volatility_regime == "low" and world_context.market_trend == "stable"
+            ):
                 return 0.3  # 30% compression
-        
+
         return base_compression
-    
+
     def _adjust_computational_intensity(
-        self,
-        operation_type: str,
-        world_context: Optional[WorldContext]
+        self, operation_type: str, world_context: Optional[WorldContext]
     ) -> int:
         """Adjust computational intensity based on world context (Phase 15.2)."""
         base_intensity = 1.0
-        
+
         if world_context:
             # Reduce intensity during high volatility
             if world_context.volatility_regime == "high":
                 return 0.7  # 30% reduction
             # Increase intensity during stable periods
-            elif world_context.volatility_regime == "low" and world_context.market_trend == "stable":
+            elif (
+                world_context.volatility_regime == "low" and world_context.market_trend == "stable"
+            ):
                 return 1.3  # 30% increase
-        
+
         return base_intensity
 
     # ------------------------------------------------------------------
@@ -208,6 +207,7 @@ class MemoryOrchestrator:
     def episodic(self) -> Any:
         if self._episodic is None:
             from state.memory_tensor.episodic import EpisodicMemoryStore
+
             self._episodic = EpisodicMemoryStore(dim=_EMBED_DIM, max_size=_MAX_EPISODES)
             self._restore_episodes("episodic", self._episodic)
         return self._episodic
@@ -216,6 +216,7 @@ class MemoryOrchestrator:
     def semantic(self) -> Any:
         if self._semantic is None:
             from state.memory_tensor.semantic import SemanticMemoryStore
+
             self._semantic = SemanticMemoryStore(dim=_EMBED_DIM, max_size=_MAX_EPISODES)
             self._restore_episodes("semantic", self._semantic)
         return self._semantic
@@ -224,6 +225,7 @@ class MemoryOrchestrator:
     def procedural(self) -> Any:
         if self._procedural is None:
             from state.memory_tensor.procedural import ProceduralMemoryStore
+
             self._procedural = ProceduralMemoryStore()
         return self._procedural
 
@@ -231,6 +233,7 @@ class MemoryOrchestrator:
     def meta(self) -> Any:
         if self._meta is None:
             from state.memory_tensor.meta_memory import MetaMemoryStore
+
             self._meta = MetaMemoryStore()
         return self._meta
 
@@ -238,6 +241,7 @@ class MemoryOrchestrator:
     def regret(self) -> Any:
         if self._regret is None:
             from state.memory_tensor.regret.regret_log import RegretLog
+
             self._regret = RegretLog()
         return self._regret
 
@@ -249,6 +253,7 @@ class MemoryOrchestrator:
         """Reload episodes for *kind* from SQLite into *store*. Best-effort."""
         try:
             from state.cognition_persistence import get_cognition_persistence_store
+
             rows = get_cognition_persistence_store().load_episodes(kind, limit=_MAX_EPISODES)
             for row in rows:
                 try:
@@ -269,6 +274,7 @@ class MemoryOrchestrator:
         """Write one episode to SQLite. Best-effort."""
         try:
             from state.cognition_persistence import get_cognition_persistence_store
+
             get_cognition_persistence_store().save_episode(
                 store_kind=kind,
                 episode_id=episode.episode_id,
@@ -355,6 +361,7 @@ class MemoryOrchestrator:
                 from intelligence_engine.cognitive.observability_emitter import (
                     emit_memory_formation,
                 )
+
                 emit_memory_formation(
                     ts_ns=ts_ns,
                     memory_kind="EPISODIC",
@@ -375,7 +382,7 @@ class MemoryOrchestrator:
     def snapshot(self) -> dict[str, Any]:
         """Enhanced snapshot with tensor statistics (Phase 15.2)."""
         world_context = self._get_world_context()
-        
+
         out: dict[str, Any] = {
             "episodic_size": len(self._episodic) if self._episodic else 0,
             "semantic_size": len(self._semantic) if self._semantic else 0,
@@ -395,23 +402,28 @@ class MemoryOrchestrator:
                 "available": WORLD_MODEL_AVAILABLE,
                 "active": self._world_integration_bridge is not None,
                 "current_regime": world_context.market_regime if world_context else "unknown",
-                "volatility_regime": world_context.volatility_regime if world_context else "unknown",
+                "volatility_regime": (
+                    world_context.volatility_regime if world_context else "unknown"
+                ),
             },
         }
         try:
             from state.cognition_persistence import get_cognition_persistence_store
+
             out["persistence"] = get_cognition_persistence_store().snapshot()
         except Exception:
             pass
         return out
-    
+
     def get_tensor_optimization_stats(self) -> TensorStats:
         """Get comprehensive tensor optimization statistics (Phase 15.2)."""
         with self._lock:
             # Calculate average operation latency
             if self._operation_latencies:
-                self._tensor_stats.average_operation_latency_ms = sum(self._operation_latencies) / len(self._operation_latencies)
-            
+                self._tensor_stats.average_operation_latency_ms = sum(
+                    self._operation_latencies
+                ) / len(self._operation_latencies)
+
             return self._tensor_stats
 
 

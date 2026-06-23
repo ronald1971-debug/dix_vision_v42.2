@@ -11,13 +11,11 @@ from __future__ import annotations
 
 import threading
 from dataclasses import dataclass, field
-from typing import Any, Callable
 from datetime import datetime
+from typing import Any
 
 from cognitive_control_center.core.operating_environment import (
     WorkspaceType,
-    CognitiveEntityType,
-    CognitiveEvent,
     get_cognitive_environment,
 )
 
@@ -25,6 +23,7 @@ from cognitive_control_center.core.operating_environment import (
 @dataclass
 class Workspace:
     """A cognitive workspace shared by entities."""
+
     workspace_type: WorkspaceType
     name: str
     description: str
@@ -38,6 +37,7 @@ class Workspace:
 @dataclass
 class WorkspaceTransition:
     """Record of a workspace transition."""
+
     entity_id: str
     from_workspace: WorkspaceType | None
     to_workspace: WorkspaceType
@@ -83,7 +83,12 @@ class UnifiedWorkspaceManager:
                 workspace_type=WorkspaceType.INDIRA_WORKSPACE,
                 name="INDIRA Trading Workspace",
                 description="INDIRA's cognitive workspace for trading activities and learning",
-                shared_tools=["market_analysis", "strategy_development", "risk_assessment", "learning"],
+                shared_tools=[
+                    "market_analysis",
+                    "strategy_development",
+                    "risk_assessment",
+                    "learning",
+                ],
             ),
             Workspace(
                 workspace_type=WorkspaceType.DYON_WORKSPACE,
@@ -113,11 +118,14 @@ class UnifiedWorkspaceManager:
 
         for workspace in default_workspaces:
             self._workspaces[workspace.workspace_type] = workspace
-            self._environment.activate_workspace(workspace.workspace_type, {
-                "name": workspace.name,
-                "description": workspace.description,
-                "shared_tools": workspace.shared_tools,
-            })
+            self._environment.activate_workspace(
+                workspace.workspace_type,
+                {
+                    "name": workspace.name,
+                    "description": workspace.description,
+                    "shared_tools": workspace.shared_tools,
+                },
+            )
 
     def transition_entity(
         self,
@@ -150,12 +158,14 @@ class UnifiedWorkspaceManager:
             if to_workspace in self._workspaces:
                 self._workspaces[to_workspace].active_entities.add(entity_id)
                 self._workspaces[to_workspace].last_activity = datetime.utcnow()
-                self._workspaces[to_workspace].activity_log.append({
-                    "entity_id": entity_id,
-                    "action": "joined",
-                    "timestamp": datetime.utcnow().isoformat(),
-                    "reason": reason,
-                })
+                self._workspaces[to_workspace].activity_log.append(
+                    {
+                        "entity_id": entity_id,
+                        "action": "joined",
+                        "timestamp": datetime.utcnow().isoformat(),
+                        "reason": reason,
+                    }
+                )
 
             # Log transition
             self._transition_log.append(transition)

@@ -2,11 +2,11 @@
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any
 
 
 class NodeKind(Enum):
     """Kind of runtime node."""
+
     ENGINE = "engine"
     LOOP = "loop"
     REGISTRY = "registry"
@@ -22,6 +22,7 @@ class NodeKind(Enum):
 
 class NodeTier(Enum):
     """Tier of runtime node."""
+
     T0 = "T0"
     T1 = "T1"
     T2 = "T2"
@@ -30,6 +31,7 @@ class NodeTier(Enum):
 
 class LifecycleState(Enum):
     """Lifecycle state of a node."""
+
     STARTED = "STARTED"
     DORMANT = "DORMANT"
     HEALTHY = "HEALTHY"
@@ -39,6 +41,7 @@ class LifecycleState(Enum):
 
 class EdgeRelation(Enum):
     """Relation between nodes."""
+
     DEPENDS_ON = "depends_on"
     PUBLISHES_TO = "publishes_to"
     SUBSCRIBES_TO = "subscribes_to"
@@ -54,6 +57,7 @@ class EdgeRelation(Enum):
 @dataclass(frozen=True)
 class RuntimeNode:
     """Representation of a runtime node."""
+
     node_id: str
     kind: NodeKind
     tier: NodeTier
@@ -64,6 +68,7 @@ class RuntimeNode:
 @dataclass(frozen=True)
 class RuntimeEdge:
     """Representation of an edge between runtime nodes."""
+
     source_id: str
     target_id: str
     relation: EdgeRelation
@@ -72,14 +77,15 @@ class RuntimeEdge:
 @dataclass(frozen=True)
 class RuntimeTopology:
     """Topology of runtime nodes and edges."""
+
     nodes: frozenset[RuntimeNode] = field(default_factory=frozenset)
     edges: frozenset[RuntimeEdge] = field(default_factory=frozenset)
     digest: str = ""
-    
+
     def get_nodes_by_kind(self, kind: NodeKind) -> frozenset[RuntimeNode]:
         """Get nodes of a specific kind."""
         return frozenset()
-    
+
     def get_nodes_by_tier(self, tier: NodeTier) -> frozenset[RuntimeNode]:
         """Get nodes of a specific tier."""
         return frozenset()

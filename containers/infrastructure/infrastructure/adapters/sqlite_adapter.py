@@ -1,12 +1,11 @@
-
 """SQLite adapter for dockerless database operations."""
 
-import sqlite3
-import json
 import logging
-from typing import Dict, Any, List, Optional
+import sqlite3
+from typing import Dict, List, Optional
 
 logger = logging.getLogger(__name__)
+
 
 class SQLiteAdapter:
     """SQLite database adapter."""

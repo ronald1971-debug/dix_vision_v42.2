@@ -50,6 +50,7 @@ class RollbackEngine:
         Returns the snapshot_key that can be passed to execute_rollback().
         """
         import hashlib
+
         snapshot_key = hashlib.blake2b(
             f"{record.proposal_id}:{ts_ns}".encode(), digest_size=8
         ).hexdigest()
@@ -135,6 +136,7 @@ class RollbackEngine:
         """Capture current strategy registry state (best-effort)."""
         try:
             import importlib
+
             mod = importlib.import_module("governance_engine.strategy_registry")
             reg = mod.get_strategy_registry()
             if hasattr(reg, "snapshot"):
@@ -151,6 +153,7 @@ class RollbackEngine:
             if reg_snap is None:
                 return
             import importlib
+
             mod = importlib.import_module("governance_engine.strategy_registry")
             reg = mod.get_strategy_registry()
             if hasattr(reg, "rollback"):
@@ -159,23 +162,26 @@ class RollbackEngine:
             _logger.debug("RollbackEngine: registry restore error: %s", exc)
 
     @staticmethod
-    def _emit_rollback_event(
-        record: ProposalRecord, rr: RollbackRecord
-    ) -> None:
+    def _emit_rollback_event(record: ProposalRecord, rr: RollbackRecord) -> None:
         try:
             from state.event_bus import CognitiveChannel, get_event_bus
-            get_event_bus().publish(CognitiveChannel.DYON_PROPOSAL, {
-                "proposal_id": record.proposal_id,
-                "pipeline_stage": "ROLLED_BACK",
-                "trigger": rr.trigger,
-                "operator_id": rr.operator_id,
-                "snapshot_key": rr.snapshot_key,
-                "ts_ns": rr.ts_ns,
-            })
+
+            get_event_bus().publish(
+                CognitiveChannel.DYON_PROPOSAL,
+                {
+                    "proposal_id": record.proposal_id,
+                    "pipeline_stage": "ROLLED_BACK",
+                    "trigger": rr.trigger,
+                    "operator_id": rr.operator_id,
+                    "snapshot_key": rr.snapshot_key,
+                    "ts_ns": rr.ts_ns,
+                },
+            )
         except Exception:
             pass
         try:
             from state.ledger.append import append_event
+
             append_event(
                 stream="SYSTEM",
                 kind="EVOLUTION_ROLLBACK",

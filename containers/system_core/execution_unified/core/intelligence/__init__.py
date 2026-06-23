@@ -4,34 +4,29 @@ Provides intelligence and decision-making capabilities
 NO LAZY LOADING - All components load directly
 """
 
-from typing import Dict, List, Optional, Any
 import logging
+from typing import Any, Dict, List
 
 logger = logging.getLogger(__name__)
 
 
 class LiquidityModel:
     """Liquidity model for market liquidity analysis"""
-    
+
     def __init__(self):
         self._liquidity_data: Dict[str, Dict[str, Any]] = {}
-        
+
     def analyze_liquidity(self, symbol: str, market_data: Dict[str, Any]) -> Dict[str, Any]:
         """Analyze liquidity for a symbol"""
-        return {
-            'symbol': symbol,
-            'liquidity_score': 0.5,
-            'depth': 0.0,
-            'spread': 0.0
-        }
+        return {"symbol": symbol, "liquidity_score": 0.5, "depth": 0.0, "spread": 0.0}
 
 
 class OrderSplitter:
     """Order splitter for large order execution"""
-    
+
     def __init__(self):
         self._split_strategies: Dict[str, str] = {}
-        
+
     def split_order(self, order_data: Dict[str, Any]) -> List[Dict[str, Any]]:
         """Split large order into smaller chunks"""
         # Placeholder for order splitting logic
@@ -40,10 +35,10 @@ class OrderSplitter:
 
 class SlippagePredictor:
     """Slippage predictor for order execution planning"""
-    
+
     def __init__(self):
         self._prediction_models: Dict[str, Any] = {}
-        
+
     def predict_slippage(self, symbol: str, order_size: float) -> float:
         """Predict slippage for an order"""
         return 5.0  # 5 basis points default prediction
@@ -51,17 +46,13 @@ class SlippagePredictor:
 
 class SmartRouter:
     """Smart router for optimal order routing"""
-    
+
     def __init__(self):
         self._routing_algorithms: Dict[str, Any] = {}
-        
+
     def route_order(self, order_data: Dict[str, Any]) -> Dict[str, Any]:
         """Determine optimal routing for order"""
-        return {
-            'venue': 'primary',
-            'strategy': 'best_price',
-            'confidence': 0.8
-        }
+        return {"venue": "primary", "strategy": "best_price", "confidence": 0.8}
 
 
 # Global instances
@@ -104,12 +95,12 @@ def get_smart_router() -> SmartRouter:
 
 
 __all__ = [
-    'LiquidityModel',
-    'OrderSplitter',
-    'SlippagePredictor',
-    'SmartRouter',
-    'get_liquidity_model',
-    'get_order_splitter',
-    'get_slippage_predictor',
-    'get_smart_router'
+    "LiquidityModel",
+    "OrderSplitter",
+    "SlippagePredictor",
+    "SmartRouter",
+    "get_liquidity_model",
+    "get_order_splitter",
+    "get_slippage_predictor",
+    "get_smart_router",
 ]

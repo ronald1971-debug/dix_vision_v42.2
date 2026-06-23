@@ -53,12 +53,10 @@ class MarketStructureBuilder:
             symbol=symbol,
             key_levels=tuple(sorted(set(levels))),
             order_book_shape=(
-                order_book_signals.get("shape", "unknown")
-                if order_book_signals else "unknown"
+                order_book_signals.get("shape", "unknown") if order_book_signals else "unknown"
             ),
             volatility_regime=(
-                order_book_signals.get("vol_regime", "medium")
-                if order_book_signals else "medium"
+                order_book_signals.get("vol_regime", "medium") if order_book_signals else "medium"
             ),
             microstructure_features=order_book_signals or {},
         )

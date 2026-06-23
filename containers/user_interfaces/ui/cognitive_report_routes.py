@@ -21,7 +21,6 @@ import json
 from typing import Any
 
 from fastapi import APIRouter
-
 from system_unified.time_source import utc_now
 
 # ---------------------------------------------------------------------------
@@ -50,6 +49,7 @@ def _ledger_rows(
     """Query EventStore for recent cognitive events, newest-first."""
     try:
         from state.ledger.event_store import get_event_store
+
         store = get_event_store()
         rows = store.query(event_type=event_type, source=source, limit=limit)
         parsed = [_parse_payload(r) for r in rows]
@@ -89,18 +89,12 @@ def build_cognitive_report_router() -> APIRouter:
         ts_iso = utc_now().isoformat()
 
         # INDIRA surface
-        recent_thoughts = _ledger_rows(
-            "INTELLIGENCE", "INDIRA", "THOUGHT_STREAM", thought_limit
-        )
-        recent_beliefs = _ledger_rows(
-            "INTELLIGENCE", "INDIRA", "BELIEF_EVOLUTION", belief_limit
-        )
+        recent_thoughts = _ledger_rows("INTELLIGENCE", "INDIRA", "THOUGHT_STREAM", thought_limit)
+        recent_beliefs = _ledger_rows("INTELLIGENCE", "INDIRA", "BELIEF_EVOLUTION", belief_limit)
 
         # DYON surface — topology from runtime cache
         dyon_topology = _dyon_topology_snapshot()
-        recent_proposals = _ledger_rows(
-            "SYSTEM", "DYON", "PATCH_PROPOSAL", proposal_limit
-        )
+        recent_proposals = _ledger_rows("SYSTEM", "DYON", "PATCH_PROPOSAL", proposal_limit)
 
         # Cognitive health
         thought_count = len(recent_thoughts)
@@ -216,6 +210,7 @@ def build_cognitive_report_router() -> APIRouter:
         """
         try:
             from evolution_engine.dyon.dyon_memory import get_dyon_memory
+
             snap = get_dyon_memory().snapshot(top_n=max(1, min(top_n, 100)))
             return {"ts_iso": utc_now().isoformat(), **snap}
         except Exception as exc:
@@ -242,18 +237,21 @@ def build_cognitive_report_router() -> APIRouter:
 
         try:
             from evolution_engine.evolution_orchestrator import get_evolution_orchestrator
+
             out["evolution"] = get_evolution_orchestrator().snapshot(proposal_limit=5)
         except Exception as exc:
             out["evolution"] = {"error": str(exc)}
 
         try:
             from intelligence_engine.cognitive.indira_runtime import get_indira_runtime
+
             out["indira"] = get_indira_runtime().snapshot(limit=5)
         except Exception as exc:
             out["indira"] = {"error": str(exc)}
 
         try:
             from state.memory_tensor.memory_orchestrator import get_memory_orchestrator
+
             out["memory"] = get_memory_orchestrator().snapshot()
         except Exception as exc:
             out["memory"] = {"error": str(exc)}
@@ -262,6 +260,7 @@ def build_cognitive_report_router() -> APIRouter:
             from intelligence_engine.research.autonomous_research_runtime import (
                 get_research_runtime,
             )
+
             rt = get_research_runtime()
             snap = rt.snapshot()
             out["research"] = {
@@ -275,6 +274,7 @@ def build_cognitive_report_router() -> APIRouter:
 
         try:
             from state.event_bus import get_event_bus
+
             out["event_bus"] = get_event_bus().snapshot()
         except Exception as exc:
             out["event_bus"] = {"error": str(exc)}
@@ -294,6 +294,7 @@ def build_cognitive_report_router() -> APIRouter:
         """
         try:
             from state.telemetry import get_cognitive_telemetry
+
             return get_cognitive_telemetry().summary()
         except Exception as exc:
             return {"error": str(exc)}
@@ -316,6 +317,7 @@ def build_cognitive_report_router() -> APIRouter:
             from intelligence_engine.cognitive.trader_intelligence_runtime import (
                 get_trader_intelligence_runtime,
             )
+
             snap = get_trader_intelligence_runtime().snapshot()
             return {"ts_iso": utc_now().isoformat(), **snap}
         except Exception as exc:
@@ -338,6 +340,7 @@ def build_cognitive_report_router() -> APIRouter:
         """
         try:
             from governance_unified.risk_engine.risk_tracker import get_risk_tracker
+
             return {"ts_iso": utc_now().isoformat(), **get_risk_tracker().snapshot()}
         except Exception as exc:
             return {"error": str(exc)}
@@ -350,6 +353,7 @@ def build_cognitive_report_router() -> APIRouter:
         """Recent telemetry spans, newest-first."""
         try:
             from state.telemetry import get_cognitive_telemetry
+
             n = max(1, min(limit, 500))
             spans = get_cognitive_telemetry().recent_spans(limit=n, component=component)
             return {
@@ -369,6 +373,7 @@ def build_cognitive_report_router() -> APIRouter:
         """Live CognitiveSpine snapshot — all cognitive subsystems + cadences."""
         try:
             from runtime.cognitive_spine import get_cognitive_spine
+
             return {"ts_iso": utc_now().isoformat(), **get_cognitive_spine().snapshot()}
         except Exception as exc:
             return {"error": str(exc)}
@@ -378,6 +383,7 @@ def build_cognitive_report_router() -> APIRouter:
         """CognitionDaemon liveness — independent cognitive loop health."""
         try:
             from runtime.cognition_daemon import get_cognition_daemon
+
             return {"ts_iso": utc_now().isoformat(), **get_cognition_daemon().snapshot()}
         except Exception as exc:
             return {"error": str(exc)}
@@ -391,6 +397,7 @@ def build_cognitive_report_router() -> APIRouter:
         """TraderModelingRuntime — live behavioral profiling from order flow."""
         try:
             from trader_modeling.trader_modeling_runtime import get_trader_modeling_runtime
+
             return {"ts_iso": utc_now().isoformat(), **get_trader_modeling_runtime().snapshot()}
         except Exception as exc:
             return {"error": str(exc)}
@@ -404,6 +411,7 @@ def build_cognitive_report_router() -> APIRouter:
         """GovernedEvolutionPipeline — proposal lifecycle state."""
         try:
             from evolution_engine.governed_pipeline import get_governed_pipeline
+
             n = max(1, min(limit, 100))
             return {"ts_iso": utc_now().isoformat(), **get_governed_pipeline().snapshot(limit=n)}
         except Exception as exc:
@@ -418,6 +426,7 @@ def build_cognitive_report_router() -> APIRouter:
         """SimulationDominanceRuntime — strategy dominance scoreboard."""
         try:
             from simulation.dominance_runtime import get_simulation_dominance_runtime
+
             return {
                 "ts_iso": utc_now().isoformat(),
                 **get_simulation_dominance_runtime().snapshot(),
@@ -449,6 +458,7 @@ def build_cognitive_report_router() -> APIRouter:
             from intelligence_engine.cognitive.consciousness_stream import (
                 get_consciousness_stream,
             )
+
             n = max(1, min(limit, 500))
             entries = get_consciousness_stream().recent_entries(n)
             return {
@@ -466,6 +476,7 @@ def build_cognitive_report_router() -> APIRouter:
             from intelligence_engine.cognitive.consciousness_stream import (
                 get_consciousness_stream,
             )
+
             return {"ts_iso": utc_now().isoformat(), **get_consciousness_stream().snapshot()}
         except Exception as exc:
             return {"error": str(exc)}
@@ -484,6 +495,7 @@ def build_cognitive_report_router() -> APIRouter:
         """
         try:
             from intelligence_engine.cognitive.causal_graph import get_causal_graph
+
             return {"ts_iso": utc_now().isoformat(), **get_causal_graph().snapshot()}
         except Exception as exc:
             return {"error": str(exc)}
@@ -504,6 +516,7 @@ def build_cognitive_report_router() -> APIRouter:
             from intelligence_engine.cognitive.behavioral_cluster import (
                 get_behavioral_cluster_tracker,
             )
+
             return {
                 "ts_iso": utc_now().isoformat(),
                 **get_behavioral_cluster_tracker().snapshot(),
@@ -530,6 +543,7 @@ def build_cognitive_report_router() -> APIRouter:
             from intelligence_engine.cognitive.market_observation_session import (
                 get_observation_session_manager,
             )
+
             return {
                 "ts_iso": utc_now().isoformat(),
                 **get_observation_session_manager().snapshot(),
@@ -559,6 +573,7 @@ def build_cognitive_report_router() -> APIRouter:
             from evolution_engine.dyon.dyon_engineering_runtime import (
                 get_dyon_engineering_runtime,
             )
+
             return {
                 "ts_iso": utc_now().isoformat(),
                 **get_dyon_engineering_runtime().snapshot(),
@@ -573,6 +588,7 @@ def build_cognitive_report_router() -> APIRouter:
             from evolution_engine.dyon.dyon_engineering_runtime import (
                 get_dyon_engineering_runtime,
             )
+
             snap = get_dyon_engineering_runtime().snapshot()
             return {"ts_iso": utc_now().isoformat(), **snap}
         except Exception as exc:
@@ -593,6 +609,7 @@ def build_cognitive_report_router() -> APIRouter:
         """
         try:
             from evolution_engine.dyon.repo_inspector import get_repo_inspector
+
             return {
                 "ts_iso": utc_now().isoformat(),
                 **get_repo_inspector().snapshot_dict(),
@@ -611,6 +628,7 @@ def build_cognitive_report_router() -> APIRouter:
         """
         try:
             from evolution_engine.dyon.dead_code_detector import get_dead_code_detector
+
             return {
                 "ts_iso": utc_now().isoformat(),
                 **get_dead_code_detector().snapshot(),
@@ -629,6 +647,7 @@ def build_cognitive_report_router() -> APIRouter:
         """
         try:
             from evolution_engine.dyon.drift_monitor import get_drift_monitor
+
             return {
                 "ts_iso": utc_now().isoformat(),
                 **get_drift_monitor().snapshot(),
@@ -648,6 +667,7 @@ def build_cognitive_report_router() -> APIRouter:
             from evolution_engine.dyon.dyon_engineering_runtime import (
                 get_dyon_engineering_runtime,
             )
+
             runtime = get_dyon_engineering_runtime()
             snap = runtime.snapshot()
             return {
@@ -674,18 +694,22 @@ def _dyon_topology_snapshot() -> dict[str, Any]:
     """
     try:
         from evolution_engine.dyon.dyon_runtime import get_dyon_runtime
+
         runtime = get_dyon_runtime()
         if runtime.latest_scan is not None:
             from evolution_engine.dyon.dyon_runtime import _scan_to_dict
+
             return _scan_to_dict(runtime.latest_scan)
         # No cached scan — run one now so the first request is useful
         import pathlib
 
         from evolution_engine.dyon.topology_scanner import get_scanner
         from system_unified.time_source import wall_ns as _wall_ns
+
         ts_ns = _wall_ns()
         result = get_scanner().scan_and_emit(pathlib.Path("."), ts_ns=ts_ns)
         from evolution_engine.dyon.dyon_runtime import _scan_to_dict
+
         return _scan_to_dict(result)
     except Exception as exc:
         return {

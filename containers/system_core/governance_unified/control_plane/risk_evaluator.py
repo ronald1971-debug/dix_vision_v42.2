@@ -25,6 +25,7 @@ from core.contracts.governance import (
     ConstraintScope,
     RiskAssessment,
 )
+
 from .exposure_store import ExposureStore
 
 

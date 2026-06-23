@@ -4,23 +4,27 @@ Provides ledger-backed operations for live trading
 NO LAZY LOADING - All components load directly
 """
 
-from typing import Dict, List, Optional, Any
+import logging
 from dataclasses import dataclass, field
 from enum import Enum
-import logging
+from typing import Any, Dict, List
 
 logger = logging.getLogger(__name__)
 
+
 class LiveOperationType(Enum):
     """Live operation types"""
+
     TRADE_REQUEST = "TRADE_REQUEST"
     TRADE_EXECUTION = "TRADE_EXECUTION"
     POSITION_UPDATE = "POSITION_UPDATE"
     BALANCE_UPDATE = "BALANCE_UPDATE"
 
+
 @dataclass
 class LiveOperationRecord:
     """Record of a live operation"""
+
     operation_id: str
     operation_type: LiveOperationType
     venue: str
@@ -29,12 +33,15 @@ class LiveOperationRecord:
     payload: Dict[str, Any] = field(default_factory=dict)
     operation_hash: str = ""
 
+
 @dataclass
 class LiveOperationResult:
     """Result of a live operation"""
+
     recorded: bool
     operation_id: str = ""
     error: str = ""
+
 
 class LedgerBackedOperations:
     """Ledger-backed operations manager"""
@@ -74,7 +81,9 @@ class LedgerBackedOperations:
         self._operations.append(record)
         return LiveOperationResult(recorded=True, operation_id=record.operation_id)
 
+
 _ledger_ops = None
+
 
 def get_live_trading_ledger_backed_operations() -> LedgerBackedOperations:
     """Get ledger-backed operations instance"""
@@ -83,10 +92,11 @@ def get_live_trading_ledger_backed_operations() -> LedgerBackedOperations:
         _ledger_ops = LedgerBackedOperations()
     return _ledger_ops
 
+
 __all__ = [
-    'LiveOperationType',
-    'LiveOperationRecord',
-    'LiveOperationResult',
-    'LedgerBackedOperations',
-    'get_live_trading_ledger_backed_operations',
+    "LiveOperationType",
+    "LiveOperationRecord",
+    "LiveOperationResult",
+    "LedgerBackedOperations",
+    "get_live_trading_ledger_backed_operations",
 ]

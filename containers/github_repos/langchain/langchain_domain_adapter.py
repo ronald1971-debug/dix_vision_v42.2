@@ -8,20 +8,14 @@ Author: DIX VISION Cognitive Domain Adapter
 Version: 42.2
 """
 
-import logging
-from typing import Any, Dict, List, Optional, Union
-from datetime import datetime
-import json
-
 import sys
-import os
+from datetime import datetime
+from typing import Any, Dict, List, Optional
+
 sys.path.append('/app/adapters')
 
-from base_domain_adapter import (
-    CognitiveDomainAdapter,
-    DomainType,
-    DataFormat
-)
+from base_domain_adapter import CognitiveDomainAdapter, DataFormat
+
 
 class LangChainDomainAdapter(CognitiveDomainAdapter):
     """

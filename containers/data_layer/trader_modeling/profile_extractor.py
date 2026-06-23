@@ -26,11 +26,11 @@ class TraderSignal:
 
     ts_ns: int
     symbol: str
-    direction: float          # +1 buy pressure, -1 sell pressure
-    aggression: float         # market-order fraction of volume
-    size_rank: float          # relative size percentile in recent window
-    speed: float              # trades-per-second normalised [0, 1]
-    regime_alignment: float   # alignment with current market regime [0, 1]
+    direction: float  # +1 buy pressure, -1 sell pressure
+    aggression: float  # market-order fraction of volume
+    size_rank: float  # relative size percentile in recent window
+    speed: float  # trades-per-second normalised [0, 1]
+    regime_alignment: float  # alignment with current market regime [0, 1]
     source: str = "order_flow"
 
 
@@ -139,10 +139,7 @@ class ProfileExtractor:
             return {
                 "extract_count": self._extract_count,
                 "symbols": list(self._tick_buffers.keys()),
-                "signal_counts": {
-                    sym: len(sigs)
-                    for sym, sigs in self._signal_buffers.items()
-                },
+                "signal_counts": {sym: len(sigs) for sym, sigs in self._signal_buffers.items()},
             }
 
     # ------------------------------------------------------------------
@@ -168,9 +165,7 @@ class ProfileExtractor:
 
             # Aggression: fraction of volume as market orders in window
             # Proxy: is_buyer_maker=False means taker bought (aggressive)
-            taker_buy_count = sum(
-                1 for t in buf if not t.get("is_buyer_maker", True)
-            )
+            taker_buy_count = sum(1 for t in buf if not t.get("is_buyer_maker", True))
             aggression = taker_buy_count / max(1, len(buf))
 
             # Size rank: percentile of this trade's volume in the window
@@ -203,12 +198,13 @@ class ProfileExtractor:
         """Estimate alignment between participant direction and market regime."""
         try:
             from state.market_state import get_market_state
+
             ms = get_market_state()
             regime = ms.regime()
             if regime == "BULL":
-                return 0.5 + 0.4 * direction   # buy-aligned in bull
+                return 0.5 + 0.4 * direction  # buy-aligned in bull
             if regime == "BEAR":
-                return 0.5 - 0.4 * direction   # sell-aligned in bear
+                return 0.5 - 0.4 * direction  # sell-aligned in bear
             return 0.5  # neutral in mixed
         except Exception:
             return 0.5

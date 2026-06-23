@@ -7,47 +7,44 @@ Provides integrated access to all knowledge layer components including:
 - Integration with INDIRA cognitive engine
 """
 
-from .knowledge_validator import (
-    KnowledgeValidator,
-    KnowledgeSource,
-    ValidationResult,
-    ValidationIssue,
-    ValidationSeverity,
-    KnowledgeSourceType,
-    ConflictReport,
-    IntegrityScore,
-    ReliabilityScore,
-    ConsistencyReport,
-    get_knowledge_validator,
-)
-
 from .drift_monitor import (
-    KnowledgeDriftMonitor,
-    DriftType,
-    DriftSeverity,
-    ResponseActionType,
     DriftAlert,
     DriftReport,
+    DriftSeverity,
+    DriftType,
+    KnowledgeDriftMonitor,
     MitigationPlan,
     ResponseAction,
+    ResponseActionType,
     get_drift_monitor,
 )
-
-from .source_conflict_graph import (
-    SourceConflictGraph,
-    ConflictType,
-    ConflictNode,
-    ConflictEdge,
-    ConflictGraph,
-    ResolutionStrategyType,
-    ResolutionStrategy,
-    PropagationMap,
-    ConsensusResult,
-    get_source_conflict_graph,
+from .knowledge_validator import (
+    ConflictReport,
+    ConsistencyReport,
+    IntegrityScore,
+    KnowledgeSource,
+    KnowledgeSourceType,
+    KnowledgeValidator,
+    ReliabilityScore,
+    ValidationIssue,
+    ValidationResult,
+    ValidationSeverity,
+    get_knowledge_validator,
 )
-
 from .news_knowledge import (
     NewsKnowledgeIndex,
+)
+from .source_conflict_graph import (
+    ConflictEdge,
+    ConflictGraph,
+    ConflictNode,
+    ConflictType,
+    ConsensusResult,
+    PropagationMap,
+    ResolutionStrategy,
+    ResolutionStrategyType,
+    SourceConflictGraph,
+    get_source_conflict_graph,
 )
 
 __all__ = [
@@ -120,42 +117,39 @@ def get_source_conflict_graph() -> SourceConflictGraph:
 
 class KnowledgeLayerIntegration:
     """Integration point for all knowledge layer components."""
-    
+
     def __init__(self):
         self._validator = get_knowledge_validator()
         self._drift_monitor = get_drift_monitor()
         self._conflict_graph = get_source_conflict_graph()
-        
+
     def validate_knowledge(
         self,
         sources: list[KnowledgeSource],
-        existing_knowledge = None,
+        existing_knowledge=None,
     ) -> ValidationResult:
         """Validate knowledge sources through the complete pipeline."""
         # Validate sources
-        validation_results = [
-            self._validator.validate_source(source) for source in sources
-        ]
-        
+        validation_results = [self._validator.validate_source(source) for source in sources]
+
         # Detect conflicts
         conflicts = self._validator.detect_conflicts(sources, existing_knowledge)
-        
+
         # Check integrity
         if existing_knowledge:
             integrity_score = self._validator.epistemic_integrity_check(existing_knowledge)
         else:
             integrity_score = None
-        
+
         return ValidationResult(
             is_valid=all(result.is_valid for result in validation_results),
-            confidence_score=sum(result.confidence_score for result in validation_results) / len(validation_results),
-            issues=tuple(
-                issue for result in validation_results for issue in result.issues
-            ),
+            confidence_score=sum(result.confidence_score for result in validation_results)
+            / len(validation_results),
+            issues=tuple(issue for result in validation_results for issue in result.issues),
             validated_source=sources[0] if sources else None,
             timestamp_ns=self._validator._get_timestamp(),
         )
-    
+
     def monitor_knowledge_health(
         self,
         knowledge,
@@ -165,7 +159,7 @@ class KnowledgeLayerIntegration:
         health_report = {
             "timestamp": self._validator._get_timestamp(),
         }
-        
+
         # Check for drift
         if check_drift:
             concept_drift = self._drift_monitor.detect_concept_drift(knowledge)
@@ -177,9 +171,9 @@ class KnowledgeLayerIntegration:
                 }
             else:
                 health_report["concept_drift"] = {"detected": False}
-        
+
         return health_report
-    
+
     def resolve_conflicts(
         self,
         conflicts: list[ConflictReport],
@@ -187,11 +181,11 @@ class KnowledgeLayerIntegration:
     ) -> list[ResolutionStrategy]:
         """Resolve knowledge conflicts using the conflict graph."""
         resolutions = []
-        
+
         for conflict in conflicts:
             resolution = self._conflict_graph.resolve_conflicts(conflict, graph)
             resolutions.append(resolution)
-        
+
         return resolutions
 
 

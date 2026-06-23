@@ -578,9 +578,9 @@ class ExecutionOrchestrator:
                     "phase_reached": result.phase_reached.value,
                     "success": "1" if result.success else "0",
                     "governance_decision_id": result.governance_decision_id,
-                    "rejection_reason": result.rejection_reason.value
-                    if result.rejection_reason
-                    else "",
+                    "rejection_reason": (
+                        result.rejection_reason.value if result.rejection_reason else ""
+                    ),
                     "rejection_detail": result.rejection_detail,
                 },
             )

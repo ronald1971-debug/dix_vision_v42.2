@@ -54,27 +54,15 @@ class HypothesisTracker:
 
     def testing(self) -> list[Hypothesis]:
         """Get hypotheses currently being tested."""
-        return [
-            h
-            for h in self._hypotheses.values()
-            if h.status == HypothesisStatus.TESTING
-        ]
+        return [h for h in self._hypotheses.values() if h.status == HypothesisStatus.TESTING]
 
     def validated(self) -> list[Hypothesis]:
         """Get validated hypotheses."""
-        return [
-            h
-            for h in self._hypotheses.values()
-            if h.status == HypothesisStatus.VALIDATED
-        ]
+        return [h for h in self._hypotheses.values() if h.status == HypothesisStatus.VALIDATED]
 
     def invalidated(self) -> list[Hypothesis]:
         """Get invalidated hypotheses."""
-        return [
-            h
-            for h in self._hypotheses.values()
-            if h.status == HypothesisStatus.INVALIDATED
-        ]
+        return [h for h in self._hypotheses.values() if h.status == HypothesisStatus.INVALIDATED]
 
     def record_result(self, result: HypothesisResult) -> None:
         """Record test result for a hypothesis."""

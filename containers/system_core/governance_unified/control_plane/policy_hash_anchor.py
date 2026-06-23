@@ -41,6 +41,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from core.contracts.events import HazardEvent, HazardSeverity
+
 from .ledger_authority_writer import (
     LedgerAuthorityWriter,
 )

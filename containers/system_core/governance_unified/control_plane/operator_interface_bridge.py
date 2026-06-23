@@ -45,6 +45,8 @@ from core.contracts.operator_consent import (
     OperatorConsent,
     edge_requires_consent,
 )
+from system_unified.kill_switch import KillSwitch
+
 from .ledger_authority_writer import (
     LedgerAuthorityWriter,
 )
@@ -52,7 +54,6 @@ from .policy_engine import PolicyEngine
 from .state_transition_manager import (
     StateTransitionManager,
 )
-from system_unified.kill_switch import KillSwitch
 
 
 def _parse_mode(name: str) -> SystemMode | None:

@@ -23,6 +23,7 @@ from core.contracts.learning import LearningUpdate
 @dataclass(frozen=True, slots=True)
 class SynthesisRequest:
     """Request to synthesize a new strategy from an archetype."""
+
     archetype_id: str
     base_params: dict[str, float]
     performance_history: tuple[float, ...]  # recent P&L samples
@@ -32,11 +33,12 @@ class SynthesisRequest:
 @dataclass(frozen=True, slots=True)
 class SynthesisResult:
     """Result of a strategy synthesis operation."""
+
     strategy_id: str
     archetype_id: str
     params: dict[str, float]
     expected_sharpe: float
-    lineage_id: str     # parent archetype_id used as lineage anchor
+    lineage_id: str  # parent archetype_id used as lineage anchor
     ts_ns: int
 
 
@@ -72,10 +74,7 @@ class StrategySynthesizer:
         elif mean_pnl < 0:
             adj = -0.05
 
-        new_params = {
-            k: v * (1.0 + adj)
-            for k, v in request.base_params.items()
-        }
+        new_params = {k: v * (1.0 + adj) for k, v in request.base_params.items()}
 
         # Estimate Sharpe from performance history (simple proxy)
         expected_sharpe = _estimate_sharpe(history)
@@ -135,6 +134,7 @@ class StrategySynthesizer:
 def _estimate_sharpe(history: tuple[float, ...]) -> float:
     """Simple Sharpe proxy: mean / std of P&L series."""
     import math
+
     n = len(history)
     if n < 2:
         return 0.0

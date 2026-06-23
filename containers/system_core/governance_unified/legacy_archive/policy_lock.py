@@ -46,8 +46,8 @@ class PolicyLockState:
     """Snapshot of current policy lock state."""
 
     status: LockStatus
-    locked_by: str          # operator_id or "" when unlocked
-    reason: str             # lock/unlock reason
+    locked_by: str  # operator_id or "" when unlocked
+    reason: str  # lock/unlock reason
     ts_ns: int
 
 
@@ -73,15 +73,13 @@ class PolicyLockManager:
 
     def _init_db(self) -> None:
         with self._connect() as conn:
-            conn.execute(
-                """CREATE TABLE IF NOT EXISTS policy_lock_state (
+            conn.execute("""CREATE TABLE IF NOT EXISTS policy_lock_state (
                     id        INTEGER PRIMARY KEY CHECK (id = 1),
                     status    TEXT NOT NULL DEFAULT 'UNLOCKED',
                     locked_by TEXT NOT NULL DEFAULT '',
                     reason    TEXT NOT NULL DEFAULT '',
                     ts_ns     INTEGER NOT NULL DEFAULT 0
-                )"""
-            )
+                )""")
             conn.execute(
                 "INSERT OR IGNORE INTO policy_lock_state(id,status,locked_by,reason,ts_ns)"
                 " VALUES(1,'UNLOCKED','','',0)"
@@ -107,9 +105,7 @@ class PolicyLockManager:
                 )
         except Exception:
             pass
-        return PolicyLockState(
-            status=LockStatus.UNLOCKED, locked_by="", reason="", ts_ns=0
-        )
+        return PolicyLockState(status=LockStatus.UNLOCKED, locked_by="", reason="", ts_ns=0)
 
     def _persist_state(self, state: PolicyLockState) -> None:
         try:
@@ -196,9 +192,7 @@ class PolicyLockManager:
                 self._state = new_state
                 self._persist_state(new_state)
             self._emit_drift_hazard(ts_ns)
-            _logger.critical(
-                "PolicyLockManager: DRIFT DETECTED while locked — governance BLOCKED"
-            )
+            _logger.critical("PolicyLockManager: DRIFT DETECTED while locked — governance BLOCKED")
             return new_state
 
         # Still clean
@@ -237,6 +231,7 @@ class PolicyLockManager:
             from governance_unified.control_plane.policy_hash_anchor import (
                 get_policy_hash_anchor,
             )
+
             anchor = get_policy_hash_anchor()
             if not anchor.is_bound():
                 return None
@@ -249,6 +244,7 @@ class PolicyLockManager:
     def _write_ledger(kind: str, operator_id: str, reason: str, ts_ns: int) -> None:
         try:
             from state.ledger.append import append_event
+
             append_event(
                 stream="AUTHORITY",
                 kind=kind,
@@ -266,16 +262,21 @@ class PolicyLockManager:
     def _emit_drift_hazard(ts_ns: int) -> None:
         try:
             from state.event_bus import CognitiveChannel, get_event_bus
-            get_event_bus().publish(CognitiveChannel.DYON_VIOLATION, {
-                "source": "policy_lock",
-                "hazard": "POLICY_DRIFT_WHILE_LOCKED",
-                "severity": "CRITICAL",
-                "ts_ns": ts_ns,
-            })
+
+            get_event_bus().publish(
+                CognitiveChannel.DYON_VIOLATION,
+                {
+                    "source": "policy_lock",
+                    "hazard": "POLICY_DRIFT_WHILE_LOCKED",
+                    "severity": "CRITICAL",
+                    "ts_ns": ts_ns,
+                },
+            )
         except Exception:
             pass
         try:
             from state.ledger.append import append_event
+
             append_event(
                 stream="GOVERNANCE",
                 kind="POLICY_DRIFT_LOCKED",
@@ -294,9 +295,7 @@ _manager: PolicyLockManager | None = None
 _manager_lock = threading.Lock()
 
 
-def get_policy_lock_manager(
-    *, db_path: Path | str = _DEFAULT_DB
-) -> PolicyLockManager:
+def get_policy_lock_manager(*, db_path: Path | str = _DEFAULT_DB) -> PolicyLockManager:
     global _manager
     with _manager_lock:
         if _manager is None:

@@ -6,20 +6,19 @@ Author: DIX VISION Messaging Governance
 Version: 42.2
 """
 
-import logging
-from typing import Any, Dict
-from datetime import datetime
-import time
-
 import sys
-import os
+import time
+from datetime import datetime
+from typing import Any, Dict
+
 sys.path.append('/app/governance')
 
 from base_external_repo_wrapper import (
     BaseExternalRepoGovernanceWrapper,
+    ExternalRepositoryMetrics,
     PermissionLevel,
-    ExternalRepositoryMetrics
 )
+
 
 class RabbitMQGovernanceWrapper(BaseExternalRepoGovernanceWrapper):
     def __init__(self, permission_level: PermissionLevel = PermissionLevel.READ_ONLY):
@@ -34,7 +33,6 @@ class RabbitMQGovernanceWrapper(BaseExternalRepoGovernanceWrapper):
         
     def initialize_rabbitmq(self, rabbitmq_config: Dict[str, Any]):
         try:
-            from pika import BlockingConnection
             self.rabbitmq_available = True
             self.logger.info("RabbitMQ initialized with governance oversight")
             return True

@@ -131,8 +131,7 @@ class ContractIntegrityGuard:
                     kind=ContractViolationKind.VERSION_MISMATCH,
                     severity=SystemGovernanceSeverity.WARNING,
                     detail=(
-                        f"expected version={required_version!r}; "
-                        f"got {contract['version']!r}"
+                        f"expected version={required_version!r}; " f"got {contract['version']!r}"
                     ),
                 )
                 violations.append(v)

@@ -34,8 +34,8 @@ from state.ledger.event_store import append_event
 
 _MAX_HISTORY = 500
 
-WARNING_THRESHOLD_PCT  = 15.0
-HIGH_THRESHOLD_PCT     = 7.5
+WARNING_THRESHOLD_PCT = 15.0
+HIGH_THRESHOLD_PCT = 7.5
 CRITICAL_THRESHOLD_PCT = 3.0
 
 
@@ -152,8 +152,7 @@ class LiquidationSentinel:
             return {
                 "at_risk_count": len(self._last_severity),
                 "critical_count": sum(
-                    1 for s in self._last_severity.values()
-                    if s is FinancialSeverity.CRITICAL
+                    1 for s in self._last_severity.values() if s is FinancialSeverity.CRITICAL
                 ),
                 "violation_count": self._violation_count,
             }

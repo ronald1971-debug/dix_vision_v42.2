@@ -35,10 +35,10 @@ from typing import Any
 _logger = logging.getLogger(__name__)
 
 _STORE_KIND = "long_horizon_insights"
-_INSIGHT_TTL_NS = 24 * 3_600 * 1_000_000_000   # 24 h
+_INSIGHT_TTL_NS = 24 * 3_600 * 1_000_000_000  # 24 h
 _MIN_THOUGHTS_FOR_REGIME = 10
 _MIN_THOUGHTS_FOR_TREND = 5
-_LEDGER_FETCH_LIMIT = 500   # thought rows to read from ledger per consolidation
+_LEDGER_FETCH_LIMIT = 500  # thought rows to read from ledger per consolidation
 
 
 # ---------------------------------------------------------------------------
@@ -52,11 +52,11 @@ class Insight:
 
     insight_id: str
     ts_ns: int
-    subject: str        # "REGIME_PATTERN" | "CONFIDENCE_TREND" | "SYSTEM_STRESS" | "RESEARCH_SYNTHESIS"
-    body: str           # human-readable summary
+    subject: str  # "REGIME_PATTERN" | "CONFIDENCE_TREND" | "SYSTEM_STRESS" | "RESEARCH_SYNTHESIS"
+    body: str  # human-readable summary
     confidence: float
     evidence_count: int
-    expires_ns: int     # nanosecond timestamp after which this insight is stale
+    expires_ns: int  # nanosecond timestamp after which this insight is stale
 
     def is_live(self, *, ts_ns: int) -> bool:
         return ts_ns < self.expires_ns
@@ -88,7 +88,7 @@ class LongHorizonMemory:
 
     def __init__(self) -> None:
         self._lock = threading.Lock()
-        self._insights: dict[str, Insight] = {}   # subject → latest insight
+        self._insights: dict[str, Insight] = {}  # subject → latest insight
         self._consolidate_count = 0
         self._restore()
 
@@ -138,16 +138,20 @@ class LongHorizonMemory:
             return
         try:
             from state.event_bus import CognitiveChannel, get_event_bus
+
             bus = get_event_bus()
             for ins in insights:
-                bus.publish(CognitiveChannel.INDIRA_INSIGHT, {
-                    "insight_id": ins.insight_id,
-                    "subject": ins.subject,
-                    "body": ins.body,
-                    "confidence": ins.confidence,
-                    "evidence_count": ins.evidence_count,
-                    "ts_ns": ins.ts_ns,
-                })
+                bus.publish(
+                    CognitiveChannel.INDIRA_INSIGHT,
+                    {
+                        "insight_id": ins.insight_id,
+                        "subject": ins.subject,
+                        "body": ins.body,
+                        "confidence": ins.confidence,
+                        "evidence_count": ins.evidence_count,
+                        "ts_ns": ins.ts_ns,
+                    },
+                )
         except Exception:
             pass
 
@@ -196,6 +200,7 @@ class LongHorizonMemory:
             import json as _json
 
             from state.ledger.event_store import get_event_store
+
             rows = get_event_store().query(
                 event_type="INTELLIGENCE",
                 source="INDIRA",
@@ -228,9 +233,8 @@ class LongHorizonMemory:
             dominant, count = regime_counter.most_common(1)[0]
             total = sum(regime_counter.values())
             prevalence = count / total
-            mean_conf = (
-                sum(conf_by_regime.get(dominant, [0.65]))
-                / max(len(conf_by_regime.get(dominant, [1])), 1)
+            mean_conf = sum(conf_by_regime.get(dominant, [0.65])) / max(
+                len(conf_by_regime.get(dominant, [1])), 1
             )
             body = (
                 f"{dominant} has been the dominant regime in {count}/{total} "
@@ -253,6 +257,7 @@ class LongHorizonMemory:
             import json as _json
 
             from state.ledger.event_store import get_event_store
+
             rows = get_event_store().query(
                 event_type="INTELLIGENCE",
                 source="INDIRA",
@@ -318,6 +323,7 @@ class LongHorizonMemory:
         """Synthesise the most recent completed research topics into a belief."""
         try:
             from state.cognition_persistence import get_cognition_persistence_store
+
             results = get_cognition_persistence_store().load_recent_results(limit=20)
             if not results:
                 return None
@@ -330,9 +336,7 @@ class LongHorizonMemory:
             topics = [r.get("topic", "") for r in completed[:5]]
             topic_str = "; ".join(t for t in topics if t)
 
-            mean_trust = (
-                sum(float(r.get("trust_score", 0.5)) for r in completed) / len(completed)
-            )
+            mean_trust = sum(float(r.get("trust_score", 0.5)) for r in completed) / len(completed)
             body = (
                 f"{len(completed)} research tasks completed "
                 f"({len(high_trust)} high-trust). "
@@ -356,6 +360,7 @@ class LongHorizonMemory:
     def _persist(self, ts_ns: int) -> None:
         try:
             from state.cognition_persistence import get_cognition_persistence_store
+
             ps = get_cognition_persistence_store()
             with self._lock:
                 blobs = {s: ins.to_dict() for s, ins in self._insights.items()}
@@ -371,6 +376,7 @@ class LongHorizonMemory:
     def _restore(self) -> None:
         try:
             from state.cognition_persistence import get_cognition_persistence_store
+
             rows = get_cognition_persistence_store().load_episodes(_STORE_KIND, limit=1)
             if not rows:
                 return

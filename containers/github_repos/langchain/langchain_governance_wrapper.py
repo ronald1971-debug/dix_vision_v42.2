@@ -9,24 +9,21 @@ Author: DIX VISION Cognitive Governance
 Version: 42.2
 """
 
-import logging
-from typing import Any, Dict, List, Optional, Union
-from datetime import datetime
-import time
 import re
-
 import sys
-import os
+import time
+from datetime import datetime
+from typing import Any, Dict, List
+
 sys.path.append('/app/governance')
 
 from base_external_repo_wrapper import (
     BaseExternalRepoGovernanceWrapper,
-    PermissionLevel,
-    GovernanceViolation,
-    SafetyViolation,
     ExternalRepositoryMetrics,
-    ExternalRepositoryHealthCheck
+    GovernanceViolation,
+    PermissionLevel,
 )
+
 
 class LangChainGovernanceWrapper(BaseExternalRepoGovernanceWrapper):
     """
@@ -76,9 +73,8 @@ class LangChainGovernanceWrapper(BaseExternalRepoGovernanceWrapper):
             model_config: AI model configuration (model name, API key, etc.)
         """
         try:
-            from langchain.llms import OpenAI
             from langchain.chat_models import ChatOpenAI
-            from langchain.schema import HumanMessage, AIMessage
+            from langchain.llms import OpenAI
             
             model_name = model_config.get('model', 'gpt-3.5-turbo')
             temperature = model_config.get('temperature', 0.7)
@@ -146,7 +142,6 @@ class LangChainGovernanceWrapper(BaseExternalRepoGovernanceWrapper):
             if self._detect_potential_bias(prompt):
                 self.logger.warning("Potential bias detected in prompt")
                 # Warning only, not blocking
-                pass
                 
         return True
     

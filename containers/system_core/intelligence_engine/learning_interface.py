@@ -1,5 +1,6 @@
 """Stub learning interface."""
 
+
 class LearningInterface:
     """Stub learning interface."""
 

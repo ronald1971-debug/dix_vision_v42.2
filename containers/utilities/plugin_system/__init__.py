@@ -5,15 +5,15 @@ and infrastructure wiring for all DIX VISION v42.2 plugins.
 """
 
 from plugin_system.plugin_loader import (
-    PluginLoader,
     PluginConfig,
+    PluginLoader,
     PluginSystemMode,
-    get_plugin_loader
+    get_plugin_loader,
 )
 
 __all__ = [
     "PluginLoader",
-    "PluginConfig", 
+    "PluginConfig",
     "PluginSystemMode",
     "get_plugin_loader",
 ]

@@ -49,7 +49,7 @@ class RegimeStructureBuilder:
             transition_probs=transition_probs or {},
             regime_characteristics={
                 **(existing.regime_characteristics if existing else {}),
-                "last_regime": existing.current_regime if existing else None
+                "last_regime": existing.current_regime if existing else None,
             },
             **kwargs,
         )

@@ -53,16 +53,15 @@ import urllib.request
 from collections.abc import Mapping, Sequence
 from typing import Any, Final
 
+from core.cognitive_router import AIProvider
+from intelligence_engine.cognitive.chat.registry_driven_chat_model import (
+    TransientProviderError,
+)
 from langchain_core.messages import (
     AIMessage,
     BaseMessage,
     HumanMessage,
     SystemMessage,
-)
-
-from core.cognitive_router import AIProvider
-from intelligence_engine.cognitive.chat.registry_driven_chat_model import (
-    TransientProviderError,
 )
 
 __all__ = [

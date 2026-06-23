@@ -65,7 +65,7 @@ class StrategyExtractor:
         # Enhanced trend detection with confidence weighting
         trend_keywords = ["trend", "momentum", "breakout", "follow", "continuation"]
         trend_matches = sum(1 for kw in trend_keywords if kw in content_lower)
-        
+
         if trend_matches > 0:
             atoms.append(
                 StrategyAtom(

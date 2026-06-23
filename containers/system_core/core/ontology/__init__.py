@@ -1,4 +1,5 @@
 """Cognitive Object Model."""
+
 from core.ontology.audit_trail import AuditTrail, BeliefTransition, CognitiveAuditTrail
 from core.ontology.base import CognitiveObject, ObjectKind, ObjectVersion
 from core.ontology.belief import CognitiveBelief

@@ -16,9 +16,9 @@ from core.contracts.events import (
     EventKind,
 )
 from execution_unified.async_bus import AsyncBus, get_async_bus
-from execution_unified.hazard_lane import HazardLane, get_hazard_lane
 from execution_unified.core.fast_lane import FastLane, get_fast_lane
 from execution_unified.core.offline.lane import OfflineLane, get_offline_lane
+from execution_unified.hazard_lane import HazardLane, get_hazard_lane
 
 __all__ = ["EventEmitter", "get_event_emitter"]
 

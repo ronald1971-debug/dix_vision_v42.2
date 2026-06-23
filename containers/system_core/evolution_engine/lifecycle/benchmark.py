@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 
 _logger = logging.getLogger(__name__)
 
-BENCHMARK_MIN_DELTA: float = -5.0    # minimum delta to pass (allows slight regression)
+BENCHMARK_MIN_DELTA: float = -5.0  # minimum delta to pass (allows slight regression)
 
 
 class BenchmarkEngine:
@@ -76,6 +76,7 @@ class BenchmarkEngine:
         """Return (champion_fitness, notes_prefix) — never raises."""
         try:
             from simulation.dominance_runtime import get_simulation_dominance_runtime
+
             runtime = get_simulation_dominance_runtime()
             snap = runtime.snapshot()
             dominant = snap.get("dominant_strategy")
@@ -103,9 +104,7 @@ _engine: BenchmarkEngine | None = None
 _engine_lock = threading.Lock()
 
 
-def get_benchmark_engine(
-    *, min_delta: float = BENCHMARK_MIN_DELTA
-) -> BenchmarkEngine:
+def get_benchmark_engine(*, min_delta: float = BENCHMARK_MIN_DELTA) -> BenchmarkEngine:
     """Return the process-wide BenchmarkEngine singleton."""
     global _engine
     with _engine_lock:

@@ -158,9 +158,7 @@ class StopHunter:
         if ts_ns < 0:
             raise ValueError(f"StopHunter.simulate: ts_ns must be >= 0, got {ts_ns!r}")
         if not mid_price > 0.0:
-            raise ValueError(
-                f"StopHunter.simulate: mid_price must be > 0, got {mid_price!r}"
-            )
+            raise ValueError(f"StopHunter.simulate: mid_price must be > 0, got {mid_price!r}")
 
         params = self._params
         rng = random.Random(params.seed)

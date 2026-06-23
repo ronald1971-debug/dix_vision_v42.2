@@ -22,6 +22,7 @@ from typing import Any
 @dataclass(frozen=True, slots=True)
 class ExperienceRecord:
     """One (s, a, r, s', done) transition tuple."""
+
     record_id: str
     strategy_id: str
     state: tuple[float, ...]

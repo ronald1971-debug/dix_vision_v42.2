@@ -2,9 +2,15 @@
 Notifications layer - Phase 8 implementation
 """
 
-from notification_manager import NotificationManager, NotificationPriority, NotificationType, NotificationStatus, Notification
-from alert_system import AlertSystem, AlertSeverity, AlertCondition, AlertStatus, Alert
-from notification_router import NotificationRouter, NotificationChannel, RoutingStrategy, Route
+from alert_system import Alert, AlertCondition, AlertSeverity, AlertStatus, AlertSystem
+from notification_manager import (
+    Notification,
+    NotificationManager,
+    NotificationPriority,
+    NotificationStatus,
+    NotificationType,
+)
+from notification_router import NotificationChannel, NotificationRouter, Route, RoutingStrategy
 
 __all__ = [
     "NotificationManager",

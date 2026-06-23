@@ -1,10 +1,10 @@
 """System Consolidation Module."""
 
 from .legacy_system_analyzer import (
-    LegacySystemType,
-    LegacySystemAnalysis,
     ConsolidationPlan,
+    LegacySystemAnalysis,
     LegacySystemAnalyzer,
+    LegacySystemType,
     get_legacy_analyzer,
 )
 

@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class AgentBehavior:
     """Agent behavior snapshot."""
+
     behavior_id: str
     agent_id: str
     behavior_type: str
@@ -30,18 +31,18 @@ class AgentBehavior:
 
 class ProductionAgentModel:
     """Production-grade agent model."""
-    
+
     def __init__(self) -> None:
         self._agent_behaviors: Dict[str, List[AgentBehavior]] = {}
-        
+
     def start(self) -> bool:
         logger.info("[AGENT_MODEL] Production agent model started")
         return True
-    
+
     def stop(self) -> bool:
         logger.info("[AGENT_MODEL] Production agent model stopped")
         return True
-    
+
     def track_agent_behavior(self, agent_id: str, behavior_type: str) -> AgentBehavior:
         """Track agent behavior."""
         behavior = AgentBehavior(
@@ -49,9 +50,9 @@ class ProductionAgentModel:
             agent_id=agent_id,
             behavior_type=behavior_type,
             confidence=0.8,
-            timestamp=now().utc_time.isoformat()
+            timestamp=now().utc_time.isoformat(),
         )
-        
+
         if agent_id not in self._agent_behaviors:
             self._agent_behaviors[agent_id] = []
         self._agent_behaviors[agent_id].append(behavior)

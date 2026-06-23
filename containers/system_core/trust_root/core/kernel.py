@@ -97,7 +97,9 @@ class VerificationArtifact:
     artifact_id: str
     hash_id: str
     verification_method: str
-    verification_data: Mapping[str, str] = dataclasses.field(default_factory=lambda: MappingProxyType({}))
+    verification_data: Mapping[str, str] = dataclasses.field(
+        default_factory=lambda: MappingProxyType({})
+    )
     signature: str | None = None
     timestamp_ns: int = 0
     status: TrustStatus = TrustStatus.VERIFIED
@@ -392,9 +394,7 @@ class FoundationHashLifecycle:
                 return False
 
             if current.previous_hash != previous.hash_value:
-                _logger.warning(
-                    "Hash chain broken for %s at position %d", component, i
-                )
+                _logger.warning("Hash chain broken for %s at position %d", component, i)
                 return False
 
         return True

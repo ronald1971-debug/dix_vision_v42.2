@@ -36,7 +36,7 @@ import logging
 import threading
 import time
 from collections import deque
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import Any
 
@@ -46,7 +46,7 @@ LOG = logging.getLogger(__name__)
 @dataclass(frozen=True, slots=True)
 class SystemEngineeringResearchTopic:
     """System engineering research topic."""
-    
+
     topic_id: str
     category: str  # architecture, infrastructure, security, performance, scalability, etc.
     priority: float  # 0.0 to 1.0
@@ -60,7 +60,7 @@ class SystemEngineeringResearchTopic:
 @dataclass(frozen=True, slots=True)
 class SystemEngineeringFinding:
     """Finding from system engineering research."""
-    
+
     finding_id: str
     topic_id: str
     title: str
@@ -76,16 +76,16 @@ class SystemEngineeringFinding:
 
 class DYONResearchRuntime:
     """DYON's autonomous system engineering research runtime.
-    
+
     Mirrors INDIRA's autonomous research runtime but focused on system engineering
     topics rather than trading/markets.
-    
+
     Design:
     * ResearchQueue: priority-ordered queue of SystemEngineeringResearchTopic
     * Background daemon thread: dequeues, runs research, stores findings
     * SourceTrustScorer: deterministic domain → [0, 1] trust tier
     * Knowledge Store: stores system engineering findings for advisory use
-    
+
     Research Categories:
         * architecture: System design patterns, architectural styles
         * infrastructure: Deployment, orchestration, infrastructure as code
@@ -98,7 +98,7 @@ class DYONResearchRuntime:
         * database: Design, optimization, sharding, consistency patterns
         * distributed_systems: Consensus, replication, CAP theorem applications
     """
-    
+
     # High-trust system engineering sources
     DOMAIN_TRUST: dict[str, float] = {
         # System Architecture & Design
@@ -111,14 +111,12 @@ class DYONResearchRuntime:
         "nginx.org": 0.85,
         "kubernetes.io": 0.90,
         "cloud-native": 0.88,
-        
         # Security
         "owasp.org": 0.95,
         "csrc.nist.gov": 0.95,
         "snyk.io/blog": 0.82,
         "owasp.org/blog": 0.88,
         "portswigger.net": 0.80,
-        
         # Performance & Scalability
         "highscalability.com": 0.95,
         "infoq.com": 0.90,
@@ -126,7 +124,6 @@ class DYONResearchRuntime:
         "acm.org": 0.95,
         "redis.io": 0.85,
         "rabbitmq.com": 0.82,
-        
         # Observability & SRE
         "sre.works": 0.95,
         "prometheus.io": 0.90,
@@ -134,7 +131,6 @@ class DYONResearchRuntime:
         "elastic.co": 0.88,
         "opentelemetry.io": 0.90,
         "datadog.com": 0.85,
-        
         # DevOps & Automation
         "jenkins.io": 0.88,
         "gitlab.com": 0.85,
@@ -143,14 +139,12 @@ class DYONResearchRuntime:
         "hashicorp.com": 0.90,
         "ansible.com": 0.88,
         "terraform.io": 0.92,
-        
         # Database
         "postgresql.org/docs": 0.92,
         "mysql.com": 0.88,
         "mongodb.com/docs": 0.88,
         "redis.io/docs": 0.85,
         "cassandra.apache.org": 0.82,
-        
         # Distributed Systems
         "databricks.com/blog": 0.88,
         "confluent.io/blog": 0.88,
@@ -158,7 +152,7 @@ class DYONResearchRuntime:
         "etcd.io": 0.88,
         "zookeeper.apache.org": 0.85,
     }
-    
+
     # Research categories
     RESEARCH_CATEGORIES = {
         "architecture": [
@@ -270,7 +264,7 @@ class DYONResearchRuntime:
             "service discovery",
         ],
     }
-    
+
     def __init__(self, *, max_queue_size: int = 100):
         self._lock = threading.RLock()
         self._research_queue: deque[SystemEngineeringResearchTopic] = deque(maxlen=max_queue_size)
@@ -278,17 +272,17 @@ class DYONResearchRuntime:
         self._thread: threading.Thread | None = None
         self._running = False
         self._repo_root = "."  # Will be set externally
-        
+
     def set_repo_root(self, repo_root: str):
         """Set repository root for context-aware research."""
         self._repo_root = repo_root
-        
+
     def add_research_topic(self, topic: SystemEngineeringResearchTopic) -> bool:
         """Add a research topic to the queue."""
         with self._lock:
             self._research_queue.append(topic)
             return True
-    
+
     def queue_autonomous_research(self, category: str | None = None) -> None:
         """Queue autonomous research topics based on current system state."""
         if category is None:
@@ -296,7 +290,7 @@ class DYONResearchRuntime:
             categories = list(self.RESEARCH_CATEGORIES.keys())
         else:
             categories = [category] if category in self.RESEARCH_CATEGORIES else []
-        
+
         for cat in categories:
             for subtopic in self.RESEARCH_CATEGORIES.get(cat, []):
                 topic = SystemEngineeringResearchTopic(
@@ -310,33 +304,48 @@ class DYONResearchRuntime:
                     last_accessed_ts_ns=int(datetime.now(UTC).timestamp() * 1_000_000_000),
                 )
                 self.add_research_topic(topic)
-        
+
         LOG.info(f"Queued {len(categories)} categories for autonomous system engineering research")
-    
+
     def _get_trusted_sources_for_category(self, category: str) -> tuple[str, ...]:
         """Get trusted sources for a research category."""
         # Map categories to appropriate sources
         category_sources = {
-            "architecture": ("martinfowler.com", "oreilly.com", "aws.amazon.com/architecture", "cloud.google.com/architecture"),
-            "infrastructure": ("kubernetes.io", "ansible.com", "terraform.io", "gitlab.com", "jenkins.io"),
+            "architecture": (
+                "martinfowler.com",
+                "oreilly.com",
+                "aws.amazon.com/architecture",
+                "cloud.google.com/architecture",
+            ),
+            "infrastructure": (
+                "kubernetes.io",
+                "ansible.com",
+                "terraform.io",
+                "gitlab.com",
+                "jenkins.io",
+            ),
             "security": ("owasp.org", "csrc.nist.gov", "snyk.io/blog", "owasp.org/blog"),
             "performance": ("highscalability.com", "infoq.com", "redis.io", "rabbitmq.com"),
             "scalability": ("highscalability.com", "kubernetes.io", "postgresql.org/docs"),
             "observability": ("sre.works", "prometheus.io", "grafana.com", "opentelemetry.io"),
             "devops": ("gitlab.com", "jenkins.io", "circleci.com", "hashicorp.com"),
             "database": ("postgresql.org/docs", "mysql.com", "mongodb.com/docs", "redis.io/docs"),
-            "distributed_systems": ("confluent.io/blog", "kafka.apache.org/documentation", "etcd.io"),
+            "distributed_systems": (
+                "confluent.io/blog",
+                "kafka.apache.org/documentation",
+                "etcd.io",
+            ),
         }
         return category_sources.get(category, ("martinfowler.com", "oreilly.com"))
-    
+
     def start_background_research(self) -> None:
         """Start background research daemon."""
         if self._running:
             LOG.warning("DYON research runtime already running")
             return
-        
+
         self._running = True
-        
+
         def _research_loop():
             while self._running:
                 try:
@@ -345,24 +354,26 @@ class DYONResearchRuntime:
                             time.sleep(5)  # Wait for topics
                             continue
                         topic = self._research_queue.popleft()
-                    
+
                     LOG.info(f"Researching system engineering topic: {topic.topic_id}")
                     findings = self._research_topic(topic)
-                    
+
                     with self._lock:
                         for finding in findings:
                             self._findings[finding.finding_id] = finding
-                    
+
                     LOG.info(f"Completed research for {topic.topic_id}: {len(findings)} findings")
-                    
+
                 except Exception as e:
                     LOG.error(f"Error in DYON research loop: {e}")
                     time.sleep(10)  # Back off on error
-        
-        self._thread = threading.Thread(target=_research_loop, daemon=True, name="dyon-research-loop")
+
+        self._thread = threading.Thread(
+            target=_research_loop, daemon=True, name="dyon-research-loop"
+        )
         self._thread.start()
         LOG.info("DYON research runtime started")
-    
+
     def stop_background_research(self) -> None:
         """Stop background research daemon."""
         self._running = False
@@ -370,10 +381,10 @@ class DYONResearchRuntime:
             self._thread.join(timeout=10)
             self._thread = None
         LOG.info("DYON research runtime stopped")
-    
+
     def _research_topic(self, topic: SystemEngineeringResearch) -> list[SystemEngineeringFinding]:
         """Research a system engineering topic (placeholder implementation).
-        
+
         In production, this would:
         1. Fetch content from trusted sources
         2. Parse and extract system engineering knowledge
@@ -382,25 +393,27 @@ class DYONResearchRuntime:
         """
         # TODO: Implement actual web scraping/research
         # For now, return placeholder findings
-        LOG.warning(f"System engineering research not yet implemented - returning placeholder for topic: {topic.topic_id}")
-        
+        LOG.warning(
+            f"System engineering research not yet implemented - returning placeholder for topic: {topic.topic_id}"
+        )
+
         return []
-    
+
     def get_findings_by_category(self, category: str) -> list[SystemEngineeringFinding]:
         """Get all findings for a category."""
         with self._lock:
             return [f for f in self._findings.values() if f.category == category]
-    
+
     def get_findings_by_topic(self, topic_id: str) -> list[SystemEngineeringFinding]:
         """Get all findings for a topic."""
         with self._lock:
             return [f for f in self._findings.values() if f.topic_id == topic_id]
-    
+
     def get_all_findings(self) -> list[SystemEngineeringFinding]:
         """Get all system engineering findings."""
         with self._lock:
             return list(self._findings.values())
-    
+
     def get_status(self) -> dict[str, Any]:
         """Get DYON research runtime status."""
         with self._lock:
@@ -408,7 +421,9 @@ class DYONResearchRuntime:
                 "running": self._running,
                 "queue_size": len(self._research_queue),
                 "findings_count": len(self._findings),
-                "thread_alive": self._thread is not None and self._thread.is_alive() if self._thread else False,
+                "thread_alive": (
+                    self._thread is not None and self._thread.is_alive() if self._thread else False
+                ),
             }
 
 
@@ -420,7 +435,7 @@ _runtime_lock = threading.Lock()
 def get_dyon_research_runtime() -> DYONResearchRuntime:
     """Get the singleton DYON research runtime instance."""
     global _dyon_research_runtime, _runtime_lock
-    
+
     with _runtime_lock:
         if _dyon_research_runtime is None:
             _dyon_research_runtime = DYONResearchRuntime()

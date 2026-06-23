@@ -9,25 +9,22 @@ Author: DIX VISION Real-time Governance
 Version: 42.2
 """
 
-import logging
-from typing import Any, Dict, List, Optional, Union
-from datetime import datetime
-import time
-
 import sys
-import os
+import time
+from datetime import datetime
+from typing import Any, Dict
+
 sys.path.append('/app/governance')
+
+from datetime import timedelta
 
 from base_external_repo_wrapper import (
     BaseExternalRepoGovernanceWrapper,
-    PermissionLevel,
-    GovernanceViolation,
-    SafetyViolation,
     ExternalRepositoryMetrics,
-    ExternalRepositoryHealthCheck
+    GovernanceViolation,
+    PermissionLevel,
 )
 
-from datetime import timedelta
 
 class WebSocketsGovernanceWrapper(BaseExternalRepoGovernanceWrapper):
     """
@@ -71,7 +68,7 @@ class WebSocketsGovernanceWrapper(BaseExternalRepoGovernanceWrapper):
             ws_config: WebSocket configuration (host, port, etc.)
         """
         try:
-            import websockets
+            pass
             
             self.websocket_instance = {
                 'host': ws_config.get('host', '0.0.0.0'),

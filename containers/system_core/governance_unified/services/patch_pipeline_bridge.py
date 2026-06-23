@@ -23,6 +23,7 @@ from core.contracts.patch import (
     PatchStage,
     StageVerdict,
 )
+
 from ..gates import (
     DEFAULT_QUANTITATIVE_THRESHOLDS,
     QuantitativeEvaluator,

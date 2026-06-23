@@ -26,32 +26,33 @@ from enum import StrEnum
 
 
 class FinancialViolationKind(StrEnum):
-    EXPOSURE_BREACH         = "EXPOSURE_BREACH"         # net exposure > budget
-    LEVERAGE_EXCEEDED       = "LEVERAGE_EXCEEDED"        # leverage > configured max
-    LIQUIDATION_IMMINENT    = "LIQUIDATION_IMMINENT"     # within liquidation buffer
-    EXECUTION_HAZARD        = "EXECUTION_HAZARD"         # adapter/routing failure risk
-    CAPITAL_RATE_EXCEEDED   = "CAPITAL_RATE_EXCEEDED"    # capital deployment too fast
-    SLIPPAGE_EXCESSIVE      = "SLIPPAGE_EXCESSIVE"       # realised slippage > model
-    DRAWDOWN_LIMIT          = "DRAWDOWN_LIMIT"           # daily/session drawdown breached
-    EXCHANGE_UNRELIABLE     = "EXCHANGE_UNRELIABLE"      # venue circuit-breaker open
+    EXPOSURE_BREACH = "EXPOSURE_BREACH"  # net exposure > budget
+    LEVERAGE_EXCEEDED = "LEVERAGE_EXCEEDED"  # leverage > configured max
+    LIQUIDATION_IMMINENT = "LIQUIDATION_IMMINENT"  # within liquidation buffer
+    EXECUTION_HAZARD = "EXECUTION_HAZARD"  # adapter/routing failure risk
+    CAPITAL_RATE_EXCEEDED = "CAPITAL_RATE_EXCEEDED"  # capital deployment too fast
+    SLIPPAGE_EXCESSIVE = "SLIPPAGE_EXCESSIVE"  # realised slippage > model
+    DRAWDOWN_LIMIT = "DRAWDOWN_LIMIT"  # daily/session drawdown breached
+    EXCHANGE_UNRELIABLE = "EXCHANGE_UNRELIABLE"  # venue circuit-breaker open
 
 
 class FinancialSeverity(StrEnum):
-    INFO     = "INFO"
-    WARNING  = "WARNING"
-    HIGH     = "HIGH"
+    INFO = "INFO"
+    WARNING = "WARNING"
+    HIGH = "HIGH"
     CRITICAL = "CRITICAL"
 
 
 class KillSwitchState(StrEnum):
-    ARMED    = "ARMED"      # kill switch activated
-    SAFE     = "SAFE"       # normal operation
-    COOLDOWN = "COOLDOWN"   # post-kill cooldown (no re-arm until operator clears)
+    ARMED = "ARMED"  # kill switch activated
+    SAFE = "SAFE"  # normal operation
+    COOLDOWN = "COOLDOWN"  # post-kill cooldown (no re-arm until operator clears)
 
 
 @dataclass(frozen=True, slots=True)
 class ExposureViolation:
     """Net exposure breach record."""
+
     ts_ns: int
     asset_class: str
     symbol: str
@@ -65,6 +66,7 @@ class ExposureViolation:
 @dataclass(frozen=True, slots=True)
 class LeverageBreach:
     """Leverage limit breach record."""
+
     ts_ns: int
     symbol: str
     venue: str
@@ -77,13 +79,14 @@ class LeverageBreach:
 @dataclass(frozen=True, slots=True)
 class LiquidationRiskRecord:
     """Liquidation proximity early warning."""
+
     ts_ns: int
     position_id: str
     symbol: str
     venue: str
     mark_price: float
     liquidation_price: float
-    distance_pct: float         # (mark - liq) / mark × 100
+    distance_pct: float  # (mark - liq) / mark × 100
     warning_threshold_pct: float
     severity: FinancialSeverity
     detail: str = ""
@@ -92,6 +95,7 @@ class LiquidationRiskRecord:
 @dataclass(frozen=True, slots=True)
 class ExecutionHazardRecord:
     """Execution path hazard detection record."""
+
     ts_ns: int
     adapter_id: str
     hazard_kind: FinancialViolationKind
@@ -104,22 +108,24 @@ class ExecutionHazardRecord:
 @dataclass(frozen=True, slots=True)
 class CapitalThrottleStatus:
     """Capital deployment rate throttle status."""
+
     ts_ns: int
-    window_ns: int              # rolling window used
-    deployed_usd: float         # capital deployed in window
-    limit_usd: float            # limit for this window
-    utilisation: float          # 0.0 = idle … 1.0 = at limit
-    throttled: bool             # True = new deployments blocked
+    window_ns: int  # rolling window used
+    deployed_usd: float  # capital deployed in window
+    limit_usd: float  # limit for this window
+    utilisation: float  # 0.0 = idle … 1.0 = at limit
+    throttled: bool  # True = new deployments blocked
     detail: str = ""
 
 
 @dataclass(frozen=True, slots=True)
 class KillSwitchRecord:
     """Financial kill switch state record."""
+
     ts_ns: int
     state: KillSwitchState
     reason: str
-    trigger: str                # "operator" | "auto_drawdown" | "auto_exposure"
+    trigger: str  # "operator" | "auto_drawdown" | "auto_exposure"
     positions_closed: int = 0
     orders_cancelled: int = 0
 
@@ -127,6 +133,7 @@ class KillSwitchRecord:
 @dataclass(frozen=True, slots=True)
 class FinancialGovernanceStatus:
     """Aggregate snapshot of all financial governance guards."""
+
     ts_ns: int
     overall_healthy: bool
     exposure_ok: bool

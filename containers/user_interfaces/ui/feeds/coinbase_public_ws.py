@@ -52,9 +52,7 @@ DEFAULT_SYMBOLS: tuple[str, ...] = ("BTC-USD", "ETH-USD")
 VENUE_TAG = "COINBASE"
 
 
-def make_combined_stream_url(
-    symbols: Sequence[str], *, product_type: str = "SPOT"
-) -> str:
+def make_combined_stream_url(symbols: Sequence[str], *, product_type: str = "SPOT") -> str:
     """Build the combined-stream URL for the given symbols.
 
     Returns ``"{BASE}/?products={BTC-USD,ETH-USD}&channels=ticker"``
@@ -138,11 +136,9 @@ def parse_ticker_frame(
 class _WSConnection(Protocol):
     """Minimal subset of ``websockets.WebSocketClientProtocol`` we use."""
 
-    def __aiter__(self) -> AsyncIterable[str]:
-        ...
+    def __aiter__(self) -> AsyncIterable[str]: ...
 
-    async def close(self) -> None:
-        ...
+    async def close(self) -> None: ...
 
 
 WSConnect = Callable[[str], Awaitable[_WSConnection]]

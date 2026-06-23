@@ -77,7 +77,9 @@ class TestRunner:
         data = test_config.get("data", {})
 
         if test_type == "backtest":
-            test = self.run_backtest(hypothesis, test_config.get("strategy_id", ""), list(data.values()))
+            test = self.run_backtest(
+                hypothesis, test_config.get("strategy_id", ""), list(data.values())
+            )
         else:
             test = self.run_statistical_test(hypothesis, data, test_type)
 

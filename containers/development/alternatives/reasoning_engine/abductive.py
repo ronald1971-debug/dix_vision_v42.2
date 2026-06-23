@@ -53,10 +53,7 @@ class AbductiveReasoner:
                 reasoning_trace=(f"No hypotheses registered for observation: {observation}",)
             )
 
-        scored = [
-            (h, h.explanatory_power(self._graph))
-            for h in hypotheses
-        ]
+        scored = [(h, h.explanatory_power(self._graph)) for h in hypotheses]
         scored.sort(key=lambda x: x[1], reverse=True)
         best_hypothesis, best_score = scored[0]
         alternatives = tuple(h for h, _ in scored[1:4])

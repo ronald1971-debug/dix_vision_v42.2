@@ -18,6 +18,7 @@ from typing import Any
 @dataclass(frozen=True, slots=True)
 class NormalizedTick:
     """Canonical single-price tick."""
+
     symbol: str
     exchange: str
     bid: float
@@ -30,6 +31,7 @@ class NormalizedTick:
 @dataclass(frozen=True, slots=True)
 class NormalizedLevel:
     """Single price level in a normalized order book."""
+
     price: float
     qty: float
 
@@ -37,6 +39,7 @@ class NormalizedLevel:
 @dataclass(frozen=True, slots=True)
 class NormalizedBook:
     """Canonical L2 order book snapshot."""
+
     symbol: str
     exchange: str
     bids: tuple[NormalizedLevel, ...]
@@ -67,9 +70,10 @@ class NormalizedBook:
 @dataclass(frozen=True, slots=True)
 class NormalizedTrade:
     """Canonical executed trade."""
+
     symbol: str
     exchange: str
-    side: str        # BUY | SELL
+    side: str  # BUY | SELL
     price: float
     qty: float
     trade_id: str
@@ -113,14 +117,8 @@ class MarketDataNormalizer:
         depth: int = 20,
     ) -> NormalizedBook:
         """Normalize raw bids/asks lists (each entry: [price, qty])."""
-        bids = tuple(
-            NormalizedLevel(price=float(p), qty=float(q))
-            for p, q in raw_bids[:depth]
-        )
-        asks = tuple(
-            NormalizedLevel(price=float(p), qty=float(q))
-            for p, q in raw_asks[:depth]
-        )
+        bids = tuple(NormalizedLevel(price=float(p), qty=float(q)) for p, q in raw_bids[:depth])
+        asks = tuple(NormalizedLevel(price=float(p), qty=float(q)) for p, q in raw_asks[:depth])
         return NormalizedBook(
             symbol=symbol,
             exchange=self._exchange,

@@ -31,18 +31,36 @@ from typing import Any
 _logger = logging.getLogger(__name__)
 
 _TEST_FN_RE = re.compile(r"^\s*def\s+test_\w+", re.MULTILINE)
-_PARTIAL_THRESHOLD: int = 3   # fewer than this many test functions → PARTIAL
+_PARTIAL_THRESHOLD: int = 3  # fewer than this many test functions → PARTIAL
 
-_SKIP_NAMES: frozenset[str] = frozenset({
-    "__init__.py", "conftest.py", "setup.py",
-})
-_SKIP_PREFIXES: frozenset[str] = frozenset({
-    "tests/", "test_", "scripts/", "migrations/",
-})
-_SKIP_DIRS: frozenset[str] = frozenset({
-    ".git", "__pycache__", ".venv", "venv", "node_modules",
-    ".mypy_cache", ".pytest_cache", "dist", "build",
-})
+_SKIP_NAMES: frozenset[str] = frozenset(
+    {
+        "__init__.py",
+        "conftest.py",
+        "setup.py",
+    }
+)
+_SKIP_PREFIXES: frozenset[str] = frozenset(
+    {
+        "tests/",
+        "test_",
+        "scripts/",
+        "migrations/",
+    }
+)
+_SKIP_DIRS: frozenset[str] = frozenset(
+    {
+        ".git",
+        "__pycache__",
+        ".venv",
+        "venv",
+        "node_modules",
+        ".mypy_cache",
+        ".pytest_cache",
+        "dist",
+        "build",
+    }
+)
 
 COVERED = "COVERED"
 PARTIAL = "PARTIAL"
@@ -57,7 +75,7 @@ class ModuleCoverage:
     rel_file: str
     layer: str
     classification: str
-    test_file: str        # relative path to test file, or ""
+    test_file: str  # relative path to test file, or ""
     test_fn_count: int
     line_count: int
 
@@ -125,11 +143,13 @@ class TestCoverageTracker:
             CoverageSnapshot with per-layer statistics and top-uncovered list.
         """
         import time as _time
+
         t0 = _time.monotonic()
 
         modules: list[Any] = []
         try:
             from evolution_engine.dyon.repo_inspector import get_repo_inspector
+
             repo_snap = get_repo_inspector(repo_root=self._root).latest_snapshot()
             if repo_snap is not None:
                 modules = list(repo_snap.modules)
@@ -160,15 +180,17 @@ class TestCoverageTracker:
             else:
                 classification = COVERED
 
-            results.append(ModuleCoverage(
-                module_path=mod.module_path,
-                rel_file=rel_file,
-                layer=mod.layer,
-                classification=classification,
-                test_file=test_file,
-                test_fn_count=fn_count,
-                line_count=mod.line_count,
-            ))
+            results.append(
+                ModuleCoverage(
+                    module_path=mod.module_path,
+                    rel_file=rel_file,
+                    layer=mod.layer,
+                    classification=classification,
+                    test_file=test_file,
+                    test_fn_count=fn_count,
+                    line_count=mod.line_count,
+                )
+            )
 
         covered_n = sum(1 for r in results if r.classification == COVERED)
         partial_n = sum(1 for r in results if r.classification == PARTIAL)
@@ -208,7 +230,12 @@ class TestCoverageTracker:
 
         _logger.info(
             "TestCoverageTracker: %d modules — %d covered, %d partial, %d uncovered (%.1f%%) in %.0fms",
-            total, covered_n, partial_n, uncovered_n, pct, duration_ms,
+            total,
+            covered_n,
+            partial_n,
+            uncovered_n,
+            pct,
+            duration_ms,
         )
         return snap
 
@@ -254,9 +281,7 @@ class TestCoverageTracker:
             pass
         return index
 
-    def _find_test(
-        self, base: str, index: dict[str, list[pathlib.Path]]
-    ) -> tuple[str, int]:
+    def _find_test(self, base: str, index: dict[str, list[pathlib.Path]]) -> tuple[str, int]:
         """Return (rel_path, test_fn_count) for the module, or ("", 0)."""
         files = index.get(base, [])
         if not files:
@@ -280,7 +305,8 @@ _tracker_lock = threading.Lock()
 
 
 def get_test_coverage_tracker(
-    *, repo_root: str | pathlib.Path = ".",
+    *,
+    repo_root: str | pathlib.Path = ".",
 ) -> TestCoverageTracker:
     """Return the process-wide TestCoverageTracker singleton."""
     global _tracker

@@ -45,6 +45,7 @@ def _load_indira_domains() -> tuple[str, ...]:
     if _INDIRA_DOMAINS is None:
         try:
             from tools.ownership_registry_loader import indira_owned_domains
+
             _INDIRA_DOMAINS = indira_owned_domains()
         except Exception:
             _INDIRA_DOMAINS = (
@@ -65,6 +66,7 @@ def _load_dyon_domains() -> tuple[str, ...]:
     if _DYON_DOMAINS is None:
         try:
             from tools.ownership_registry_loader import dyon_owned_domains
+
             _DYON_DOMAINS = dyon_owned_domains()
         except Exception:
             _DYON_DOMAINS = (
@@ -80,17 +82,21 @@ _INDIRA_DOMAINS: frozenset[str] = frozenset(_load_indira_domains())
 _DYON_DOMAINS: frozenset[str] = frozenset(_load_dyon_domains())
 
 # Engine package definitions
-_RUNTIME_ENGINE_PACKAGES: frozenset[str] = frozenset({
-    "intelligence_engine",
-    "execution_engine",
-    "system_engine",
-    "governance_engine",
-})
+_RUNTIME_ENGINE_PACKAGES: frozenset[str] = frozenset(
+    {
+        "intelligence_engine",
+        "execution_engine",
+        "system_engine",
+        "governance_engine",
+    }
+)
 
-_OFFLINE_ENGINE_PACKAGES: frozenset[str] = frozenset({
-    "learning_engine",
-    "evolution_engine",
-})
+_OFFLINE_ENGINE_PACKAGES: frozenset[str] = frozenset(
+    {
+        "learning_engine",
+        "evolution_engine",
+    }
+)
 
 _ALL_ENGINE_PACKAGES: frozenset[str] = _RUNTIME_ENGINE_PACKAGES | _OFFLINE_ENGINE_PACKAGES
 
@@ -132,44 +138,49 @@ _NON_DETERMINISTIC_STDLIB: tuple[str, ...] = (
     "uuid",
 )
 
-_SKIP_DIRS: frozenset[str] = frozenset({
-    ".git",
-    ".venv",
-    "venv",
-    ".tox",
-    "node_modules",
-    "build",
-    "dist",
-    "__pycache__",
-    ".pytest_cache",
-    ".ruff_cache",
-    ".claude",
-    "rust",
-    "target",
-    "tools",
-})
+_SKIP_DIRS: frozenset[str] = frozenset(
+    {
+        ".git",
+        ".venv",
+        "venv",
+        ".tox",
+        "node_modules",
+        "build",
+        "dist",
+        "__pycache__",
+        ".pytest_cache",
+        ".ruff_cache",
+        ".claude",
+        "rust",
+        "target",
+        "tools",
+    }
+)
 
 
 # ---------------------------------------------------------------------------
 # Typed violation records
 # ---------------------------------------------------------------------------
 
+
 @dataclass(frozen=True, slots=True)
 class TopologyViolation:
     """A single detected architectural invariant violation."""
-    invariant_id: str       # e.g. "B1", "L2", "INV-15"
-    rule: str               # human-readable rule name
-    source_module: str      # dotted module name of the importing file
-    imported_module: str    # dotted module name being imported
-    file_path: str          # absolute path of the source file
-    line: int               # import line number
-    description: str        # violation explanation
-    severity: str           # "WARNING" | "CRITICAL"
+
+    invariant_id: str  # e.g. "B1", "L2", "INV-15"
+    rule: str  # human-readable rule name
+    source_module: str  # dotted module name of the importing file
+    imported_module: str  # dotted module name being imported
+    file_path: str  # absolute path of the source file
+    line: int  # import line number
+    description: str  # violation explanation
+    severity: str  # "WARNING" | "CRITICAL"
 
 
 @dataclass(frozen=True, slots=True)
 class TopologyScanResult:
     """Complete result of one topology scan pass."""
+
     ts_ns: int
     root: str
     files_scanned: int
@@ -195,6 +206,7 @@ class TopologyScanResult:
 # ---------------------------------------------------------------------------
 # AST helpers
 # ---------------------------------------------------------------------------
+
 
 def _module_name_for(path: Path, root: Path) -> str:
     """Convert a path inside the repo into a dotted module name."""
@@ -244,9 +256,8 @@ def _iter_python_files(root: Path) -> list[Path]:
 # Rule checkers — return TopologyViolation or None
 # ---------------------------------------------------------------------------
 
-def _check_b1(
-    importer: str, target: str, file_path: str, line: int
-) -> TopologyViolation | None:
+
+def _check_b1(importer: str, target: str, file_path: str, line: int) -> TopologyViolation | None:
     """B1: cross-runtime-engine direct imports forbidden."""
     if not _starts_with_any(importer, _ALL_ENGINE_PACKAGES):
         return None
@@ -276,9 +287,7 @@ def _check_b1(
     return None
 
 
-def _check_l2(
-    importer: str, target: str, file_path: str, line: int
-) -> TopologyViolation | None:
+def _check_l2(importer: str, target: str, file_path: str, line: int) -> TopologyViolation | None:
     """L2: offline engines may not import runtime engines."""
     if not _starts_with_any(importer, _OFFLINE_ENGINE_PACKAGES):
         return None
@@ -303,9 +312,7 @@ def _check_l2(
     return None
 
 
-def _check_l3(
-    importer: str, target: str, file_path: str, line: int
-) -> TopologyViolation | None:
+def _check_l3(importer: str, target: str, file_path: str, line: int) -> TopologyViolation | None:
     """L3: runtime engines may not import offline engines."""
     if not _starts_with_any(importer, _RUNTIME_ENGINE_PACKAGES):
         return None
@@ -330,9 +337,7 @@ def _check_l3(
     return None
 
 
-def _check_inv15(
-    importer: str, target: str, file_path: str, line: int
-) -> TopologyViolation | None:
+def _check_inv15(importer: str, target: str, file_path: str, line: int) -> TopologyViolation | None:
     """INV-15: non-deterministic stdlib imports in replay-eligible paths."""
     if not _starts_with_any(importer, _REPLAY_PATH_PREFIXES):
         return None
@@ -362,6 +367,7 @@ _ALL_RULE_CHECKERS = (_check_b1, _check_l2, _check_l3, _check_inv15)
 # ---------------------------------------------------------------------------
 # Scanner
 # ---------------------------------------------------------------------------
+
 
 class DyonTopologyScanner:
     """DYON's autonomous architectural topology analysis engine.
@@ -440,6 +446,7 @@ class DyonTopologyScanner:
                 emit_architectural_drift,
                 emit_topology_drift,
             )
+
             for v in result.violations:
                 if v.invariant_id in ("B1", "L2", "L3"):
                     emit_architectural_drift(

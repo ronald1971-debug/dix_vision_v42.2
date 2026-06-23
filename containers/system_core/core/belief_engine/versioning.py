@@ -11,6 +11,7 @@ from dataclasses import dataclass
 @dataclass(frozen=True, slots=True)
 class BeliefVersion:
     """Version identifier for belief state schema."""
+
     major: int
     minor: int
     patch: int

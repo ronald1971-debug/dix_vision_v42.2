@@ -20,11 +20,12 @@ from execution_unified.core.market_data.normalizer import NormalizedBook, Normal
 @dataclass(frozen=True, slots=True)
 class BookDelta:
     """A single incremental order book update."""
+
     symbol: str
     exchange: str
-    side: str          # BID | ASK
+    side: str  # BID | ASK
     price: float
-    qty: float         # 0.0 = delete this level
+    qty: float  # 0.0 = delete this level
     ts_ns: int
 
 
@@ -38,7 +39,7 @@ class OrderBookState:
     def __init__(self, symbol: str, exchange: str) -> None:
         self.symbol = symbol
         self.exchange = exchange
-        self._bids: dict[float, float] = {}   # price → qty
+        self._bids: dict[float, float] = {}  # price → qty
         self._asks: dict[float, float] = {}
         self._last_ts_ns: int = 0
         self._update_count: int = 0

@@ -26,8 +26,6 @@ from collections.abc import Callable
 from threading import Lock
 from typing import Any, Protocol
 
-from fastapi import APIRouter, HTTPException
-
 from core.contracts.api.cognitive_chat import (
     ChatStatusResponse,
     ChatTurnRequest,
@@ -38,6 +36,7 @@ from core.contracts.api.cognitive_chat_approvals import (
     ApprovalDecisionResponse,
     ApprovalsListResponse,
 )
+from fastapi import APIRouter, HTTPException
 from intelligence_engine.cognitive.approval_edge import (
     ApprovalAlreadyDecidedError,
     ApprovalNotFoundError,

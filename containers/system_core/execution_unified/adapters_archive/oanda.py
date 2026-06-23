@@ -114,7 +114,9 @@ class OandaAdapter(BaseAdapter):
             self._last_heartbeat_ns = time_source.wall_ns()
             logger.info(
                 "OandaAdapter.connect: connected. adapter_id=%s account=%s practice=%s",
-                self.adapter_id, self._account_id, self._practice,
+                self.adapter_id,
+                self._account_id,
+                self._practice,
             )
             return True
         except Exception as exc:  # noqa: BLE001
@@ -122,7 +124,9 @@ class OandaAdapter(BaseAdapter):
             self._record_error()
             logger.error(
                 "OandaAdapter.connect: failed. adapter_id=%s error=%s: %s",
-                self.adapter_id, type(exc).__name__, str(exc)[:256],
+                self.adapter_id,
+                type(exc).__name__,
+                str(exc)[:256],
             )
             return False
 
@@ -213,7 +217,12 @@ class OandaAdapter(BaseAdapter):
             logger.debug(
                 "OandaAdapter.submit_order: filled. adapter_id=%s order_id=%s "
                 "instrument=%s units=%s price=%.6g latency_ms=%.2f",
-                self.adapter_id, order_id, instrument, units_signed, avg_price, latency_ms,
+                self.adapter_id,
+                order_id,
+                instrument,
+                units_signed,
+                avg_price,
+                latency_ms,
             )
             return FillReport(
                 adapter_id=self.adapter_id,
@@ -234,7 +243,10 @@ class OandaAdapter(BaseAdapter):
             self._record_error()
             logger.error(
                 "OandaAdapter.submit_order: failed. adapter_id=%s instrument=%s error=%s: %s",
-                self.adapter_id, instrument, type(exc).__name__, str(exc)[:256],
+                self.adapter_id,
+                instrument,
+                type(exc).__name__,
+                str(exc)[:256],
             )
             raise RuntimeError(
                 f"OandaAdapter.submit_order failed: {type(exc).__name__}: {exc}"
@@ -261,14 +273,19 @@ class OandaAdapter(BaseAdapter):
             )
             logger.info(
                 "OandaAdapter.cancel_order: cancelled. adapter_id=%s order_id=%s symbol=%s",
-                self.adapter_id, exchange_order_id, symbol,
+                self.adapter_id,
+                exchange_order_id,
+                symbol,
             )
             return True
         except Exception as exc:  # noqa: BLE001
             self._record_error()
             logger.error(
                 "OandaAdapter.cancel_order: failed. adapter_id=%s order_id=%s error=%s: %s",
-                self.adapter_id, exchange_order_id, type(exc).__name__, str(exc)[:256],
+                self.adapter_id,
+                exchange_order_id,
+                type(exc).__name__,
+                str(exc)[:256],
             )
             raise RuntimeError(
                 f"OandaAdapter.cancel_order failed: {type(exc).__name__}: {exc}"
@@ -298,7 +315,9 @@ class OandaAdapter(BaseAdapter):
             self._record_error()
             logger.error(
                 "OandaAdapter.get_balances: failed. adapter_id=%s error=%s: %s",
-                self.adapter_id, type(exc).__name__, str(exc)[:256],
+                self.adapter_id,
+                type(exc).__name__,
+                str(exc)[:256],
             )
             raise RuntimeError(
                 f"OandaAdapter.get_balances failed: {type(exc).__name__}: {exc}"
@@ -338,9 +357,7 @@ class OandaAdapter(BaseAdapter):
                 return json.loads(resp.read())
         except urllib.error.HTTPError as exc:
             body_text = exc.read().decode("utf-8", errors="replace")
-            raise RuntimeError(
-                f"OANDA HTTP {exc.code} on {path}: {body_text[:256]}"
-            ) from exc
+            raise RuntimeError(f"OANDA HTTP {exc.code} on {path}: {body_text[:256]}") from exc
 
     def _require_connected(self) -> None:
         """Raise RuntimeError if the adapter is not in CONNECTED state."""

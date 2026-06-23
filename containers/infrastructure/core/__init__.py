@@ -5,27 +5,21 @@ NO PLACEHOLDER - Contract-compliant real implementations
 """
 
 from core.cognitive_router import (
-    TaskClass,
     AIProvider,
     ProviderConfig,
-    enabled_ai_providers,
-    select_providers,
-    get_provider_config,
+    TaskClass,
     enable_provider,
-    set_provider_api_key
+    enabled_ai_providers,
+    get_provider_config,
+    select_providers,
+    set_provider_api_key,
 )
-from core.kernel import (
-    EngineStatus,
-    EngineState,
-    EngineServiceAdapter,
-    SystemKernel,
-    get_kernel
-)
+from core.kernel import EngineServiceAdapter, EngineState, EngineStatus, SystemKernel, get_kernel
 
 __all__ = [
     # Cognitive Router
     "TaskClass",
-    "AIProvider", 
+    "AIProvider",
     "ProviderConfig",
     "enabled_ai_providers",
     "select_providers",
@@ -37,5 +31,5 @@ __all__ = [
     "EngineState",
     "EngineServiceAdapter",
     "SystemKernel",
-    "get_kernel"
+    "get_kernel",
 ]

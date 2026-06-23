@@ -29,33 +29,36 @@ from enum import StrEnum
 # Priority enumeration (dev and live phases)
 # ---------------------------------------------------------------------------
 
+
 class GovernancePriority(StrEnum):
     """Ordinal priority identifier for a governance layer."""
-    P1_COGNITIVE  = "P1_COGNITIVE"    # Always P1 — protects cognition
-    P2_OPERATOR   = "P2_OPERATOR"     # Dev P2 / Live P3 — constitutional authority
-    P3_SYSTEM     = "P3_SYSTEM"       # Dev P3 / Live P4 — runtime integrity
-    P4_CAPITAL    = "P4_CAPITAL"      # Dev P4 / Live P2 — financial protection
+
+    P1_COGNITIVE = "P1_COGNITIVE"  # Always P1 — protects cognition
+    P2_OPERATOR = "P2_OPERATOR"  # Dev P2 / Live P3 — constitutional authority
+    P3_SYSTEM = "P3_SYSTEM"  # Dev P3 / Live P4 — runtime integrity
+    P4_CAPITAL = "P4_CAPITAL"  # Dev P4 / Live P2 — financial protection
 
 
 class DeploymentPhase(StrEnum):
     """System deployment phase that determines priority ordering."""
-    DEVELOPMENT = "DEVELOPMENT"   # Phase 0–3: cognitive build-out
-    LIVE        = "LIVE"          # Phase 4+:  live capital deployed
+
+    DEVELOPMENT = "DEVELOPMENT"  # Phase 0–3: cognitive build-out
+    LIVE = "LIVE"  # Phase 4+:  live capital deployed
 
 
 # Priority stacks: (layer → ordinal rank; lower = higher priority)
 DEV_PRIORITY_STACK: dict[GovernancePriority, int] = {
     GovernancePriority.P1_COGNITIVE: 1,
-    GovernancePriority.P2_OPERATOR:  2,
-    GovernancePriority.P3_SYSTEM:    3,
-    GovernancePriority.P4_CAPITAL:   4,
+    GovernancePriority.P2_OPERATOR: 2,
+    GovernancePriority.P3_SYSTEM: 3,
+    GovernancePriority.P4_CAPITAL: 4,
 }
 
 LIVE_PRIORITY_STACK: dict[GovernancePriority, int] = {
     GovernancePriority.P1_COGNITIVE: 1,
-    GovernancePriority.P2_OPERATOR:  2,   # Operator Sovereignty remains P2 in all phases
-    GovernancePriority.P3_SYSTEM:    3,
-    GovernancePriority.P4_CAPITAL:   4,   # Capital enforcement becomes FULLY ACTIVE in live, but rank stays P4
+    GovernancePriority.P2_OPERATOR: 2,  # Operator Sovereignty remains P2 in all phases
+    GovernancePriority.P3_SYSTEM: 3,
+    GovernancePriority.P4_CAPITAL: 4,  # Capital enforcement becomes FULLY ACTIVE in live, but rank stays P4
 }
 
 
@@ -67,14 +70,16 @@ def priority_stack(phase: DeploymentPhase) -> dict[GovernancePriority, int]:
 # Constitutional directives (codified immutable rules)
 # ---------------------------------------------------------------------------
 
+
 @dataclass(frozen=True, slots=True)
 class ConstitutionalDirective:
     """One inviolable rule in the DIXVISION governance constitution."""
+
     directive_id: str
     title: str
     text: str
-    enforced_by: str      # module path of the enforcing guard
-    blocking: bool        # True = violations BLOCK execution; False = warn only
+    enforced_by: str  # module path of the enforcing guard
+    blocking: bool  # True = violations BLOCK execution; False = warn only
 
 
 # The four primary directives — ordered by priority
@@ -147,9 +152,11 @@ ALL_DIRECTIVES: tuple[ConstitutionalDirective, ...] = (
 # Architecture identity declaration
 # ---------------------------------------------------------------------------
 
+
 @dataclass(frozen=True, slots=True)
 class ArchitectureIdentity:
     """The true identity of the DIXVISION system (not merely a trading bot)."""
+
     primary_identity: str
     manifestations: tuple[str, ...]
     governance_target: str
@@ -172,9 +179,7 @@ DIXVISION_IDENTITY = ArchitectureIdentity(
         "(3) System Integrity — deterministic, auditable, replayable, contract-valid evolution; "
         "(4) Capital Integrity — fully enforced when live capital deployed, never overrides operator sovereignty."
     ),
-    development_priority=(
-        "P1 Cognitive → P2 Operator → P3 System → P4 Capital"
-    ),
+    development_priority=("P1 Cognitive → P2 Operator → P3 System → P4 Capital"),
     live_priority=(
         "P1 Cognitive → P2 Operator → P3 System → P4 Capital "
         "(Capital enforcement fully active in live; priority rank unchanged — Operator Sovereignty never demoted)"
@@ -186,9 +191,11 @@ DIXVISION_IDENTITY = ArchitectureIdentity(
 # Governance status snapshot
 # ---------------------------------------------------------------------------
 
+
 @dataclass(frozen=True, slots=True)
 class ConstitutionalStatus:
     """Snapshot of constitutional compliance across all four governance layers."""
+
     ts_ns: int
     phase: DeploymentPhase
     cognitive_integrity_ok: bool

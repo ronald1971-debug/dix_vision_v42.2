@@ -263,14 +263,15 @@ The most critical TODOs that were blocking INDIRA's transformation from signal i
 - ✅ Exported world-indicator coordinator and related classes
 - ✅ Organized integration interfaces
 
-**Impact:** World understanding and indicator processing are now **wired together as equals**, implementing the core architectural principle that both paradigms are equally important in the cognitive trading system.
+**Impact:** World understanding now **enhances signal processing** with essential risk context, implementing the core architectural principle that signal processing is the primary driver (85%) for profitable trading, with world understanding (15%) providing essential enhancement for risk management and regime awareness in the cognitive trading system.
 
 ### Architecture Achievement
 This implements the foundational architectural principle:
-> **"World understanding and indicator processing are equally important"**
+> **"Signal processing is the primary driver (85%) for profitable trading, with world understanding (15%) providing essential enhancement for risk management and regime awareness"**
 
 The system now processes market data through a sophisticated coordinator that:
-- Treats world understanding and indicators as equals
+- Signal processing drives trade decisions (85%)
+- World understanding provides risk enhancement (15%)
 - Provides multiple integration modes for different market conditions
 - Adapts weighting based on performance metrics
 - Validates consistency between world and indicator signals

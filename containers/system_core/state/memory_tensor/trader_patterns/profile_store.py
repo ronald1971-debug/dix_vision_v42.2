@@ -62,13 +62,9 @@ class TraderProfile:
                 f"TraderProfile.profile_id must be non-empty str, got {self.profile_id!r}"
             )
         if not isinstance(self.ts_ns, int) or isinstance(self.ts_ns, bool):
-            raise ValueError(
-                f"TraderProfile.ts_ns must be int, got {type(self.ts_ns).__name__}"
-            )
+            raise ValueError(f"TraderProfile.ts_ns must be int, got {type(self.ts_ns).__name__}")
         if not isinstance(self.source, str) or not self.source:
-            raise ValueError(
-                f"TraderProfile.source must be non-empty str, got {self.source!r}"
-            )
+            raise ValueError(f"TraderProfile.source must be non-empty str, got {self.source!r}")
         if not isinstance(self.behavior_tags, tuple):
             raise ValueError(
                 "TraderProfile.behavior_tags must be tuple, "
@@ -122,9 +118,7 @@ class TraderProfileStore:
     def get(self, profile_id: str) -> TraderProfile | None:
         """Return the :class:`TraderProfile` for *profile_id*, or ``None``."""
         if not isinstance(profile_id, str) or not profile_id:
-            raise ValueError(
-                "TraderProfileStore.get: profile_id must be non-empty str"
-            )
+            raise ValueError("TraderProfileStore.get: profile_id must be non-empty str")
         with self._lock:
             return self._profiles.get(profile_id)
 

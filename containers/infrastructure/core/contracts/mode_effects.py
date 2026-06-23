@@ -3,13 +3,15 @@ Core Contracts Mode Effects
 Real implementation for mode effects management
 """
 
+import time
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, Any, Callable, List
-import time
+from typing import Any, Dict, List
+
 
 class EffectKind(Enum):
     """Effect kind enumeration"""
+
     RATE_LIMIT = "rate_limit"
     POSITION_LIMIT = "position_limit"
     EXPOSURE_LIMIT = "exposure_limit"
@@ -20,17 +22,21 @@ class EffectKind(Enum):
     ALERTING = "alerting"
     THROTTLING = "throttling"
 
+
 class EffectSeverity(Enum):
     """Effect severity enumeration"""
+
     CRITICAL = "critical"
     HIGH = "high"
     MEDIUM = "medium"
     LOW = "low"
     INFO = "info"
 
+
 @dataclass
 class ModeEffect:
     """Mode effect definition"""
+
     effect_id: str
     kind: EffectKind
     severity: EffectSeverity
@@ -38,14 +44,15 @@ class ModeEffect:
     parameters: Dict[str, Any] = field(default_factory=dict)
     enabled: bool = True
     timestamp: float = field(default_factory=time.time)
-    
+
     def is_active(self) -> bool:
         """Check if effect is active"""
         return self.enabled
-    
+
     def is_critical(self) -> bool:
         """Check if effect is critical"""
         return self.severity == EffectSeverity.CRITICAL
+
 
 # Predefined mode effects
 MODE_EFFECTS = {
@@ -54,38 +61,39 @@ MODE_EFFECTS = {
             effect_id="paper_no_real_orders",
             kind=EffectKind.AUTHORIZATION,
             severity=EffectSeverity.CRITICAL,
-            description="Prevent real order execution in paper mode"
+            description="Prevent real order execution in paper mode",
         ),
         ModeEffect(
             effect_id="paper_simulation",
             kind=EffectKind.MONITORING,
             severity=EffectSeverity.INFO,
-            description="Simulate order execution in paper mode"
-        )
+            description="Simulate order execution in paper mode",
+        ),
     ],
     "live_trading": [
         ModeEffect(
             effect_id="live_real_orders",
             kind=EffectKind.AUTHORIZATION,
             severity=EffectSeverity.HIGH,
-            description="Allow real order execution in live mode"
+            description="Allow real order execution in live mode",
         ),
         ModeEffect(
             effect_id="live_risk_controls",
             kind=EffectKind.RISK_LIMIT,
             severity=EffectSeverity.CRITICAL,
-            description="Apply risk controls in live mode"
-        )
+            description="Apply risk controls in live mode",
+        ),
     ],
     "development": [
         ModeEffect(
             effect_id="dev_sandbox",
             kind=EffectKind.AUTHORIZATION,
             severity=EffectSeverity.MEDIUM,
-            description="Sandbox environment for development"
+            description="Sandbox environment for development",
         )
-    ]
+    ],
 }
+
 
 def effect_for(mode: str, effect_kind: EffectKind) -> ModeEffect:
     """Get effect for a specific mode and kind"""
@@ -95,46 +103,51 @@ def effect_for(mode: str, effect_kind: EffectKind) -> ModeEffect:
         kind=effect_kind,
         severity=EffectSeverity.MEDIUM,
         description=f"Effect for {mode}",
-        parameters={}
+        parameters={},
     )
+
 
 def get_effects_for_mode(mode: str) -> List[ModeEffect]:
     """Get all effects for a specific mode"""
     # Real implementation would return mode-specific effects
     return []
 
+
 def apply_effect(effect: ModeEffect, context: Dict[str, Any]) -> bool:
     """Apply an effect to the context"""
     # Real implementation would apply effect logic
     return True
+
 
 def revoke_effect(effect: ModeEffect, context: Dict[str, Any]) -> bool:
     """Revoke an effect from the context"""
     # Real implementation would revoke effect logic
     return True
 
+
 class ModeEffectManager:
     """Manager for mode effects"""
+
     def __init__(self):
         self._effects: Dict[str, ModeEffect] = {}
         self._mode_effects: Dict[str, List[str]] = {}
-    
+
     def register_effect(self, effect: ModeEffect) -> bool:
         """Register an effect"""
         self._effects[effect.effect_id] = effect
         return True
-    
+
     def get_effect(self, effect_id: str) -> ModeEffect:
         """Get a specific effect"""
         return self._effects.get(effect_id)
-    
+
     def apply_effect(self, effect_id: str, context: Dict[str, Any]) -> bool:
         """Apply an effect to context"""
         effect = self.get_effect(effect_id)
         if effect:
             return apply_effect(effect, context)
         return False
-    
+
     def revoke_effect(self, effect_id: str, context: Dict[str, Any]) -> bool:
         """Revoke an effect from context"""
         effect = self.get_effect(effect_id)
@@ -142,8 +155,10 @@ class ModeEffectManager:
             return revoke_effect(effect, context)
         return False
 
+
 # Global mode effect manager
 _effect_manager = None
+
 
 def get_effect_manager() -> ModeEffectManager:
     """Get the global effect manager"""
@@ -151,6 +166,7 @@ def get_effect_manager() -> ModeEffectManager:
     if _effect_manager is None:
         _effect_manager = ModeEffectManager()
     return _effect_manager
+
 
 __all__ = [
     "EffectKind",
@@ -162,5 +178,5 @@ __all__ = [
     "apply_effect",
     "revoke_effect",
     "ModeEffectManager",
-    "get_effect_manager"
+    "get_effect_manager",
 ]

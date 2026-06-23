@@ -79,8 +79,7 @@ class StrategyLineageGuard:
             if parent_id is not None and parent_id not in self._registry:
                 violations.append(CognitiveViolationKind.LINEAGE_GAP)
                 detail_parts.append(
-                    f"parent_id={parent_id!r} not in registry; "
-                    "cannot verify ancestry"
+                    f"parent_id={parent_id!r} not in registry; " "cannot verify ancestry"
                 )
 
             # Register the strategy (even if invalid, so we can detect cycles)
@@ -103,8 +102,7 @@ class StrategyLineageGuard:
         if depth > MAX_CHAIN_DEPTH:
             violations.append(CognitiveViolationKind.LINEAGE_GAP)
             detail_parts.append(
-                f"chain_depth={depth} > MAX_CHAIN_DEPTH={MAX_CHAIN_DEPTH}; "
-                "ancestry unverifiable"
+                f"chain_depth={depth} > MAX_CHAIN_DEPTH={MAX_CHAIN_DEPTH}; " "ancestry unverifiable"
             )
 
         passed = len(violations) == 0
@@ -150,6 +148,7 @@ class StrategyLineageGuard:
         Useful for periodic integrity sweeps of the strategy registry.
         """
         from system_unified.time_source import wall_ns
+
         ts_ns = wall_ns()
 
         with self._lock:

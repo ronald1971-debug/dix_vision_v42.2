@@ -184,9 +184,7 @@ class KillSwitch:
                 "state": self._state.value,
                 "arm_count": self._arm_count,
                 "last_reason": self._last_record.reason if self._last_record else None,
-                "last_trigger": (
-                    self._last_record.trigger if self._last_record else None
-                ),
+                "last_trigger": (self._last_record.trigger if self._last_record else None),
             }
 
 

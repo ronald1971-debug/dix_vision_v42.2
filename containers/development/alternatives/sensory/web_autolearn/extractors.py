@@ -87,7 +87,11 @@ __all__ = (
 # Public sentinels
 # ---------------------------------------------------------------------------
 
-NEW_PIP_DEPENDENCIES: Final[tuple[str, ...]] = ( "trafilatura", "newspaper3k", "readability-lxml", )
+NEW_PIP_DEPENDENCIES: Final[tuple[str, ...]] = (
+    "trafilatura",
+    "newspaper3k",
+    "readability-lxml",
+)
 """Lazy pip dependencies surfaced for ops tooling.
 
 None of the three packages is imported at module top level; each lives

@@ -14,8 +14,8 @@ __all__ = ["SlippagePoint", "SlippageCurve"]
 
 @dataclass(frozen=True, slots=True)
 class SlippagePoint:
-    qty_pct_adv: float    # order size as % of ADV
-    slippage_bps: float   # observed slippage in bps
+    qty_pct_adv: float  # order size as % of ADV
+    slippage_bps: float  # observed slippage in bps
 
 
 class SlippageCurve:
@@ -46,7 +46,7 @@ class SlippageCurve:
         sum_y = sum(ys)
         sum_xx = sum(x * x for x in xs)
         sum_xy = sum(x * y for x, y in zip(xs, ys))
-        denom = n * sum_xx - sum_x ** 2
+        denom = n * sum_xx - sum_x**2
         if abs(denom) < 1e-12:
             self._a = sum_y / n
             self._b = 0.0

@@ -21,14 +21,15 @@ from typing import Any
 
 
 class KillSwitchState(StrEnum):
-    ACTIVE = "ACTIVE"        # normal — all subsystems running
+    ACTIVE = "ACTIVE"  # normal — all subsystems running
     TRIGGERED = "TRIGGERED"  # kill-switch fired — halt everything
-    COOLDOWN = "COOLDOWN"    # transitional — waiting for operator clear
+    COOLDOWN = "COOLDOWN"  # transitional — waiting for operator clear
 
 
 @dataclass(frozen=True, slots=True)
 class KillSwitchEvent:
     """Records a kill-switch state transition."""
+
     from_state: KillSwitchState
     to_state: KillSwitchState
     reason: str

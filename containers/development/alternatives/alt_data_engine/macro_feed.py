@@ -59,9 +59,7 @@ class MacroFeed:
         latest = self.get_latest()
         if not latest:
             return "NEUTRAL"
-        rates_up = any(
-            m.indicator.upper().endswith("RATE") and m.value > 0 for m in latest
-        )
+        rates_up = any(m.indicator.upper().endswith("RATE") and m.value > 0 for m in latest)
         inflation_up = any(
             any(k in m.indicator.upper() for k in ("CPI", "INFLATION")) and m.value > 3.0
             for m in latest
@@ -71,4 +69,3 @@ class MacroFeed:
         if inflation_up:
             return "RISK_OFF"
         return "NEUTRAL"
-

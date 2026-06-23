@@ -136,9 +136,7 @@ class PatternPerformanceTracker:
         """Get current performance snapshot."""
         patterns = tuple(self._performance.values())
         top = tuple(sorted(patterns, key=lambda p: p.avg_pnl_bps, reverse=True)[:5])
-        declining = tuple(
-            p for p in patterns if p.win_rate < 0.3 or p.avg_pnl_bps < -5.0
-        )
+        declining = tuple(p for p in patterns if p.win_rate < 0.3 or p.avg_pnl_bps < -5.0)
         return PatternPerformanceSnapshot(
             patterns=patterns,
             top_performers=top,

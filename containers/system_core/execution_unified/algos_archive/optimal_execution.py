@@ -59,14 +59,18 @@ class OptimalExecutor:
         slices: list[ExecutionSlice] = []
         for i in range(self._n):
             cumulative_impact += impact_per_slice_bps
-            slices.append(ExecutionSlice(
-                slice_index=i,
-                qty=slice_qty,
-                expected_price=mid_price * (1 + cumulative_impact / 10000),
-                expected_impact_bps=impact_per_slice_bps,
-            ))
+            slices.append(
+                ExecutionSlice(
+                    slice_index=i,
+                    qty=slice_qty,
+                    expected_price=mid_price * (1 + cumulative_impact / 10000),
+                    expected_impact_bps=impact_per_slice_bps,
+                )
+            )
         return OptimalExecutionPlan(
-            symbol=symbol, ts_ns=ts_ns, total_qty=total_qty,
+            symbol=symbol,
+            ts_ns=ts_ns,
+            total_qty=total_qty,
             slices=tuple(slices),
             total_expected_impact_bps=cumulative_impact,
             strategy="TWAP",

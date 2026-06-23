@@ -168,6 +168,7 @@ class TimescaleStore:
     def _get_conn(self) -> Any:
         """Return the cached psycopg2 connection, opening it on first use."""
         import psycopg2
+
         if self._conn is None or self._conn.closed:
             self._conn = psycopg2.connect(self._dsn)
         return self._conn

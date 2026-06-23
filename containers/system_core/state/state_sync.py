@@ -83,6 +83,7 @@ class UnifiedStateSync:
     def _read_market() -> dict[str, Any]:
         try:
             from state.market_state import get_market_state
+
             ms = get_market_state()
             return {
                 "regime": ms.regime(),
@@ -96,6 +97,7 @@ class UnifiedStateSync:
     def _read_risk() -> dict[str, Any]:
         try:
             from governance_unified.risk_engine.risk_tracker import get_risk_tracker
+
             snap = get_risk_tracker().snapshot()
             return {
                 "halted": snap.get("halted", False),
@@ -111,6 +113,7 @@ class UnifiedStateSync:
     def _read_indira() -> dict[str, Any]:
         try:
             from intelligence_engine.cognitive.indira_runtime import get_indira_runtime
+
             snap = get_indira_runtime().snapshot()
             return {
                 "tick_count": snap.get("tick_count", 0),
@@ -125,6 +128,7 @@ class UnifiedStateSync:
     def _read_dyon() -> dict[str, Any]:
         try:
             from evolution_engine.dyon.dyon_runtime import get_dyon_runtime
+
             snap = get_dyon_runtime().snapshot()
             return {
                 "tick_count": snap.get("tick_count", 0),
@@ -139,6 +143,7 @@ class UnifiedStateSync:
     def _read_evolution() -> dict[str, Any]:
         try:
             from evolution_engine.evolution_orchestrator import get_evolution_orchestrator
+
             snap = get_evolution_orchestrator().snapshot()
             return {
                 "tick_count": snap.get("tick_count", 0),
@@ -151,6 +156,7 @@ class UnifiedStateSync:
     def _read_simulation() -> dict[str, Any]:
         try:
             from simulation.dominance_runtime import get_simulation_dominance_runtime
+
             snap = get_simulation_dominance_runtime().snapshot()
             return {
                 "active": snap.get("active", False),
@@ -165,6 +171,7 @@ class UnifiedStateSync:
     def _read_memory() -> dict[str, Any]:
         try:
             from state.memory_tensor.memory_orchestrator import get_memory_orchestrator
+
             snap = get_memory_orchestrator().snapshot()
             return {
                 "episodic": snap.get("episodic_size", 0),
@@ -179,6 +186,7 @@ class UnifiedStateSync:
     def _read_governance() -> dict[str, Any]:
         try:
             from cognitive_governance.engine import get_cognitive_governance
+
             snap = get_cognitive_governance().snapshot()
             return {
                 "active_guards": snap.get("active_guards", 0),
@@ -192,6 +200,7 @@ class UnifiedStateSync:
     def _read_spine() -> dict[str, Any]:
         try:
             from runtime.cognitive_spine import get_cognitive_spine
+
             snap = get_cognitive_spine().snapshot()
             return {
                 "active": snap.get("active", False),

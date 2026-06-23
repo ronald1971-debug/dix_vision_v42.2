@@ -41,38 +41,39 @@ from typing import Any
 # Enums
 # ---------------------------------------------------------------------------
 
+
 class PatternKind(StrEnum):
-    BEHAVIORAL_DRIFT      = "BEHAVIORAL_DRIFT"        # Decision-making patterns shifting
-    STRATEGY_PERSONALITY  = "STRATEGY_PERSONALITY"    # Stable strategy behavioural signature
-    COGNITIVE_TREND       = "COGNITIVE_TREND"         # Multi-week coherence trajectory
-    REGIME_ADAPTATION     = "REGIME_ADAPTATION"       # Quality of regime recognition updates
+    BEHAVIORAL_DRIFT = "BEHAVIORAL_DRIFT"  # Decision-making patterns shifting
+    STRATEGY_PERSONALITY = "STRATEGY_PERSONALITY"  # Stable strategy behavioural signature
+    COGNITIVE_TREND = "COGNITIVE_TREND"  # Multi-week coherence trajectory
+    REGIME_ADAPTATION = "REGIME_ADAPTATION"  # Quality of regime recognition updates
     PERFORMANCE_DEGRADATION = "PERFORMANCE_DEGRADATION"  # Slow-building failure signature
-    REWARD_SHAPING_DRIFT  = "REWARD_SHAPING_DRIFT"    # Reward signal distribution change
-    IDENTITY_EVOLUTION    = "IDENTITY_EVOLUTION"      # Controlled identity change over time
+    REWARD_SHAPING_DRIFT = "REWARD_SHAPING_DRIFT"  # Reward signal distribution change
+    IDENTITY_EVOLUTION = "IDENTITY_EVOLUTION"  # Controlled identity change over time
 
 
 class PatternState(StrEnum):
-    FORMING    = "FORMING"     # Insufficient observations to confirm
-    ACTIVE     = "ACTIVE"      # Confirmed, currently observed
-    DRIFTING   = "DRIFTING"    # Pattern is changing — attention required
-    STABLE     = "STABLE"      # Pattern confirmed and unchanged for long window
-    RETIRED    = "RETIRED"     # Pattern no longer observed; archived
+    FORMING = "FORMING"  # Insufficient observations to confirm
+    ACTIVE = "ACTIVE"  # Confirmed, currently observed
+    DRIFTING = "DRIFTING"  # Pattern is changing — attention required
+    STABLE = "STABLE"  # Pattern confirmed and unchanged for long window
+    RETIRED = "RETIRED"  # Pattern no longer observed; archived
 
 
 class HorizonWindow(StrEnum):
-    SHORT   = "SHORT"    # 1–24 hours
-    MEDIUM  = "MEDIUM"   # 1–7 days
-    LONG    = "LONG"     # 1–4 weeks
-    EPOCH   = "EPOCH"    # > 4 weeks (structural baseline)
+    SHORT = "SHORT"  # 1–24 hours
+    MEDIUM = "MEDIUM"  # 1–7 days
+    LONG = "LONG"  # 1–4 weeks
+    EPOCH = "EPOCH"  # > 4 weeks (structural baseline)
 
 
 # ---------------------------------------------------------------------------
 # Nanosecond duration constants
 # ---------------------------------------------------------------------------
 
-_NS_PER_HOUR  = 3_600_000_000_000
-_NS_PER_DAY   = 86_400_000_000_000
-_NS_PER_WEEK  = 7 * _NS_PER_DAY
+_NS_PER_HOUR = 3_600_000_000_000
+_NS_PER_DAY = 86_400_000_000_000
+_NS_PER_WEEK = 7 * _NS_PER_DAY
 
 
 def _horizon_for_span(span_ns: int) -> HorizonWindow:
@@ -89,12 +90,14 @@ def _horizon_for_span(span_ns: int) -> HorizonWindow:
 # Frozen dataclasses
 # ---------------------------------------------------------------------------
 
+
 @dataclass(frozen=True, slots=True)
 class PatternObservation:
     """A single timestamped data point contributing to a long-horizon pattern."""
+
     ts_ns: int
-    value: float          # Normalised metric value [0, 1] where applicable
-    context_hash: str     # MD5 of context dict (deterministic, INV-15)
+    value: float  # Normalised metric value [0, 1] where applicable
+    context_hash: str  # MD5 of context dict (deterministic, INV-15)
     note: str = ""
 
 
@@ -110,6 +113,7 @@ class LongHorizonPattern:
     drift_rate:    Slope of confidence over recent observations (positive = improving)
     horizon:       Time window classification based on span
     """
+
     pattern_id: str
     subject: str
     kind: PatternKind
@@ -117,8 +121,8 @@ class LongHorizonPattern:
     first_observed_ns: int
     last_observed_ns: int
     occurrence_count: int
-    confidence: float           # [0, 1]
-    drift_rate: float           # per-week rate of change (positive = improving)
+    confidence: float  # [0, 1]
+    drift_rate: float  # per-week rate of change (positive = improving)
     horizon: HorizonWindow
     observations: tuple[PatternObservation, ...]
     summary: str = ""
@@ -132,7 +136,10 @@ class LongHorizonPattern:
         """True if this pattern warrants operator attention."""
         return (
             (self.kind == PatternKind.BEHAVIORAL_DRIFT and self.drift_rate < -0.05)
-            or (self.kind == PatternKind.PERFORMANCE_DEGRADATION and self.state == PatternState.ACTIVE)
+            or (
+                self.kind == PatternKind.PERFORMANCE_DEGRADATION
+                and self.state == PatternState.ACTIVE
+            )
             or (self.kind == PatternKind.COGNITIVE_TREND and self.confidence < 0.5)
             or (self.state == PatternState.DRIFTING and self.confidence < 0.6)
         )
@@ -141,6 +148,7 @@ class LongHorizonPattern:
 @dataclass(frozen=True, slots=True)
 class LongHorizonSnapshot:
     """Point-in-time snapshot of all active long-horizon patterns."""
+
     ts_ns: int
     total_patterns: int
     active_patterns: int
@@ -148,13 +156,14 @@ class LongHorizonSnapshot:
     concerning_patterns: int
     weakest_confidence: float
     mean_confidence: float
-    identity_stability_signal: float   # Feeds into LearningCoherenceMonitor
+    identity_stability_signal: float  # Feeds into LearningCoherenceMonitor
     detail: str = ""
 
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _pattern_id(subject: str, kind: PatternKind, creation_ns: int) -> str:
     raw = f"{subject}:{kind.value}:{creation_ns}"
@@ -219,6 +228,7 @@ def _classify_state(
 # Store
 # ---------------------------------------------------------------------------
 
+
 class LongHorizonMemoryStore:
     """
     Thread-safe store for long-horizon cognitive patterns.
@@ -261,8 +271,9 @@ class LongHorizonMemoryStore:
         """
         ts_ns = ts_ns or _time.time_ns()
         ctx_hash = _context_hash(context or {})
-        obs = PatternObservation(ts_ns=ts_ns, value=max(0.0, min(1.0, value)),
-                                 context_hash=ctx_hash, note=note)
+        obs = PatternObservation(
+            ts_ns=ts_ns, value=max(0.0, min(1.0, value)), context_hash=ctx_hash, note=note
+        )
 
         with self._lock:
             key = (subject, kind)
@@ -305,7 +316,7 @@ class LongHorizonMemoryStore:
         pat: LongHorizonPattern,
         obs: PatternObservation,
     ) -> LongHorizonPattern:
-        new_obs = pat.observations[-self._MAX_OBS_PER_PATTERN + 1:] + (obs,)
+        new_obs = pat.observations[-self._MAX_OBS_PER_PATTERN + 1 :] + (obs,)
         confidence = _weighted_confidence(new_obs)
         dr = _drift_rate(new_obs)
         count = pat.occurrence_count + 1
@@ -339,7 +350,8 @@ class LongHorizonMemoryStore:
     def _retire_oldest_stable(self, subject: str) -> None:
         # Find oldest STABLE pattern for this subject and retire it
         stable_keys = [
-            k for k, p in self._patterns.items()
+            k
+            for k, p in self._patterns.items()
             if k[0] == subject and p.state == PatternState.STABLE
         ]
         if not stable_keys:
@@ -372,14 +384,16 @@ class LongHorizonMemoryStore:
     def patterns_for_subject(self, subject: str) -> list[LongHorizonPattern]:
         with self._lock:
             return [
-                p for (s, _), p in self._patterns.items()
+                p
+                for (s, _), p in self._patterns.items()
                 if s == subject and p.state != PatternState.RETIRED
             ]
 
     def patterns_by_kind(self, kind: PatternKind) -> list[LongHorizonPattern]:
         with self._lock:
             return [
-                p for (_, k), p in self._patterns.items()
+                p
+                for (_, k), p in self._patterns.items()
                 if k == kind and p.state != PatternState.RETIRED
             ]
 
@@ -443,8 +457,11 @@ class LongHorizonMemoryStore:
     def snapshot(self, ts_ns: int | None = None) -> LongHorizonSnapshot:
         ts_ns = ts_ns or _time.time_ns()
         with self._lock:
-            active = [p for p in self._patterns.values()
-                      if p.state not in (PatternState.RETIRED, PatternState.FORMING)]
+            active = [
+                p
+                for p in self._patterns.values()
+                if p.state not in (PatternState.RETIRED, PatternState.FORMING)
+            ]
         if not active:
             return LongHorizonSnapshot(
                 ts_ns=ts_ns,
@@ -489,8 +506,7 @@ class LongHorizonMemoryStore:
         with self._lock:
             if include_retired:
                 return list(self._patterns.values())
-            return [p for p in self._patterns.values()
-                    if p.state != PatternState.RETIRED]
+            return [p for p in self._patterns.values() if p.state != PatternState.RETIRED]
 
 
 # ---------------------------------------------------------------------------

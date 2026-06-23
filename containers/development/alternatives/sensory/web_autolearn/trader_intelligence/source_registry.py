@@ -74,9 +74,7 @@ class TraderSourceRegistry:
             meta=old.meta,
         )
 
-    def active_sources(
-        self, *, category: SourceCategory | None = None
-    ) -> list[TraderSource]:
+    def active_sources(self, *, category: SourceCategory | None = None) -> list[TraderSource]:
         """Return active sources, optionally filtered by category."""
         out = [s for s in self._sources.values() if s.active]
         if category is not None:

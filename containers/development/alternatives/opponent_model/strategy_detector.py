@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from typing import Any, Dict, List
+from typing import List
 
 from system.time_source import now
 
@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class OpponentStrategy:
     """An opponent strategy."""
+
     strategy_id: str
     opponent_id: str
     strategy_type: str
@@ -30,19 +31,21 @@ class OpponentStrategy:
 
 class ProductionStrategyDetector:
     """Production-grade strategy detector."""
-    
+
     def __init__(self) -> None:
         self._strategies: List[OpponentStrategy] = []
-        
+
     def start(self) -> bool:
         logger.info("[STRATEGY_DETECTOR] Production strategy detector started")
         return True
-    
+
     def stop(self) -> bool:
         logger.info("[STRATEGY_DETECTOR] Production strategy detector stopped")
         return True
-    
-    def detect_strategy(self, opponent_id: str, strategy_type: str, patterns: List[str]) -> OpponentStrategy:
+
+    def detect_strategy(
+        self, opponent_id: str, strategy_type: str, patterns: List[str]
+    ) -> OpponentStrategy:
         """Detect an opponent strategy."""
         strategy = OpponentStrategy(
             strategy_id=f"strategy_{now().sequence}",
@@ -50,7 +53,7 @@ class ProductionStrategyDetector:
             strategy_type=strategy_type,
             patterns=patterns,
             effectiveness=0.7,
-            timestamp=now().utc_time.isoformat()
+            timestamp=now().utc_time.isoformat(),
         )
         self._strategies.append(strategy)
         return strategy

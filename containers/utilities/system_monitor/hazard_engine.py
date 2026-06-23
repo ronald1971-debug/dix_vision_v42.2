@@ -85,8 +85,7 @@ class HazardEngine:
                         severity=Severity.WARNING if age < 30 else Severity.CRITICAL,
                         source=f"feed:{feed_name}",
                         description=(
-                            f"Feed '{feed_name}' is {age:.1f}s old"
-                            f" (max: {self._feed_max_age}s)"
+                            f"Feed '{feed_name}' is {age:.1f}s old" f" (max: {self._feed_max_age}s)"
                         ),
                         timestamp=now,
                         metadata={"feed": feed_name, "age_seconds": age},

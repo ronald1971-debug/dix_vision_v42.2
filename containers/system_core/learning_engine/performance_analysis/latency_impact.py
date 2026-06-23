@@ -18,23 +18,25 @@ from dataclasses import dataclass
 @dataclass(frozen=True, slots=True)
 class LatencyImpactRecord:
     """P&L impact attributed to execution latency for one trade."""
+
     strategy_id: str
     venue: str
     symbol: str
     side: str
-    signal_ts_ns: int       # when signal was generated
-    fill_ts_ns: int         # when fill was confirmed
-    latency_ns: int         # fill_ts_ns - signal_ts_ns
+    signal_ts_ns: int  # when signal was generated
+    fill_ts_ns: int  # when fill was confirmed
+    latency_ns: int  # fill_ts_ns - signal_ts_ns
     signal_price: float
     fill_price: float
     qty: float
-    impact_bps: float       # adverse price move during latency in bps
+    impact_bps: float  # adverse price move during latency in bps
     impact_usd: float
 
 
 @dataclass(frozen=True, slots=True)
 class LatencyImpactStats:
     """Aggregated latency impact statistics."""
+
     strategy_id: str
     sample_count: int
     mean_latency_ms: float

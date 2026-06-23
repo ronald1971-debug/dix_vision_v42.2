@@ -1,24 +1,21 @@
 """Tests for Trust Root Implementation."""
 
-import unittest
-import sys
 import os
+import sys
+import unittest
 
 # Add paths to imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from trust_root import (
-    FoundationHashLifecycle,
-    get_foundation_hash_lifecycle,
     FoundationHash,
-    VerificationArtifact,
-    TrustAnchor,
-    IntegrityResult,
     HashAlgorithm,
+    IntegrityResult,
+    TrustAnchor,
     TrustStatus,
-    LeanArtifactGenerator,
+    VerificationArtifact,
     get_artifact_generator,
-    TrustAnchorManager,
+    get_foundation_hash_lifecycle,
     get_trust_anchor_manager,
 )
 
@@ -366,15 +363,15 @@ def run_tests():
     runner = unittest.TextTestRunner(verbosity=2)
     result = runner.run(suite)
 
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("TRUST ROOT IMPLEMENTATION TEST SUMMARY")
-    print("="*70)
+    print("=" * 70)
     print(f"Tests run: {result.testsRun}")
     print(f"Successes: {result.testsRun - len(result.failures) - len(result.errors)}")
     print(f"Failures: {len(result.failures)}")
     print(f"Errors: {len(result.errors)}")
     print(f"Skipped: {len(result.skipped)}")
-    print("="*70)
+    print("=" * 70)
 
     return result.wasSuccessful()
 

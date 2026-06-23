@@ -51,8 +51,7 @@ class ReplayAuditTrail:
 
     def _init_db(self) -> None:
         with self._connect() as conn:
-            conn.execute(
-                """
+            conn.execute("""
                 CREATE TABLE IF NOT EXISTS audit_log (
                     id          INTEGER PRIMARY KEY AUTOINCREMENT,
                     proposal_id TEXT    NOT NULL,
@@ -61,11 +60,9 @@ class ReplayAuditTrail:
                     operator_id TEXT    NOT NULL,
                     ts_ns       INTEGER NOT NULL
                 )
-                """
-            )
+                """)
             conn.execute(
-                "CREATE INDEX IF NOT EXISTS idx_audit_proposal "
-                "ON audit_log(proposal_id, ts_ns)"
+                "CREATE INDEX IF NOT EXISTS idx_audit_proposal " "ON audit_log(proposal_id, ts_ns)"
             )
             conn.execute("PRAGMA journal_mode=WAL")
             conn.commit()
@@ -124,10 +121,7 @@ class ReplayAuditTrail:
                     "ORDER BY ts_ns ASC LIMIT ?",
                     (proposal_id, limit),
                 ).fetchall()
-            return [
-                {"stage": r[0], "note": r[1], "operator_id": r[2], "ts_ns": r[3]}
-                for r in rows
-            ]
+            return [{"stage": r[0], "note": r[1], "operator_id": r[2], "ts_ns": r[3]} for r in rows]
         except Exception as exc:
             _logger.debug("ReplayAuditTrail.get_trail error: %s", exc)
             return []
@@ -146,8 +140,7 @@ class ReplayAuditTrail:
         try:
             with self._connect() as conn:
                 rows = conn.execute(
-                    "SELECT DISTINCT proposal_id FROM audit_log "
-                    "ORDER BY ts_ns DESC LIMIT ?",
+                    "SELECT DISTINCT proposal_id FROM audit_log " "ORDER BY ts_ns DESC LIMIT ?",
                     (limit,),
                 ).fetchall()
             return [r[0] for r in rows]
@@ -168,9 +161,7 @@ _trail: ReplayAuditTrail | None = None
 _trail_lock = threading.Lock()
 
 
-def get_replay_audit_trail(
-    *, db_path: Path | str = _DEFAULT_DB
-) -> ReplayAuditTrail:
+def get_replay_audit_trail(*, db_path: Path | str = _DEFAULT_DB) -> ReplayAuditTrail:
     """Return the process-wide ReplayAuditTrail singleton."""
     global _trail
     with _trail_lock:

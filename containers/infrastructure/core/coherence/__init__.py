@@ -4,14 +4,14 @@ Real implementation for coherence management
 """
 
 from .belief_state import (
-    Regime,
-    BeliefStatus,
     Belief,
     BeliefState,
     BeliefStateManager,
-    get_belief_state_manager,
+    BeliefStatus,
+    Regime,
+    create_belief,
     create_belief_state,
-    create_belief
+    get_belief_state_manager,
 )
 
 __all__ = [
@@ -22,5 +22,5 @@ __all__ = [
     "BeliefStateManager",
     "get_belief_state_manager",
     "create_belief_state",
-    "create_belief"
+    "create_belief",
 ]

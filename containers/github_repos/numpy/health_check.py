@@ -6,8 +6,8 @@ This script performs health checks for the NumPy container to ensure
 proper functioning of the numerical computing capabilities.
 """
 
-import sys
 import logging
+import sys
 from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
@@ -16,7 +16,6 @@ logger = logging.getLogger('numpy_health_check')
 def check_imports():
     """Check if required modules can be imported"""
     try:
-        import numpy
         logger.info("NumPy import successful")
         return True
     except ImportError as e:
@@ -26,8 +25,8 @@ def check_imports():
 def check_governance_wrapper():
     """Check if governance wrapper can be initialized"""
     try:
-        from numpy_governance_wrapper import NumPyGovernanceWrapper
         from base_external_repo_wrapper import PermissionLevel
+        from numpy_governance_wrapper import NumPyGovernanceWrapper
         
         wrapper = NumPyGovernanceWrapper(PermissionLevel.READ_ONLY)
         logger.info("Governance wrapper initialization successful")
@@ -63,6 +62,7 @@ def check_computational_capability():
     """Check if NumPy computational capabilities work"""
     try:
         import numpy as np
+
         # Test basic operations
         test_array = np.array([1, 2, 3, 4, 5])
         result = np.mean(test_array)

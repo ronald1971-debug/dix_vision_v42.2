@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-import sys
 import logging
+import sys
 from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
@@ -8,7 +8,6 @@ logger = logging.getLogger('aiohttp_health_check')
 
 def check_imports():
     try:
-        import aiohttp
         logger.info("AIOHTTP import successful")
         return True
     except ImportError as e:

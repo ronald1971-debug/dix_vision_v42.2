@@ -4,7 +4,7 @@ Example:
     Signal Engine: Bullish
     Trader Model: Bearish
     Macro Model: Neutral
-    
+
     Who wins? This module answers that.
 """
 
@@ -35,8 +35,9 @@ class ConsensusResult:
     requires_review: bool  # True if disagreement > threshold
 
 
-def compute_consensus(votes: tuple[BeliefVote, ...],
-                      disagreement_threshold: float = 0.3) -> ConsensusResult:
+def compute_consensus(
+    votes: tuple[BeliefVote, ...], disagreement_threshold: float = 0.3
+) -> ConsensusResult:
     """Compute belief consensus from multiple sources.
 
     Args:
@@ -67,10 +68,14 @@ def compute_consensus(votes: tuple[BeliefVote, ...],
         confidence = 0.0
     else:
         winning = max(weighted_votes, key=weighted_votes.get)
-        confidence = min(1.0, weighted_votes[winning] / total_confidence if total_confidence > 0 else 0.0)
+        confidence = min(
+            1.0, weighted_votes[winning] / total_confidence if total_confidence > 0 else 0.0
+        )
 
     dissent_count = len([v for v in votes if v.belief != winning])
-    max_other_conf = max((weighted_votes.get(b, 0.0) for b in weighted_votes if b != winning), default=0.0)
+    max_other_conf = max(
+        (weighted_votes.get(b, 0.0) for b in weighted_votes if b != winning), default=0.0
+    )
 
     requires_review = dissent_count > 0 and max_other_conf > disagreement_threshold
 

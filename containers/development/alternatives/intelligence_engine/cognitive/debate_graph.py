@@ -81,16 +81,6 @@ from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from typing import Annotated, Any, Final, Protocol, TypedDict, runtime_checkable
 
-from langchain_core.messages import (
-    AIMessage,
-    BaseMessage,
-    HumanMessage,
-    SystemMessage,
-)
-from langgraph.checkpoint.base import BaseCheckpointSaver
-from langgraph.graph import END, START, StateGraph
-from langgraph.graph.message import add_messages
-
 from core.cognitive_router import TaskClass
 from intelligence_engine.cognitive.chat.registry_driven_chat_model import (
     ChatTransport,
@@ -101,6 +91,15 @@ from intelligence_engine.cognitive.checkpointing import (
     AuditLedgerCheckpointSaver,
     LedgerAppend,
 )
+from langchain_core.messages import (
+    AIMessage,
+    BaseMessage,
+    HumanMessage,
+    SystemMessage,
+)
+from langgraph.checkpoint.base import BaseCheckpointSaver
+from langgraph.graph import END, START, StateGraph
+from langgraph.graph.message import add_messages
 
 __all__ = [
     "DEBATER_NODE_PREFIX",

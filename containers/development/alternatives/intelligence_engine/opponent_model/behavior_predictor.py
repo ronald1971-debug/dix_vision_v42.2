@@ -14,8 +14,8 @@ __all__ = ["BehaviorPrediction", "BehaviorPredictor"]
 class BehaviorPrediction:
     ts_ns: int
     symbol: str
-    predicted_action: str   # "BUY", "SELL", "HOLD", "CANCEL"
-    confidence: float       # 0.0–1.0
+    predicted_action: str  # "BUY", "SELL", "HOLD", "CANCEL"
+    confidence: float  # 0.0–1.0
     features_used: tuple[str, ...]
     detail: str = ""
 

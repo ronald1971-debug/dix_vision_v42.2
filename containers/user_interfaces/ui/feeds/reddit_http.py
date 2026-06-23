@@ -61,26 +61,26 @@ def parse_reddit_post(
     try:
         # Reddit API format: {"data": {"title": "...", "selftext": "...", "author": "...", ...}}
         data = post_data.get("data", {})
-        
+
         title = str(data.get("title", ""))
         author = str(data.get("author", "[deleted]"))
         subreddit = str(data.get("subreddit", ""))
         ups = int(data.get("ups", 0))
         num_comments = int(data.get("num_comments", 0))
-        
+
         # Combine title and selftext for content analysis
         content = title
         selftext = data.get("selftext", "")
         if selftext:
             content += "\n\n" + str(selftext)
-        
+
         # Create timestamp from Reddit's created_utc
         created_utc = data.get("created_utc")
         if created_utc:
             post_timestamp = int(created_utc)
         else:
             post_timestamp = ts_ns // 1_000_000_000
-        
+
     except (KeyError, ValueError, TypeError):
         return None
 
@@ -108,7 +108,7 @@ async def fetch_reddit_posts(
 ) -> list[dict[str, Any]] | None:
     """Fetch posts from a subreddit."""
     url = f"{REDDIT_API_URL}/r/{subreddit}/new.json?limit={limit}"
-    
+
     headers = {
         "User-Agent": "DixVision/1.0 (Market Intelligence System)",
     }

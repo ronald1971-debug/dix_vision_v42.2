@@ -63,18 +63,15 @@ class AltDataContext:
 
 
 class MacroProvider(Protocol):
-    def get_latest(self) -> list[MacroData]:
-        ...
+    def get_latest(self) -> list[MacroData]: ...
 
 
 class NewsProvider(Protocol):
-    def get_recent(self, hours: int = 24) -> list[NewsEvent]:
-        ...
+    def get_recent(self, hours: int = 24) -> list[NewsEvent]: ...
 
 
 class SocialProvider(Protocol):
-    def get_recent(self, symbols: list[str] | None = None) -> list[SocialSignal]:
-        ...
+    def get_recent(self, symbols: list[str] | None = None) -> list[SocialSignal]: ...
 
 
 class AltDataEngine:
@@ -149,9 +146,9 @@ class AltDataEngine:
             news_sent = sum(e.sentiment_score * e.impact_score for e in news) / len(news)
         social_sent = 0.0
         if social:
-            social_sent = sum(
-                b.avg_sentiment * b.total_engagement for b in social
-            ) / sum(b.total_engagement for b in social)
+            social_sent = sum(b.avg_sentiment * b.total_engagement for b in social) / sum(
+                b.total_engagement for b in social
+            )
         return (news_sent * 0.3 + social_sent * 0.7) * 0.5
 
     def get_context_for_symbol(self, symbol: str, ts_ns: int) -> AltDataContext | None:

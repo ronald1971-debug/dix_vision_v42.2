@@ -38,9 +38,7 @@ class DyonSignalBridge:
                 self._on_governed_context,
             )
             self._subscribed = True
-            _logger.info(
-                "DyonSignalBridge: subscribed to GOVERNED_MARKET_CONTEXT only"
-            )
+            _logger.info("DyonSignalBridge: subscribed to GOVERNED_MARKET_CONTEXT only")
         except Exception as exc:
             _logger.debug("DyonSignalBridge.activate error: %s", exc)
 

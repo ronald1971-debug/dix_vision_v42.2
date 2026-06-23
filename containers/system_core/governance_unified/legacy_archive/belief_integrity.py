@@ -107,6 +107,7 @@ class BeliefIntegrityGuard:
 
         if not passed:
             from system_unified.time_source import wall_ns
+
             ts_ns = wall_ns()
             append_event(
                 "GOVERNANCE",
@@ -137,6 +138,7 @@ class BeliefIntegrityGuard:
         before applying the update.
         """
         from system_unified.time_source import wall_ns
+
         ts_ns = wall_ns()
 
         confidence = max(0.0, min(1.0, confidence))

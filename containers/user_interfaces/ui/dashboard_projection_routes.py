@@ -39,7 +39,6 @@ from typing import Final
 
 from fastapi import APIRouter, Query
 from pydantic import BaseModel, Field
-
 from system_unified.time_source import utc_now
 
 # ---------------------------------------------------------------------------

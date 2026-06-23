@@ -42,7 +42,9 @@ class CognitiveHealthMonitor:
         """Check for strategy drift."""
         self._detector.check_drift(strategy_id, metric, DriftType.STRATEGY_DRIFT)
 
-    def check_confidence_inflation(self, entity_id: str, confidence: float, accuracy: float) -> None:
+    def check_confidence_inflation(
+        self, entity_id: str, confidence: float, accuracy: float
+    ) -> None:
         """Check for confidence inflation."""
         inflation = confidence - accuracy
         self._detector.check_drift(entity_id, inflation, DriftType.CONFIDENCE_INFLATION)
@@ -70,7 +72,9 @@ class CognitiveHealthMonitor:
             belief_drift_count=len(self._detector.get_events_by_type(DriftType.BELIEF_DRIFT)),
             knowledge_drift_count=len(self._detector.get_events_by_type(DriftType.KNOWLEDGE_DRIFT)),
             strategy_drift_count=len(self._detector.get_events_by_type(DriftType.STRATEGY_DRIFT)),
-            confidence_inflation_count=len(self._detector.get_events_by_type(DriftType.CONFIDENCE_INFLATION)),
+            confidence_inflation_count=len(
+                self._detector.get_events_by_type(DriftType.CONFIDENCE_INFLATION)
+            ),
             drift_events=tuple(events),
         )
         self._reports.append(report)

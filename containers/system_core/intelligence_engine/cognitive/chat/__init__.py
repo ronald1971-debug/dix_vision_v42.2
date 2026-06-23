@@ -12,7 +12,6 @@ class CognitiveChatFeatureFlag:
 
 class AllProvidersFailedError(Exception):
     """Stub error when all providers fail."""
-    pass
 
 
 class CognitiveChatRuntime:
@@ -38,12 +37,10 @@ class CognitiveChatBundle:
 
 class CognitiveChatDisabledError(Exception):
     """Stub error when chat is disabled."""
-    pass
 
 
 class NoEligibleProviderError(Exception):
     """Stub error when no eligible provider."""
-    pass
 
 
 class ProviderResolver:

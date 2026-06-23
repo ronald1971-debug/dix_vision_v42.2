@@ -18,20 +18,20 @@ Authority constraints:
   returns the previous snapshot unchanged and emits no updates.
 """
 
+from intelligence_engine.learning.performance_attribution import (
+    AdaptiveLearningEngine,
+    AttributionType,
+    DecisionAttribution,
+    LearningInsight,
+    PerformanceAttributor,
+    PerformanceMetric,
+)
 from intelligence_engine.learning.slow_loop import (
     SLOW_LOOP_VERSION,
     FeedbackSample,
     ParameterBounds,
     ParameterSnapshot,
     SlowLoopLearner,
-)
-from intelligence_engine.learning.performance_attribution import (
-    AttributionType,
-    DecisionAttribution,
-    PerformanceMetric,
-    LearningInsight,
-    PerformanceAttributor,
-    AdaptiveLearningEngine,
 )
 
 __all__ = [

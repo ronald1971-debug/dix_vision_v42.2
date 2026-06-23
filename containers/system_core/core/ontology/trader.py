@@ -19,7 +19,9 @@ class Trader(CognitiveObject):
     active: bool = True
 
     @classmethod
-    def create(cls, *, object_id: str, ts_ns: int, trader_id: str, trader_type: str = "UNKNOWN", **kwargs):
+    def create(
+        cls, *, object_id: str, ts_ns: int, trader_id: str, trader_type: str = "UNKNOWN", **kwargs
+    ):
         return cls(
             object_id=object_id,
             object_type=ObjectKind.TRADER,

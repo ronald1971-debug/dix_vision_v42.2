@@ -1,24 +1,24 @@
 """Tests for the unified execution system consolidation."""
 
+import os
+import sys
 import unittest
 import warnings
-import sys
-import os
 
 # Add paths to imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 # Import the unified execution system
 from execution_unified import (
-    UnifiedExecutionKernel,
-    get_unified_execution_kernel,
+    Action,
+    ExecutionLane,
     ExecutionRequest,
     ExecutionResult,
-    ExecutionType,
-    ExecutionLane,
     ExecutionStatus,
+    ExecutionType,
     Intent,
-    Action,
+    UnifiedExecutionKernel,
+    get_unified_execution_kernel,
 )
 
 
@@ -139,10 +139,10 @@ class TestUnifiedExecutionSystem(unittest.TestCase):
         """Test backward compatibility with old execution imports."""
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", DeprecationWarning)
-            
+
             try:
                 from execution import DyonEngine
-                
+
                 # The returned engine should be the unified one
                 engine = DyonEngine()
                 self.assertIsInstance(engine, UnifiedExecutionKernel)
@@ -153,10 +153,10 @@ class TestUnifiedExecutionSystem(unittest.TestCase):
         """Test backward compatibility with old execution_engine imports."""
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", DeprecationWarning)
-            
+
             try:
                 from execution_engine import ExecutionEngine
-                
+
                 # The returned engine should be the unified kernel
                 engine = ExecutionEngine()
                 self.assertIsInstance(engine, UnifiedExecutionKernel)
@@ -201,15 +201,15 @@ def run_tests():
     runner = unittest.TextTestRunner(verbosity=2)
     result = runner.run(suite)
 
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("UNIFIED EXECUTION SYSTEM TEST SUMMARY")
-    print("="*70)
+    print("=" * 70)
     print(f"Tests run: {result.testsRun}")
     print(f"Successes: {result.testsRun - len(result.failures) - len(result.errors)}")
     print(f"Failures: {len(result.failures)}")
     print(f"Errors: {len(result.errors)}")
     print(f"Skipped: {len(result.skipped)}")
-    print("="*70)
+    print("=" * 70)
 
     return result.wasSuccessful()
 

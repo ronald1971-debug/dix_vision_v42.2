@@ -1,0 +1,222 @@
+# Risk Management Registry
+# DIX VISION v42.2 - Risk Parameters and Limits Configuration
+
+risk_management:
+  # Position Limits
+  position_limits:
+    max_total_exposure: 0.10  # 10% of portfolio total value
+    max_single_position: 0.02  # 2% of portfolio per position
+    max_positions: 10
+    max_correlated_positions: 5
+    
+    # Per-Asset Limits
+    per_asset_limits:
+      max_position_size_usd: 100000
+      max_position_percentage: 0.02
+      min_position_size_usd: 10
+      leverage_limit: 3.0
+  
+  # Stop Loss Configuration
+  stop_loss:
+    enabled: true
+    default_percentage: 0.02  # 2% stop loss
+    max_percentage: 0.05  # 5% maximum stop loss
+    min_percentage: 0.005  # 0.5% minimum stop loss
+    auto_trailing_stop: true
+    trailing_stop_atr_period: 1  # 1 ATR
+    trailing_stop_multiplier: 2.0
+    
+    # Signal-First Risk Adjustment
+    signal_first_adjustment:
+      enabled: true
+      high_signal_ratio_risk_reduction: true
+      description: "Reduce risk when signal ratio is high"
+      adjustment_rule: "When signal_ratio > 0.90, reduce position size by 20%"
+  
+  # Leverage Configuration
+  leverage:
+    enabled: true
+    max_leverage: 3.0
+    default_leverage: 1.0
+    leverage_tiers:
+      conservative: 1.0
+      moderate: 2.0
+      aggressive: 3.0
+    leverage_by_market_regime:
+      stable_market: 1.0
+      volatile_market: 0.8
+      crisis_market: 0.5
+  
+  # Drawdown Limits
+  drawdown_limits:
+    enabled: true
+    daily_max: 0.03  # 3% daily maximum drawdown
+    weekly_max: 0.05  # 5% weekly maximum drawdown
+    monthly_max: 0.10  # 10% monthly maximum drawdown
+    max_total_drawdown: 0.20  # 20% maximum total drawdown
+    
+    # Drawdown Response
+    drawdown_response:
+      daily_limit_breach_action: "stop_trading"
+      weekly_limit_breach_action: "reduce_positions"
+      monthly_limit_breach_action: "emergency_shutdown"
+    
+    # Signal-First Drawdown Adjustment
+    signal_first_drawdown_adjustment:
+      enabled: true
+      description: "Adjust drawdown limits based on signal-first confidence"
+      high_signal_confidence: "maintain normal limits"
+      low_signal_confidence: "reduce drawdown limits by 50%"
+  
+  # Risk Parity
+  risk_parity:
+    enabled: true
+    strategy:
+      equal_risk_contribution: true
+      volatility_parity: true
+    max_risk_per_strategy: 0.02
+    rebalance_frequency: "daily"
+    
+  # VaR (Value at Risk)
+  var:
+    enabled: true
+    method: "historical_simulation"
+    confidence_level: 0.95
+    lookback_period_days: 252
+    max_var_limit: 0.02  # 2% per day
+    
+  # Risk Metrics
+  risk_metrics:
+    sharpe_ratio:
+      minimum_required: 1.5
+      target: 2.0
+    sortino_ratio:
+      minimum_required: 2.0
+      target: 2.5
+    max_drawdown:
+      maximum_allowed: 0.15
+      target: 0.10
+    calmar_ratio:
+      minimum_required: 0.5
+      target: 1.0
+  
+  # Position Sizing
+  position_sizing:
+    method: "kelly_criterion"  # Options: fixed_fraction, risk_parity, kelly_criterion
+    default_fraction: 0.01  # 1% of portfolio
+    kelly_fraction_cap: 0.02  # Cap Kelly at 2%
+    max_position_size_percentage: 0.02
+    
+    # Signal-First Position Sizing
+    signal_first_adjustment:
+      enabled: true
+      description: "Adjust position size based on signal-first confidence"
+      high_signal_confidence: "increase position size by 20%"
+      standard_confidence: "normal position size"
+      low_signal_confidence: "reduce position size by 20%"
+  
+  # Correlation Risk
+  correlation_risk:
+    enabled: true
+    max_correlated_positions: 5
+    correlation_threshold: 0.7
+    diversification_required: true
+    
+  # Market Risk
+  market_risk:
+    black_swan_protection:
+      enabled: true
+      max_position_in_risk_event: 0.005
+      early_warning_system: true
+    
+    flash_crash_protection:
+      enabled: true
+    volatility_spike_threshold: 0.10
+    emergency_close_trigger: true
+  
+  # Liquidity Risk
+  liquidity_risk:
+    min_liquidity_requirement: 1000000  # $1M daily volume
+    max_position_per_day_volume: 0.10  # 10% of daily volume
+    slippage_tolerance: 0.001
+    
+    # Signal-First Liquidity Adjustment
+    signal_first_liquidity_adjustment:
+      enabled: true
+      description: "Adjust liquidity requirements based on signal-first confidence"
+      high_signal_confidence: "reduce liquidity requirement by 30%"
+      low_signal_confidence: "increase liquidity requirement by 50%"
+  
+  # Operational Risk
+  operational_risk:
+    system_health_checks:
+      enabled: true
+      check_frequency: "real-time"
+      failover_enabled: true
+    
+    api_limits:
+      rate_limiting_enabled: true
+      max_requests_per_minute: 1000
+      circuit_breaker_enabled: true
+  
+  # Risk Governance
+  risk_governance:
+    require_approval_for_high_risk: true
+    high_risk_threshold: 0.05  # 5% position size
+    audit_trail: true
+    real_time_monitoring: true
+    alerts_enabled: true
+    notifications:
+      email: true
+      slack: false
+      telegram: false
+  
+  # Signal-First Risk Parameters
+  signal_first_risk_parameters:
+    enabled: true
+    risk_based_on_signal_confidence: true
+    signal_confidence_high_threshold: 0.90
+    signal_confidence_low_threshold: 0.70
+    risk_adjustment_range: [0.5, 1.5]
+    description: "Adjust risk parameters based on signal-first confidence levels"
+
+# Risk Categories
+risk_categories:
+  market_risk:
+    enabled: true
+    priority: "HIGH"
+    
+  liquidity_risk:
+    enabled: true
+    priority: "HIGH"
+    
+  operational_risk:
+    enabled: true
+    priority: "MEDIUM"
+    
+  counterparty_risk:
+    enabled: false  # Not applicable for crypto
+    priority: "N/A"
+    
+  systemic_risk:
+    enabled: true
+    priority: "HIGH"
+    
+  model_risk:
+    enabled: true
+    priority: "MEDIUM"
+
+# Risk Integration
+risk_integration:
+  signal_first_integration: true
+  cognitive_risk_management: true
+  governance_risk_checks: true
+  automated_risk_adjustment: true
+  manual_override_allowed: true
+  description: "Risk management integrated with Phase 1 signal-first architecture"
+
+# Version information
+version: "1.0.0"
+created_date: "2026-06-21"
+updated_date: "2026-06-21"
+compatible_with: "DIX VISION v42.2+"

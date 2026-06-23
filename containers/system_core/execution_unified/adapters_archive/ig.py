@@ -32,7 +32,6 @@ import json
 import logging
 import urllib.error
 import urllib.parse
-from dataclasses import dataclass
 import urllib.request
 from typing import Any
 
@@ -93,10 +92,12 @@ class IGAdapter(BaseAdapter):
     async def connect(self) -> bool:
         logger.info("IGAdapter.connect sandbox=%s", self._sandbox)
         try:
-            payload = json.dumps({
-                "identifier": self._username,
-                "password": self._password,
-            }).encode()
+            payload = json.dumps(
+                {
+                    "identifier": self._username,
+                    "password": self._password,
+                }
+            ).encode()
             req = urllib.request.Request(
                 f"{self._base_url}/session",
                 data=payload,
@@ -119,7 +120,9 @@ class IGAdapter(BaseAdapter):
             self._status = AdapterStatus.ERROR
             logger.error(
                 "IGAdapter.connect: failed. adapter_id=%s error=%s: %s",
-                self._config.adapter_id, type(exc).__name__, str(exc)[:256],
+                self._config.adapter_id,
+                type(exc).__name__,
+                str(exc)[:256],
             )
             return False
 
@@ -169,7 +172,9 @@ class IGAdapter(BaseAdapter):
         t0_ns = time_source.wall_ns()
 
         direction = "BUY" if side.upper() == "BUY" else "SELL"
-        ig_order_type = order_type.upper() if order_type.upper() in ("MARKET", "LIMIT") else "MARKET"
+        ig_order_type = (
+            order_type.upper() if order_type.upper() in ("MARKET", "LIMIT") else "MARKET"
+        )
 
         epic = (params or {}).get("epic") or symbol
         order_body: dict[str, Any] = {
@@ -224,8 +229,13 @@ class IGAdapter(BaseAdapter):
             logger.debug(
                 "IGAdapter.submit_order: filled. adapter_id=%s deal_ref=%s "
                 "epic=%s direction=%s qty=%.6g price=%.6g latency_ms=%.2f",
-                self._config.adapter_id, deal_ref, epic, direction,
-                quantity, fill_price, latency_ms,
+                self._config.adapter_id,
+                deal_ref,
+                epic,
+                direction,
+                quantity,
+                fill_price,
+                latency_ms,
             )
             return FillReport(
                 adapter_id=self._config.adapter_id,
@@ -245,7 +255,10 @@ class IGAdapter(BaseAdapter):
             self._record_error()
             logger.error(
                 "IGAdapter.submit_order: failed. adapter_id=%s symbol=%s error=%s: %s",
-                self._config.adapter_id, symbol, type(exc).__name__, str(exc)[:256],
+                self._config.adapter_id,
+                symbol,
+                type(exc).__name__,
+                str(exc)[:256],
             )
             raise RuntimeError(
                 f"IGAdapter.submit_order failed: {type(exc).__name__}: {exc}"
@@ -283,14 +296,19 @@ class IGAdapter(BaseAdapter):
             urllib.request.urlopen(req, timeout=10)
             logger.info(
                 "IGAdapter.cancel_order: cancelled. adapter_id=%s order_id=%s symbol=%s",
-                self._config.adapter_id, exchange_order_id, symbol,
+                self._config.adapter_id,
+                exchange_order_id,
+                symbol,
             )
             return True
         except Exception as exc:  # noqa: BLE001
             self._record_error()
             logger.error(
                 "IGAdapter.cancel_order: failed. adapter_id=%s order_id=%s error=%s: %s",
-                self._config.adapter_id, exchange_order_id, type(exc).__name__, str(exc)[:256],
+                self._config.adapter_id,
+                exchange_order_id,
+                type(exc).__name__,
+                str(exc)[:256],
             )
             raise RuntimeError(
                 f"IGAdapter.cancel_order failed: {type(exc).__name__}: {exc}"
@@ -321,9 +339,7 @@ class IGAdapter(BaseAdapter):
             balances: dict[str, float] = {}
             for acct in body.get("accounts", []):
                 account_id = str(acct.get("accountId", "unknown"))
-                available = float(
-                    acct.get("balance", {}).get("available", 0.0) or 0.0
-                )
+                available = float(acct.get("balance", {}).get("available", 0.0) or 0.0)
                 if available > 0.0:
                     balances[account_id] = available
             return balances
@@ -331,7 +347,9 @@ class IGAdapter(BaseAdapter):
             self._record_error()
             logger.error(
                 "IGAdapter.get_balances: failed. adapter_id=%s error=%s: %s",
-                self._config.adapter_id, type(exc).__name__, str(exc)[:256],
+                self._config.adapter_id,
+                type(exc).__name__,
+                str(exc)[:256],
             )
             raise RuntimeError(
                 f"IGAdapter.get_balances failed: {type(exc).__name__}: {exc}"

@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from typing import Any, Dict, List
+from typing import Dict, List
 
 from system.time_source import now
 
@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class StrategyAnalysis:
     """A strategy analysis result."""
+
     analysis_id: str
     trader_id: str
     strategy_type: str
@@ -30,19 +31,21 @@ class StrategyAnalysis:
 
 class ProductionStrategyAnalyzer:
     """Production-grade strategy analyzer."""
-    
+
     def __init__(self) -> None:
         self._analyses: List[StrategyAnalysis] = []
-        
+
     def start(self) -> bool:
         logger.info("[STRATEGY_ANALYZER] Production strategy analyzer started")
         return True
-    
+
     def stop(self) -> bool:
         logger.info("[STRATEGY_ANALYZER] Production strategy analyzer stopped")
         return True
-    
-    def analyze_strategy(self, trader_id: str, strategy_type: str, effectiveness: float) -> StrategyAnalysis:
+
+    def analyze_strategy(
+        self, trader_id: str, strategy_type: str, effectiveness: float
+    ) -> StrategyAnalysis:
         """Analyze a trader's strategy."""
         analysis = StrategyAnalysis(
             analysis_id=f"analysis_{now().sequence}",
@@ -50,7 +53,7 @@ class ProductionStrategyAnalyzer:
             strategy_type=strategy_type,
             effectiveness=effectiveness,
             risk_profile={"risk_score": 0.5},
-            timestamp=now().utc_time.isoformat()
+            timestamp=now().utc_time.isoformat(),
         )
         self._analyses.append(analysis)
         return analysis

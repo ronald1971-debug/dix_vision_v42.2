@@ -167,7 +167,9 @@ class ContradictionEngine:
                 return True
             if ca == rule_b and cb == rule_a:
                 return True
-            if ca.replace("-", "_") == rule_a.replace("-", "_") and cb.replace("-", "_") == rule_b.replace("-", "_"):
+            if ca.replace("-", "_") == rule_a.replace("-", "_") and cb.replace(
+                "-", "_"
+            ) == rule_b.replace("-", "_"):
                 return True
         return False
 
@@ -184,6 +186,7 @@ class ContradictionEngine:
 def _now_ns() -> int:
     try:
         from system.time_source import wall_ns
+
         return wall_ns()
     except Exception:
         return int(_time.time() * 1e9)

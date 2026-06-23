@@ -22,12 +22,13 @@ from typing import Any
 from system_engine.hazard_sensors.base import HazardEvent, HazardSeverity
 
 _WINDOW = 200
-_CHECK_INTERVAL_S = 3600   # check once per hour
+_CHECK_INTERVAL_S = 3600  # check once per hour
 
 
 @dataclass(frozen=True, slots=True)
 class RepoRelease:
     """A detected new release in a tracked repository."""
+
     repo: str
     tag: str
     published_at: str
@@ -54,7 +55,7 @@ class RepoDiscoveryMonitor:
         self._window: deque[HazardEvent] = deque(maxlen=_WINDOW)
         self._emitted_ids: set[str] = set()
         self._last_check_s: float = 0.0
-        self._known_tags: dict[str, str] = {}   # repo → latest known tag
+        self._known_tags: dict[str, str] = {}  # repo → latest known tag
 
     def add_repo(self, repo: str) -> None:
         with self._lock:
@@ -102,6 +103,7 @@ class RepoDiscoveryMonitor:
             headers["Authorization"] = f"Bearer {self._github_token}"
         try:
             import json
+
             req = urllib.request.Request(url, headers=headers)
             with urllib.request.urlopen(req, timeout=8) as resp:
                 body = json.loads(resp.read())

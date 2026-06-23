@@ -166,7 +166,10 @@ class SimulationOrchestrator:
 
         # Create a sample event log
         events = [
-            EventLogEntry(ts_ns=1_700_000_000_000_000_000 + i * 1_000_000_000, payload={"price": 100.0 + i * 0.1})
+            EventLogEntry(
+                ts_ns=1_700_000_000_000_000_000 + i * 1_000_000_000,
+                payload={"price": 100.0 + i * 0.1},
+            )
             for i in range(100)
         ]
 
@@ -283,7 +286,7 @@ class SimulationOrchestrator:
             proposal_type=EvolutionProposalType.CODE_PATCH,
             target_file="example.py",
             original_code="def add(a, b):\n    return a + b\n",
-            proposed_code="def add(a, b):\n    \"\"\"Add two numbers.\"\"\"\n    return a + b\n",
+            proposed_code='def add(a, b):\n    """Add two numbers."""\n    return a + b\n',
             description="Add docstring to add function",
             risk_level="LOW",
         )

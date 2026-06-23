@@ -12,12 +12,11 @@ import time
 from dataclasses import dataclass, field
 from typing import Any
 
-from governance_unified.engine import BeliefState
 from core.types import ExecutionIntent, TradeResult
-from execution_unified.adapter_router import AdapterRouter
 from execution_unified._emergency_executor import EmergencyExecutor
+from execution_unified.adapter_router import AdapterRouter
 from governance_unified.approval_decision import ApprovalDecision
-from governance_unified.engine import GovernanceKernel
+from governance_unified.engine import BeliefState, GovernanceKernel
 from state.ledger.writer import LedgerWriter
 
 
@@ -73,9 +72,7 @@ class ExecutionOrchestrator:
             trade_result = self._router.route(intent, venue)
             self._ledger.write_trade_result(trade_result)
 
-        result = OrchestrationResult(
-            intent=intent, decision=decision, trade_result=trade_result
-        )
+        result = OrchestrationResult(intent=intent, decision=decision, trade_result=trade_result)
         self._results.append(result)
         return result
 
