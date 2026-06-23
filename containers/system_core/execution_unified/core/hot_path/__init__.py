@@ -4,32 +4,32 @@ Provides hot path capabilities for low-latency operations
 NO LAZY LOADING - All components load directly
 """
 
-from typing import Dict, List, Optional, Any
 import logging
 import time
+from typing import Any, Dict, Optional
 
 logger = logging.getLogger(__name__)
 
 
 class FastExecute:
     """Fast execution for high-frequency trading"""
-    
+
     def __init__(self):
         self._enabled = True
-        
+
     def execute_fast(self, order_data: Dict[str, Any]) -> bool:
         """Execute order with minimal latency"""
         start_time = time.perf_counter_ns()
-        
+
         # Fast path execution logic
         result = self._fast_path_logic(order_data)
-        
+
         end_time = time.perf_counter_ns()
         latency_ns = end_time - start_time
         logger.debug(f"Fast execution latency: {latency_ns} ns")
-        
+
         return result
-    
+
     def _fast_path_logic(self, order_data: Dict[str, Any]) -> bool:
         """Core fast path logic"""
         # Placeholder for actual fast path implementation
@@ -38,27 +38,27 @@ class FastExecute:
 
 class FastRiskCache:
     """Fast risk cache for real-time risk checks"""
-    
+
     def __init__(self):
         self._cache: Dict[str, Dict[str, Any]] = {}
-        
+
     def get_risk_level(self, symbol: str) -> Optional[float]:
         """Get risk level from cache"""
-        return self._cache.get(symbol, {}).get('risk_level')
-    
+        return self._cache.get(symbol, {}).get("risk_level")
+
     def update_risk_level(self, symbol: str, risk_level: float):
         """Update risk level in cache"""
         if symbol not in self._cache:
             self._cache[symbol] = {}
-        self._cache[symbol]['risk_level'] = risk_level
+        self._cache[symbol]["risk_level"] = risk_level
 
 
 class FastStructs:
     """Fast data structures for low-latency operations"""
-    
+
     def __init__(self):
         self._structs: Dict[str, Any] = {}
-        
+
     def get_struct(self, struct_name: str) -> Optional[Any]:
         """Get fast structure"""
         return self._structs.get(struct_name)
@@ -66,18 +66,20 @@ class FastStructs:
 
 class TimeAuthority:
     """Time authority for synchronized timing"""
-    
+
     def __init__(self):
         self._offset_ns = 0
-        
+
     def get_time_ns(self) -> int:
         """Get synchronized time in nanoseconds"""
         import time
+
         return time.perf_counter_ns() + self._offset_ns
-    
+
     def synchronize(self, reference_time_ns: int):
         """Synchronize with reference time"""
         import time
+
         current_time = time.perf_counter_ns()
         self._offset_ns = reference_time_ns - current_time
 
@@ -122,12 +124,12 @@ def get_time_authority() -> TimeAuthority:
 
 
 __all__ = [
-    'FastExecute',
-    'FastRiskCache',
-    'FastStructs',
-    'TimeAuthority',
-    'get_fast_execute',
-    'get_fast_risk_cache',
-    'get_fast_structs',
-    'get_time_authority'
+    "FastExecute",
+    "FastRiskCache",
+    "FastStructs",
+    "TimeAuthority",
+    "get_fast_execute",
+    "get_fast_risk_cache",
+    "get_fast_structs",
+    "get_time_authority",
 ]

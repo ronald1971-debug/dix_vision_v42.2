@@ -39,8 +39,7 @@ class ConstitutionV2:
         self._rules: list[str] = []
         self._case_law: dict[str, CaseLaw] = {}
 
-    def record_case(self, incident_id: str, outcome: str,
-                    rule_added: str) -> CaseLaw:
+    def record_case(self, incident_id: str, outcome: str, rule_added: str) -> CaseLaw:
         case_id = f"CASE-{_time.time_ns():x}"
         cl = CaseLaw(
             case_id=case_id,
@@ -66,8 +65,7 @@ class ConstitutionV2:
                     "ts_ns": c.ts_ns,
                 }
                 for c in self._case_law.values()
-                if query.lower() in c.rule_added.lower()
-                or query.lower() in c.outcome.lower()
+                if query.lower() in c.rule_added.lower() or query.lower() in c.outcome.lower()
             ]
 
     def get_case_law(self) -> dict:
@@ -82,6 +80,7 @@ class ConstitutionV2:
 def _now_ns() -> int:
     try:
         from system.time_source import wall_ns
+
         return wall_ns()
     except Exception:
         return int(_time.time() * 1e9)

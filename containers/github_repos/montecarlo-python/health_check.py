@@ -5,8 +5,8 @@ montecarlo-python Container Health Check
 This script performs health checks for the montecarlo-python container.
 """
 
-import sys
 import logging
+import sys
 from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
@@ -25,8 +25,8 @@ def check_imports():
 def check_governance_wrapper():
     """Check if governance wrapper can be initialized"""
     try:
-        from montecarlo_python_governance_wrapper import Montecarlo_pythonGovernanceWrapper
         from base_external_repo_wrapper import PermissionLevel
+        from montecarlo_python_governance_wrapper import Montecarlo_pythonGovernanceWrapper
         
         wrapper = Montecarlo_pythonGovernanceWrapper(PermissionLevel.READ_ONLY)
         logger.info("Governance wrapper initialization successful")

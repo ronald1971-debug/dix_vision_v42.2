@@ -29,8 +29,13 @@ class Gene:
         if r.random() < self.mutation_rate:
             delta = (self.max_value - self.min_value) * 0.1 * (r.random() - 0.5)
             new_value = max(self.min_value, min(self.max_value, self.value + delta))
-            return Gene(name=self.name, value=new_value, min_value=self.min_value,
-                       max_value=self.max_value, mutation_rate=self.mutation_rate)
+            return Gene(
+                name=self.name,
+                value=new_value,
+                min_value=self.min_value,
+                max_value=self.max_value,
+                mutation_rate=self.mutation_rate,
+            )
         return self
 
 
@@ -85,8 +90,10 @@ class StrategyGenome:
             genome_id=uuid.uuid4().hex[:12],
             strategy_id=f"{self.strategy_id}+{other.strategy_id}",
             genes=tuple(combined),
-            atom_ids=(self.atom_ids[:len(self.atom_ids)//2] +
-                     other.atom_ids[len(other.atom_ids)//2:]),
+            atom_ids=(
+                self.atom_ids[: len(self.atom_ids) // 2]
+                + other.atom_ids[len(other.atom_ids) // 2 :]
+            ),
             fitness=0.0,
             generation=max(self.generation, other.generation) + 1,
             parent_ids=(self.genome_id, other.genome_id),
@@ -103,15 +110,19 @@ class StrategyGenome:
         )
 
 
-def evolve_genome(genome: StrategyGenome, population: list[StrategyGenome],
-                  population_size: int, rng: random.Random | None = None) -> list[StrategyGenome]:
+def evolve_genome(
+    genome: StrategyGenome,
+    population: list[StrategyGenome],
+    population_size: int,
+    rng: random.Random | None = None,
+) -> list[StrategyGenome]:
     """Evolve a genome through mutation and crossover with the population."""
     r = rng or random.Random()
     evolved = []
 
-    top_performers = sorted(
-        population, key=lambda g: g.fitness, reverse=True
-    )[:population_size // 4]
+    top_performers = sorted(population, key=lambda g: g.fitness, reverse=True)[
+        : population_size // 4
+    ]
 
     for _ in range(population_size // 4):
         evolved.append(genome.mutate(r))

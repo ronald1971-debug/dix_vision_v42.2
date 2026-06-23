@@ -10,6 +10,7 @@ from typing import Any
 @dataclass(frozen=True, slots=True)
 class FailureRecord:
     """A single failure event."""
+
     failure_id: str
     classification: str
     repeat_count: int
@@ -25,7 +26,9 @@ class FailureTracker:
         self._failures: dict[str, FailureRecord] = {}
         self._stats: dict[str, int] = {}
 
-    def record(self, failure_id: str, classification: str, root_cause: str, ts_ns: int) -> FailureRecord:
+    def record(
+        self, failure_id: str, classification: str, root_cause: str, ts_ns: int
+    ) -> FailureRecord:
         """Record a failure and update repeat count and stats."""
         with self._lock:
             existing = self._failures.get(failure_id)

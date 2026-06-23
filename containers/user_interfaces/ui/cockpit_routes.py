@@ -34,15 +34,15 @@ try:
 except Exception:  # pragma: no cover
     _FASTAPI_OK = False
 
-# COGNITIVE CONTROL CENTER MIGRATION: Use cognitive control center services
-# These provide 100% feature parity with cockpit services + cognitive environment integration
-from cognitive_control_center.shared_services.pairing import (
-    DevicePairingService,
-    get_device_pairing_service,
-)
 from cognitive_control_center.shared_services.auth import get_or_create_token
 from cognitive_control_center.shared_services.chat import get_chat
 from cognitive_control_center.shared_services.llm import get_router as get_llm_router
+
+# COGNITIVE CONTROL CENTER MIGRATION: Use cognitive control center services
+# These provide 100% feature parity with cockpit services + cognitive environment integration
+from cognitive_control_center.shared_services.pairing import (
+    get_device_pairing_service,
+)
 from cognitive_control_center.shared_services.qr import qr_png_bytes
 
 # Compatibility shims for pairing service
@@ -58,9 +58,10 @@ from security import wallet_policy as _wp
 from state.episodic_memory import get_episodic_memory
 from state.ledger.writer import get_writer
 from system.autonomy import AutonomyMode, get_autonomy
-from system_unified.fast_risk_cache import get_risk_cache
 from system.locale import current as current_locale
 from system.locale import set_override, supported_ui_languages
+from system_unified.fast_risk_cache import get_risk_cache
+
 try:
     from system_monitor import weekly_scout as _scout
 except ImportError:
@@ -266,11 +267,7 @@ def build_cockpit_router() -> APIRouter:  # type: ignore[name-defined]
     async def system_status() -> JSONResponse:
         """System status endpoint for dashboard compatibility."""
         return JSONResponse(
-            {
-                "status": "operational",
-                "version": "42.2.0",
-                "timestamp": "operational"
-            }
+            {"status": "operational", "version": "42.2.0", "timestamp": "operational"}
         )
 
     @router.get("/api/test")
@@ -593,9 +590,7 @@ def build_cockpit_router() -> APIRouter:  # type: ignore[name-defined]
     @router.post("/api/operator/deny")
     async def operator_deny(body: ApprovalActionIn) -> JSONResponse:
         try:
-            r = _op.deny(
-                body.request_id, operator_id=body.operator_id, reason=body.reason
-            )
+            r = _op.deny(body.request_id, operator_id=body.operator_id, reason=body.reason)
         except LookupError as exc:
             raise HTTPException(status_code=404, detail=str(exc)) from None
         return JSONResponse(r.as_dict())
@@ -810,24 +805,66 @@ def build_cockpit_router() -> APIRouter:  # type: ignore[name-defined]
         # Returns the structural feed with live timestamps.
         # Wave-05 swaps SEED values with live on-chain / satellite data.
         signals = [
-            {"key": "sat-china-cargo", "label": "China port satellite cargo",
-             "category": "satellite", "current": 8420, "delta_7d_pct": 4.1,
-             "lead_weeks": 4, "baseline": "PMI export new orders", "ts_ms": now_ms},
-            {"key": "sat-us-parking", "label": "US big-box retail parking fill",
-             "category": "satellite", "current": 0.62, "delta_7d_pct": -2.3,
-             "lead_weeks": 5, "baseline": "US retail sales report", "ts_ms": now_ms},
-            {"key": "ship-suez-tx", "label": "Suez Canal weekly transits",
-             "category": "shipping", "current": 312, "delta_7d_pct": 1.8,
-             "lead_weeks": 3, "baseline": "Global goods PMI", "ts_ms": now_ms},
-            {"key": "ship-shanghai-fv", "label": "Shanghai container freight rate",
-             "category": "shipping", "current": 2980, "delta_7d_pct": -0.4,
-             "lead_weeks": 2, "baseline": "CPI goods component", "ts_ms": now_ms},
-            {"key": "transit-nyc", "label": "NYC MTA weekday ridership (Mx)",
-             "category": "transit", "current": 3.41, "delta_7d_pct": 0.9,
-             "lead_weeks": 1, "baseline": "GDP service component", "ts_ms": now_ms},
-            {"key": "spend-visa-intl", "label": "Visa international spend index",
-             "category": "spending", "current": 112.4, "delta_7d_pct": 2.1,
-             "lead_weeks": 3, "baseline": "Cross-border goods trade", "ts_ms": now_ms},
+            {
+                "key": "sat-china-cargo",
+                "label": "China port satellite cargo",
+                "category": "satellite",
+                "current": 8420,
+                "delta_7d_pct": 4.1,
+                "lead_weeks": 4,
+                "baseline": "PMI export new orders",
+                "ts_ms": now_ms,
+            },
+            {
+                "key": "sat-us-parking",
+                "label": "US big-box retail parking fill",
+                "category": "satellite",
+                "current": 0.62,
+                "delta_7d_pct": -2.3,
+                "lead_weeks": 5,
+                "baseline": "US retail sales report",
+                "ts_ms": now_ms,
+            },
+            {
+                "key": "ship-suez-tx",
+                "label": "Suez Canal weekly transits",
+                "category": "shipping",
+                "current": 312,
+                "delta_7d_pct": 1.8,
+                "lead_weeks": 3,
+                "baseline": "Global goods PMI",
+                "ts_ms": now_ms,
+            },
+            {
+                "key": "ship-shanghai-fv",
+                "label": "Shanghai container freight rate",
+                "category": "shipping",
+                "current": 2980,
+                "delta_7d_pct": -0.4,
+                "lead_weeks": 2,
+                "baseline": "CPI goods component",
+                "ts_ms": now_ms,
+            },
+            {
+                "key": "transit-nyc",
+                "label": "NYC MTA weekday ridership (Mx)",
+                "category": "transit",
+                "current": 3.41,
+                "delta_7d_pct": 0.9,
+                "lead_weeks": 1,
+                "baseline": "GDP service component",
+                "ts_ms": now_ms,
+            },
+            {
+                "key": "spend-visa-intl",
+                "label": "Visa international spend index",
+                "category": "spending",
+                "current": 112.4,
+                "delta_7d_pct": 2.1,
+                "lead_weeks": 3,
+                "baseline": "Cross-border goods trade",
+                "ts_ms": now_ms,
+            },
         ]
         return JSONResponse({"signals": signals, "last_updated_ms": now_ms})
 
@@ -885,10 +922,20 @@ def build_cockpit_router() -> APIRouter:  # type: ignore[name-defined]
                 pass
         # Return transcript catalog when no question is asked.
         transcripts = [
-            {"id": f"{symbol or 'AAPL'}-2026Q1", "ticker": symbol or "AAPL",
-             "quarter": "2026 Q1", "bullishness": 0.42, "available": True},
-            {"id": "BTC-2026Q1", "ticker": "BTC", "quarter": "2026 Q1",
-             "bullishness": 0.65, "available": True},
+            {
+                "id": f"{symbol or 'AAPL'}-2026Q1",
+                "ticker": symbol or "AAPL",
+                "quarter": "2026 Q1",
+                "bullishness": 0.42,
+                "available": True,
+            },
+            {
+                "id": "BTC-2026Q1",
+                "ticker": "BTC",
+                "quarter": "2026 Q1",
+                "bullishness": 0.65,
+                "available": True,
+            },
         ]
         return JSONResponse({"transcripts": transcripts, "source": "catalog"})
 
@@ -900,22 +947,38 @@ def build_cockpit_router() -> APIRouter:  # type: ignore[name-defined]
         now_ms = int(_time.time() * 1000)
         # CoinDesk feed items (wired from the news runner) + placeholder multilingual items.
         items = [
-            {"ts": now_ms - 90_000, "source": "COINDESK", "lang": "EN",
-             "original": "Bitcoin holds above $65k as institutional flows accelerate",
-             "translated": "Bitcoin holds above $65k as institutional flows accelerate",
-             "sentiment": 0.41},
-            {"ts": now_ms - 130_000, "source": "REUTERS_JP", "lang": "JA",
-             "original": "日銀、政策金利を据え置き",
-             "translated": "BOJ holds policy rate steady",
-             "sentiment": 0.05},
-            {"ts": now_ms - 200_000, "source": "CAIXIN", "lang": "ZH",
-             "original": "中国央行下调存款准备金率",
-             "translated": "PBOC cuts reserve requirement ratio",
-             "sentiment": 0.28},
-            {"ts": now_ms - 310_000, "source": "HANDELSBLATT", "lang": "DE",
-             "original": "EZB signalisiert Zinspause im zweiten Quartal",
-             "translated": "ECB signals rate pause in second quarter",
-             "sentiment": -0.12},
+            {
+                "ts": now_ms - 90_000,
+                "source": "COINDESK",
+                "lang": "EN",
+                "original": "Bitcoin holds above $65k as institutional flows accelerate",
+                "translated": "Bitcoin holds above $65k as institutional flows accelerate",
+                "sentiment": 0.41,
+            },
+            {
+                "ts": now_ms - 130_000,
+                "source": "REUTERS_JP",
+                "lang": "JA",
+                "original": "日銀、政策金利を据え置き",
+                "translated": "BOJ holds policy rate steady",
+                "sentiment": 0.05,
+            },
+            {
+                "ts": now_ms - 200_000,
+                "source": "CAIXIN",
+                "lang": "ZH",
+                "original": "中国央行下调存款准备金率",
+                "translated": "PBOC cuts reserve requirement ratio",
+                "sentiment": 0.28,
+            },
+            {
+                "ts": now_ms - 310_000,
+                "source": "HANDELSBLATT",
+                "lang": "DE",
+                "original": "EZB signalisiert Zinspause im zweiten Quartal",
+                "translated": "ECB signals rate pause in second quarter",
+                "sentiment": -0.12,
+            },
         ]
         return JSONResponse({"items": items, "last_updated_ms": now_ms})
 
@@ -936,20 +999,22 @@ def build_cockpit_router() -> APIRouter:  # type: ignore[name-defined]
             for e in entries:
                 if e.kind in ("TRADE_CLOSED", "EXECUTION_COMPLETE", "FILL"):
                     p = e.payload if isinstance(e.payload, dict) else {}
-                    trades.append({
-                        "id": f"{e.chain[:3]}-{e.seq}",
-                        "ts_iso": e.ts_utc,
-                        "symbol": p.get("symbol", "BTC-USDT"),
-                        "side": p.get("side", "BUY"),
-                        "entry": float(p.get("entry", 0)),
-                        "sl": float(p.get("sl", 0)),
-                        "tp": float(p.get("tp", 0)),
-                        "exit": float(p.get("exit", 0)),
-                        "size": float(p.get("size", 1)),
-                        "pnl": float(p.get("pnl", 0)),
-                        "why": p.get("why", e.kind),
-                        "source": "ledger",
-                    })
+                    trades.append(
+                        {
+                            "id": f"{e.chain[:3]}-{e.seq}",
+                            "ts_iso": e.ts_utc,
+                            "symbol": p.get("symbol", "BTC-USDT"),
+                            "side": p.get("side", "BUY"),
+                            "entry": float(p.get("entry", 0)),
+                            "sl": float(p.get("sl", 0)),
+                            "tp": float(p.get("tp", 0)),
+                            "exit": float(p.get("exit", 0)),
+                            "size": float(p.get("size", 1)),
+                            "pnl": float(p.get("pnl", 0)),
+                            "why": p.get("why", e.kind),
+                            "source": "ledger",
+                        }
+                    )
             if trades:
                 return JSONResponse({"trades": trades, "source": "ledger", "ts_ms": now_ms})
         except Exception:
@@ -958,26 +1023,44 @@ def build_cockpit_router() -> APIRouter:  # type: ignore[name-defined]
         # Static illustrative trades when ledger has no closed trades yet.
         trades = [
             {
-                "id": "t-2026-05-12-1642", "ts_iso": "2026-05-12T16:42:00Z",
-                "symbol": "BTC-USDT", "side": "BUY",
-                "entry": 67420, "sl": 66200, "tp": 69800, "exit": 67950,
-                "size": 0.4, "pnl": 212.0,
+                "id": "t-2026-05-12-1642",
+                "ts_iso": "2026-05-12T16:42:00Z",
+                "symbol": "BTC-USDT",
+                "side": "BUY",
+                "entry": 67420,
+                "sl": 66200,
+                "tp": 69800,
+                "exit": 67950,
+                "size": 0.4,
+                "pnl": 212.0,
                 "why": "Funding flipped negative · CVD +180 · BeliefState 0.71",
                 "source": "sample",
             },
             {
-                "id": "t-2026-05-13-0815", "ts_iso": "2026-05-13T08:15:00Z",
-                "symbol": "SOL-USDT", "side": "SELL",
-                "entry": 178.4, "sl": 182.0, "tp": 168.0, "exit": 174.6,
-                "size": 25, "pnl": 95.0,
+                "id": "t-2026-05-13-0815",
+                "ts_iso": "2026-05-13T08:15:00Z",
+                "symbol": "SOL-USDT",
+                "side": "SELL",
+                "entry": 178.4,
+                "sl": 182.0,
+                "tp": 168.0,
+                "exit": 174.6,
+                "size": 25,
+                "pnl": 95.0,
                 "why": "PressureVector.uncertainty 0.62 · CANARY cap applied",
                 "source": "sample",
             },
             {
-                "id": "t-2026-05-14-2103", "ts_iso": "2026-05-14T21:03:00Z",
-                "symbol": "ETH-USDT", "side": "BUY",
-                "entry": 3140, "sl": 3050, "tp": 3320, "exit": 3050,
-                "size": 1.5, "pnl": -135.0,
+                "id": "t-2026-05-14-2103",
+                "ts_iso": "2026-05-14T21:03:00Z",
+                "symbol": "ETH-USDT",
+                "side": "BUY",
+                "entry": 3140,
+                "sl": 3050,
+                "tp": 3320,
+                "exit": 3050,
+                "size": 1.5,
+                "pnl": -135.0,
                 "why": "Composite 0.58 marginal · stopped on macro shock",
                 "source": "sample",
             },
@@ -989,19 +1072,22 @@ def build_cockpit_router() -> APIRouter:  # type: ignore[name-defined]
     @router.get("/api/voice-alerts")
     async def voice_alerts_status() -> JSONResponse:
         from cockpit.voice_alerts import get_dispatcher
+
         d = get_dispatcher()
-        return JSONResponse({
-            "min_severity": d._min_severity,
-            "dispatched_count": len(d.dispatched_alerts),
-            "history": [
-                {
-                    "output_path": r.output_path,
-                    "duration_seconds": r.duration_seconds,
-                    "model_used": r.model_used,
-                }
-                for r in d.dispatched_alerts[-20:]
-            ],
-        })
+        return JSONResponse(
+            {
+                "min_severity": d._min_severity,
+                "dispatched_count": len(d.dispatched_alerts),
+                "history": [
+                    {
+                        "output_path": r.output_path,
+                        "duration_seconds": r.duration_seconds,
+                        "model_used": r.model_used,
+                    }
+                    for r in d.dispatched_alerts[-20:]
+                ],
+            }
+        )
 
     class _VoiceAlertIn(BaseModel):
         severity: str
@@ -1011,6 +1097,7 @@ def build_cockpit_router() -> APIRouter:  # type: ignore[name-defined]
     @router.post("/api/voice-alerts/dispatch")
     async def voice_alerts_dispatch(body: _VoiceAlertIn) -> JSONResponse:  # type: ignore[name-defined]
         from cockpit.voice_alerts import VoiceAlertEvent, get_dispatcher
+
         event = VoiceAlertEvent(
             severity=body.severity,
             message=body.message,
@@ -1018,57 +1105,74 @@ def build_cockpit_router() -> APIRouter:  # type: ignore[name-defined]
         )
         result = get_dispatcher().dispatch(event)
         if result is None:
-            return JSONResponse({"dispatched": False,
-                                 "reason": f"severity below threshold ({get_dispatcher()._min_severity})"})
-        return JSONResponse({"dispatched": True, "output_path": result.output_path,
-                             "duration_seconds": result.duration_seconds})
+            return JSONResponse(
+                {
+                    "dispatched": False,
+                    "reason": f"severity below threshold ({get_dispatcher()._min_severity})",
+                }
+            )
+        return JSONResponse(
+            {
+                "dispatched": True,
+                "output_path": result.output_path,
+                "duration_seconds": result.duration_seconds,
+            }
+        )
 
     # -------------------------------------------------------- audit: actions
 
     @router.get("/api/audit/actions")
     async def audit_actions(limit: int = 50) -> JSONResponse:
         from security import operator as _op_module
+
         rows = _op_module.history(limit=limit)
-        return JSONResponse({
-            "actions": [
-                {
-                    "id": r.request_id,
-                    "ts_utc": r.created_utc,
-                    "kind": r.kind.value,
-                    "subject": r.subject,
-                    "state": r.state.value,
-                    "approvers": list(r.approvers),
-                }
-                for r in rows
-            ]
-        })
+        return JSONResponse(
+            {
+                "actions": [
+                    {
+                        "id": r.request_id,
+                        "ts_utc": r.created_utc,
+                        "kind": r.kind.value,
+                        "subject": r.subject,
+                        "state": r.state.value,
+                        "approvers": list(r.approvers),
+                    }
+                    for r in rows
+                ]
+            }
+        )
 
     # -------------------------------------------------------- audit: overrides
 
     @router.get("/api/audit/overrides")
     async def audit_overrides(limit: int = 50) -> JSONResponse:
         import time as _time
+
         now_ms = int(_time.time() * 1000)
         try:
             from state.ledger.bridge import LedgerBridge
+
             bridge = LedgerBridge()
             entries = bridge.tail(limit=limit * 2)
             overrides = []
             for e in entries:
                 if any(kw in str(e.kind).upper() for kw in ("OVERRIDE", "PARAM", "SLIDER", "RISK")):
                     p = e.payload if isinstance(e.payload, dict) else {}
-                    overrides.append({
-                        "id": f"{e.chain[:3]}-{e.seq}",
-                        "ts_utc": e.ts_utc,
-                        "kind": e.kind,
-                        "parameter": p.get("parameter", p.get("slider", "")),
-                        "old_value": p.get("old_value", ""),
-                        "new_value": p.get("new_value", p.get("value", "")),
-                        "operator_id": p.get("operator_id", ""),
-                        "rationale": p.get("rationale", p.get("reason", "")),
-                    })
-            return JSONResponse({"overrides": overrides[:limit], "source": "ledger",
-                                 "ts_ms": now_ms})
+                    overrides.append(
+                        {
+                            "id": f"{e.chain[:3]}-{e.seq}",
+                            "ts_utc": e.ts_utc,
+                            "kind": e.kind,
+                            "parameter": p.get("parameter", p.get("slider", "")),
+                            "old_value": p.get("old_value", ""),
+                            "new_value": p.get("new_value", p.get("value", "")),
+                            "operator_id": p.get("operator_id", ""),
+                            "rationale": p.get("rationale", p.get("reason", "")),
+                        }
+                    )
+            return JSONResponse(
+                {"overrides": overrides[:limit], "source": "ledger", "ts_ms": now_ms}
+            )
         except Exception:
             return JSONResponse({"overrides": [], "source": "unavailable", "ts_ms": now_ms})
 
@@ -1077,6 +1181,7 @@ def build_cockpit_router() -> APIRouter:  # type: ignore[name-defined]
     @router.get("/api/syshealth")
     async def syshealth() -> JSONResponse:
         from cockpit.widgets.system_health import system_health_payload
+
         return JSONResponse(system_health_payload())
 
     # ------------------------------------------------------------------ alerts
@@ -1084,6 +1189,7 @@ def build_cockpit_router() -> APIRouter:  # type: ignore[name-defined]
     @router.get("/api/alerts")
     async def alerts(limit: int = 50) -> JSONResponse:
         from cockpit.widgets.alert_center import alert_center_payload
+
         return JSONResponse(alert_center_payload(limit=limit))
 
     # --------------------------------------------------------------- risk view
@@ -1091,6 +1197,7 @@ def build_cockpit_router() -> APIRouter:  # type: ignore[name-defined]
     @router.get("/api/risk/view")
     async def risk_view() -> JSONResponse:
         from cockpit.widgets.risk_view import risk_view_payload
+
         return JSONResponse(risk_view_payload())
 
     # ----------------------------------------------------------- risk sliders
@@ -1098,6 +1205,7 @@ def build_cockpit_router() -> APIRouter:  # type: ignore[name-defined]
     @router.get("/api/risk/sliders")
     async def risk_sliders_get() -> JSONResponse:
         from cockpit.widgets.master_sliders import master_sliders_payload
+
         return JSONResponse(master_sliders_payload())
 
     class _SliderIn(BaseModel):
@@ -1108,6 +1216,7 @@ def build_cockpit_router() -> APIRouter:  # type: ignore[name-defined]
     @router.post("/api/risk/sliders")
     async def risk_sliders_set(body: _SliderIn) -> JSONResponse:  # type: ignore[name-defined]
         from cockpit.widgets.master_sliders import set_slider
+
         result = set_slider(body.slider, body.value, body.operator_id)
         if not result.get("accepted"):
             raise HTTPException(status_code=400, detail=result.get("reason", "rejected"))
@@ -1118,6 +1227,7 @@ def build_cockpit_router() -> APIRouter:  # type: ignore[name-defined]
     @router.get("/api/kill-switch")
     async def kill_switch_get() -> JSONResponse:
         from cockpit.widgets.kill_switch import kill_switch_state
+
         return JSONResponse(kill_switch_state())
 
     class _KillSwitchIn(BaseModel):
@@ -1127,11 +1237,13 @@ def build_cockpit_router() -> APIRouter:  # type: ignore[name-defined]
     @router.post("/api/kill-switch/activate")
     async def kill_switch_activate(body: _KillSwitchIn) -> JSONResponse:  # type: ignore[name-defined]
         from cockpit.widgets.kill_switch import activate_kill_switch
+
         return JSONResponse(activate_kill_switch(body.operator_id, body.reason))
 
     @router.post("/api/kill-switch/deactivate")
     async def kill_switch_deactivate(body: _KillSwitchIn) -> JSONResponse:  # type: ignore[name-defined]
         from cockpit.widgets.kill_switch import deactivate_kill_switch
+
         return JSONResponse(deactivate_kill_switch(body.operator_id))
 
     # -------------------------------------------------------- governance panel
@@ -1139,6 +1251,7 @@ def build_cockpit_router() -> APIRouter:  # type: ignore[name-defined]
     @router.get("/api/governance/panel")
     async def governance_panel() -> JSONResponse:
         from cockpit.widgets.governance_panel import governance_panel_payload
+
         return JSONResponse(governance_panel_payload())
 
     # --------------------------------------------------------- decision trace
@@ -1146,6 +1259,7 @@ def build_cockpit_router() -> APIRouter:  # type: ignore[name-defined]
     @router.get("/api/audit/decisions")
     async def audit_decisions(strategy_id: str = "", limit: int = 20) -> JSONResponse:
         from cockpit.widgets.decision_trace import decision_trace_payload
+
         return JSONResponse(
             decision_trace_payload(
                 strategy_id=strategy_id or None,
@@ -1158,14 +1272,17 @@ def build_cockpit_router() -> APIRouter:  # type: ignore[name-defined]
     @router.get("/api/portfolio")
     async def portfolio() -> JSONResponse:
         from cockpit.widgets.portfolio_view import portfolio_view_payload
+
         return JSONResponse(portfolio_view_payload())
 
     @router.get("/favicon.ico")
     async def favicon():
         """Return a simple favicon response to avoid 404 errors."""
-        from fastapi.responses import Response
         # Return a minimal 1x1 transparent PNG as favicon
         import base64
+
+        from fastapi.responses import Response
+
         minimal_png = base64.b64decode(
             "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="
         )
@@ -1178,6 +1295,7 @@ def build_cockpit_router() -> APIRouter:  # type: ignore[name-defined]
 
     # Phase 11.1 dashboard update endpoints — DYON signals, INDIRA execution, GOVERNANCE
     from ui.cockpit_routes_phase11_1 import add_phase_11_1_endpoints
+
     add_phase_11_1_endpoints(router)
 
     return router

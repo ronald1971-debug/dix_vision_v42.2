@@ -5,15 +5,12 @@ Manages trust anchors for cryptographic operations and system security.
 
 from __future__ import annotations
 
-import dataclasses
 import logging
 import threading
-from collections.abc import Mapping
-from types import MappingProxyType
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from trust_root.core.kernel import TrustAnchor, TrustStatus
+    from trust_root.core.kernel import TrustAnchor
 
 _logger = logging.getLogger(__name__)
 
@@ -119,9 +116,7 @@ class TrustAnchorManager:
         with self._lock:
             anchor_ids = self._anchor_purposes.get(purpose, [])
             return [
-                self._anchors[anchor_id]
-                for anchor_id in anchor_ids
-                if anchor_id in self._anchors
+                self._anchors[anchor_id] for anchor_id in anchor_ids if anchor_id in self._anchors
             ]
 
     def validate_trust_level(self, anchor_id: str, required_level: float) -> bool:

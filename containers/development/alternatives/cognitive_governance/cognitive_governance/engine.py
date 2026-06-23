@@ -251,9 +251,10 @@ class CognitiveGovernanceEngine:
         if name in allowed:
             if name == "epistemology":
                 try:
-                    from cognitive_engine.epistemology_engine.epistemology_engine import (
-                        get_epistemology_engine,  # noqa: PLC0415
+                    from cognitive_engine.epistemology_engine.epistemology_engine import (  # noqa: PLC0415
+                        get_epistemology_engine,
                     )
+
                     return get_epistemology_engine()
                 except Exception:
                     pass
@@ -358,14 +359,14 @@ class _MissingModuleGuard:
         # We mark them healthy by default at this snapshot; individual
         # events drive the violation record. For a full scan these would
         # require store names, strategy IDs, etc.
-        memory_clean = True        # healthy until a scan reports otherwise
-        mutation_safe = True       # healthy until a proposal is rejected
-        no_hallucination = True    # healthy until a signal is flagged
-        lineage_intact = True      # healthy until a registration fails
-        identity_stable = True     # healthy until an update is flagged
+        memory_clean = True  # healthy until a scan reports otherwise
+        mutation_safe = True  # healthy until a proposal is rejected
+        no_hallucination = True  # healthy until a signal is flagged
+        lineage_intact = True  # healthy until a registration fails
+        identity_stable = True  # healthy until an update is flagged
         no_synthetic_feedback = True  # healthy until routing contam detected
-        no_reward_hacking = True   # healthy until correlation drops
-        causal_consistent = True   # healthy until a ghost/leak is found
+        no_reward_hacking = True  # healthy until correlation drops
+        causal_consistent = True  # healthy until a ghost/leak is found
 
         overall_healthy = (
             belief_ok
@@ -559,6 +560,7 @@ class _MissingModuleGuard:
                     EventPriority,
                     get_event_fabric,
                 )
+
                 get_event_fabric().publish(
                     EventChannel.GOVERNANCE,
                     "COGOV_INTEGRITY_STATUS",
@@ -571,8 +573,10 @@ class _MissingModuleGuard:
 
             # Escalate CRITICAL violations to the hazard bus
             critical = [
-                v for v in status.active_violations
-                if v in (
+                v
+                for v in status.active_violations
+                if v
+                in (
                     CognitiveViolationKind.EPISTEMIC_DRIFT_CRITICAL,
                     CognitiveViolationKind.CALIBRATION_DRIFT,
                 )

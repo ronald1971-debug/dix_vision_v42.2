@@ -2,9 +2,9 @@
 Presence layer - Phase 9 implementation
 """
 
-from presence_detector import PresenceDetector, PresenceState, PresenceSource, PresenceEvent
-from user_tracker import UserTracker, UserStatus, UserProfile, UserSession
-from activity_monitor import ActivityMonitor, ActivityType, ActivityLevel, ActivityEvent
+from activity_monitor import ActivityEvent, ActivityLevel, ActivityMonitor, ActivityType
+from presence_detector import PresenceDetector, PresenceEvent, PresenceSource, PresenceState
+from user_tracker import UserProfile, UserSession, UserStatus, UserTracker
 
 __all__ = [
     "PresenceDetector",

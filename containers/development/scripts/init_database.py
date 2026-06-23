@@ -1,10 +1,9 @@
 """Database initialization script for DIX VISION production deployment."""
 
-import sys
-import os
 import argparse
 import logging
-from typing import Optional
+import os
+import sys
 
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -27,17 +26,12 @@ class DatabaseInitializer:
             "port": 5432,
             "database": "dix_vision",
             "user": "postgres",
-            "password": "postgres"
+            "password": "postgres",
         }
 
     def _default_redis_config(self) -> dict:
         """Default Redis configuration."""
-        return {
-            "host": "localhost",
-            "port": 6379,
-            "db": 0,
-            "password": None
-        }
+        return {"host": "localhost", "port": 6379, "db": 0, "password": None}
 
     def initialize_postgresql(self) -> bool:
         """Initialize PostgreSQL database with required schema."""
@@ -58,13 +52,15 @@ class DatabaseInitializer:
                 port=self.postgres_config["port"],
                 user=self.postgres_config["user"],
                 password=self.postgres_config["password"],
-                database="postgres"  # Connect to default db first
+                database="postgres",  # Connect to default db first
             )
             conn.autocommit = True
             cursor = conn.cursor()
 
             # Create database if it doesn't exist
-            cursor.execute(f"SELECT 1 FROM pg_database WHERE datname = '{self.postgres_config['database']}'")
+            cursor.execute(
+                f"SELECT 1 FROM pg_database WHERE datname = '{self.postgres_config['database']}'"
+            )
             if not cursor.fetchone():
                 cursor.execute(f"CREATE DATABASE {self.postgres_config['database']}")
                 logger.info(f"Created database: {self.postgres_config['database']}")
@@ -78,7 +74,7 @@ class DatabaseInitializer:
                 port=self.postgres_config["port"],
                 user=self.postgres_config["user"],
                 password=self.postgres_config["password"],
-                database=self.postgres_config["database"]
+                database=self.postgres_config["database"],
             )
             conn.autocommit = True
             cursor = conn.cursor()
@@ -123,7 +119,6 @@ class DatabaseInitializer:
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
             """,
-
             # Orders table
             """
             CREATE TABLE IF NOT EXISTS orders (
@@ -145,7 +140,6 @@ class DatabaseInitializer:
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
             """,
-
             # Positions table
             """
             CREATE TABLE IF NOT EXISTS positions (
@@ -161,7 +155,6 @@ class DatabaseInitializer:
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
             """,
-
             # Trust anchors table
             """
             CREATE TABLE IF NOT EXISTS trust_anchors (
@@ -178,7 +171,6 @@ class DatabaseInitializer:
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
             """,
-
             # Foundation hashes table
             """
             CREATE TABLE IF NOT EXISTS foundation_hashes (
@@ -193,7 +185,6 @@ class DatabaseInitializer:
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
             """,
-
             # Verification artifacts table
             """
             CREATE TABLE IF NOT EXISTS verification_artifacts (
@@ -211,7 +202,6 @@ class DatabaseInitializer:
                 FOREIGN KEY (anchor_id) REFERENCES trust_anchors(anchor_id)
             )
             """,
-
             # Trading decisions table
             """
             CREATE TABLE IF NOT EXISTS trading_decisions (
@@ -232,7 +222,6 @@ class DatabaseInitializer:
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
             """,
-
             # Audit log table
             """
             CREATE TABLE IF NOT EXISTS audit_log (
@@ -245,7 +234,7 @@ class DatabaseInitializer:
                 severity VARCHAR(20),
                 timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
-            """
+            """,
         ]
 
         for table_sql in tables:
@@ -260,7 +249,7 @@ class DatabaseInitializer:
             "CREATE INDEX IF NOT EXISTS idx_positions_symbol ON positions(symbol)",
             "CREATE INDEX IF NOT EXISTS idx_trading_decisions_timestamp ON trading_decisions(timestamp)",
             "CREATE INDEX IF NOT EXISTS idx_audit_log_timestamp ON audit_log(timestamp)",
-            "CREATE INDEX IF NOT EXISTS idx_audit_log_event_type ON audit_log(event_type)"
+            "CREATE INDEX IF NOT EXISTS idx_audit_log_event_type ON audit_log(event_type)",
         ]
 
         for index_sql in indexes:
@@ -336,7 +325,7 @@ CREATE TABLE IF NOT EXISTS positions (
                 port=self.redis_config["port"],
                 db=self.redis_config["db"],
                 password=self.redis_config.get("password"),
-                decode_responses=True
+                decode_responses=True,
             )
 
             # Test connection
@@ -346,7 +335,7 @@ CREATE TABLE IF NOT EXISTS positions (
             # Set initial configuration
             r.set("dix_vision:status", "initialized")
             r.set("dix_vision:version", "42.2")
-            r.set("dix_vision:init_time", str(__import__('time').time()))
+            r.set("dix_vision:init_time", str(__import__("time").time()))
 
             logger.info("Redis initialization completed successfully")
             return True
@@ -363,19 +352,25 @@ CREATE TABLE IF NOT EXISTS positions (
 
         config_file = os.path.join(config_dir, "redis_config_placeholder.json")
         import json
+
         with open(config_file, "w") as f:
-            json.dump({
-                "status": "placeholder",
-                "version": "42.2",
-                "note": "Redis library not available, using placeholder configuration"
-            }, f)
+            json.dump(
+                {
+                    "status": "placeholder",
+                    "version": "42.2",
+                    "note": "Redis library not available, using placeholder configuration",
+                },
+                f,
+            )
 
         logger.info(f"Placeholder Redis configuration created at: {config_file}")
 
 
 def main():
     """Main function to run database initialization."""
-    parser = argparse.ArgumentParser(description="Initialize databases for DIX VISION production deployment")
+    parser = argparse.ArgumentParser(
+        description="Initialize databases for DIX VISION production deployment"
+    )
     parser.add_argument("--postgres", action="store_true", help="Initialize PostgreSQL")
     parser.add_argument("--redis", action="store_true", help="Initialize Redis")
     parser.add_argument("--all", action="store_true", help="Initialize all databases")
@@ -396,15 +391,10 @@ def main():
         "port": args.postgres_port,
         "database": args.postgres_db,
         "user": "postgres",
-        "password": "postgres"
+        "password": "postgres",
     }
 
-    redis_config = {
-        "host": args.redis_host,
-        "port": args.redis_port,
-        "db": 0,
-        "password": None
-    }
+    redis_config = {"host": args.redis_host, "port": args.redis_port, "db": 0, "password": None}
 
     initializer = DatabaseInitializer(postgres_config, redis_config)
 

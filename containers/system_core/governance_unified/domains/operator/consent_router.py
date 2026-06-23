@@ -124,9 +124,7 @@ class ConsentRouter:
         Returns the ConsentDecision, or None if request not found.
         """
         if outcome not in (ConsentOutcome.APPROVED, ConsentOutcome.DENIED):
-            raise ValueError(
-                f"decide() only accepts APPROVED or DENIED; got {outcome.value}"
-            )
+            raise ValueError(f"decide() only accepts APPROVED or DENIED; got {outcome.value}")
 
         self._expire_stale()
 

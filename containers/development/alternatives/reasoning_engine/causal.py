@@ -70,6 +70,7 @@ class CausalEngine:
 
     def detect_ghosts(self, active_nodes: frozenset[str]) -> tuple[str, ...]:
         from core.coherence.causal_graph import detect_ghost_causality  # noqa: PLC0415
+
         return detect_ghost_causality(self._graph, active_nodes)
 
 

@@ -28,16 +28,16 @@ _DEFAULT_DB = Path("data") / "trust_scores.db"
 
 EROSION_CRITICAL: float = 0.25
 EROSION_WARNING: float = 0.05
-RECOVERY_RATE_PER_TICK: float = 0.001   # slow passive recovery
+RECOVERY_RATE_PER_TICK: float = 0.001  # slow passive recovery
 DISPOSITION_ALLOW_FLOOR: float = 0.50
 DISPOSITION_BLOCK_CEILING: float = 0.10
 DEFAULT_INITIAL_SCORE: float = 1.0
 
 
 class ExecutionDisposition(StrEnum):
-    ALLOW = "ALLOW"     # trust ≥ 0.50
-    PAPER = "PAPER"     # 0.10 ≤ trust < 0.50 — paper-trade only
-    BLOCK = "BLOCK"     # trust < 0.10 — full execution block
+    ALLOW = "ALLOW"  # trust ≥ 0.50
+    PAPER = "PAPER"  # 0.10 ≤ trust < 0.50 — paper-trade only
+    BLOCK = "BLOCK"  # trust < 0.10 — full execution block
 
 
 @dataclass(frozen=True, slots=True)
@@ -80,13 +80,11 @@ class TrustScorer:
 
     def _init_db(self) -> None:
         with self._connect() as conn:
-            conn.execute(
-                """CREATE TABLE IF NOT EXISTS trust_scores (
+            conn.execute("""CREATE TABLE IF NOT EXISTS trust_scores (
                     engine_id       TEXT PRIMARY KEY,
                     score           REAL NOT NULL DEFAULT 1.0,
                     ts_ns_updated   INTEGER NOT NULL DEFAULT 0
-                )"""
-            )
+                )""")
             conn.execute("PRAGMA journal_mode=WAL")
             conn.commit()
 
@@ -96,9 +94,7 @@ class TrustScorer:
     def _load_all(self) -> dict[str, float]:
         try:
             with self._connect() as conn:
-                rows = conn.execute(
-                    "SELECT engine_id, score FROM trust_scores"
-                ).fetchall()
+                rows = conn.execute("SELECT engine_id, score FROM trust_scores").fetchall()
             return {r[0]: float(r[1]) for r in rows}
         except Exception:
             return {}
@@ -165,7 +161,10 @@ class TrustScorer:
         self._persist(engine_id, new_score, ts_ns)
         _logger.info(
             "TrustScorer: erode %s severity=%s %.3f→%.3f",
-            engine_id, severity, current, new_score,
+            engine_id,
+            severity,
+            current,
+            new_score,
         )
         self._write_ledger(engine_id, current, new_score, severity, ts_ns)
         if new_score < DISPOSITION_BLOCK_CEILING:
@@ -247,6 +246,7 @@ class TrustScorer:
     ) -> None:
         try:
             from state.ledger.append import append_event
+
             append_event(
                 stream="GOVERNANCE",
                 kind="TRUST_ERODED",
@@ -266,14 +266,18 @@ class TrustScorer:
     def _emit_critical_trust(engine_id: str, score: float, ts_ns: int) -> None:
         try:
             from state.event_bus import CognitiveChannel, get_event_bus
-            get_event_bus().publish(CognitiveChannel.DYON_VIOLATION, {
-                "source": "trust_scorer",
-                "hazard": "TRUST_BELOW_BLOCK_FLOOR",
-                "engine_id": engine_id,
-                "score": round(score, 4),
-                "severity": "CRITICAL",
-                "ts_ns": ts_ns,
-            })
+
+            get_event_bus().publish(
+                CognitiveChannel.DYON_VIOLATION,
+                {
+                    "source": "trust_scorer",
+                    "hazard": "TRUST_BELOW_BLOCK_FLOOR",
+                    "engine_id": engine_id,
+                    "score": round(score, 4),
+                    "severity": "CRITICAL",
+                    "ts_ns": ts_ns,
+                },
+            )
         except Exception:
             pass
 
@@ -281,6 +285,7 @@ class TrustScorer:
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _score_to_disposition(score: float) -> ExecutionDisposition:
     if score >= DISPOSITION_ALLOW_FLOOR:

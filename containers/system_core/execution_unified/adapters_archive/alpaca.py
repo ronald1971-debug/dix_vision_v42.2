@@ -162,18 +162,20 @@ class AlpacaAdapter:
                 return []
             positions: list[AlpacaPosition] = []
             for p in data:
-                positions.append(AlpacaPosition(
-                    asset_id=str(p.get("asset_id", "")),
-                    symbol=str(p.get("symbol", "")),
-                    side=str(p.get("side", "long")),
-                    qty=float(p.get("qty", 0.0) or 0.0),
-                    avg_entry_price=float(p.get("avg_entry_price", 0.0) or 0.0),
-                    market_value=float(p.get("market_value", 0.0) or 0.0),
-                    current_price=float(p.get("current_price", 0.0) or 0.0),
-                    unrealized_pnl=float(p.get("unrealized_pl", 0.0) or 0.0),
-                    unrealized_pnl_pct=float(p.get("unrealized_plpc", 0.0) or 0.0),
-                    change_today=float(p.get("change_today", 0.0) or 0.0),
-                ))
+                positions.append(
+                    AlpacaPosition(
+                        asset_id=str(p.get("asset_id", "")),
+                        symbol=str(p.get("symbol", "")),
+                        side=str(p.get("side", "long")),
+                        qty=float(p.get("qty", 0.0) or 0.0),
+                        avg_entry_price=float(p.get("avg_entry_price", 0.0) or 0.0),
+                        market_value=float(p.get("market_value", 0.0) or 0.0),
+                        current_price=float(p.get("current_price", 0.0) or 0.0),
+                        unrealized_pnl=float(p.get("unrealized_pl", 0.0) or 0.0),
+                        unrealized_pnl_pct=float(p.get("unrealized_plpc", 0.0) or 0.0),
+                        change_today=float(p.get("change_today", 0.0) or 0.0),
+                    )
+                )
             return positions
         except Exception as exc:  # noqa: BLE001
             logger.error("AlpacaAdapter.fetch_positions: %s", exc)
@@ -204,11 +206,14 @@ class AlpacaAdapter:
             return []
         try:
             import urllib.parse
-            params = urllib.parse.urlencode({
-                "timeframe": timeframe,
-                "limit": str(limit),
-                "adjustment": "raw",
-            })
+
+            params = urllib.parse.urlencode(
+                {
+                    "timeframe": timeframe,
+                    "limit": str(limit),
+                    "adjustment": "raw",
+                }
+            )
             path = f"/v2/stocks/{urllib.parse.quote(symbol)}/bars?{params}"
             data = self._data_request("GET", path)
             raw_bars = data.get("bars", []) if isinstance(data, dict) else []
@@ -216,17 +221,19 @@ class AlpacaAdapter:
             for b in raw_bars:
                 # Alpaca returns RFC3339 timestamps; convert to ns via simple parse.
                 ts_ns = _alpaca_ts_to_ns(str(b.get("t", "")))
-                bars.append(AlpacaBar(
-                    symbol=symbol,
-                    ts_ns=ts_ns,
-                    open_price=float(b.get("o", 0.0) or 0.0),
-                    high=float(b.get("h", 0.0) or 0.0),
-                    low=float(b.get("l", 0.0) or 0.0),
-                    close=float(b.get("c", 0.0) or 0.0),
-                    volume=int(b.get("v", 0) or 0),
-                    vwap=float(b.get("vw", 0.0) or 0.0),
-                    trade_count=int(b.get("n", 0) or 0),
-                ))
+                bars.append(
+                    AlpacaBar(
+                        symbol=symbol,
+                        ts_ns=ts_ns,
+                        open_price=float(b.get("o", 0.0) or 0.0),
+                        high=float(b.get("h", 0.0) or 0.0),
+                        low=float(b.get("l", 0.0) or 0.0),
+                        close=float(b.get("c", 0.0) or 0.0),
+                        volume=int(b.get("v", 0) or 0),
+                        vwap=float(b.get("vw", 0.0) or 0.0),
+                        trade_count=int(b.get("n", 0) or 0),
+                    )
+                )
             return bars
         except Exception as exc:  # noqa: BLE001
             logger.error("AlpacaAdapter.fetch_bars: symbol=%s error=%s", symbol, exc)
@@ -242,6 +249,7 @@ class AlpacaAdapter:
             return {}
         try:
             import urllib.parse
+
             path = f"/v2/stocks/{urllib.parse.quote(symbol)}/quotes/latest"
             data = self._data_request("GET", path)
             q = data.get("quote", {}) if isinstance(data, dict) else {}
@@ -272,6 +280,7 @@ class AlpacaAdapter:
             return []
         try:
             import urllib.parse
+
             params = urllib.parse.urlencode({"status": status, "limit": str(limit)})
             data = self._request("GET", f"/v2/orders?{params}")
             if not isinstance(data, list):
@@ -310,6 +319,7 @@ class AlpacaAdapter:
             return {}
         try:
             import urllib.parse
+
             params = urllib.parse.urlencode({"period": period, "timeframe": timeframe})
             data = self._request("GET", f"/v2/account/portfolio/history?{params}")
             if not isinstance(data, dict):
@@ -376,6 +386,7 @@ def _alpaca_ts_to_ns(ts_str: str) -> int:
         return 0
     try:
         import datetime
+
         ts_str = ts_str.rstrip("Z")
         if "." in ts_str:
             dt = datetime.datetime.fromisoformat(ts_str)

@@ -591,8 +591,7 @@ def bindsnet_diehl_cook_factory(weights_path: str) -> GovernanceRiskSNN:
     hidden_dim = w_matrix.shape[1]
 
     w_nested = tuple(
-        tuple(float(w_matrix[i, j].item()) for j in range(hidden_dim))
-        for i in range(input_dim)
+        tuple(float(w_matrix[i, j].item()) for j in range(hidden_dim)) for i in range(input_dim)
     )
     weights = FrozenSNNWeights(
         input_dim=input_dim,

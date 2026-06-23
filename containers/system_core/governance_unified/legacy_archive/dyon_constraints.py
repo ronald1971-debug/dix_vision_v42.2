@@ -24,6 +24,7 @@ from enum import StrEnum
 
 class DyonError(StrEnum):
     """DYON constraint violation codes."""
+
     GOVERNANCE_MUTATION = "DYON-GOVERNANCE-MUTATION"
     INVARIANTS_MUTATION = "DYON-INVARIANTS-MUTATION"
     AUTHORITY_BOUNDARY = "DYON-AUTHORITY-BOUNDARY"
@@ -34,6 +35,7 @@ class DyonError(StrEnum):
 @dataclass(frozen=True, slots=True)
 class DyonConstraintCheck:
     """Result of checking a DYON action against constraints."""
+
     allowed: bool
     constraint: DyonError | None
     reason: str
@@ -58,8 +60,8 @@ DYON_RESTRICTED_CAPABILITIES: set[str] = {
     "change_invariants",
     "change_authority_boundaries",
     "strategy_generation",  # INV-DIX-05
-    "direct_execution",     # INV-DIX-12
-    "approve_patch",        # Only operator can approve
+    "direct_execution",  # INV-DIX-12
+    "approve_patch",  # Only operator can approve
 }
 
 # Actions requiring explicit operator approval

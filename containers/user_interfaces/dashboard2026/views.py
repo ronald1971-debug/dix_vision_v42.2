@@ -66,10 +66,7 @@ class DashboardViewBuilder:
         )
 
     def build_promotion_view(self) -> PromotionView:
-        stages = [
-            {"name": s.value, "order": i + 1}
-            for i, s in enumerate(PromotionStage)
-        ]
+        stages = [{"name": s.value, "order": i + 1} for i, s in enumerate(PromotionStage)]
         history = [
             {
                 "request_id": pr.request_id,

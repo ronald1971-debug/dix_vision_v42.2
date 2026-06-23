@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from typing import Any, Dict, List
+from typing import Dict, List
 
 from system.time_source import now
 
@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class BehaviorProfile:
     """A trader behavior profile."""
+
     profile_id: str
     trader_id: str
     behavior_type: str
@@ -30,19 +31,21 @@ class BehaviorProfile:
 
 class ProductionBehaviorProfiler:
     """Production-grade behavior profiler."""
-    
+
     def __init__(self) -> None:
         self._profiles: List[BehaviorProfile] = {}
-        
+
     def start(self) -> bool:
         logger.info("[BEHAVIOR_PROFILER] Production behavior profiler started")
         return True
-    
+
     def stop(self) -> bool:
         logger.info("[BEHAVIOR_PROFILER] Production behavior profiler stopped")
         return True
-    
-    def create_profile(self, trader_id: str, behavior_type: str, patterns: Dict[str, float]) -> BehaviorProfile:
+
+    def create_profile(
+        self, trader_id: str, behavior_type: str, patterns: Dict[str, float]
+    ) -> BehaviorProfile:
         """Create a behavior profile."""
         profile = BehaviorProfile(
             profile_id=f"profile_{now().sequence}",
@@ -50,11 +53,11 @@ class ProductionBehaviorProfiler:
             behavior_type=behavior_type,
             patterns=patterns,
             confidence=0.75,
-            timestamp=now().utc_time.isoformat()
+            timestamp=now().utc_time.isoformat(),
         )
         self._profiles[trader_id] = profile
         return profile
-    
+
     def get_profile(self, trader_id: str) -> Optional[BehaviorProfile]:
         """Get a trader's behavior profile."""
         return self._profiles.get(trader_id)

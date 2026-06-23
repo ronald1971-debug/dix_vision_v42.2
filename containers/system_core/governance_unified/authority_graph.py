@@ -88,9 +88,7 @@ class AuthorityGraph:
         """Return True if requester has authority over target."""
         return requester.value < target.value
 
-    def validate_action(
-        self, actor_level: AuthorityLevel, action: str
-    ) -> tuple[bool, str]:
+    def validate_action(self, actor_level: AuthorityLevel, action: str) -> tuple[bool, str]:
         """Validate whether an authority level can perform an action."""
         node = self.get_node(actor_level)
 

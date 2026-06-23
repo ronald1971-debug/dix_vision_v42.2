@@ -32,13 +32,14 @@ from __future__ import annotations
 import logging
 from collections.abc import Iterable
 
+from execution_unified.core.adapters.alpaca import AlpacaAdapter
+from execution_unified.core.adapters.binance import BinanceAdapter
+from execution_unified.core.adapters.hummingbot import HummingbotAdapter
 from execution_unified.core.offline import (
     AdapterStatus,
     LiveAdapterBase,
 )
-from execution_unified.core.adapters.alpaca import AlpacaAdapter
-from execution_unified.core.adapters.binance import BinanceAdapter
-from execution_unified.core.adapters.hummingbot import HummingbotAdapter
+
 try:
     from execution_unified.core.adapters.ibkr import IBKRAdapter
 except ImportError:
@@ -97,34 +98,42 @@ def default_registry() -> AdapterRegistry:
         hb_gateway_url = env.get("DIX_HUMMINGBOT_GATEWAY_URL") or None
         hb_wallet = env.get("DIX_HUMMINGBOT_WALLET") or None
         if hb_gateway_url or hb_wallet:
-            reg.add(HummingbotAdapter(
-                connector="binance",
-                gateway_url=hb_gateway_url,
-                wallet_address=hb_wallet,
-            ))
+            reg.add(
+                HummingbotAdapter(
+                    connector="binance",
+                    gateway_url=hb_gateway_url,
+                    wallet_address=hb_wallet,
+                )
+            )
 
         # ---- Binance spot (ccxt, sandbox by default) ----------------------
-        reg.add(BinanceAdapter(
-            api_key=env.get("DIX_BINANCE_API_KEY") or None,
-            api_secret=env.get("DIX_BINANCE_API_SECRET") or None,
-            sandbox=True,
-        ))
+        reg.add(
+            BinanceAdapter(
+                api_key=env.get("DIX_BINANCE_API_KEY") or None,
+                api_secret=env.get("DIX_BINANCE_API_SECRET") or None,
+                sandbox=True,
+            )
+        )
 
         # ---- Alpaca Markets (US equities + crypto, paper by default) ------
-        reg.add(AlpacaAdapter(
-            api_key=env.get("DIX_ALPACA_API_KEY") or "",
-            secret_key=env.get("DIX_ALPACA_SECRET_KEY") or "",
-            paper=True,
-        ))
+        reg.add(
+            AlpacaAdapter(
+                api_key=env.get("DIX_ALPACA_API_KEY") or "",
+                secret_key=env.get("DIX_ALPACA_SECRET_KEY") or "",
+                paper=True,
+            )
+        )
 
         # ---- Interactive Brokers (paper TWS port 7497) --------------------
         if IBKRAdapter is not None:
-            reg.add(IBKRAdapter(
-                host=env.get("DIX_IBKR_HOST") or "127.0.0.1",
-                port=int(env.get("DIX_IBKR_PORT") or 7497),
-                client_id=int(env.get("DIX_IBKR_CLIENT_ID") or 1),
-                paper=True,
-            ))
+            reg.add(
+                IBKRAdapter(
+                    host=env.get("DIX_IBKR_HOST") or "127.0.0.1",
+                    port=int(env.get("DIX_IBKR_PORT") or 7497),
+                    client_id=int(env.get("DIX_IBKR_CLIENT_ID") or 1),
+                    paper=True,
+                )
+            )
 
         # ---- Stage 9: Paper trading ecosystem (credential-free, always READY) ---
         # Six venue-realistic deterministic paper adapters:

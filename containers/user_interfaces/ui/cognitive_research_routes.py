@@ -18,7 +18,6 @@ from typing import Any
 
 from fastapi import APIRouter
 from pydantic import BaseModel, Field
-
 from system_unified.time_source import utc_now
 
 # ---------------------------------------------------------------------------
@@ -134,6 +133,7 @@ def build_cognitive_research_router() -> APIRouter:
         from intelligence_engine.research.autonomous_research_runtime import (
             get_research_runtime,
         )
+
         runtime = get_research_runtime()
         snap = runtime.snapshot()
         snap["ts_iso"] = utc_now().isoformat()
@@ -153,6 +153,7 @@ def build_cognitive_research_router() -> APIRouter:
         from intelligence_engine.research.autonomous_research_runtime import (
             get_research_runtime,
         )
+
         n = max(1, min(limit, 200))
         runtime = get_research_runtime()
         results = runtime.recent_results(n)

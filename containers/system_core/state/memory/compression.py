@@ -25,9 +25,9 @@ if TYPE_CHECKING:
 
 _logger = logging.getLogger(__name__)
 
-_WINDOW_NS      = 300_000_000_000    # 5-minute compression windows
+_WINDOW_NS = 300_000_000_000  # 5-minute compression windows
 _MIN_GROUP_SIZE = 3
-_MAX_SUMMARY    = 200                # chars per merged summary
+_MAX_SUMMARY = 200  # chars per merged summary
 
 
 class MemoryCompressor:
@@ -36,15 +36,15 @@ class MemoryCompressor:
     def __init__(
         self,
         *,
-        window_ns:      int = _WINDOW_NS,
+        window_ns: int = _WINDOW_NS,
         min_group_size: int = _MIN_GROUP_SIZE,
     ) -> None:
-        self._window_ns      = window_ns
+        self._window_ns = window_ns
         self._min_group_size = min_group_size
-        self._lock           = threading.Lock()
-        self._compressed:    set[str] = set()   # (source, bucket) seen
-        self._total_in:      int = 0
-        self._total_out:     int = 0
+        self._lock = threading.Lock()
+        self._compressed: set[str] = set()  # (source, bucket) seen
+        self._total_in: int = 0
+        self._total_out: int = 0
 
     # ------------------------------------------------------------------
     # Public
@@ -62,6 +62,7 @@ class MemoryCompressor:
         Caller should write these to the semantic store.
         """
         from state.memory.contracts import MemoryKind
+
         try:
             episodics = [r for r in records if r.kind == MemoryKind.EPISODIC]
             self._total_in += len(episodics)
@@ -91,13 +92,12 @@ class MemoryCompressor:
     def snapshot(self) -> dict:
         with self._lock:
             return {
-                "active":           True,
+                "active": True,
                 "total_episodic_in": self._total_in,
                 "total_semantic_out": self._total_out,
                 "buckets_compressed": len(self._compressed),
                 "compression_ratio": (
-                    round(self._total_out / self._total_in, 4)
-                    if self._total_in else 0.0
+                    round(self._total_out / self._total_in, 4) if self._total_in else 0.0
                 ),
             }
 
@@ -112,25 +112,26 @@ class MemoryCompressor:
         ts_ns: int,
     ) -> MemoryRecord:
         from state.memory.contracts import MemoryKind, MemoryRecord
+
         group.sort(key=lambda r: r.ts_ns)
         summaries = "; ".join(r.summary for r in group)
-        merged    = summaries[:_MAX_SUMMARY]
-        source    = group[0].source
-        avg_conf  = sum(r.confidence for r in group if r.confidence >= 0)
-        n_conf    = sum(1 for r in group if r.confidence >= 0)
+        merged = summaries[:_MAX_SUMMARY]
+        source = group[0].source
+        avg_conf = sum(r.confidence for r in group if r.confidence >= 0)
+        n_conf = sum(1 for r in group if r.confidence >= 0)
         confidence = round(avg_conf / n_conf, 4) if n_conf else -1.0
-        all_tags  = frozenset(t for r in group for t in r.tags)
-        rid_raw   = f"compress|{source}|{ts_ns}|{merged}"
-        rid       = "mem-sem-" + hashlib.sha256(rid_raw.encode()).hexdigest()[:20]
+        all_tags = frozenset(t for r in group for t in r.tags)
+        rid_raw = f"compress|{source}|{ts_ns}|{merged}"
+        rid = "mem-sem-" + hashlib.sha256(rid_raw.encode()).hexdigest()[:20]
         return MemoryRecord(
-            record_id  = rid,
-            kind       = MemoryKind.SEMANTIC,
-            ts_ns      = ts_ns,
-            source     = f"compressor:{source}",
-            summary    = f"[compressed {len(group)}] {merged}",
-            body       = MappingProxyType({"origin_count": str(len(group)), "source": source}),
-            tags       = all_tags | frozenset(["compressed"]),
-            confidence = confidence,
+            record_id=rid,
+            kind=MemoryKind.SEMANTIC,
+            ts_ns=ts_ns,
+            source=f"compressor:{source}",
+            summary=f"[compressed {len(group)}] {merged}",
+            body=MappingProxyType({"origin_count": str(len(group)), "source": source}),
+            tags=all_tags | frozenset(["compressed"]),
+            confidence=confidence,
         )
 
 

@@ -115,12 +115,10 @@ class DixVisionEngine(ABC):
 
 class RuntimeEngine(DixVisionEngine):
     """Tier marker for runtime engines."""
-    pass
 
 
 class OfflineEngine(DixVisionEngine):
     """Tier marker for offline engines."""
-    pass
 
 
 # Implementation continues for Governance, Execution, and Learning engines...

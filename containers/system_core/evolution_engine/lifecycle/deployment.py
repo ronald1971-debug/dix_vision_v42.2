@@ -117,9 +117,7 @@ class DeploymentGate:
     # Internal
     # ------------------------------------------------------------------
 
-    def _deploy(
-        self, record: ProposalRecord, operator_id: str, ts_ns: int
-    ) -> DeploymentRecord:
+    def _deploy(self, record: ProposalRecord, operator_id: str, ts_ns: int) -> DeploymentRecord:
         dr = self._build_and_register(
             proposal_id=record.proposal_id,
             mutation_class=record.mutation_class,
@@ -137,6 +135,7 @@ class DeploymentGate:
         ts_ns: int,
     ) -> DeploymentRecord:
         from evolution_engine.lifecycle.contracts import DeploymentRecord
+
         deployment_hash = hashlib.blake2b(
             f"{proposal_id}:{operator_id}:{ts_ns}".encode(), digest_size=8
         ).hexdigest()
@@ -165,6 +164,7 @@ class DeploymentGate:
         """Promote to strategy registry (best-effort)."""
         try:
             import importlib
+
             mod = importlib.import_module("governance_engine.strategy_registry")
             reg = mod.get_strategy_registry()
             if hasattr(reg, "deploy"):
@@ -178,18 +178,23 @@ class DeploymentGate:
     def _emit_deployment_event(proposal_id: str, dr: DeploymentRecord) -> None:
         try:
             from state.event_bus import CognitiveChannel, get_event_bus
-            get_event_bus().publish(CognitiveChannel.DYON_PROPOSAL, {
-                "proposal_id": proposal_id,
-                "pipeline_stage": "DEPLOYED",
-                "gate_id": dr.gate_id,
-                "approved_by": dr.approved_by,
-                "deployment_hash": dr.deployment_hash,
-                "ts_ns": dr.ts_ns,
-            })
+
+            get_event_bus().publish(
+                CognitiveChannel.DYON_PROPOSAL,
+                {
+                    "proposal_id": proposal_id,
+                    "pipeline_stage": "DEPLOYED",
+                    "gate_id": dr.gate_id,
+                    "approved_by": dr.approved_by,
+                    "deployment_hash": dr.deployment_hash,
+                    "ts_ns": dr.ts_ns,
+                },
+            )
         except Exception:
             pass
         try:
             from state.ledger.append import append_event
+
             append_event(
                 stream="SYSTEM",
                 kind="EVOLUTION_DEPLOYED",

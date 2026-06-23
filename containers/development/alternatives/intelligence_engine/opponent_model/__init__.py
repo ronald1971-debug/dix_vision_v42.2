@@ -13,7 +13,10 @@ from intelligence_engine.opponent_model.crowd_density import (
 from intelligence_engine.opponent_model.strategy_detector import DetectedStrategy, StrategyDetector
 
 __all__ = [
-    "BehaviorPrediction", "BehaviorPredictor",
-    "CrowdDensityEstimate", "CrowdDensityEstimator",
-    "DetectedStrategy", "StrategyDetector",
+    "BehaviorPrediction",
+    "BehaviorPredictor",
+    "CrowdDensityEstimate",
+    "CrowdDensityEstimator",
+    "DetectedStrategy",
+    "StrategyDetector",
 ]

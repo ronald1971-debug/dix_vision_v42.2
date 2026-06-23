@@ -8,59 +8,47 @@ Tests for:
 - KnowledgeDriftMonitor
 """
 
-import unittest
-import threading
-import time
-from collections.abc import Mapping
-from types import MappingProxyType
+import os
 
 # Import M-1 Knowledge Layer components
 import sys
-import os
+import threading
+import unittest
+from types import MappingProxyType
 
 # Add paths to imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-
-from intelligence_engine.knowledge.knowledge_validator import (
-    KnowledgeValidator,
-    KnowledgeSource,
-    KnowledgeSourceType,
-    ValidationSeverity,
-    ValidationResult,
-    ConflictReport,
-    IntegrityScore,
-    ReliabilityScore,
-    ConsistencyReport,
-)
-
-from intelligence_engine.knowledge.source_conflict_graph import (
-    SourceConflictGraph,
-    ConflictGraph,
-    ConflictType,
-    ResolutionStrategy,
-    ConsensusMechanism,
-)
-
-from state.memory.edge_case_memory import (
-    EdgeCaseMemory,
-    EdgeCase,
-    EdgeCaseContext,
-    EdgeCaseSeverity,
-    EdgeCaseCategory,
-    EdgeCaseStatus,
-    Query,
-)
-
-from state.memory.index import MemoryIndexAuthority
-from state.memory.contracts import MemoryRecord, MemoryKind
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from intelligence_engine.knowledge.drift_monitor import (
-    KnowledgeDriftMonitor,
-    DriftType,
-    DriftSeverity,
     DriftReport,
-    ResponseActionType,
+    DriftSeverity,
+    DriftType,
+    KnowledgeDriftMonitor,
 )
+from intelligence_engine.knowledge.knowledge_validator import (
+    ConflictReport,
+    KnowledgeSource,
+    KnowledgeSourceType,
+    KnowledgeValidator,
+    ValidationResult,
+    ValidationSeverity,
+)
+from intelligence_engine.knowledge.source_conflict_graph import (
+    ConflictGraph,
+    ConsensusMechanism,
+    ResolutionStrategy,
+    SourceConflictGraph,
+)
+from state.memory.contracts import MemoryKind, MemoryRecord
+from state.memory.edge_case_memory import (
+    EdgeCase,
+    EdgeCaseCategory,
+    EdgeCaseContext,
+    EdgeCaseMemory,
+    EdgeCaseSeverity,
+    Query,
+)
+from state.memory.index import MemoryIndexAuthority
 
 
 class TestKnowledgeValidator(unittest.TestCase):
@@ -107,7 +95,9 @@ class TestKnowledgeValidator(unittest.TestCase):
             source_id="test_source_2",
             source_type=KnowledgeSourceType.MARKET_DATA,
             origin="test_module",
-            content=MappingProxyType({"price": "100.0", "volume": "1000", "timestamp": "123456789"}),
+            content=MappingProxyType(
+                {"price": "100.0", "volume": "1000", "timestamp": "123456789"}
+            ),
             confidence=0.8,
             reliability_score=0.75,
         )
@@ -212,7 +202,9 @@ class TestSourceConflictGraph(unittest.TestCase):
         ]
 
         # Create mock validation results
-        from intelligence_engine.knowledge.knowledge_validator import ValidationResult, ValidationIssue
+        from intelligence_engine.knowledge.knowledge_validator import (
+            ValidationResult,
+        )
 
         validation_results = [
             ValidationResult(
@@ -384,9 +376,7 @@ class TestEdgeCaseMemory(unittest.TestCase):
 
     def test_automatic_detection(self):
         """Test automatic edge case detection."""
-        events = [
-            MappingProxyType({"metric": "cpu_usage", "value": "95%"}) for _ in range(5)
-        ]
+        events = [MappingProxyType({"metric": "cpu_usage", "value": "95%"}) for _ in range(5)]
 
         contexts = [
             EdgeCaseContext(system_state=MappingProxyType({"status": "operational"}))
@@ -706,15 +696,15 @@ def run_tests():
     result = runner.run(suite)
 
     # Print summary
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("M-1 KNOWLEDGE LAYER TEST SUMMARY")
-    print("="*70)
+    print("=" * 70)
     print(f"Tests run: {result.testsRun}")
     print(f"Successes: {result.testsRun - len(result.failures) - len(result.errors)}")
     print(f"Failures: {len(result.failures)}")
     print(f"Errors: {len(result.errors)}")
     print(f"Skipped: {len(result.skipped)}")
-    print("="*70)
+    print("=" * 70)
 
     return result.wasSuccessful()
 

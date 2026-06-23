@@ -5,22 +5,22 @@ filtering, noise reduction, signal quality assessment, and multi-signal fusion.
 """
 
 from intelligence_engine.signal_processing.advanced_processor import (
-    SignalQuality,
-    FilterType,
-    SignalMetrics,
-    FilteredSignal,
-    FusedSignal,
     AdvancedSignalProcessor,
+    FilteredSignal,
+    FilterType,
+    FusedSignal,
+    SignalMetrics,
+    SignalQuality,
 )
 from intelligence_engine.signal_processing.multi_modal_fusion import (
-    MultiModalSignalFusion,
     CausalSignalFusion,
-    SignalModality,
     FusionMethod,
-    ModalitySignal,
-    ModalityWeight,
     FusionResult,
     ModalityConflict,
+    ModalitySignal,
+    ModalityWeight,
+    MultiModalSignalFusion,
+    SignalModality,
     SignalPerformanceTracker,
 )
 

@@ -500,9 +500,7 @@ def null_torchrl_distiller() -> TorchRLDistiller:
         ) -> tuple[TrainingMetrics, TorchRLPolicyArtifact]:
             callback.on_training_start(config)
             total_steps = sum(len(r.steps) for r in rollouts)
-            roll_sums = [
-                sum(s.reward for s in r.steps) for r in rollouts
-            ]
+            roll_sums = [sum(s.reward for s in r.steps) for r in rollouts]
             mean_r = float(sum(roll_sums)) / max(1, len(roll_sums))
             best_r = float(max(roll_sums)) if roll_sums else 0.0
             metrics = TrainingMetrics(
@@ -632,25 +630,23 @@ def torchrl_distiller_factory() -> TorchRLDistiller:  # pragma: no cover
 
             # ── TorchRL-style actor-critic (ProbabilisticActor skeleton) ──
             actor_net = nn.Sequential(
-                nn.Linear(obs_dim, hid), nn.Tanh(),
-                nn.Linear(hid, hid), nn.Tanh(),
+                nn.Linear(obs_dim, hid),
+                nn.Tanh(),
+                nn.Linear(hid, hid),
+                nn.Tanh(),
                 nn.Linear(hid, act_dim),
             ).to(device)
             critic_net = nn.Sequential(
-                nn.Linear(obs_dim, hid), nn.Tanh(),
-                nn.Linear(hid, hid), nn.Tanh(),
+                nn.Linear(obs_dim, hid),
+                nn.Tanh(),
+                nn.Linear(hid, hid),
+                nn.Tanh(),
                 nn.Linear(hid, 1),
             ).to(device)
             log_std = nn.Parameter(torch.zeros(act_dim, device=device))
 
-            params = (
-                list(actor_net.parameters())
-                + list(critic_net.parameters())
-                + [log_std]
-            )
-            optimizer = torch.optim.Adam(
-                params, lr=config.learning_rate, eps=1e-5
-            )
+            params = list(actor_net.parameters()) + list(critic_net.parameters()) + [log_std]
+            optimizer = torch.optim.Adam(params, lr=config.learning_rate, eps=1e-5)
 
             mb_size = max(1, min(n, config.minibatch_size))
             clip_eps = config.clip_epsilon
@@ -677,9 +673,7 @@ def torchrl_distiller_factory() -> TorchRLDistiller:  # pragma: no cover
                     mb_ret = ret_t[idx]
 
                     if config.normalize_advantage and mb_adv.numel() > 1:
-                        mb_adv = (mb_adv - mb_adv.mean()) / (
-                            mb_adv.std() + 1e-8
-                        )
+                        mb_adv = (mb_adv - mb_adv.mean()) / (mb_adv.std() + 1e-8)
 
                     # Actor: Normal policy
                     mean_a = actor_net(mb_obs)
@@ -692,9 +686,7 @@ def torchrl_distiller_factory() -> TorchRLDistiller:  # pragma: no cover
                     log_ratio = new_lp - mb_olp
                     ratio = log_ratio.exp()
                     kl_mb = float(((ratio - 1) - log_ratio).mean())
-                    cf_mb = float(
-                        ((ratio - 1.0).abs() > clip_eps).float().mean()
-                    )
+                    cf_mb = float(((ratio - 1.0).abs() > clip_eps).float().mean())
 
                     loss_obj = -torch.min(
                         mb_adv * ratio,
@@ -706,11 +698,7 @@ def torchrl_distiller_factory() -> TorchRLDistiller:  # pragma: no cover
                     loss_cri = 0.5 * (new_val - mb_ret).pow(2).mean()
                     loss_ent = -entropy
 
-                    loss = (
-                        loss_obj
-                        + config.critic_coef * loss_cri
-                        + config.entropy_coef * loss_ent
-                    )
+                    loss = loss_obj + config.critic_coef * loss_cri + config.entropy_coef * loss_ent
 
                     optimizer.zero_grad()
                     loss.backward()
@@ -737,17 +725,12 @@ def torchrl_distiller_factory() -> TorchRLDistiller:  # pragma: no cover
                     loss_critic=e_lc / eu,
                 )
 
-                if (
-                    config.target_kl is not None
-                    and (e_kl / eu) > config.target_kl
-                ):
+                if config.target_kl is not None and (e_kl / eu) > config.target_kl:
                     break
 
             # ── Aggregate metrics ─────────────────────────────────────────
             nd = max(1, total_updates)
-            roll_sums = [
-                sum(s.reward for s in ro.steps) for ro in rollouts
-            ]
+            roll_sums = [sum(s.reward for s in ro.steps) for ro in rollouts]
             mean_r = float(sum(roll_sums)) / max(1, len(roll_sums))
             best_r = float(max(roll_sums)) if roll_sums else 0.0
 
@@ -764,6 +747,7 @@ def torchrl_distiller_factory() -> TorchRLDistiller:  # pragma: no cover
 
             # ── Serialise weights → BLAKE2b-16 digest ────────────────────
             import io as _io
+
             buf = _io.BytesIO()
             torch.save(
                 {
@@ -773,9 +757,7 @@ def torchrl_distiller_factory() -> TorchRLDistiller:  # pragma: no cover
                 },
                 buf,
             )
-            weight_digest = derive_torchrl_artifact_digest(
-                weights_bytes=buf.getvalue()
-            )
+            weight_digest = derive_torchrl_artifact_digest(weights_bytes=buf.getvalue())
 
             artifact = TorchRLPolicyArtifact(
                 backend="torchrl-actor-critic",

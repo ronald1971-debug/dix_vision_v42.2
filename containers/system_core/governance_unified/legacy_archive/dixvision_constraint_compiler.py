@@ -9,7 +9,6 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-from governance_unified.policy_rule import PolicyRule
 from governance_unified.engine import GovernanceKernel
 
 

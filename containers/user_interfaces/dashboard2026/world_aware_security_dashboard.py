@@ -21,19 +21,20 @@ Contract Compliance: TIER-0 Production Implementation Directive
 
 from __future__ import annotations
 
+import hashlib
 import logging
 import threading
 import time
-from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple
-from dataclasses import dataclass, field
-from enum import Enum
 from collections import deque
-import hashlib
+from dataclasses import dataclass, field
+from datetime import datetime
+from enum import Enum
+from typing import Any, Dict, List, Optional, Tuple
 
 # Try to import world model components
 try:
     from world_model.indicator_integration import get_integration_bridge
+
     WORLD_MODEL_AVAILABLE = True
 except ImportError:
     WORLD_MODEL_AVAILABLE = False
@@ -43,6 +44,7 @@ logger = logging.getLogger(__name__)
 
 class ThreatSeverity(Enum):
     """Threat severity levels."""
+
     LOW = "LOW"
     MEDIUM = "MEDIUM"
     HIGH = "HIGH"
@@ -51,6 +53,7 @@ class ThreatSeverity(Enum):
 
 class ThreatType(Enum):
     """Types of security threats."""
+
     UNAUTHORIZED_ACCESS = "UNAUTHORIZED_ACCESS"
     AUTHENTICATION_FAILURE = "AUTHENTICATION_FAILURE"
     POLICY_VIOLATION = "POLICY_VIOLATION"
@@ -63,6 +66,7 @@ class ThreatType(Enum):
 
 class ComplianceStatus(Enum):
     """Compliance status."""
+
     COMPLIANT = "COMPLIANT"
     NON_COMPLIANT = "NON_COMPLIANT"
     WARNING = "WARNING"
@@ -72,7 +76,7 @@ class ComplianceStatus(Enum):
 @dataclass
 class WorldContext:
     """World context for security dashboard."""
-    
+
     market_regime: str = "unknown"
     market_trend: str = "unknown"
     volatility_regime: str = "unknown"
@@ -86,7 +90,7 @@ class WorldContext:
 @dataclass
 class SecurityEvent:
     """Security event with world context."""
-    
+
     event_id: str
     event_type: str
     severity: ThreatSeverity
@@ -102,7 +106,7 @@ class SecurityEvent:
 @dataclass
 class Threat:
     """Threat detection with world context."""
-    
+
     threat_id: str
     threat_type: ThreatType
     severity: ThreatSeverity
@@ -119,7 +123,7 @@ class Threat:
 @dataclass
 class ComplianceCheck:
     """Compliance check result."""
-    
+
     check_id: str
     policy_name: str
     status: ComplianceStatus
@@ -132,7 +136,7 @@ class ComplianceCheck:
 @dataclass
 class AccessLog:
     """Access log entry."""
-    
+
     log_id: str
     user_id: str
     resource: str
@@ -145,39 +149,39 @@ class AccessLog:
 
 class WorldAwareSecurityDashboard:
     """Enhanced security dashboard with world context integration (Phase 13.2)."""
-    
+
     def __init__(self):
         self._lock = threading.Lock()
-        
+
         # World context integration
         self._world_integration_bridge = None
         self._current_world_context: Optional[WorldContext] = None
         self._world_context_history: deque = deque(maxlen=100)
-        
+
         # Security events
         self._security_events: List[SecurityEvent] = []
         self._event_history: deque = deque(maxlen=500)
-        
+
         # Threats
         self._active_threats: List[Threat] = []
         self._threat_history: deque = deque(maxlen=200)
-        
+
         # Compliance
         self._compliance_checks: List[ComplianceCheck] = []
         self._compliance_history: deque = deque(maxlen=300)
-        
+
         # Access logs
         self._access_logs: List[AccessLog] = []
         self._access_log_history: deque = deque(maxlen=1000)
-        
+
         # Performance metrics
         self._last_update: Optional[datetime] = None
         self._update_count: int = 0
         self._threat_detection_accuracy: float = 0.0
-        
+
         if WORLD_MODEL_AVAILABLE:
             self._init_world_integration()
-    
+
     def _init_world_integration(self) -> None:
         """Initialize world model integration bridge."""
         try:
@@ -186,35 +190,35 @@ class WorldAwareSecurityDashboard:
         except Exception as e:
             logger.warning(f"[SECURITY_DASHBOARD] Failed to initialize world integration: {e}")
             self._world_integration_bridge = None
-    
+
     def _get_world_context(self) -> Optional[WorldContext]:
         """Get current world context from world model."""
         if not self._world_integration_bridge:
             return None
-        
+
         try:
             world_state = self._world_integration_bridge.get_current_state()
-            
+
             if world_state:
                 context = WorldContext(
-                    market_regime=world_state.get('market_regime', 'unknown'),
-                    market_trend=world_state.get('market_trend', 'unknown'),
-                    volatility_regime=world_state.get('volatility_regime', 'unknown'),
-                    liquidity_state=world_state.get('liquidity_state', 'unknown'),
-                    agent_activity=world_state.get('agent_activity', {}),
-                    causal_factors=world_state.get('causal_factors', []),
-                    prediction_confidence=world_state.get('prediction_confidence', 0.0),
-                    timestamp=datetime.utcnow()
+                    market_regime=world_state.get("market_regime", "unknown"),
+                    market_trend=world_state.get("market_trend", "unknown"),
+                    volatility_regime=world_state.get("volatility_regime", "unknown"),
+                    liquidity_state=world_state.get("liquidity_state", "unknown"),
+                    agent_activity=world_state.get("agent_activity", {}),
+                    causal_factors=world_state.get("causal_factors", []),
+                    prediction_confidence=world_state.get("prediction_confidence", 0.0),
+                    timestamp=datetime.utcnow(),
                 )
                 self._current_world_context = context
                 self._world_context_history.append(context)
                 return context
-        
+
         except Exception as e:
             logger.debug(f"[SECURITY_DASHBOARD] Failed to get world context: {e}")
-        
+
         return None
-    
+
     def log_security_event(
         self,
         event_type: str,
@@ -225,12 +229,12 @@ class WorldAwareSecurityDashboard:
     ) -> SecurityEvent:
         """Log security event with world context (Phase 13.2)."""
         world_context = self._get_world_context()
-        
+
         # Adjust severity based on world context
         adjusted_severity = self._adjust_severity_with_world_context(severity, world_context)
-        
+
         event_id = hashlib.md5(f"{event_type}{source}{message}{time.time()}".encode()).hexdigest()
-        
+
         event = SecurityEvent(
             event_id=event_id,
             event_type=event_type,
@@ -239,50 +243,48 @@ class WorldAwareSecurityDashboard:
             message=message,
             confidence_score=confidence_score,
             world_context=world_context,
-            timestamp=datetime.utcnow()
+            timestamp=datetime.utcnow(),
         )
-        
+
         with self._lock:
             self._security_events.append(event)
             self._event_history.append(event)
             self._update_count += 1
             self._last_update = datetime.utcnow()
-        
+
         # Log to logger
         log_level = {
             ThreatSeverity.LOW: logging.INFO,
             ThreatSeverity.MEDIUM: logging.WARNING,
             ThreatSeverity.HIGH: logging.ERROR,
-            ThreatSeverity.CRITICAL: logging.CRITICAL
+            ThreatSeverity.CRITICAL: logging.CRITICAL,
         }.get(adjusted_severity, logging.INFO)
-        
+
         logger.log(log_level, f"[SECURITY_DASHBOARD] Event: {event_type} - {message}")
-        
+
         return event
-    
+
     def _adjust_severity_with_world_context(
-        self,
-        severity: ThreatSeverity,
-        world_context: Optional[WorldContext]
+        self, severity: ThreatSeverity, world_context: Optional[WorldContext]
     ) -> ThreatSeverity:
         """Adjust threat severity based on world context."""
         if not world_context:
             return severity
-        
+
         # Escalate severity during high volatility
         if world_context.volatility_regime == "high":
             if severity == ThreatSeverity.LOW:
                 return ThreatSeverity.MEDIUM
             elif severity == ThreatSeverity.MEDIUM:
                 return ThreatSeverity.HIGH
-        
+
         # Escalate severity during regime transitions
         if world_context.market_regime == "transition":
             if severity in [ThreatSeverity.LOW, ThreatSeverity.MEDIUM]:
                 return ThreatSeverity.HIGH
-        
+
         return severity
-    
+
     def detect_threat(
         self,
         threat_type: ThreatType,
@@ -292,18 +294,18 @@ class WorldAwareSecurityDashboard:
     ) -> Threat:
         """Detect threat with world context (Phase 13.2)."""
         world_context = self._get_world_context()
-        
+
         # Calculate confidence interval
         confidence_interval = self._calculate_confidence_interval(confidence_score, world_context)
-        
+
         # Determine severity based on threat type and confidence
         severity = self._calculate_threat_severity(threat_type, confidence_score)
-        
+
         # Adjust severity based on world context
         adjusted_severity = self._adjust_severity_with_world_context(severity, world_context)
-        
+
         threat_id = hashlib.md5(f"{threat_type}{description}{time.time()}".encode()).hexdigest()
-        
+
         threat = Threat(
             threat_id=threat_id,
             threat_type=threat_type,
@@ -315,34 +317,30 @@ class WorldAwareSecurityDashboard:
             world_context=world_context,
             timestamp=datetime.utcnow(),
             active=True,
-            mitigation_required=adjusted_severity in [ThreatSeverity.HIGH, ThreatSeverity.CRITICAL]
+            mitigation_required=adjusted_severity in [ThreatSeverity.HIGH, ThreatSeverity.CRITICAL],
         )
-        
+
         with self._lock:
             self._active_threats.append(threat)
             self._threat_history.append(threat)
-        
+
         # Log threat
         logger.warning(
             f"[SECURITY_DASHBOARD] Threat detected: {threat_type.value} - "
             f"{description} (severity: {adjusted_severity.value}, confidence: {confidence_score:.2f})"
         )
-        
+
         return threat
-    
+
     def _calculate_confidence_interval(
-        self,
-        confidence: float,
-        world_context: Optional[WorldContext]
+        self, confidence: float, world_context: Optional[WorldContext]
     ) -> Tuple[float, float]:
         """Calculate confidence interval for threat detection."""
         margin = 0.05 if world_context and world_context.prediction_confidence > 0.8 else 0.10
         return (max(0.0, confidence - margin), min(1.0, confidence + margin))
-    
+
     def _calculate_threat_severity(
-        self,
-        threat_type: ThreatType,
-        confidence_score: float
+        self, threat_type: ThreatType, confidence_score: float
     ) -> ThreatSeverity:
         """Calculate threat severity based on type and confidence."""
         # Base severity by threat type
@@ -356,16 +354,16 @@ class WorldAwareSecurityDashboard:
             ThreatType.DENIAL_OF_SERVICE: ThreatSeverity.HIGH,
             ThreatType.AUTHORITY_BYPASS: ThreatSeverity.CRITICAL,
         }.get(threat_type, ThreatSeverity.MEDIUM)
-        
+
         # Adjust based on confidence
         if confidence_score < 0.5:
             if base_severity == ThreatSeverity.CRITICAL:
                 base_severity = ThreatSeverity.HIGH
             elif base_severity == ThreatSeverity.HIGH:
                 base_severity = ThreatSeverity.MEDIUM
-        
+
         return base_severity
-    
+
     def check_compliance(
         self,
         policy_name: str,
@@ -375,12 +373,12 @@ class WorldAwareSecurityDashboard:
     ) -> ComplianceCheck:
         """Check policy compliance with world context (Phase 13.2)."""
         world_context = self._get_world_context()
-        
+
         check_id = hashlib.md5(f"{policy_name}{status}{time.time()}".encode()).hexdigest()
-        
+
         # Adjust status based on world context
         adjusted_status = self._adjust_compliance_status(status, world_context)
-        
+
         check = ComplianceCheck(
             check_id=check_id,
             policy_name=policy_name,
@@ -388,30 +386,28 @@ class WorldAwareSecurityDashboard:
             confidence=confidence,
             world_context=world_context,
             details=details,
-            timestamp=datetime.utcnow()
+            timestamp=datetime.utcnow(),
         )
-        
+
         with self._lock:
             self._compliance_checks.append(check)
             self._compliance_history.append(check)
-        
+
         return check
-    
+
     def _adjust_compliance_status(
-        self,
-        status: ComplianceStatus,
-        world_context: Optional[WorldContext]
+        self, status: ComplianceStatus, world_context: Optional[WorldContext]
     ) -> ComplianceStatus:
         """Adjust compliance status based on world context."""
         if not world_context:
             return status
-        
+
         # Add warnings during high volatility even if compliant
         if world_context.volatility_regime == "high" and status == ComplianceStatus.COMPLIANT:
             return ComplianceStatus.WARNING
-        
+
         return status
-    
+
     def log_access(
         self,
         user_id: str,
@@ -422,9 +418,9 @@ class WorldAwareSecurityDashboard:
     ) -> AccessLog:
         """Log access attempt with world context (Phase 13.2)."""
         world_context = self._get_world_context()
-        
+
         log_id = hashlib.md5(f"{user_id}{resource}{action}{time.time()}".encode()).hexdigest()
-        
+
         log = AccessLog(
             log_id=log_id,
             user_id=user_id,
@@ -433,15 +429,15 @@ class WorldAwareSecurityDashboard:
             granted=granted,
             confidence_score=confidence_score,
             world_context=world_context,
-            timestamp=datetime.utcnow()
+            timestamp=datetime.utcnow(),
         )
-        
+
         with self._lock:
             self._access_logs.append(log)
             self._access_log_history.append(log)
-        
+
         return log
-    
+
     def get_security_dashboard_view(self) -> Dict[str, Any]:
         """Get comprehensive security dashboard view (Phase 13.2)."""
         with self._lock:
@@ -451,13 +447,23 @@ class WorldAwareSecurityDashboard:
                 "world_context": {
                     "available": WORLD_MODEL_AVAILABLE,
                     "active": self._world_integration_bridge is not None,
-                    "current_regime": self._current_world_context.market_regime if self._current_world_context else "unknown",
-                    "volatility_regime": self._current_world_context.volatility_regime if self._current_world_context else "unknown",
+                    "current_regime": (
+                        self._current_world_context.market_regime
+                        if self._current_world_context
+                        else "unknown"
+                    ),
+                    "volatility_regime": (
+                        self._current_world_context.volatility_regime
+                        if self._current_world_context
+                        else "unknown"
+                    ),
                 },
                 "security_events": {
                     "total_events": len(self._security_events),
                     "by_severity": {
-                        severity.value: len([e for e in self._security_events if e.severity == severity])
+                        severity.value: len(
+                            [e for e in self._security_events if e.severity == severity]
+                        )
                         for severity in ThreatSeverity
                     },
                     "recent_events": [
@@ -473,16 +479,20 @@ class WorldAwareSecurityDashboard:
                             "mitigated": event.mitigated,
                         }
                         for event in self._security_events[-10:]
-                    ]
+                    ],
                 },
                 "threats": {
                     "active_threats": len(self._active_threats),
                     "by_severity": {
-                        severity.value: len([t for t in self._active_threats if t.severity == severity])
+                        severity.value: len(
+                            [t for t in self._active_threats if t.severity == severity]
+                        )
                         for severity in ThreatSeverity
                     },
                     "by_type": {
-                        threat_type.value: len([t for t in self._active_threats if t.threat_type == threat_type])
+                        threat_type.value: len(
+                            [t for t in self._active_threats if t.threat_type == threat_type]
+                        )
                         for threat_type in ThreatType
                     },
                     "recent_threats": [
@@ -499,12 +509,14 @@ class WorldAwareSecurityDashboard:
                             "mitigation_required": threat.mitigation_required,
                         }
                         for threat in self._active_threats[-10:]
-                    ]
+                    ],
                 },
                 "compliance": {
                     "total_checks": len(self._compliance_checks),
                     "by_status": {
-                        status.value: len([c for c in self._compliance_checks if c.status == status])
+                        status.value: len(
+                            [c for c in self._compliance_checks if c.status == status]
+                        )
                         for status in ComplianceStatus
                     },
                     "recent_checks": [
@@ -517,7 +529,7 @@ class WorldAwareSecurityDashboard:
                             "timestamp": check.timestamp.isoformat(),
                         }
                         for check in self._compliance_checks[-10:]
-                    ]
+                    ],
                 },
                 "access_logs": {
                     "total_logs": len(self._access_logs),
@@ -534,10 +546,10 @@ class WorldAwareSecurityDashboard:
                             "timestamp": log.timestamp.isoformat(),
                         }
                         for log in self._access_logs[-10:]
-                    ]
-                }
+                    ],
+                },
             }
-    
+
     def acknowledge_event(self, event_id: str) -> bool:
         """Acknowledge a security event."""
         with self._lock:
@@ -546,9 +558,9 @@ class WorldAwareSecurityDashboard:
                     event.acknowledged = True
                     logger.info(f"[SECURITY_DASHBOARD] Event acknowledged: {event_id}")
                     return True
-        
+
         return False
-    
+
     def mitigate_threat(self, threat_id: str) -> bool:
         """Mark a threat as mitigated."""
         with self._lock:
@@ -557,7 +569,7 @@ class WorldAwareSecurityDashboard:
                     threat.active = False
                     logger.info(f"[SECURITY_DASHBOARD] Threat mitigated: {threat_id}")
                     return True
-        
+
         return False
 
 

@@ -37,7 +37,6 @@ from pathlib import Path
 from typing import Any
 
 import yaml
-
 from core.contracts.events import SystemEvent, SystemEventKind
 
 REWARD_SHAPING_VERSION = "v3.3-J3"

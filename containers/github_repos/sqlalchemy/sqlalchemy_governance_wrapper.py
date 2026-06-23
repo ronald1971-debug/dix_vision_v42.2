@@ -6,20 +6,19 @@ Author: DIX VISION Database Governance
 Version: 42.2
 """
 
-import logging
-from typing import Any, Dict
-from datetime import datetime
-import time
-
 import sys
-import os
+import time
+from datetime import datetime
+from typing import Any, Dict
+
 sys.path.append('/app/governance')
 
 from base_external_repo_wrapper import (
     BaseExternalRepoGovernanceWrapper,
+    ExternalRepositoryMetrics,
     PermissionLevel,
-    ExternalRepositoryMetrics
 )
+
 
 class SQLAlchemyGovernanceWrapper(BaseExternalRepoGovernanceWrapper):
     def __init__(self, permission_level: PermissionLevel = PermissionLevel.READ_ONLY):
@@ -36,7 +35,6 @@ class SQLAlchemyGovernanceWrapper(BaseExternalRepoGovernanceWrapper):
     def initialize_sqlalchemy(self, sqlalchemy_config: Dict[str, Any]):
         try:
             import sqlalchemy
-            from sqlalchemy import create_engine
             self.sqlalchemy_available = True
             self.sa = sqlalchemy
             self.logger.info("SQLAlchemy initialized with governance oversight")

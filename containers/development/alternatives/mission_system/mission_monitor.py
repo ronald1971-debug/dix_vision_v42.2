@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from typing import Any, Dict, List
+from typing import Dict, List
 
 from system.time_source import now
 
@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class MissionStatus:
     """A mission status."""
+
     status_id: str
     mission_id: str
     health: float = 1.0
@@ -30,18 +31,18 @@ class MissionStatus:
 
 class ProductionMissionMonitor:
     """Production-grade mission monitor."""
-    
+
     def __init__(self) -> None:
         self._statuses: List[MissionStatus] = {}
-        
+
     def start(self) -> bool:
         logger.info("[MISSION_MONITOR] Production mission monitor started")
         return True
-    
+
     def stop(self) -> bool:
         logger.info("[MISSION_MONITOR] Production mission monitor stopped")
         return True
-    
+
     def monitor_mission(self, mission_id: str) -> MissionStatus:
         """Monitor a mission."""
         status = MissionStatus(
@@ -49,18 +50,18 @@ class ProductionMissionMonitor:
             mission_id=mission_id,
             health=1.0,
             metrics={"progress": 0.0, "resource_usage": 0.5},
-            timestamp=now().utc_time.isoformat()
+            timestamp=now().utc_time.isoformat(),
         )
         self._statuses[mission_id] = status
         return status
-    
+
     def update_status(self, mission_id: str, health: float, issue: str) -> None:
         """Update mission status."""
         if mission_id in self._statuses:
             self._statuses[mission_id].health = health
             if issue:
                 self._statuses[mission_id].active_issues.append(issue)
-    
+
     def get_status(self, mission_id: str) -> MissionStatus:
         """Get mission status."""
         return self._statuses.get(mission_id)

@@ -66,9 +66,8 @@ import dataclasses
 from collections.abc import Callable, Sequence
 from typing import Any, Generic, Protocol, TypeVar, runtime_checkable
 
-from pydantic import BaseModel, ValidationError
-
 from core.cognitive_router import AIProvider, TaskClass
+from pydantic import BaseModel, ValidationError
 
 NEW_PIP_DEPENDENCIES: tuple[str, ...] = ("pydantic-ai",)
 """S-06 introduces a runtime-optional dependency on pydantic-ai.

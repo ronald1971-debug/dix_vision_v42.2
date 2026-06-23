@@ -127,9 +127,7 @@ class LiveTradingAuditSystem:
         with self._lock:
             self._enabled = False
 
-    def record_governance_decision(
-        self, decision: GovernanceApprovalDecision
-    ) -> str:
+    def record_governance_decision(self, decision: GovernanceApprovalDecision) -> str:
         """Record a governance decision to the audit log."""
         with self._lock:
             if not self._enabled:
@@ -154,7 +152,9 @@ class LiveTradingAuditSystem:
                     "approved_by": decision.approved_by,
                     "mode": decision.context.mode,
                 },
-                severity="INFO" if decision.decision == GovernanceDecisionType.APPROVED else "WARNING",
+                severity=(
+                    "INFO" if decision.decision == GovernanceDecisionType.APPROVED else "WARNING"
+                ),
             )
 
             self._add_to_log(event)
@@ -235,7 +235,9 @@ class LiveTradingAuditSystem:
                 source="DETERMINISTIC_EXECUTOR",
                 payload={
                     "passed": result.passed,
-                    "violation_type": result.violation_type.value if result.violation_type else None,
+                    "violation_type": (
+                        result.violation_type.value if result.violation_type else None
+                    ),
                     "reason": result.reason,
                     "metadata": result.metadata,
                 },
@@ -289,9 +291,7 @@ class LiveTradingAuditSystem:
             self._add_to_log(event)
             return event_id
 
-    def create_audit_trail(
-        self, trail_id: str, start_timestamp_ns: int
-    ) -> AuditTrail:
+    def create_audit_trail(self, trail_id: str, start_timestamp_ns: int) -> AuditTrail:
         """Create a new audit trail."""
         with self._lock:
             trail = AuditTrail(
@@ -312,9 +312,7 @@ class LiveTradingAuditSystem:
                 return True
             return False
 
-    def generate_audit_report(
-        self, period_start_ns: int, period_end_ns: int
-    ) -> AuditReport:
+    def generate_audit_report(self, period_start_ns: int, period_end_ns: int) -> AuditReport:
         """Generate a comprehensive audit report for a time period."""
         with self._lock:
             report = AuditReport(
@@ -327,9 +325,7 @@ class LiveTradingAuditSystem:
 
             # Filter events within the period
             period_events = [
-                e
-                for e in self._audit_log
-                if period_start_ns <= e.timestamp_ns <= period_end_ns
+                e for e in self._audit_log if period_start_ns <= e.timestamp_ns <= period_end_ns
             ]
             report.total_events = len(period_events)
 
@@ -384,9 +380,7 @@ class LiveTradingAuditSystem:
 
         # Add governance decision summary
         if report.governance_decisions:
-            gov_summary = " | ".join(
-                f"{k}: {v}" for k, v in report.governance_decisions.items()
-            )
+            gov_summary = " | ".join(f"{k}: {v}" for k, v in report.governance_decisions.items())
             summary_parts.append(f"Governance Decisions: {gov_summary}")
 
         return " | ".join(summary_parts)

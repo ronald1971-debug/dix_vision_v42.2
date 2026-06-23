@@ -2,9 +2,9 @@
 Desktop layer - Phase 5 implementation
 """
 
-from desktop_controller import DesktopController, DesktopActionType, DesktopState, DesktopAction
-from application_manager import ApplicationManager, ApplicationState, Application
-from window_manager import WindowManager, WindowState, Window
+from application_manager import Application, ApplicationManager, ApplicationState
+from desktop_controller import DesktopAction, DesktopActionType, DesktopController, DesktopState
+from window_manager import Window, WindowManager, WindowState
 
 __all__ = [
     "DesktopController",

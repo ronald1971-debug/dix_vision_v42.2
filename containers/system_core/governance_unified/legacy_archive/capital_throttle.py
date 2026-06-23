@@ -27,8 +27,8 @@ from core.contracts.financial_governance import CapitalThrottleStatus
 from state.ledger.event_store import append_event
 
 _MAX_HISTORY = 500
-DEFAULT_WINDOW_NS = 60 * 1_000_000_000   # 1-minute rolling window
-DEFAULT_LIMIT_USD = 100_000.0             # $100k per minute default cap
+DEFAULT_WINDOW_NS = 60 * 1_000_000_000  # 1-minute rolling window
+DEFAULT_LIMIT_USD = 100_000.0  # $100k per minute default cap
 
 
 class CapitalThrottle:
@@ -90,9 +90,7 @@ class CapitalThrottle:
                 limit_usd=self._limit_usd,
                 utilisation=utilisation,
                 throttled=throttled,
-                detail=(
-                    f"deployed=${deployed:.0f} / limit=${self._limit_usd:.0f}"
-                ),
+                detail=(f"deployed=${deployed:.0f} / limit=${self._limit_usd:.0f}"),
             )
             self._status_history.append(status)
 

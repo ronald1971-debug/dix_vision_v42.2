@@ -76,13 +76,25 @@ def deploy_blue_green(config: DeploymentConfig) -> DeploymentResult:
 
         # Deploy to inactive slot
         subprocess.run(
-            ["kubectl", "set", "image", f"deployment/dix-vision-{version}", f"dix-vision=registry/dix-vision:{version}"],
+            [
+                "kubectl",
+                "set",
+                "image",
+                f"deployment/dix-vision-{version}",
+                f"dix-vision=registry/dix-vision:{version}",
+            ],
             check=True,
         )
 
         # Wait for rollout
         subprocess.run(
-            ["kubectl", "rollout", "status", f"deployment/dix-vision-{version}", f"--timeout={config.health_timeout_sec}s"],
+            [
+                "kubectl",
+                "rollout",
+                "status",
+                f"deployment/dix-vision-{version}",
+                f"--timeout={config.health_timeout_sec}s",
+            ],
             check=True,
         )
 
@@ -118,16 +130,27 @@ def deploy_canary(config: DeploymentConfig, tags: list[str] | None = None) -> De
 
         # Deploy canary pods with traffic split
         canary_cmd = [
-            "kubectl", "patch", "deployment", "dix-vision",
-            "-p", json.dumps({
-                "spec": {
-                    "template": {
-                        "spec": {
-                            "containers": [{"name": "dix-vision", "image": f"registry/dix-vision:{version}"}]
+            "kubectl",
+            "patch",
+            "deployment",
+            "dix-vision",
+            "-p",
+            json.dumps(
+                {
+                    "spec": {
+                        "template": {
+                            "spec": {
+                                "containers": [
+                                    {
+                                        "name": "dix-vision",
+                                        "image": f"registry/dix-vision:{version}",
+                                    }
+                                ]
+                            }
                         }
                     }
                 }
-            })
+            ),
         ]
         subprocess.run(canary_cmd, check=True)
 
@@ -175,7 +198,9 @@ def rollback_deployment(version: str) -> DeploymentResult:
         )
 
 
-def multi_region_deploy(config: DeploymentConfig, regions: list[str]) -> dict[str, DeploymentResult]:
+def multi_region_deploy(
+    config: DeploymentConfig, regions: list[str]
+) -> dict[str, DeploymentResult]:
     """Deploy to multiple regions."""
     results = {}
     for region in regions:

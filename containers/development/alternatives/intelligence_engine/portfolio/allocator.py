@@ -42,7 +42,6 @@ from pathlib import Path
 from typing import Any
 
 import yaml
-
 from core.contracts.portfolio import (
     AllocationCandidate,
     AllocationDecision,

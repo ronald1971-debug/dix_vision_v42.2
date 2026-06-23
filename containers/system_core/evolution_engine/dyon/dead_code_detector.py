@@ -43,13 +43,15 @@ _STUB_LINE_THRESHOLD: int = 10
 _PROPOSAL_CONFIDENCE_THRESHOLD: float = 0.70
 
 # Well-known files that are intentionally minimal and should not be flagged
-_KNOWN_STUBS: frozenset[str] = frozenset({
-    "__init__.py",
-    "py.typed",
-    "conftest.py",
-    "setup.py",
-    "setup.cfg",
-})
+_KNOWN_STUBS: frozenset[str] = frozenset(
+    {
+        "__init__.py",
+        "py.typed",
+        "conftest.py",
+        "setup.py",
+        "setup.cfg",
+    }
+)
 
 
 # ---------------------------------------------------------------------------
@@ -61,12 +63,12 @@ _KNOWN_STUBS: frozenset[str] = frozenset({
 class DeadModule:
     """One detected dead or suspect module."""
 
-    rel_file: str           # repo-relative file path
-    module_path: str        # dot-notation path
-    classification: str     # ORPHANED | ISOLATED | STUB | EMPTY | SHADOWED
-    confidence: float       # 0.0–1.0
+    rel_file: str  # repo-relative file path
+    module_path: str  # dot-notation path
+    classification: str  # ORPHANED | ISOLATED | STUB | EMPTY | SHADOWED
+    confidence: float  # 0.0–1.0
     line_count: int
-    reason: str             # human-readable explanation
+    reason: str  # human-readable explanation
     ts_ns: int
 
     def to_dict(self) -> dict[str, Any]:
@@ -119,6 +121,7 @@ class DeadCodeDetector:
         """
         try:
             from evolution_engine.dyon.repo_inspector import get_repo_inspector
+
             snap = get_repo_inspector(repo_root=self._root).latest_snapshot()
         except Exception:
             snap = None
@@ -137,7 +140,8 @@ class DeadCodeDetector:
 
         _logger.info(
             "DeadCodeDetector: found %d dead/suspect modules (scan #%d)",
-            len(detected), self._scan_count,
+            len(detected),
+            self._scan_count,
         )
 
         if self._emit_proposals:
@@ -205,52 +209,60 @@ class DeadCodeDetector:
             # EMPTY
             real_lines = self._count_real_lines_from_module(mod)
             if real_lines == 0:
-                detected.append(DeadModule(
-                    rel_file=rel_file,
-                    module_path=mod.module_path,
-                    classification="EMPTY",
-                    confidence=0.95,
-                    line_count=mod.line_count,
-                    reason="File contains no real code lines",
-                    ts_ns=ts_ns,
-                ))
+                detected.append(
+                    DeadModule(
+                        rel_file=rel_file,
+                        module_path=mod.module_path,
+                        classification="EMPTY",
+                        confidence=0.95,
+                        line_count=mod.line_count,
+                        reason="File contains no real code lines",
+                        ts_ns=ts_ns,
+                    )
+                )
                 continue
 
             # STUB
             if 0 < real_lines <= _STUB_LINE_THRESHOLD:
-                detected.append(DeadModule(
-                    rel_file=rel_file,
-                    module_path=mod.module_path,
-                    classification="STUB",
-                    confidence=0.65,
-                    line_count=mod.line_count,
-                    reason=f"Only {real_lines} real code lines — likely stub or placeholder",
-                    ts_ns=ts_ns,
-                ))
+                detected.append(
+                    DeadModule(
+                        rel_file=rel_file,
+                        module_path=mod.module_path,
+                        classification="STUB",
+                        confidence=0.65,
+                        line_count=mod.line_count,
+                        reason=f"Only {real_lines} real code lines — likely stub or placeholder",
+                        ts_ns=ts_ns,
+                    )
+                )
                 continue
 
             # ORPHANED / ISOLATED — check if top-level package is referenced anywhere
             top_pkg = mod.module_path.split(".")[0]
             if top_pkg not in reachable_packages and mod.import_count == 0:
-                detected.append(DeadModule(
-                    rel_file=rel_file,
-                    module_path=mod.module_path,
-                    classification="ISOLATED",
-                    confidence=0.80,
-                    line_count=mod.line_count,
-                    reason="Module has no imports and no importers — completely isolated",
-                    ts_ns=ts_ns,
-                ))
+                detected.append(
+                    DeadModule(
+                        rel_file=rel_file,
+                        module_path=mod.module_path,
+                        classification="ISOLATED",
+                        confidence=0.80,
+                        line_count=mod.line_count,
+                        reason="Module has no imports and no importers — completely isolated",
+                        ts_ns=ts_ns,
+                    )
+                )
             elif top_pkg not in reachable_packages:
-                detected.append(DeadModule(
-                    rel_file=rel_file,
-                    module_path=mod.module_path,
-                    classification="ORPHANED",
-                    confidence=0.60,
-                    line_count=mod.line_count,
-                    reason=f"Package '{top_pkg}' never imported by any other module",
-                    ts_ns=ts_ns,
-                ))
+                detected.append(
+                    DeadModule(
+                        rel_file=rel_file,
+                        module_path=mod.module_path,
+                        classification="ORPHANED",
+                        confidence=0.60,
+                        line_count=mod.line_count,
+                        reason=f"Package '{top_pkg}' never imported by any other module",
+                        ts_ns=ts_ns,
+                    )
+                )
 
         return detected
 
@@ -260,29 +272,29 @@ class DeadCodeDetector:
         try:
             for py_file in self._root.rglob("*.py"):
                 parts = py_file.parts
-                if any(p.startswith(".") or p in {"__pycache__", "venv", "node_modules"}
-                       for p in parts):
+                if any(
+                    p.startswith(".") or p in {"__pycache__", "venv", "node_modules"} for p in parts
+                ):
                     continue
                 filename = py_file.name
                 if filename in _KNOWN_STUBS:
                     continue
                 try:
                     source = py_file.read_text(encoding="utf-8", errors="ignore")
-                    real = sum(
-                        1 for ln in source.splitlines()
-                        if not _COMMENT_RE.match(ln)
-                    )
+                    real = sum(1 for ln in source.splitlines() if not _COMMENT_RE.match(ln))
                     if real == 0:
                         rel = py_file.relative_to(self._root).as_posix()
-                        detected.append(DeadModule(
-                            rel_file=rel,
-                            module_path=rel.replace("/", ".").removesuffix(".py"),
-                            classification="EMPTY",
-                            confidence=0.95,
-                            line_count=source.count("\n"),
-                            reason="Empty file",
-                            ts_ns=ts_ns,
-                        ))
+                        detected.append(
+                            DeadModule(
+                                rel_file=rel,
+                                module_path=rel.replace("/", ".").removesuffix(".py"),
+                                classification="EMPTY",
+                                confidence=0.95,
+                                line_count=source.count("\n"),
+                                reason="Empty file",
+                                ts_ns=ts_ns,
+                            )
+                        )
                 except Exception:
                     continue
         except Exception:
@@ -292,9 +304,7 @@ class DeadCodeDetector:
     def _count_real_lines_from_module(self, mod: Any) -> int:
         """Count non-blank non-comment lines by reading the file."""
         try:
-            source = (self._root / mod.rel_file).read_text(
-                encoding="utf-8", errors="ignore"
-            )
+            source = (self._root / mod.rel_file).read_text(encoding="utf-8", errors="ignore")
             return sum(1 for ln in source.splitlines() if not _COMMENT_RE.match(ln))
         except Exception:
             return mod.line_count
@@ -306,7 +316,8 @@ class DeadCodeDetector:
     ) -> None:
         """Emit DYON_PROPOSAL events for high-confidence dead modules."""
         high_conf = [
-            dm for dm in detected
+            dm
+            for dm in detected
             if dm.confidence >= _PROPOSAL_CONFIDENCE_THRESHOLD
             and dm.classification in ("ORPHANED", "ISOLATED", "EMPTY")
         ]
@@ -314,19 +325,23 @@ class DeadCodeDetector:
             return
         try:
             from state.event_bus import CognitiveChannel, get_event_bus
+
             bus = get_event_bus()
-            for dm in high_conf[:10]:   # cap at 10 per scan
-                bus.publish(CognitiveChannel.DYON_PROPOSAL, {
-                    "proposal_id": f"dead_code_{dm.module_path[:32]}_{ts_ns & 0xFFFF:04x}",
-                    "invariant_id": "DEAD_CODE",
-                    "source_module": dm.module_path,
-                    "imported_module": "",
-                    "severity": "WARNING" if dm.classification != "EMPTY" else "INFO",
-                    "description": f"Dead code [{dm.classification}]: {dm.reason}",
-                    "sim_outcome": "PENDING",
-                    "ts_ns": ts_ns,
-                    "mutation_class": "CLASS_A",
-                })
+            for dm in high_conf[:10]:  # cap at 10 per scan
+                bus.publish(
+                    CognitiveChannel.DYON_PROPOSAL,
+                    {
+                        "proposal_id": f"dead_code_{dm.module_path[:32]}_{ts_ns & 0xFFFF:04x}",
+                        "invariant_id": "DEAD_CODE",
+                        "source_module": dm.module_path,
+                        "imported_module": "",
+                        "severity": "WARNING" if dm.classification != "EMPTY" else "INFO",
+                        "description": f"Dead code [{dm.classification}]: {dm.reason}",
+                        "sim_outcome": "PENDING",
+                        "ts_ns": ts_ns,
+                        "mutation_class": "CLASS_A",
+                    },
+                )
         except Exception:
             pass
 

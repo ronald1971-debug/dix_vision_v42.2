@@ -264,9 +264,15 @@ class FederatedLaneDispatcher:
     # ------------------------------------------------------------------
 
     def _dispatch_flat(
-        self, *, round_id: str, strategy_id: str, parameter: str,
-        current_value: float, updates: Sequence[GradientUpdate],
-        ts_ns: int, min_clients: int,
+        self,
+        *,
+        round_id: str,
+        strategy_id: str,
+        parameter: str,
+        current_value: float,
+        updates: Sequence[GradientUpdate],
+        ts_ns: int,
+        min_clients: int,
     ) -> FederatedDispatchResult:
         """C-09 single-round FedAvg."""
         agg, lu = aggregate_round(
@@ -285,9 +291,16 @@ class FederatedLaneDispatcher:
         )
 
     def _dispatch_hierarchical(
-        self, *, round_id: str, strategy_id: str, parameter: str,
-        current_value: float, updates: Sequence[GradientUpdate],
-        ts_ns: int, group_assignments: Any, min_clients: int,
+        self,
+        *,
+        round_id: str,
+        strategy_id: str,
+        parameter: str,
+        current_value: float,
+        updates: Sequence[GradientUpdate],
+        ts_ns: int,
+        group_assignments: Any,
+        min_clients: int,
     ) -> FederatedDispatchResult:
         """C-10 FedML hierarchical aggregation.
 
@@ -318,9 +331,15 @@ class FederatedLaneDispatcher:
         )
 
     def _dispatch_ring(
-        self, *, round_id: str, strategy_id: str, parameter: str,
-        current_value: float, updates: Sequence[GradientUpdate],
-        ts_ns: int, min_clients: int,
+        self,
+        *,
+        round_id: str,
+        strategy_id: str,
+        parameter: str,
+        current_value: float,
+        updates: Sequence[GradientUpdate],
+        ts_ns: int,
+        min_clients: int,
     ) -> FederatedDispatchResult:
         """C-10 FedML ring aggregation.
 
@@ -359,16 +378,19 @@ class FederatedLaneDispatcher:
         )
 
     def _dispatch_plan(
-        self, *, strategy_id: str, plan: Any, plan_contributions: Any,
-        initial_value: float, ts_ns: int,
+        self,
+        *,
+        strategy_id: str,
+        plan: Any,
+        plan_contributions: Any,
+        initial_value: float,
+        ts_ns: int,
     ) -> FederatedDispatchResult:
         """C-11 OpenFL multi-round plan."""
         from learning_engine.lanes.federated_openfl import execute_plan
 
         if plan is None:
-            raise ValueError(
-                "FederatedLaneDispatcher: plan is required for PLAN lane"
-            )
+            raise ValueError("FederatedLaneDispatcher: plan is required for PLAN lane")
         if plan_contributions is None:
             raise ValueError(
                 "FederatedLaneDispatcher: plan_contributions is required for PLAN lane"
@@ -403,9 +425,17 @@ class FederatedLaneDispatcher:
         )
 
     def _dispatch_private(
-        self, *, round_id: str, strategy_id: str, parameter: str,
-        current_value: float, privacy_budget: Any, noise_config: Any,
-        privacy_accountant: Any, private_contributions: Any, ts_ns: int,
+        self,
+        *,
+        round_id: str,
+        strategy_id: str,
+        parameter: str,
+        current_value: float,
+        privacy_budget: Any,
+        noise_config: Any,
+        privacy_accountant: Any,
+        private_contributions: Any,
+        ts_ns: int,
     ) -> FederatedDispatchResult:
         """C-12 PySyft differential-privacy round.
 

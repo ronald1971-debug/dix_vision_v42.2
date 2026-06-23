@@ -106,19 +106,19 @@ class CognitiveOSKernel:
         self._state_layer: object | None = None
         self._learning_engine: object | None = None
         self._evolution_engine: object | None = None
-        
+
         # Phase 3 Advanced Modules
         self._rl_optimizer: object | None = None
         self._xai_system: object | None = None
         self._multi_agent_system: object | None = None
         self._temporal_reasoner: object | None = None
         self._risk_manager: object | None = None
-        
+
         # Phase 4 Advanced Modules
         self._neuro_symbolic_ai: object | None = None
         self._meta_cognitive_system: object | None = None
         self._causal_discovery: object | None = None
-        
+
         # Phase 5 Neuromorphic Modules
         self._indira_snn: object | None = None
         self._indira_lsm: object | None = None
@@ -142,13 +142,13 @@ class CognitiveOSKernel:
             self._initialize_state_layer()
             self._initialize_learning_engine()
             self._initialize_evolution_engine()
-            
+
             # Initialize Phase 3 Advanced Modules
             self._initialize_phase3_modules()
-            
+
             # Initialize Phase 4 Advanced Modules
             self._initialize_phase4_modules()
-            
+
             # Initialize Phase 5 Neuromorphic Modules
             self._initialize_phase5_modules()
 
@@ -175,6 +175,7 @@ class CognitiveOSKernel:
         """Initialize the governance layer."""
         try:
             from governance_unified import get_unified_governance_kernel
+
             self._governance_system = get_unified_governance_kernel()
             _logger.info("Governance layer initialized: governance_unified")
         except ImportError as e:
@@ -185,6 +186,7 @@ class CognitiveOSKernel:
         """Initialize the execution layer."""
         try:
             from execution_unified import get_unified_execution_kernel
+
             self._execution_system = get_unified_execution_kernel()
             _logger.info("Execution layer initialized: execution_unified")
         except ImportError as e:
@@ -195,10 +197,11 @@ class CognitiveOSKernel:
         """Initialize the M-1 knowledge layer."""
         try:
             from intelligence_engine.knowledge import (
+                KnowledgeDriftMonitor,
                 KnowledgeValidator,
                 SourceConflictGraph,
-                KnowledgeDriftMonitor,
             )
+
             self._knowledge_layer = {
                 "validator": KnowledgeValidator(),
                 "conflict_graph": SourceConflictGraph(),
@@ -213,10 +216,11 @@ class CognitiveOSKernel:
         """Initialize the trust root."""
         try:
             from trust_root import (
-                get_foundation_hash_lifecycle,
                 get_artifact_generator,
+                get_foundation_hash_lifecycle,
                 get_trust_anchor_manager,
             )
+
             self._trust_root = {
                 "hash_lifecycle": get_foundation_hash_lifecycle(),
                 "artifact_generator": get_artifact_generator(),
@@ -231,14 +235,17 @@ class CognitiveOSKernel:
         """Initialize the enhanced state layer."""
         try:
             from state import (
-                get_replay_validator,
                 get_deterministic_verifier,
+                get_replay_validator,
             )
+
             self._state_layer = {
                 "replay_validator": get_replay_validator(),
                 "deterministic_verifier": get_deterministic_verifier(),
             }
-            _logger.info("State layer initialized with replay validation and deterministic verification")
+            _logger.info(
+                "State layer initialized with replay validation and deterministic verification"
+            )
         except ImportError as e:
             _logger.warning(f"State layer import failed: {e}")
             self._state_layer = None
@@ -247,14 +254,17 @@ class CognitiveOSKernel:
         """Initialize the mature learning engine."""
         try:
             from intelligence_engine.learning import (
-                get_reinforcement_engine,
                 get_cognitive_learning_governance,
+                get_reinforcement_engine,
             )
+
             self._learning_engine = {
                 "reinforcement": get_reinforcement_engine(),
                 "governance": get_cognitive_learning_governance(),
             }
-            _logger.info("Learning engine initialized with reinforcement loops and cognitive governance")
+            _logger.info(
+                "Learning engine initialized with reinforcement loops and cognitive governance"
+            )
         except ImportError as e:
             _logger.warning(f"Learning engine import failed: {e}")
             self._learning_engine = None
@@ -263,9 +273,10 @@ class CognitiveOSKernel:
         """Initialize the autonomous evolution engine."""
         try:
             from evolution_engine import (
-                get_evolution_orchestrator,
                 get_autonomous_evolution_engine,
+                get_evolution_orchestrator,
             )
+
             self._evolution_engine = {
                 "orchestrator": get_evolution_orchestrator(),
                 "autonomous": get_autonomous_evolution_engine(),
@@ -279,38 +290,43 @@ class CognitiveOSKernel:
         """Initialize Phase 3 Advanced Modules (RL, XAI, Multi-Agent, Temporal, Risk)."""
         try:
             from cognitive_os.rl.rl_optimizer import get_rl_optimizer
+
             self._rl_optimizer = get_rl_optimizer()
             _logger.info("Phase 3: RL Optimizer initialized")
         except ImportError as e:
             _logger.warning(f"Phase 3 RL Optimizer import failed: {e}")
             self._rl_optimizer = None
-        
+
         try:
             from cognitive_os.xai.explainable_ai import get_xai_system
+
             self._xai_system = get_xai_system()
             _logger.info("Phase 3: Explainable AI initialized")
         except ImportError as e:
             _logger.warning(f"Phase 3 XAI import failed: {e}")
             self._xai_system = None
-        
+
         try:
             from cognitive_os.multi_agent.multi_agent_system import get_multi_agent_system
+
             self._multi_agent_system = get_multi_agent_system()
             _logger.info("Phase 3: Multi-Agent System initialized")
         except ImportError as e:
             _logger.warning(f"Phase 3 Multi-Agent import failed: {e}")
             self._multi_agent_system = None
-        
+
         try:
             from cognitive_os.temporal.temporal_reasoning import get_temporal_reasoner
+
             self._temporal_reasoner = get_temporal_reasoner()
             _logger.info("Phase 3: Temporal Reasoning initialized")
         except ImportError as e:
             _logger.warning(f"Phase 3 Temporal Reasoning import failed: {e}")
             self._temporal_reasoner = None
-        
+
         try:
             from cognitive_os.risk.dynamic_risk_manager import get_dynamic_risk_manager
+
             self._risk_manager = get_dynamic_risk_manager()
             _logger.info("Phase 3: Dynamic Risk Manager initialized")
         except ImportError as e:
@@ -321,22 +337,25 @@ class CognitiveOSKernel:
         """Initialize Phase 4 Advanced Modules (Neuro-Symbolic, Meta-Cognitive, Causal Discovery)."""
         try:
             from cognitive_os.neuro_symbolic.neuro_symbolic_ai import get_neuro_symbolic_ai
+
             self._neuro_symbolic_ai = get_neuro_symbolic_ai()
             _logger.info("Phase 4: Neuro-Symbolic AI initialized")
         except ImportError as e:
             _logger.warning(f"Phase 4 Neuro-Symbolic AI import failed: {e}")
             self._neuro_symbolic_ai = None
-        
+
         try:
             from cognitive_os.meta_cognitive.meta_cognitive_system import get_meta_cognitive_system
+
             self._meta_cognitive_system = get_meta_cognitive_system()
             _logger.info("Phase 4: Meta-Cognitive System initialized")
         except ImportError as e:
             _logger.warning(f"Phase 4 Meta-Cognitive import failed: {e}")
             self._meta_cognitive_system = None
-        
+
         try:
             from cognitive_os.causal.advanced_causal_discovery import get_advanced_causal_discovery
+
             self._causal_discovery = get_advanced_causal_discovery()
             _logger.info("Phase 4: Advanced Causal Discovery initialized")
         except ImportError as e:
@@ -346,34 +365,44 @@ class CognitiveOSKernel:
     def _initialize_phase5_modules(self) -> None:
         """Initialize Phase 5 Neuromorphic Modules (INDIRA and DYON SNN + LSM)."""
         try:
-            from indira_cognitive.neuromorphic.indira_spiking_network import get_indira_spiking_intelligence
+            from indira_cognitive.neuromorphic.indira_spiking_network import (
+                get_indira_spiking_intelligence,
+            )
+
             self._indira_snn = get_indira_spiking_intelligence()
             self._indira_snn.start()
             _logger.info("Phase 5: INDIRA Spiking Neural Network initialized")
         except ImportError as e:
             _logger.warning(f"Phase 5 INDIRA SNN import failed: {e}")
             self._indira_snn = None
-        
+
         try:
             from indira_cognitive.neuromorphic.indira_lsm import get_indira_lsm_intelligence
+
             self._indira_lsm = get_indira_lsm_intelligence()
             self._indira_lsm.start()
             _logger.info("Phase 5: INDIRA Liquid State Machine initialized")
         except ImportError as e:
             _logger.warning(f"Phase 5 INDIRA LSM import failed: {e}")
             self._indira_lsm = None
-        
+
         try:
-            from dyon_cognitive.neuromorphic.dyon_spiking_network import get_dyon_spiking_intelligence
+            from dyon_cognitive.neuromorphic.dyon_spiking_network import (
+                get_dyon_spiking_intelligence,
+            )
+
             self._dyon_snn = get_dyon_spiking_intelligence()
             self._dyon_snn.start()
             _logger.info("Phase 5: DYON Spiking Neural Network initialized")
         except ImportError as e:
             _logger.warning(f"Phase 5 DYON SNN import failed: {e}")
             self._dyon_snn = None
-        
+
         try:
-            from dyon_cognitive.neuromorphic.dyon_lsm_anomaly import get_dyon_lsm_anomaly_intelligence
+            from dyon_cognitive.neuromorphic.dyon_lsm_anomaly import (
+                get_dyon_lsm_anomaly_intelligence,
+            )
+
             self._dyon_lsm = get_dyon_lsm_anomaly_intelligence()
             self._dyon_lsm.start()
             _logger.info("Phase 5: DYON LSM Anomaly Detector initialized")
@@ -389,27 +418,29 @@ class CognitiveOSKernel:
         """
         with self._lock:
             # Calculate health score based on component availability
-            components_available = sum([
-                1 if self._governance_system else 0,
-                1 if self._execution_system else 0,
-                1 if self._knowledge_layer else 0,
-                1 if self._trust_root else 0,
-                1 if self._state_layer else 0,
-                1 if self._learning_engine else 0,
-                1 if self._evolution_engine else 0,
-                1 if self._rl_optimizer else 0,
-                1 if self._xai_system else 0,
-                1 if self._multi_agent_system else 0,
-                1 if self._temporal_reasoner else 0,
-                1 if self._risk_manager else 0,
-                1 if self._neuro_symbolic_ai else 0,
-                1 if self._meta_cognitive_system else 0,
-                1 if self._causal_discovery else 0,
-                1 if self._indira_snn else 0,
-                1 if self._indira_lsm else 0,
-                1 if self._dyon_snn else 0,
-                1 if self._dyon_lsm else 0,
-            ])
+            components_available = sum(
+                [
+                    1 if self._governance_system else 0,
+                    1 if self._execution_system else 0,
+                    1 if self._knowledge_layer else 0,
+                    1 if self._trust_root else 0,
+                    1 if self._state_layer else 0,
+                    1 if self._learning_engine else 0,
+                    1 if self._evolution_engine else 0,
+                    1 if self._rl_optimizer else 0,
+                    1 if self._xai_system else 0,
+                    1 if self._multi_agent_system else 0,
+                    1 if self._temporal_reasoner else 0,
+                    1 if self._risk_manager else 0,
+                    1 if self._neuro_symbolic_ai else 0,
+                    1 if self._meta_cognitive_system else 0,
+                    1 if self._causal_discovery else 0,
+                    1 if self._indira_snn else 0,
+                    1 if self._indira_lsm else 0,
+                    1 if self._dyon_snn else 0,
+                    1 if self._dyon_lsm else 0,
+                ]
+            )
             health_score = components_available / 19.0
 
             # Calculate performance score (placeholder)
@@ -434,30 +465,40 @@ class CognitiveOSKernel:
             Mapping of component names to their status
         """
         with self._lock:
-            return MappingProxyType({
-                "governance_unified": "active" if self._governance_system else "inactive",
-                "execution_unified": "active" if self._execution_system else "inactive",
-                "m1_knowledge_layer": "active" if self._knowledge_layer else "inactive",
-                "trust_root": "active" if self._trust_root else "inactive",
-                "state_layer_enhanced": "active" if self._state_layer else "inactive",
-                "learning_engine_mature": "active" if self._learning_engine else "inactive",
-                "evolution_engine_autonomous": "active" if self._evolution_engine else "inactive",
-                # Phase 3 Modules
-                "phase3_rl_optimizer": "active" if self._rl_optimizer else "inactive",
-                "phase3_xai_system": "active" if self._xai_system else "inactive",
-                "phase3_multi_agent_system": "active" if self._multi_agent_system else "inactive",
-                "phase3_temporal_reasoner": "active" if self._temporal_reasoner else "inactive",
-                "phase3_dynamic_risk_manager": "active" if self._risk_manager else "inactive",
-                # Phase 4 Modules
-                "phase4_neuro_symbolic_ai": "active" if self._neuro_symbolic_ai else "inactive",
-                "phase4_meta_cognitive_system": "active" if self._meta_cognitive_system else "inactive",
-                "phase4_advanced_causal_discovery": "active" if self._causal_discovery else "inactive",
-                # Phase 5 Neuromorphic
-                "phase5_indira_snn": "active" if self._indira_snn else "inactive",
-                "phase5_indira_lsm": "active" if self._indira_lsm else "inactive",
-                "phase5_dyon_snn": "active" if self._dyon_snn else "inactive",
-                "phase5_dyon_lsm": "active" if self._dyon_lsm else "inactive",
-            })
+            return MappingProxyType(
+                {
+                    "governance_unified": "active" if self._governance_system else "inactive",
+                    "execution_unified": "active" if self._execution_system else "inactive",
+                    "m1_knowledge_layer": "active" if self._knowledge_layer else "inactive",
+                    "trust_root": "active" if self._trust_root else "inactive",
+                    "state_layer_enhanced": "active" if self._state_layer else "inactive",
+                    "learning_engine_mature": "active" if self._learning_engine else "inactive",
+                    "evolution_engine_autonomous": (
+                        "active" if self._evolution_engine else "inactive"
+                    ),
+                    # Phase 3 Modules
+                    "phase3_rl_optimizer": "active" if self._rl_optimizer else "inactive",
+                    "phase3_xai_system": "active" if self._xai_system else "inactive",
+                    "phase3_multi_agent_system": (
+                        "active" if self._multi_agent_system else "inactive"
+                    ),
+                    "phase3_temporal_reasoner": "active" if self._temporal_reasoner else "inactive",
+                    "phase3_dynamic_risk_manager": "active" if self._risk_manager else "inactive",
+                    # Phase 4 Modules
+                    "phase4_neuro_symbolic_ai": "active" if self._neuro_symbolic_ai else "inactive",
+                    "phase4_meta_cognitive_system": (
+                        "active" if self._meta_cognitive_system else "inactive"
+                    ),
+                    "phase4_advanced_causal_discovery": (
+                        "active" if self._causal_discovery else "inactive"
+                    ),
+                    # Phase 5 Neuromorphic
+                    "phase5_indira_snn": "active" if self._indira_snn else "inactive",
+                    "phase5_indira_lsm": "active" if self._indira_lsm else "inactive",
+                    "phase5_dyon_snn": "active" if self._dyon_snn else "inactive",
+                    "phase5_dyon_lsm": "active" if self._dyon_lsm else "inactive",
+                }
+            )
 
     def activate_layer(self, layer: SystemLayer) -> bool:
         """Activate a system layer.

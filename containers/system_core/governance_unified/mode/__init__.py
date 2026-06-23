@@ -2,8 +2,8 @@
 
 from .degraded_mode import enter_degraded_mode, exit_degraded_mode
 from .halted_mode import enter_halted_mode, validate_halted_mode
-from .safe_mode import enter_safe_mode, exit_safe_mode, validate_safe_mode
 from .mode_manager import FsmMode, ModeManager, OperationalMode, get_mode_manager
+from .safe_mode import enter_safe_mode, exit_safe_mode, validate_safe_mode
 
 __all__ = [
     "ModeManager",

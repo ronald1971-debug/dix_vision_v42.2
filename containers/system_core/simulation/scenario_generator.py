@@ -30,6 +30,7 @@ class ScenarioKind(StrEnum):
 @dataclass(frozen=True, slots=True)
 class ScenarioConfig:
     """Parameters for scenario generation."""
+
     scenario_id: str
     kind: ScenarioKind
     num_bars: int = 500
@@ -44,6 +45,7 @@ class ScenarioConfig:
 @dataclass(frozen=True, slots=True)
 class OHLCVBar:
     """One OHLCV bar."""
+
     ts_ns: int
     open: float
     high: float
@@ -55,6 +57,7 @@ class OHLCVBar:
 @dataclass(frozen=True, slots=True)
 class Scenario:
     """A generated market scenario."""
+
     scenario_id: str
     kind: ScenarioKind
     bars: tuple[OHLCVBar, ...]
@@ -98,14 +101,16 @@ def generate_scenario(config: ScenarioConfig, bar_interval_ns: int = 60_000_000_
         high = max(high, max(price, close))
         volume = abs(rng.gauss(1000, 300))
 
-        bars.append(OHLCVBar(
-            ts_ns=ts + i * bar_interval_ns,
-            open=price,
-            high=high,
-            low=low,
-            close=close,
-            volume=volume,
-        ))
+        bars.append(
+            OHLCVBar(
+                ts_ns=ts + i * bar_interval_ns,
+                open=price,
+                high=high,
+                low=low,
+                close=close,
+                volume=volume,
+            )
+        )
         price = close
 
     return Scenario(

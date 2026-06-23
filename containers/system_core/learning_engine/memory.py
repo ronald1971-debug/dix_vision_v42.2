@@ -73,9 +73,7 @@ class MemoryIndex:
     def search(self, keyword: str) -> list[MemoryEntry]:
         kw = keyword.lower()
         return [
-            e
-            for e in self._entries.values()
-            if kw in e.summary.lower() or kw in e.category.lower()
+            e for e in self._entries.values() if kw in e.summary.lower() or kw in e.category.lower()
         ]
 
     @property

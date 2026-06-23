@@ -14,17 +14,18 @@ Revolutionary cognitive enhancement implementing:
 This is a 2X cognitive enhancement multiplier.
 """
 
+import json
+import logging
+import statistics
+from collections import defaultdict, deque
+from dataclasses import dataclass, field
+from datetime import datetime, timedelta
+from enum import Enum
+from typing import Any, Dict, List, Optional, Tuple
+
 import numpy as np
 import pandas as pd
-from typing import Dict, Any, List, Optional, Tuple
-from dataclasses import dataclass, field
-from enum import Enum
-from datetime import datetime, timedelta
-import logging
 import structlog
-from collections import defaultdict, deque
-import statistics
-import json
 
 logger = structlog.get_logger(__name__)
 
@@ -130,7 +131,7 @@ class DomainAdaptation:
                              target_data: pd.DataFrame) -> Dict[str, Any]:
         """Adapt model from source to target domain (real model adaptation)"""
         import uuid
-        
+
         # Calculate domain shift
         source_stats = self.domain_statistics.get(source_domain, {})
         target_stats = self.domain_statistics.get(target_domain, {})
@@ -341,7 +342,7 @@ class ZeroShotTransfer:
                          domain_relationships: Dict[Tuple[MarketDomain, MarketDomain], float]) -> Dict[str, Any]:
         """Transfer knowledge without target training (real zero-shot transfer)"""
         import uuid
-        
+
         # Find best source domain
         best_source = None
         best_relationship = 0.0
@@ -596,7 +597,7 @@ class TransferLearningSystem:
                                  target_data: pd.DataFrame) -> Dict[str, Any]:
         """Perform comprehensive transfer learning (real comprehensive transfer)"""
         import uuid
-        
+
         # Build knowledge graph for domain relationships
         domain_data = {source_domain: source_data_for_simulation(self.domain_models.get(source_domain, {})),
                       target_domain: target_data}

@@ -125,7 +125,11 @@ class DeterministicLiveTradingExecutor:
             if not determinism_check.passed:
                 # Determinism violation - record and reject
                 self._record_violation(determinism_check)
-                return False, self._create_rejected_execution(signal, determinism_check), determinism_check
+                return (
+                    False,
+                    self._create_rejected_execution(signal, determinism_check),
+                    determinism_check,
+                )
 
             # Execute the trade
             try:
@@ -138,7 +142,11 @@ class DeterministicLiveTradingExecutor:
                     reason=f"Execution function raised exception: {e}",
                 )
                 self._record_violation(determinism_check)
-                return False, self._create_rejected_execution(signal, determinism_check), determinism_check
+                return (
+                    False,
+                    self._create_rejected_execution(signal, determinism_check),
+                    determinism_check,
+                )
 
             # Check post-execution determinism
             post_check = self._check_execution_result_determinism(signal, execution)
@@ -226,7 +234,11 @@ class DeterministicLiveTradingExecutor:
             side=execution.side.value if hasattr(execution.side, "value") else str(execution.side),
             qty=execution.qty,
             price=execution.price,
-            status=execution.status.value if hasattr(execution.status, "value") else str(execution.status),
+            status=(
+                execution.status.value
+                if hasattr(execution.status, "value")
+                else str(execution.status)
+            ),
         )
         self._execution_log.append(record)
 
@@ -247,7 +259,11 @@ class DeterministicLiveTradingExecutor:
             order_id="",
             meta={
                 "reason": determinism_check.reason,
-                "violation_type": determinism_check.violation_type.value if determinism_check.violation_type else "UNKNOWN",
+                "violation_type": (
+                    determinism_check.violation_type.value
+                    if determinism_check.violation_type
+                    else "UNKNOWN"
+                ),
                 "metadata": determinism_check.metadata,
             },
             produced_by_engine="determinism_enforcer",
@@ -270,7 +286,9 @@ class DeterministicLiveTradingExecutor:
             sub_type="DETERMINISM_VIOLATION",
             source="DETERMINISTIC_EXECUTOR",
             payload={
-                "violation_type": result.violation_type.value if result.violation_type else "UNKNOWN",
+                "violation_type": (
+                    result.violation_type.value if result.violation_type else "UNKNOWN"
+                ),
                 "reason": result.reason,
                 "metadata": result.metadata,
             },

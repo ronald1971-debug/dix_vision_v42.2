@@ -32,40 +32,66 @@ _logger = logging.getLogger(__name__)
 
 _STYLE_PARAMS: dict[str, dict[str, float]] = {
     "classical": {
-        "trend_following": 0.70, "discretionary": 0.80, "patience": 0.90,
+        "trend_following": 0.70,
+        "discretionary": 0.80,
+        "patience": 0.90,
         "risk_management": 0.70,
     },
     "value": {
-        "value": 0.90, "mean_reversion": 0.60, "patience": 0.95,
-        "contrarian": 0.70, "risk_management": 0.75,
+        "value": 0.90,
+        "mean_reversion": 0.60,
+        "patience": 0.95,
+        "contrarian": 0.70,
+        "risk_management": 0.75,
     },
     "macro": {
-        "macro_awareness": 0.90, "trend_following": 0.60, "patience": 0.75,
-        "regime_sensitivity": 0.85, "discretionary": 0.70,
+        "macro_awareness": 0.90,
+        "trend_following": 0.60,
+        "patience": 0.75,
+        "regime_sensitivity": 0.85,
+        "discretionary": 0.70,
     },
     "quant": {
-        "systematic": 0.90, "quant": 0.90, "risk_management": 0.85,
-        "speed": 0.60, "trend_following": 0.50,
+        "systematic": 0.90,
+        "quant": 0.90,
+        "risk_management": 0.85,
+        "speed": 0.60,
+        "trend_following": 0.50,
     },
     "crypto": {
-        "momentum": 0.80, "risk_tolerance": 0.85, "speed": 0.70,
-        "contrarian": 0.40, "regime_sensitivity": 0.60,
+        "momentum": 0.80,
+        "risk_tolerance": 0.85,
+        "speed": 0.70,
+        "contrarian": 0.40,
+        "regime_sensitivity": 0.60,
     },
     "hft": {
-        "speed": 0.95, "systematic": 0.90, "quant": 0.85,
-        "risk_management": 0.75, "momentum": 0.50,
+        "speed": 0.95,
+        "systematic": 0.90,
+        "quant": 0.85,
+        "risk_management": 0.75,
+        "momentum": 0.50,
     },
     "technical": {
-        "trend_following": 0.80, "systematic": 0.70, "momentum": 0.65,
-        "patience": 0.60, "risk_management": 0.65,
+        "trend_following": 0.80,
+        "systematic": 0.70,
+        "momentum": 0.65,
+        "patience": 0.60,
+        "risk_management": 0.65,
     },
     "growth": {
-        "momentum": 0.75, "trend_following": 0.65, "patience": 0.70,
-        "risk_tolerance": 0.65, "contrarian": 0.30,
+        "momentum": 0.75,
+        "trend_following": 0.65,
+        "patience": 0.70,
+        "risk_tolerance": 0.65,
+        "contrarian": 0.30,
     },
     "global_macro": {
-        "macro_awareness": 0.95, "regime_sensitivity": 0.90, "patience": 0.80,
-        "risk_management": 0.80, "discretionary": 0.75,
+        "macro_awareness": 0.95,
+        "regime_sensitivity": 0.90,
+        "patience": 0.80,
+        "risk_management": 0.80,
+        "discretionary": 0.75,
     },
 }
 
@@ -75,16 +101,26 @@ _STYLE_PARAMS: dict[str, dict[str, float]] = {
 
 _REGIME_MULTIPLIERS: dict[str, dict[str, float]] = {
     "BULL": {
-        "trend_following": 1.40, "momentum": 1.30, "risk_tolerance": 1.20,
-        "systematic": 1.10, "mean_reversion": 0.70,
+        "trend_following": 1.40,
+        "momentum": 1.30,
+        "risk_tolerance": 1.20,
+        "systematic": 1.10,
+        "mean_reversion": 0.70,
     },
     "BEAR": {
-        "mean_reversion": 1.50, "value": 1.35, "macro_awareness": 1.25,
-        "risk_management": 1.40, "contrarian": 1.20, "momentum": 0.70,
+        "mean_reversion": 1.50,
+        "value": 1.35,
+        "macro_awareness": 1.25,
+        "risk_management": 1.40,
+        "contrarian": 1.20,
+        "momentum": 0.70,
     },
     "MIXED": {
-        "quant": 1.30, "macro_awareness": 1.20, "systematic": 1.20,
-        "discretionary": 1.10, "regime_sensitivity": 1.15,
+        "quant": 1.30,
+        "macro_awareness": 1.20,
+        "systematic": 1.20,
+        "discretionary": 1.10,
+        "regime_sensitivity": 1.15,
     },
 }
 
@@ -162,6 +198,7 @@ class TraderIntelligenceRuntime:
     def snapshot(self) -> dict[str, Any]:
         try:
             from intelligence_engine.meta.archetype_arena import get_archetype_arena
+
             arena_snap = get_archetype_arena().snapshot()
         except Exception:
             arena_snap = {}
@@ -192,6 +229,7 @@ class TraderIntelligenceRuntime:
         try:
             from intelligence_engine.meta.archetype_arena import get_archetype_arena
             from mind.knowledge.seed_traders import _SEED
+
             arena = get_archetype_arena()
             ids: list[str] = []
             base_params: dict[str, dict[str, float]] = {}
@@ -211,6 +249,7 @@ class TraderIntelligenceRuntime:
         """Run a batch of arena matches in the current regime."""
         try:
             from intelligence_engine.meta.archetype_arena import get_archetype_arena
+
             arena = get_archetype_arena()
 
             regime = self._current_regime()
@@ -226,10 +265,7 @@ class TraderIntelligenceRuntime:
             for aid in ids:
                 base = base_params_snap.get(aid, {})
                 if base and multipliers:
-                    adjusted = {
-                        k: min(1.0, v * multipliers.get(k, 1.0))
-                        for k, v in base.items()
-                    }
+                    adjusted = {k: min(1.0, v * multipliers.get(k, 1.0)) for k, v in base.items()}
                     arena.register_archetype(aid, adjusted)
 
             # Round-robin pairs — offset by match_rounds so different pairs each round
@@ -248,7 +284,7 @@ class TraderIntelligenceRuntime:
             if board:
                 new_top, new_rate = board[0]
                 with self._lock:
-                    changed = (new_top != self._top_archetype)
+                    changed = new_top != self._top_archetype
                     self._top_archetype = new_top
                     self._top_win_rate = new_rate
                 if changed:
@@ -261,6 +297,7 @@ class TraderIntelligenceRuntime:
         """Read the current market regime from MarketState.  Fallback: MIXED."""
         try:
             from state.market_state import get_market_state
+
             return get_market_state().regime()
         except Exception:
             return "MIXED"
@@ -270,13 +307,17 @@ class TraderIntelligenceRuntime:
         """Publish new top archetype as an INDIRA_INSIGHT event."""
         try:
             from state.event_bus import CognitiveChannel, get_event_bus
-            get_event_bus().publish(CognitiveChannel.INDIRA_INSIGHT, {
-                "subject": "TOP_TRADER_ARCHETYPE",
-                "body": f"Dominant archetype: {top} (win_rate={win_rate:.0%}, regime={regime})",
-                "confidence": min(1.0, win_rate + 0.1),
-                "evidence_count": 1,
-                "ts_ns": ts_ns,
-            })
+
+            get_event_bus().publish(
+                CognitiveChannel.INDIRA_INSIGHT,
+                {
+                    "subject": "TOP_TRADER_ARCHETYPE",
+                    "body": f"Dominant archetype: {top} (win_rate={win_rate:.0%}, regime={regime})",
+                    "confidence": min(1.0, win_rate + 0.1),
+                    "evidence_count": 1,
+                    "ts_ns": ts_ns,
+                },
+            )
         except Exception:
             pass
 

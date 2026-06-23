@@ -226,48 +226,48 @@ class SystemEventKind(StrEnum):
     # visibility. COGOV_CRITICAL violations may trigger safe-mode via
     # the normal governance escalation path.
     # ------------------------------------------------------------------
-    COGOV_BELIEF_INTEGRITY_REPORT   = "COGOV_BELIEF_INTEGRITY_REPORT"
-    COGOV_MEMORY_CONTAMINATION      = "COGOV_MEMORY_CONTAMINATION"
-    COGOV_MUTATION_VALIDATED        = "COGOV_MUTATION_VALIDATED"
-    COGOV_HALLUCINATION_DETECTED    = "COGOV_HALLUCINATION_DETECTED"
-    COGOV_EPISTEMIC_DRIFT           = "COGOV_EPISTEMIC_DRIFT"
-    COGOV_LEARNING_TRUTHFULNESS     = "COGOV_LEARNING_TRUTHFULNESS"
-    COGOV_LINEAGE_VALIDATED         = "COGOV_LINEAGE_VALIDATED"
-    COGOV_IDENTITY_STABILITY        = "COGOV_IDENTITY_STABILITY"
-    COGOV_SYNTHETIC_FEEDBACK        = "COGOV_SYNTHETIC_FEEDBACK"
-    COGOV_REWARD_HACKING            = "COGOV_REWARD_HACKING"
-    COGOV_CAUSAL_CONSISTENCY        = "COGOV_CAUSAL_CONSISTENCY"
-    COGOV_INTEGRITY_STATUS          = "COGOV_INTEGRITY_STATUS"
+    COGOV_BELIEF_INTEGRITY_REPORT = "COGOV_BELIEF_INTEGRITY_REPORT"
+    COGOV_MEMORY_CONTAMINATION = "COGOV_MEMORY_CONTAMINATION"
+    COGOV_MUTATION_VALIDATED = "COGOV_MUTATION_VALIDATED"
+    COGOV_HALLUCINATION_DETECTED = "COGOV_HALLUCINATION_DETECTED"
+    COGOV_EPISTEMIC_DRIFT = "COGOV_EPISTEMIC_DRIFT"
+    COGOV_LEARNING_TRUTHFULNESS = "COGOV_LEARNING_TRUTHFULNESS"
+    COGOV_LINEAGE_VALIDATED = "COGOV_LINEAGE_VALIDATED"
+    COGOV_IDENTITY_STABILITY = "COGOV_IDENTITY_STABILITY"
+    COGOV_SYNTHETIC_FEEDBACK = "COGOV_SYNTHETIC_FEEDBACK"
+    COGOV_REWARD_HACKING = "COGOV_REWARD_HACKING"
+    COGOV_CAUSAL_CONSISTENCY = "COGOV_CAUSAL_CONSISTENCY"
+    COGOV_INTEGRITY_STATUS = "COGOV_INTEGRITY_STATUS"
     # ------------------------------------------------------------------
     # v3.7 Epistemology events
     # ------------------------------------------------------------------
-    BELIEF_EVIDENCE_ADDED           = "BELIEF_EVIDENCE_ADDED"
-    BELIEF_LINEAGE_UPDATED          = "BELIEF_LINEAGE_UPDATED"
+    BELIEF_EVIDENCE_ADDED = "BELIEF_EVIDENCE_ADDED"
+    BELIEF_LINEAGE_UPDATED = "BELIEF_LINEAGE_UPDATED"
     # ------------------------------------------------------------------
     # v3.7 Contradiction events
     # ------------------------------------------------------------------
-    BELIEF_CONTRADICTION_DETECTED   = "BELIEF_CONTRADICTION_DETECTED"
-    BELIEF_CONTRADICTION_RESOLVED   = "BELIEF_CONTRADICTION_RESOLVED"
+    BELIEF_CONTRADICTION_DETECTED = "BELIEF_CONTRADICTION_DETECTED"
+    BELIEF_CONTRADICTION_RESOLVED = "BELIEF_CONTRADICTION_RESOLVED"
     # ------------------------------------------------------------------
     # v3.7 Truth Maintenance events
     # ------------------------------------------------------------------
-    BELIEF_REVISED                  = "BELIEF_REVISED"
-    EVIDENCE_REWEIGHED              = "EVIDENCE_REWEIGHED"
+    BELIEF_REVISED = "BELIEF_REVISED"
+    EVIDENCE_REWEIGHED = "EVIDENCE_REWEIGHED"
     # ------------------------------------------------------------------
     # v3.7 Failure Intelligence events
     # ------------------------------------------------------------------
-    FAILURE_CLASSIFIED              = "FAILURE_CLASSIFIED"
-    FAILURE_PATTERN_DETECTED        = "FAILURE_PATTERN_DETECTED"
+    FAILURE_CLASSIFIED = "FAILURE_CLASSIFIED"
+    FAILURE_PATTERN_DETECTED = "FAILURE_PATTERN_DETECTED"
     # ------------------------------------------------------------------
     # v3.7 Meta-Learning events
     # ------------------------------------------------------------------
-    META_LEARNING_REPORT            = "META_LEARNING_REPORT"
-    LEARNING_PROCESS_OPTIMIZED      = "LEARNING_PROCESS_OPTIMIZED"
+    META_LEARNING_REPORT = "META_LEARNING_REPORT"
+    LEARNING_PROCESS_OPTIMIZED = "LEARNING_PROCESS_OPTIMIZED"
     # ------------------------------------------------------------------
     # v3.7 Self-Awareness events
     # ------------------------------------------------------------------
-    SELF_MODEL_UPDATED              = "SELF_MODEL_UPDATED"
-    KNOWLEDGE_GAP_RAISED            = "KNOWLEDGE_GAP_RAISED"
+    SELF_MODEL_UPDATED = "SELF_MODEL_UPDATED"
+    KNOWLEDGE_GAP_RAISED = "KNOWLEDGE_GAP_RAISED"
 
 
 # ---------------------------------------------------------------------------

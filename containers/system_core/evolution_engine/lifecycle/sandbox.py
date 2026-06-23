@@ -69,6 +69,7 @@ class SandboxRunner:
         """Delegate to PatchSandbox or fall back to synthetic validation."""
         try:
             from evolution_engine.patch_pipeline.sandbox import PatchSandbox
+
             sb = PatchSandbox()
             passed = sb.run(record.proposal_id, record.description)
             if passed:

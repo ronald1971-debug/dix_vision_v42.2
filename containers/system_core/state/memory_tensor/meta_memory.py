@@ -30,12 +30,13 @@ class MetaMemoryKind(StrEnum):
 @dataclass(frozen=True, slots=True)
 class MetaMemoryRecord:
     """One meta-memory entry."""
+
     record_id: str
     kind: MetaMemoryKind
-    subject: str            # what this memory is about (e.g. strategy_id, regime)
-    summary: str            # human-readable summary
-    confidence: float       # [0, 1]
-    supporting_evidence: tuple[str, ...]   # record IDs or event IDs
+    subject: str  # what this memory is about (e.g. strategy_id, regime)
+    summary: str  # human-readable summary
+    confidence: float  # [0, 1]
+    supporting_evidence: tuple[str, ...]  # record IDs or event IDs
     tags: tuple[str, ...]
     ts_ns: int
     meta: dict[str, str]

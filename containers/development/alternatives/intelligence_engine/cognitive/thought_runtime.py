@@ -36,7 +36,7 @@ class Thought:
 
     thought_id: str
     ts_ns: int
-    step: str          # e.g. "self_reflection", "memory_query", "regime_assessment"
+    step: str  # e.g. "self_reflection", "memory_query", "regime_assessment"
     context: str
     conclusion: str
     confidence: float
@@ -157,8 +157,11 @@ class ThoughtRuntime:
             step=step,
             context=context_override or default_context,
             conclusion=conclusion_override or default_conclusion,
-            confidence=confidence_override if confidence_override is not None
-            else self._confidence_baseline,
+            confidence=(
+                confidence_override
+                if confidence_override is not None
+                else self._confidence_baseline
+            ),
         )
         self._history.append(thought)
         self._emit(thought)
@@ -255,6 +258,7 @@ class ThoughtRuntime:
             from intelligence_engine.cognitive.observability_emitter import (
                 emit_thought_stream,
             )
+
             emit_thought_stream(
                 ts_ns=thought.ts_ns,
                 reasoning_step=thought.step,
@@ -267,12 +271,16 @@ class ThoughtRuntime:
             pass
         try:
             from state.event_bus import CognitiveChannel, get_event_bus
-            get_event_bus().publish(CognitiveChannel.INDIRA_THOUGHT, {
-                "thought_id": thought.thought_id,
-                "step": thought.step,
-                "confidence": thought.confidence,
-                "ts_ns": thought.ts_ns,
-            })
+
+            get_event_bus().publish(
+                CognitiveChannel.INDIRA_THOUGHT,
+                {
+                    "thought_id": thought.thought_id,
+                    "step": thought.step,
+                    "confidence": thought.confidence,
+                    "ts_ns": thought.ts_ns,
+                },
+            )
         except Exception:
             pass
 

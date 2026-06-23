@@ -33,21 +33,22 @@ from typing import Any
 # Data contracts
 # ---------------------------------------------------------------------------
 
+
 @dataclass(frozen=True, slots=True)
 class BacktestPlatform:
     name: str
     base_url: str
-    api_kind: str           # "rest" | "websocket" | "cli" | "python_lib"
-    capabilities: tuple[str, ...]   # "backtest" | "live_data" | "replay" | "alerts"
-    auth_type: str          # "apikey" | "bearer" | "none"
-    trust_score: float      # operator-assigned [0, 1]
+    api_kind: str  # "rest" | "websocket" | "cli" | "python_lib"
+    capabilities: tuple[str, ...]  # "backtest" | "live_data" | "replay" | "alerts"
+    auth_type: str  # "apikey" | "bearer" | "none"
+    trust_score: float  # operator-assigned [0, 1]
     notes: str = ""
 
 
 @dataclass
 class PlatformConnection:
     platform: BacktestPlatform
-    status: str = "PENDING"         # PENDING | PROBING | CONNECTED | UNREACHABLE
+    status: str = "PENDING"  # PENDING | PROBING | CONNECTED | UNREACHABLE
     last_probe_ns: int = 0
     api_surfaces: list[str] = field(default_factory=list)
     relevance_score: float = 0.0
@@ -148,6 +149,7 @@ _RESEARCH_TOPICS = (
 # PlatformRegistry
 # ---------------------------------------------------------------------------
 
+
 class PlatformRegistry:
     """Registry of backtesting platforms INDIRA can connect to and test on.
 
@@ -173,9 +175,10 @@ class PlatformRegistry:
         self._probe_seq += 1
         with self._lock:
             pending = [
-                c for c in self._connections.values()
+                c
+                for c in self._connections.values()
                 if c.status in ("PENDING", "UNREACHABLE")
-                   and (ts_ns - c.last_probe_ns) > 300_000_000_000  # 5 min cool-down
+                and (ts_ns - c.last_probe_ns) > 300_000_000_000  # 5 min cool-down
             ]
         if not pending:
             return
@@ -185,6 +188,7 @@ class PlatformRegistry:
 
     def _probe_one(self, conn: PlatformConnection, ts_ns: int) -> None:
         """Run api_sniffer against one platform (non-blocking thread)."""
+
         def _run() -> None:
             name = conn.platform.name
             url = conn.platform.base_url
@@ -193,6 +197,7 @@ class PlatformRegistry:
                 conn.last_probe_ns = ts_ns
             try:
                 from mind.sources.providers.api_sniffer import propose_candidate
+
                 candidate = propose_candidate(url, emit_ledger=False)
                 new_status = "CONNECTED" if candidate.relevance_score >= 0.3 else "UNREACHABLE"
                 with self._lock:
@@ -204,7 +209,10 @@ class PlatformRegistry:
                 with self._lock:
                     conn.status = "UNREACHABLE"
                     conn.error = str(exc)[:120]
-        threading.Thread(target=_run, daemon=True, name=f"indira-probe-{conn.platform.name}").start()
+
+        threading.Thread(
+            target=_run, daemon=True, name=f"indira-probe-{conn.platform.name}"
+        ).start()
 
     # ------------------------------------------------------------------
     # Research cycle — enqueue discovery topics into AutonomousResearchRuntime
@@ -220,15 +228,18 @@ class PlatformRegistry:
                 get_research_runtime,
             )
             from intelligence_engine.research.browser_research_service import ResearchTaskType
+
             rt = get_research_runtime()
             if not rt._running:
                 rt.start()
-            rt.enqueue(ResearchTopic(
-                topic=topic_str,
-                task_type=ResearchTaskType.MARKET_ANALYSIS,
-                priority=7,
-                ts_ns=ts_ns,
-            ))
+            rt.enqueue(
+                ResearchTopic(
+                    topic=topic_str,
+                    task_type=ResearchTaskType.MARKET_ANALYSIS,
+                    priority=7,
+                    ts_ns=ts_ns,
+                )
+            )
         except Exception:
             pass
 
@@ -242,6 +253,7 @@ class PlatformRegistry:
             return
         try:
             from urllib.parse import urlparse
+
             host = urlparse(url).netloc.lower().lstrip("www.")
         except Exception:
             host = url[:40]
@@ -292,6 +304,7 @@ class PlatformRegistry:
             from intelligence_engine.cognitive.observability_emitter import (
                 emit_research_discovery,
             )
+
             emit_research_discovery(
                 ts_ns=ts_ns,
                 topic=f"backtesting_platform:{name}",

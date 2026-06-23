@@ -52,7 +52,12 @@ __all__ = (
 )
 
 
-NEW_PIP_DEPENDENCIES: tuple[str, ...] = ( "openai", "anthropic", "google-genai", "groq", )
+NEW_PIP_DEPENDENCIES: tuple[str, ...] = (
+    "openai",
+    "anthropic",
+    "google-genai",
+    "groq",
+)
 
 
 class ProviderTransportError(ValueError):
@@ -182,7 +187,7 @@ TRANSPORT_SPECS: tuple[ProviderTransportSpec, ...] = (
         provider="local_llama",
         family="local",
         env_var="LLAMA_MODEL_PATH",
-        base_url="http://localhost:0",   # in-process, no HTTP port
+        base_url="http://localhost:0",  # in-process, no HTTP port
         auth_scheme="bearer",
     ),
     ProviderTransportSpec(
@@ -264,12 +269,8 @@ class _FrozenDict(dict[str, str]):
     def popitem(self) -> tuple[str, str]:  # pragma: no cover
         raise TypeError("_FrozenDict is immutable")
 
-    def setdefault(  # pragma: no cover
-        self, *args: object, **kwargs: object
-    ) -> str:
+    def setdefault(self, *args: object, **kwargs: object) -> str:  # pragma: no cover
         raise TypeError("_FrozenDict is immutable")
 
-    def update(  # pragma: no cover
-        self, *args: object, **kwargs: object
-    ) -> None:
+    def update(self, *args: object, **kwargs: object) -> None:  # pragma: no cover
         raise TypeError("_FrozenDict is immutable")

@@ -28,7 +28,7 @@ DIX VISION v42.2 is a **Cognitive Operating System** designed for autonomous tra
 **Core Identity:**
 - **IS** a cognitive intelligence system for trading
 - Trading is the core purpose and design goal
-- World understanding and indicator processing are equally important
+- Signal processing is the primary driver (85%) for profitable trading, with world understanding (15%) providing essential enhancement for risk management and regime awareness
 - Profit is the goal, achieved through intelligence
 - Cognitive development enables superior trading performance
 - System self-evolution for improved trading performance

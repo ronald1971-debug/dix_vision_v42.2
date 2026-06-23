@@ -4,25 +4,25 @@ Contract-Compliant Real Implementation
 """
 
 from .temporal_reasoning import (
-    TimeHorizon,
-    TemporalPattern,
-    TemporalPrediction,
     HierarchicalTemporalMemory,
+    MarketCycleDetection,
     MultiHorizonReasoning,
     SeasonalPatternRecognition,
-    MarketCycleDetection,
+    TemporalPattern,
+    TemporalPrediction,
     TemporalReasoningSystem,
-    get_temporal_reasoning_system
+    TimeHorizon,
+    get_temporal_reasoning_system,
 )
 
 __all__ = [
-    'TimeHorizon',
-    'TemporalPattern',
-    'TemporalPrediction',
-    'HierarchicalTemporalMemory',
-    'MultiHorizonReasoning',
-    'SeasonalPatternRecognition',
-    'MarketCycleDetection',
-    'TemporalReasoningSystem',
-    'get_temporal_reasoning_system'
+    "TimeHorizon",
+    "TemporalPattern",
+    "TemporalPrediction",
+    "HierarchicalTemporalMemory",
+    "MultiHorizonReasoning",
+    "SeasonalPatternRecognition",
+    "MarketCycleDetection",
+    "TemporalReasoningSystem",
+    "get_temporal_reasoning_system",
 ]

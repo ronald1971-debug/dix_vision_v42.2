@@ -47,9 +47,9 @@ _DORMANCY_THRESHOLD: float = 0.05
 class BehavioralCluster:
     """One live behavioral cluster grouped by trader archetype."""
 
-    archetype: str          # e.g. "momentum_trader", "hft_scalper"
-    size: int = 0           # cumulative observation count
-    strength: float = 0.0   # EMA of incoming confidence scores
+    archetype: str  # e.g. "momentum_trader", "hft_scalper"
+    size: int = 0  # cumulative observation count
+    strength: float = 0.0  # EMA of incoming confidence scores
     last_observed_ns: int = 0
     ticks_dormant: int = 0
     is_dominant: bool = False
@@ -60,7 +60,9 @@ class BehavioralCluster:
         """Cluster ranking score — strength weighted by log-size."""
         return self.strength * math.log(self.size + 1) if self.size > 0 else 0.0
 
-    def update(self, confidence: float, ts_ns: int, features: dict[str, float] | None = None) -> None:
+    def update(
+        self, confidence: float, ts_ns: int, features: dict[str, float] | None = None
+    ) -> None:
         """Incorporate a new observation into this cluster."""
         self.size += 1
         # EMA strength update
@@ -123,6 +125,7 @@ class BehavioralClusterTracker:
             self._activated = True
         try:
             from state.event_bus import CognitiveChannel, get_event_bus
+
             get_event_bus().subscribe(CognitiveChannel.INDIRA_INSIGHT, self._on_insight)
             _logger.info("BehavioralClusterTracker: subscribed to INDIRA_INSIGHT")
         except Exception as exc:
@@ -165,18 +168,15 @@ class BehavioralClusterTracker:
                 if cl.ticks_dormant > 1:
                     cl.strength = max(0.0, cl.strength - _DECAY_PER_TICK)
             # Recompute dominant
-            active = {
-                a: c for a, c in self._clusters.items()
-                if c.strength >= _DORMANCY_THRESHOLD
-            }
+            active = {a: c for a, c in self._clusters.items() if c.strength >= _DORMANCY_THRESHOLD}
             prev = self._dominant
             if active:
                 new_dom = max(active, key=lambda a: active[a].composite_score)
             else:
                 new_dom = ""
             for cl in self._clusters.values():
-                cl.is_dominant = (cl.archetype == new_dom)
-            changed = (new_dom != prev)
+                cl.is_dominant = cl.archetype == new_dom
+            changed = new_dom != prev
             self._dominant = new_dom
             if changed:
                 self._prev_dominant = prev
@@ -266,6 +266,7 @@ class BehavioralClusterTracker:
             from intelligence_engine.cognitive.observability_emitter import (
                 emit_archetype_evolution,
             )
+
             emit_archetype_evolution(
                 ts_ns=ts_ns,
                 archetype_id=new_dominant,
@@ -282,6 +283,7 @@ class BehavioralClusterTracker:
     def _current_regime() -> str:
         try:
             from state.market_state import get_market_state
+
             return get_market_state().regime()
         except Exception:
             return "MIXED"

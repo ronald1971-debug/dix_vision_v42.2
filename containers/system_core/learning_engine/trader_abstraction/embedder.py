@@ -18,6 +18,7 @@ from dataclasses import dataclass
 @dataclass(frozen=True, slots=True)
 class EmbedderConfig:
     """Configuration for the embedding projection."""
+
     input_dim: int = 64
     embed_dim: int = 16
     normalise_output: bool = True
@@ -26,6 +27,7 @@ class EmbedderConfig:
 @dataclass(frozen=True, slots=True)
 class TraderEmbedding:
     """Low-dimensional embedding of a trader observation."""
+
     strategy_id: str
     embedding: tuple[float, ...]
     source_dim: int
@@ -65,6 +67,7 @@ class TraderEmbedder:
     def _build_projection(self, seed: int) -> list[list[float]]:
         """Build a deterministic random projection matrix."""
         import hashlib
+
         rows: list[list[float]] = []
         for i in range(self._cfg.embed_dim):
             row = []

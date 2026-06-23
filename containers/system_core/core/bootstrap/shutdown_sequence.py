@@ -30,6 +30,7 @@ def run_shutdown() -> dict[str, bool]:
 
     try:
         from system.state import get_state_manager
+
         get_state_manager().set_mode("HALTED")
         results["mode_halted"] = True
     except Exception as exc:
@@ -38,6 +39,7 @@ def run_shutdown() -> dict[str, bool]:
 
     try:
         from execution.engine import get_dyon_engine
+
         get_dyon_engine().stop()
         results["dyon_stop"] = True
     except Exception as exc:
@@ -46,6 +48,7 @@ def run_shutdown() -> dict[str, bool]:
 
     try:
         from enforcement.runtime_guardian import get_runtime_guardian
+
         get_runtime_guardian().stop()
         results["guardian_stop"] = True
     except Exception as exc:
@@ -54,6 +57,7 @@ def run_shutdown() -> dict[str, bool]:
 
     try:
         from execution.hazard.async_bus import get_hazard_bus
+
         get_hazard_bus().stop()
         results["hazard_bus_drain"] = True
     except Exception as exc:
@@ -62,6 +66,7 @@ def run_shutdown() -> dict[str, bool]:
 
     try:
         from state.ledger.writer import get_writer
+
         get_writer().stop()
         results["ledger_flush"] = True
     except Exception as exc:
@@ -70,6 +75,7 @@ def run_shutdown() -> dict[str, bool]:
 
     try:
         from state.ledger.event_store import append_event
+
         append_event("SYSTEM", "SHUTDOWN_COMPLETE", "shutdown_sequence", {"results": results})
         results["audit_shutdown_complete"] = True
     except Exception as exc:

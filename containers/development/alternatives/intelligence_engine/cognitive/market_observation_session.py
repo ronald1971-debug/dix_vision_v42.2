@@ -51,8 +51,8 @@ class Hypothesis:
     """One hypothesis within an observation session."""
 
     hypo_id: str
-    text: str                           # human-readable thesis
-    status: str = "FORMING"            # FORMING | ACTIVE | CONFIRMED | REJECTED | DISSOLVED
+    text: str  # human-readable thesis
+    status: str = "FORMING"  # FORMING | ACTIVE | CONFIRMED | REJECTED | DISSOLVED
     confidence: float = 0.45
     evidence_for: int = 0
     evidence_against: int = 0
@@ -97,8 +97,8 @@ class ObservationSession:
     """INDIRA's focused observation on a specific market phenomenon."""
 
     session_id: str
-    focus_label: str            # e.g. "BTC_REGIME_SHIFT", "ETH_FUNDING_EXTREME"
-    theme: str                  # human-readable theme, e.g. "Evaluating momentum dominance"
+    focus_label: str  # e.g. "BTC_REGIME_SHIFT", "ETH_FUNDING_EXTREME"
+    theme: str  # human-readable theme, e.g. "Evaluating momentum dominance"
     hypotheses: list[Hypothesis] = field(default_factory=list)
     observations: list[str] = field(default_factory=list)  # raw signal strings
     started_ts_ns: int = 0
@@ -157,7 +157,7 @@ class ObservationSessionManager:
     def __init__(self) -> None:
         self._lock = threading.Lock()
         self._sessions: dict[str, ObservationSession] = {}
-        self._closed_sessions: list[ObservationSession] = []   # ring of last 20
+        self._closed_sessions: list[ObservationSession] = []  # ring of last 20
         self._tick_count: int = 0
         self._spawn_count: int = 0
         self._activated: bool = False
@@ -174,6 +174,7 @@ class ObservationSessionManager:
             self._activated = True
         try:
             from state.event_bus import CognitiveChannel, get_event_bus
+
             bus = get_event_bus()
             bus.subscribe(CognitiveChannel.INDIRA_INSIGHT, self._on_insight)
             bus.subscribe(CognitiveChannel.DYON_SCAN_COMPLETE, self._on_dyon_scan)
@@ -270,19 +271,19 @@ class ObservationSessionManager:
                 session_id=sid,
                 focus_label=focus_label,
                 theme=theme,
-                hypotheses=[Hypothesis(
-                    hypo_id=hypo_id,
-                    text=initial_hypothesis_text,
-                    formed_ts_ns=ts_ns,
-                    confidence=0.45,
-                )],
+                hypotheses=[
+                    Hypothesis(
+                        hypo_id=hypo_id,
+                        text=initial_hypothesis_text,
+                        formed_ts_ns=ts_ns,
+                        confidence=0.45,
+                    )
+                ],
                 started_ts_ns=ts_ns,
                 last_active_ts_ns=ts_ns,
             )
             self._sessions[sid] = session
-            _logger.info(
-                "ObservationSessionManager: spawned session %s focus=%s", sid, focus_label
-            )
+            _logger.info("ObservationSessionManager: spawned session %s focus=%s", sid, focus_label)
             return sid
 
     # ------------------------------------------------------------------
@@ -362,12 +363,24 @@ class ObservationSessionManager:
         """Spawn sessions from thought context tokens (causal triggers)."""
         ctx_l = context.lower()
         triggers = [
-            ("funding_extreme" in ctx_l or "funding_positive_extreme" in ctx_l,
-             "FUNDING_EXTREME", "Evaluating funding rate extreme", "Elevated funding indicates overleveraged longs"),
-            ("regime_shift" in ctx_l or "regime change" in ctx_l,
-             "REGIME_SHIFT", "Tracking potential regime transition", "Regime transition may invalidate current strategy allocations"),
-            ("vix_spike" in ctx_l or "macro_fear" in ctx_l,
-             "MACRO_FEAR", "Evaluating macro fear contagion into crypto", "VIX/macro fear typically causes correlated crypto sell-off"),
+            (
+                "funding_extreme" in ctx_l or "funding_positive_extreme" in ctx_l,
+                "FUNDING_EXTREME",
+                "Evaluating funding rate extreme",
+                "Elevated funding indicates overleveraged longs",
+            ),
+            (
+                "regime_shift" in ctx_l or "regime change" in ctx_l,
+                "REGIME_SHIFT",
+                "Tracking potential regime transition",
+                "Regime transition may invalidate current strategy allocations",
+            ),
+            (
+                "vix_spike" in ctx_l or "macro_fear" in ctx_l,
+                "MACRO_FEAR",
+                "Evaluating macro fear contagion into crypto",
+                "VIX/macro fear typically causes correlated crypto sell-off",
+            ),
         ]
         for condition, focus, theme, hypo_text in triggers:
             if condition:

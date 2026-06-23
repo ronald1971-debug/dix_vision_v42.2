@@ -6,20 +6,19 @@ Author: DIX VISION Event Streaming Governance
 Version: 42.2
 """
 
-import logging
-from typing import Any, Dict
-from datetime import datetime
-import time
-
 import sys
-import os
+import time
+from datetime import datetime
+from typing import Any, Dict
+
 sys.path.append('/app/governance')
 
 from base_external_repo_wrapper import (
     BaseExternalRepoGovernanceWrapper,
+    ExternalRepositoryMetrics,
     PermissionLevel,
-    ExternalRepositoryMetrics
 )
+
 
 class KafkaGovernanceWrapper(BaseExternalRepoGovernanceWrapper):
     def __init__(self, permission_level: PermissionLevel = PermissionLevel.READ_ONLY):
@@ -35,7 +34,7 @@ class KafkaGovernanceWrapper(BaseExternalRepoGovernanceWrapper):
         
     def initialize_kafka(self, kafka_config: Dict[str, Any]):
         try:
-            from kafka import KafkaProducer, KafkaConsumer
+            from kafka import KafkaConsumer, KafkaProducer
             self.kafka_available = True
             self.KafkaProducer = KafkaProducer
             self.KafkaConsumer = KafkaConsumer

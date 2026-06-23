@@ -13,9 +13,9 @@ from dataclasses import dataclass, field
 from core.contracts.engine import (
     HealthState,
     HealthStatus,
+    MicrostructurePlugin,
     PluginLifecycle,
 )
-from core.contracts.engine import MicrostructurePlugin
 from core.contracts.events import Side, SignalEvent
 from core.contracts.market import MarketTick
 

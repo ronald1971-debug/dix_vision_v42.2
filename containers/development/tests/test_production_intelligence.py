@@ -1,24 +1,24 @@
 """Tests for Production Intelligence Components."""
 
-import unittest
-import sys
 import os
+import sys
 import time
+import unittest
+
 import numpy as np
 
 # Add paths to imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from intelligence_engine.cognitive.production_intelligence import (
+    CognitiveDecision,
+    ConfidenceLevel,
+    DecisionContext,
+    DecisionType,
+    MarketDataPoint,
     ProductionPatternRecognition,
     ProductionRiskAssessment,
-    ProductionDecisionEngine,
     get_production_decision_engine,
-    DecisionType,
-    ConfidenceLevel,
-    MarketDataPoint,
-    DecisionContext,
-    CognitiveDecision,
 )
 
 
@@ -80,12 +80,8 @@ class TestProductionRiskAssessment(unittest.TestCase):
         """Test portfolio risk assessment."""
         portfolio_state = {
             "total_value": 100000.0,
-            "positions": [
-                {"value": 30000.0},
-                {"value": 20000.0},
-                {"value": 10000.0}
-            ],
-            "volatility": 0.2
+            "positions": [{"value": 30000.0}, {"value": 20000.0}, {"value": 10000.0}],
+            "volatility": 0.2,
         }
 
         market_data = MarketDataPoint(
@@ -99,7 +95,7 @@ class TestProductionRiskAssessment(unittest.TestCase):
             momentum=0.01,
             trend=0.5,
             support_level=95.0,
-            resistance_level=105.0
+            resistance_level=105.0,
         )
 
         risk_metrics = self.risk_assessment.assess_portfolio_risk(portfolio_state, market_data)
@@ -111,10 +107,7 @@ class TestProductionRiskAssessment(unittest.TestCase):
 
     def test_var_calculation(self):
         """Test VaR calculation."""
-        portfolio_state = {
-            "total_value": 100000.0,
-            "volatility": 0.2
-        }
+        portfolio_state = {"total_value": 100000.0, "volatility": 0.2}
 
         market_data = MarketDataPoint(
             timestamp=time.time(),
@@ -127,7 +120,7 @@ class TestProductionRiskAssessment(unittest.TestCase):
             momentum=0.01,
             trend=0.5,
             support_level=95.0,
-            resistance_level=105.0
+            resistance_level=105.0,
         )
 
         var_95 = self.risk_assessment._calculate_var(portfolio_state, market_data, confidence=0.95)
@@ -141,7 +134,7 @@ class TestProductionRiskAssessment(unittest.TestCase):
         positions = [
             {"value": 80000.0},  # 80% in one position - high concentration
             {"value": 10000.0},
-            {"value": 10000.0}
+            {"value": 10000.0},
         ]
 
         concentration = self.risk_assessment._calculate_concentration_risk(positions)
@@ -173,18 +166,17 @@ class TestProductionDecisionEngine(unittest.TestCase):
                 momentum=0.05,  # Positive momentum
                 trend=2.0,
                 support_level=95.0,
-                resistance_level=105.0
+                resistance_level=105.0,
             ),
             portfolio_state={"total_value": 100000.0, "positions": [], "volatility": 0.2},
             risk_metrics={"overall_risk_score": 0.4},
             market_conditions={"trend": "upward"},
             historical_performance=[0.01, 0.02, 0.015, 0.03, 0.025],
-            available_capital=100000.0
+            available_capital=100000.0,
         )
 
         decision = self.decision_engine.make_production_decision(
-            context=context,
-            decision_type=DecisionType.TRADING
+            context=context, decision_type=DecisionType.TRADING
         )
 
         self.assertIsInstance(decision, CognitiveDecision)
@@ -208,18 +200,17 @@ class TestProductionDecisionEngine(unittest.TestCase):
                 momentum=0.0,
                 trend=0.0,
                 support_level=95.0,
-                resistance_level=105.0
+                resistance_level=105.0,
             ),
             portfolio_state={"total_value": 100000.0, "positions": [], "volatility": 0.15},
             risk_metrics={"overall_risk_score": 0.85},  # High risk
             market_conditions={"volatility": "high"},
             historical_performance=[0.01, 0.02, 0.015],
-            available_capital=100000.0
+            available_capital=100000.0,
         )
 
         decision = self.decision_engine.make_production_decision(
-            context=context,
-            decision_type=DecisionType.RISK_MANAGEMENT
+            context=context, decision_type=DecisionType.RISK_MANAGEMENT
         )
 
         self.assertIsInstance(decision, CognitiveDecision)
@@ -233,7 +224,7 @@ class TestProductionDecisionEngine(unittest.TestCase):
             (0.3, ConfidenceLevel.LOW),
             (0.5, ConfidenceLevel.MEDIUM),
             (0.7, ConfidenceLevel.HIGH),
-            (0.9, ConfidenceLevel.VERY_HIGH)
+            (0.9, ConfidenceLevel.VERY_HIGH),
         ]
 
         for confidence, expected_level in test_cases:
@@ -257,18 +248,17 @@ class TestProductionDecisionEngine(unittest.TestCase):
                     momentum=0.01,
                     trend=0.5,
                     support_level=95.0,
-                    resistance_level=105.0
+                    resistance_level=105.0,
                 ),
                 portfolio_state={"total_value": 100000.0, "positions": [], "volatility": 0.2},
                 risk_metrics={"overall_risk_score": 0.4},
                 market_conditions={"trend": "upward"},
                 historical_performance=[0.01, 0.02, 0.015, 0.03, 0.025],
-                available_capital=100000.0
+                available_capital=100000.0,
             )
 
             self.decision_engine.make_production_decision(
-                context=context,
-                decision_type=DecisionType.TRADING
+                context=context, decision_type=DecisionType.TRADING
             )
 
         stats = self.decision_engine.get_decision_statistics()
@@ -290,15 +280,15 @@ def run_production_intelligence_tests():
     runner = unittest.TextTestRunner(verbosity=2)
     result = runner.run(suite)
 
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("PRODUCTION INTELLIGENCE TEST SUMMARY")
-    print("="*70)
+    print("=" * 70)
     print(f"Tests run: {result.testsRun}")
     print(f"Successes: {result.testsRun - len(result.failures) - len(result.errors)}")
     print(f"Failures: {len(result.failures)}")
     print(f"Errors: {len(result.errors)}")
     print(f"Skipped: {len(result.skipped)}")
-    print("="*70)
+    print("=" * 70)
 
     return result.wasSuccessful()
 

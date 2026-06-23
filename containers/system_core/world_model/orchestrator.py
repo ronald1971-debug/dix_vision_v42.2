@@ -14,7 +14,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from system.time_source import now
-from world_model.world_model import get_production_world_model, ProductionWorldModel
+from world_model.world_model import ProductionWorldModel, get_production_world_model
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class WorldModelState:
     """State of the world-model."""
-    
+
     market_state: dict[str, Any]
     agent_models: dict[str, dict[str, Any]]
     environment_state: dict[str, Any]
@@ -30,7 +30,7 @@ class WorldModelState:
     dynamics: dict[str, Any]
     predictions: dict[str, Any]
     last_updated: str = ""
-    
+
     def __post_init__(self):
         if not self.last_updated:
             self.last_updated = now().utc_time.isoformat()
@@ -38,7 +38,7 @@ class WorldModelState:
 
 class WorldModelOrchestrator:
     """Production-grade orchestrator for world-modeling operations using production-grade components."""
-    
+
     def __init__(self) -> None:
         self._production_model: ProductionWorldModel | None = None
         self._state = WorldModelState(
@@ -46,32 +46,29 @@ class WorldModelOrchestrator:
                 "regime": "neutral",
                 "volatility": "medium",
                 "trend": "sideways",
-                "liquidity": "high"
+                "liquidity": "high",
             },
             agent_models={
                 "market_makers": {"behavior": "liquidity_providing", "impact": "high"},
-                "traders": {"behavior": "profit_seeking", "impact": "medium"}
+                "traders": {"behavior": "profit_seeking", "impact": "medium"},
             },
             environment_state={
                 "economic_cycle": "expansion",
                 "regulatory": "normal",
-                "sentiment": "positive"
+                "sentiment": "positive",
             },
             causal_structure={
                 "interest_rates": ["inflation", "bond_prices"],
-                "inflation": ["stock_prices", "commodity_prices"]
+                "inflation": ["stock_prices", "commodity_prices"],
             },
-            dynamics={
-                "volatility_dynamics": "mean_reverting",
-                "trend_dynamics": "momentum_based"
-            },
+            dynamics={"volatility_dynamics": "mean_reverting", "trend_dynamics": "momentum_based"},
             predictions={
                 "short_term": "neutral",
                 "medium_term": "bullish",
-                "long_term": "uncertain"
-            }
+                "long_term": "uncertain",
+            },
         )
-    
+
     def start(self) -> bool:
         """Start the world-model orchestrator with production-grade components."""
         try:
@@ -82,7 +79,7 @@ class WorldModelOrchestrator:
         except Exception as e:
             logger.error(f"[WORLD_MODEL] Failed to start: {e}")
             return False
-    
+
     def stop(self) -> bool:
         """Stop the world-model orchestrator."""
         try:
@@ -93,81 +90,81 @@ class WorldModelOrchestrator:
         except Exception as e:
             logger.error(f"[WORLD_MODEL] Failed to stop: {e}")
             return False
-    
+
     def update_market_state(self, market_data: dict[str, Any]) -> None:
         """Update market representation."""
         self._state.market_state.update(market_data)
         self._state.last_updated = now().utc_time.isoformat()
         logger.debug("[WORLD_MODEL] Market state updated")
-    
+
     def update_agent_models(self, agent_data: dict[str, dict[str, Any]]) -> None:
         """Update agent modeling."""
         self._state.agent_models.update(agent_data)
         self._state.last_updated = now().utc_time.isoformat()
         logger.debug("[WORLD_MODEL] Agent models updated")
-    
+
     def update_environment(self, environment_data: dict[str, Any]) -> None:
         """Update environment modeling."""
         self._state.environment_state.update(environment_data)
         self._state.last_updated = now().utc_time.isoformat()
         logger.debug("[WORLD_MODEL] Environment updated")
-    
+
     def update_causal_structure(self, causal_data: dict[str, list[str]]) -> None:
         """Update causal structure."""
         self._state.causal_structure.update(causal_data)
         self._state.last_updated = now().utc_time.isoformat()
         logger.debug("[WORLD_MODEL] Causal structure updated")
-    
+
     def update_dynamics(self, dynamics_data: dict[str, Any]) -> None:
         """Update dynamics modeling."""
         self._state.dynamics.update(dynamics_data)
         self._state.last_updated = now().utc_time.isoformat()
         logger.debug("[WORLD_MODEL] Dynamics updated")
-    
+
     def update_predictions(self, prediction_data: dict[str, Any]) -> None:
         """Update prediction systems."""
         self._state.predictions.update(prediction_data)
         self._state.last_updated = now().utc_time.isoformat()
         logger.debug("[WORLD_MODEL] Predictions updated")
-    
+
     def predict(self, context: dict[str, Any]) -> dict[str, Any]:
         """Generate predictions based on world model."""
         # Simplified prediction logic
         prediction = {
             "market_direction": self._state.predictions["short_term"],
             "confidence": 0.75,
-            "time_horizon": context.get("horizon", "short_term")
+            "time_horizon": context.get("horizon", "short_term"),
         }
         return prediction
-    
+
     def get_state(self) -> WorldModelState:
         """Get current world-model state."""
         return self._state
-    
+
     def get_market_state(self) -> dict[str, Any]:
         """Get market representation."""
         return self._state.market_state.copy()
-    
+
     def get_agent_models(self) -> dict[str, dict[str, Any]]:
         """Get agent modeling."""
         return self._state.agent_models.copy()
-    
+
     def get_environment(self) -> dict[str, Any]:
         """Get environment modeling."""
         return self._state.environment_state.copy()
-    
+
     def get_causal_structure(self) -> dict[str, list[str]]:
         """Get causal structure."""
         return self._state.causal_structure.copy()
-    
+
     def get_dynamics(self) -> dict[str, Any]:
         """Get dynamics modeling."""
         return self._state.dynamics.copy()
-    
+
     def get_predictions(self) -> dict[str, Any]:
         """Get prediction systems."""
         return self._state.predictions.copy()
-    
+
     @property
     def production_model(self) -> ProductionWorldModel | None:
         """Get the production-grade world-model instance."""

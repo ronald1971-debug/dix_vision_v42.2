@@ -29,12 +29,12 @@ from typing import Any
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-
 from system_unified.time_source import wall_ns
 
 # ---------------------------------------------------------------------------
 # Request bodies
 # ---------------------------------------------------------------------------
+
 
 class LockRequest(BaseModel):
     operator_id: str
@@ -54,7 +54,7 @@ class ErodeRequest(BaseModel):
 
 
 class ReplaySnapshotRequest(BaseModel):
-    streams: list[str] = []   # empty = all known streams
+    streams: list[str] = []  # empty = all known streams
     ts_ns: int = 0
 
 
@@ -62,53 +62,63 @@ class ReplaySnapshotRequest(BaseModel):
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _ts(ts_ns: int) -> int:
     return ts_ns if ts_ns else wall_ns()
 
 
 def _hardening():
     from governance_unified.hardening.coordinator import get_hardening_coordinator
+
     return get_hardening_coordinator()
 
 
 def _firewall():
     from governance_unified.hardening.mutation_firewall import get_mutation_firewall
+
     return get_mutation_firewall()
 
 
 def _lock_mgr():
     from governance_unified.hardening.policy_lock import get_policy_lock_manager
+
     return get_policy_lock_manager()
 
 
 def _invariant():
     from governance_unified.hardening.invariant_monitor import get_invariant_monitor
+
     return get_invariant_monitor()
 
 
 def _replay():
     from governance_unified.hardening.replay_engine import get_replay_engine
+
     return get_replay_engine()
 
 
 def _isolation():
     from governance_unified.hardening.isolation_boundary import get_isolation_boundary
+
     return get_isolation_boundary()
 
 
 def _trust():
     from governance_unified.hardening.trust_scorer import get_trust_scorer
+
     return get_trust_scorer()
 
 
 def _auditor():
     from governance_unified.hardening.execution_auditor import get_execution_auditor
+
     return get_execution_auditor()
 
 
 # ---------------------------------------------------------------------------
 # Router
 # ---------------------------------------------------------------------------
+
 
 def build_governance_hardening_router() -> APIRouter:
     router = APIRouter(prefix="/api/governance/hardening", tags=["governance_hardening"])
@@ -128,6 +138,7 @@ def build_governance_hardening_router() -> APIRouter:
     @router.get("/invariants")
     def get_invariants() -> dict[str, Any]:
         from governance_unified.hardening.invariant_monitor import _report_to_dict
+
         report = _invariant().last_report
         if report is None:
             return {"status": "no report yet"}

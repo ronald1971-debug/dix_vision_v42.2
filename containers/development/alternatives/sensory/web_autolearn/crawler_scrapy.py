@@ -345,7 +345,7 @@ class ScrapyCrawler:
         seed_urls: Mapping[str, str],
         *,
         config: ScrapyCrawlerConfig | None = None,
-        runtime_factory: (Callable[[ScrapyCrawlerConfig], _ScrapyRuntime] | None) = None,
+        runtime_factory: Callable[[ScrapyCrawlerConfig], _ScrapyRuntime] | None = None,
     ) -> None:
         if not seed_urls:
             raise ValueError("ScrapyCrawler.seed_urls must be non-empty")

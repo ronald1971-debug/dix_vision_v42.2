@@ -182,6 +182,7 @@ class EpisodicMemoryStore:
         """Best-effort MemoryFormationEvent emission. Never raises."""
         try:
             from intelligence_engine.cognitive.observability_emitter import emit_memory_formation
+
             subject = episode.payload.get("subject", episode.episode_id[:32])
             content = episode.payload.get("content_summary", f"episodic vector dim={episode.dim}")
             source = episode.payload.get("source", "unknown")

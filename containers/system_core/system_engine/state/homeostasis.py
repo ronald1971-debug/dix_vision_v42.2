@@ -28,20 +28,22 @@ class HomeostasisState(StrEnum):
 @dataclass(frozen=True, slots=True)
 class HomeostaticBand:
     """Acceptable operating range for a system metric."""
+
     metric: str
-    low: float        # lower bound (inclusive)
-    high: float       # upper bound (inclusive)
-    warn_low: float   # soft lower bound
+    low: float  # lower bound (inclusive)
+    high: float  # upper bound (inclusive)
+    warn_low: float  # soft lower bound
     warn_high: float  # soft upper bound
 
 
 @dataclass(frozen=True, slots=True)
 class HomeostaticReading:
     """A metric reading with its homeostatic state."""
+
     metric: str
     value: float
     state: HomeostasisState
-    deviation: float   # signed distance from nearest band boundary (0 = within)
+    deviation: float  # signed distance from nearest band boundary (0 = within)
     ts_ns: int
 
 
@@ -109,10 +111,7 @@ class HomeostaticMonitor:
     def overall_state(self) -> HomeostasisState:
         """Return the worst state across all tracked metrics."""
         with self._lock:
-            all_readings = {
-                m: list(v)[-1] if v else None
-                for m, v in self._readings.items()
-            }
+            all_readings = {m: list(v)[-1] if v else None for m, v in self._readings.items()}
         states = [r.state for r in all_readings.values() if r is not None]
         if HomeostasisState.CRITICAL in states:
             return HomeostasisState.CRITICAL
@@ -127,10 +126,7 @@ class HomeostaticMonitor:
 
     def snapshot(self) -> dict[str, Any]:
         with self._lock:
-            latest = {
-                m: list(v)[-1].__dict__ if v else None
-                for m, v in self._readings.items()
-            }
+            latest = {m: list(v)[-1].__dict__ if v else None for m, v in self._readings.items()}
         return {
             "metrics": list(latest.keys()),
             "overall_state": self.overall_state().value,

@@ -266,14 +266,13 @@ class StructuralEvolutionLoop:
             import pathlib
 
             from evolution_engine.dyon.topology_scanner import get_scanner
+
             root = pathlib.Path(self._topo_root) if self._topo_root else pathlib.Path(".")
             get_scanner().scan_and_emit(root, ts_ns=ts_ns)
         except Exception:  # pragma: no cover
             pass
 
-    def _emit_dyon_observations(
-        self, ts_ns: int, result: StructuralLoopTickResult
-    ) -> None:
+    def _emit_dyon_observations(self, ts_ns: int, result: StructuralLoopTickResult) -> None:
         """Best-effort DYON cognitive observability emission. Never raises."""
         for proposal in result.proposals:
             _dyon_obs.emit_patch_proposal(

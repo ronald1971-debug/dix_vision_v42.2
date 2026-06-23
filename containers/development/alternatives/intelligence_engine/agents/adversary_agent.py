@@ -126,7 +126,7 @@ class AdversaryAgent(AgentBase, AgentIntrospection):
         if mean == 0:
             return False
         variance = sum((x - mean) ** 2 for x in window) / len(window)
-        std = variance ** 0.5
+        std = variance**0.5
         rel_std = std / abs(mean)
         return rel_std < self.wash_vol_threshold
 
@@ -137,12 +137,8 @@ class AdversaryAgent(AgentBase, AgentIntrospection):
         avg = sum(recent) / len(recent)
         if avg == 0:
             return False
-        expanded = any(
-            s > self.spoof_spread_factor * avg for s in recent[: self.spoof_window // 2]
-        )
-        contracted = all(
-            s < avg * 1.5 for s in recent[self.spoof_window // 2 :]
-        )
+        expanded = any(s > self.spoof_spread_factor * avg for s in recent[: self.spoof_window // 2])
+        contracted = all(s < avg * 1.5 for s in recent[self.spoof_window // 2 :])
         return expanded and contracted
 
     def _detect_stop_hunt(self) -> bool:

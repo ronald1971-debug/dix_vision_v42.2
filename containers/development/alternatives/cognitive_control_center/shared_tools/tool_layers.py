@@ -13,16 +13,16 @@ import threading
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import StrEnum
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from cognitive_control_center.core.operating_environment import (
     CognitiveEntityType,
-    get_cognitive_environment,
 )
 
 
 class ToolLayerType(StrEnum):
     """Types of shared tool layers."""
+
     DESKTOP_LAYER = "desktop_layer"
     BROWSER_LAYER = "browser_layer"
     KNOWLEDGE_LAYER = "knowledge_layer"
@@ -30,6 +30,7 @@ class ToolLayerType(StrEnum):
 
 class BrowserType(StrEnum):
     """Browser types for different entities to prevent conflicts."""
+
     EDGE = "edge"
     CHROME = "chrome"
     FIREFOX = "firefox"
@@ -38,6 +39,7 @@ class BrowserType(StrEnum):
 
 class ToolLayerStatus(StrEnum):
     """Status of tool layer operations."""
+
     ACTIVE = "active"
     IDLE = "idle"
     ERROR = "error"
@@ -47,6 +49,7 @@ class ToolLayerStatus(StrEnum):
 @dataclass
 class ToolLayerSession:
     """A session where an entity is using a shared tool layer."""
+
     session_id: str
     entity_type: CognitiveEntityType
     entity_id: str
@@ -61,6 +64,7 @@ class ToolLayerSession:
 @dataclass
 class DesktopLayerActivity:
     """Activity in the Desktop Agent Layer."""
+
     session_id: str
     entity_type: CognitiveEntityType
     entity_id: str
@@ -75,6 +79,7 @@ class DesktopLayerActivity:
 @dataclass
 class BrowserLayerActivity:
     """Activity in the Browser Layer."""
+
     session_id: str
     entity_type: CognitiveEntityType
     entity_id: str
@@ -90,10 +95,10 @@ class BrowserLayerActivity:
 class SharedToolLayers:
     """
     Shared tool layers used by Operator, INDIRA, and DYON.
-    
+
     Implements Desktop Agent Layer and Browser Layer as shared tools where all three parties
     can use the same infrastructure for their respective operations.
-    
+
     Browser Conflict Resolution: Each entity uses a dedicated browser to prevent conflicts:
         - Operator: Edge (primary operator browser)
         - INDIRA: Chrome (trading operations)
@@ -110,7 +115,7 @@ class SharedToolLayers:
             ToolLayerType.BROWSER_LAYER: True,
             ToolLayerType.KNOWLEDGE_LAYER: True,
         }
-        
+
         # Entity-specific browser assignments to prevent conflicts
         self._entity_browser_map: Dict[CognitiveEntityType, BrowserType] = {
             CognitiveEntityType.OPERATOR: BrowserType.EDGE,
@@ -133,9 +138,9 @@ class SharedToolLayers:
         # Assign browser automatically if using browser layer and none specified
         if layer_type == ToolLayerType.BROWSER_LAYER and browser_type is None:
             browser_type = self.get_entity_browser(entity_type)
-        
+
         session_id = f"{layer_type.value}_{entity_id}_{datetime.utcnow().timestamp()}"
-        
+
         with self._lock:
             session = ToolLayerSession(
                 session_id=session_id,
@@ -148,14 +153,14 @@ class SharedToolLayers:
                 status=ToolLayerStatus.ACTIVE,
             )
             self._active_sessions[session_id] = session
-            
+
             # Mark layer as busy (but allow concurrent browser sessions with different browsers)
             if layer_type == ToolLayerType.BROWSER_LAYER and browser_type:
                 # For browser layer, only mark this specific browser as busy
                 pass  # Individual browser instances allow concurrency
             elif layer_type in self._layer_availability:
                 self._layer_availability[layer_type] = False
-        
+
         return session_id
 
     def end_session(self, session_id: str) -> None:
@@ -165,7 +170,7 @@ class SharedToolLayers:
                 session = self._active_sessions[session_id]
                 session.status = ToolLayerStatus.IDLE
                 session.last_activity = datetime.utcnow()
-                
+
                 # Mark layer as available (except for browser layers which are per-browser)
                 if session.layer_type != ToolLayerType.BROWSER_LAYER:
                     if session.layer_type in self._layer_availability:
@@ -176,14 +181,15 @@ class SharedToolLayers:
         with self._lock:
             browser_sessions = {
                 browser_type: [
-                    s for s in self._active_sessions.values()
-                    if s.layer_type == ToolLayerType.BROWSER_LAYER 
-                    and s.browser_type == browser_type 
+                    s
+                    for s in self._active_sessions.values()
+                    if s.layer_type == ToolLayerType.BROWSER_LAYER
+                    and s.browser_type == browser_type
                     and s.status == ToolLayerStatus.ACTIVE
                 ]
                 for browser_type in BrowserType
             }
-            
+
             return {
                 browser_type.value: {
                     "available": len(sessions) == 0,
@@ -198,11 +204,11 @@ class SharedToolLayers:
         """Record activity in the Desktop Agent Layer."""
         with self._lock:
             self._desktop_activities.append(activity)
-            
+
             # Update session last activity
             if activity.session_id in self._active_sessions:
                 self._active_sessions[activity.session_id].last_activity = datetime.utcnow()
-            
+
             # Keep last 500 activities
             if len(self._desktop_activities) > 500:
                 self._desktop_activities = self._desktop_activities[-500:]
@@ -214,13 +220,13 @@ class SharedToolLayers:
             if not activity.browser_type and activity.session_id in self._active_sessions:
                 session = self._active_sessions[activity.session_id]
                 activity.browser_type = session.browser_type
-                
+
             self._browser_activities.append(activity)
-            
+
             # Update session last activity
             if activity.session_id in self._active_sessions:
                 self._active_sessions[activity.session_id].last_activity = datetime.utcnow()
-            
+
             # Keep last 500 activities
             if len(self._browser_activities) > 500:
                 self._browser_activities = self._browser_activities[-500:]
@@ -229,30 +235,37 @@ class SharedToolLayers:
         """Get status of a specific tool layer."""
         with self._lock:
             layer_sessions = [
-                s for s in self._active_sessions.values()
+                s
+                for s in self._active_sessions.values()
                 if s.layer_type == layer_type and s.status == ToolLayerStatus.ACTIVE
             ]
-            
+
             if layer_type == ToolLayerType.DESKTOP_LAYER:
                 recent_activities = [
-                    a for a in self._desktop_activities
-                    if a.timestamp >= datetime.utcnow() - __import__('datetime').timedelta(minutes=5)
+                    a
+                    for a in self._desktop_activities
+                    if a.timestamp
+                    >= datetime.utcnow() - __import__("datetime").timedelta(minutes=5)
                 ]
             elif layer_type == ToolLayerType.BROWSER_LAYER:
                 recent_activities = [
-                    a for a in self._browser_activities
-                    if a.timestamp >= datetime.utcnow() - __import__('datetime').timedelta(minutes=5)
+                    a
+                    for a in self._browser_activities
+                    if a.timestamp
+                    >= datetime.utcnow() - __import__("datetime").timedelta(minutes=5)
                 ]
             else:
                 recent_activities = []
-            
+
             return {
                 "layer_type": layer_type.value,
                 "available": self._layer_availability.get(layer_type, True),
                 "active_sessions": len(layer_sessions),
                 "recent_activity_count": len(recent_activities),
                 "current_user": layer_sessions[0].entity_id if layer_sessions else None,
-                "current_user_type": layer_sessions[0].entity_type.value if layer_sessions else None,
+                "current_user_type": (
+                    layer_sessions[0].entity_type.value if layer_sessions else None
+                ),
             }
 
     def get_entity_sessions(
@@ -263,13 +276,13 @@ class SharedToolLayers:
         """Get sessions for specific entities."""
         with self._lock:
             sessions = list(self._active_sessions.values())
-            
+
             if entity_type:
                 sessions = [s for s in sessions if s.entity_type == entity_type]
-            
+
             if entity_id:
                 sessions = [s for s in sessions if s.entity_id == entity_id]
-            
+
             return sessions
 
     def get_desktop_activities(
@@ -281,13 +294,13 @@ class SharedToolLayers:
         """Get desktop layer activities, optionally filtered."""
         with self._lock:
             activities = list(self._desktop_activities)
-            
+
             if entity_type:
                 activities = [a for a in activities if a.entity_type == entity_type]
-            
+
             if entity_id:
                 activities = [a for a in activities if a.entity_id == entity_id]
-            
+
             return activities[-limit:]
 
     def get_browser_activities(
@@ -299,13 +312,13 @@ class SharedToolLayers:
         """Get browser layer activities, optionally filtered."""
         with self._lock:
             activities = list(self._browser_activities)
-            
+
             if entity_type:
                 activities = [a for a in activities if a.entity_type == entity_type]
-            
+
             if entity_id:
                 activities = [a for a in activities if a.entity_id == entity_id]
-            
+
             return activities[-limit:]
 
 

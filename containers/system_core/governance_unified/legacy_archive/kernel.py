@@ -23,8 +23,6 @@ from typing import Any
 
 from execution_unified.core.hazard.async_bus import (
     HazardEvent,
-    HazardSeverity,
-    HazardType,
     get_hazard_bus,
 )
 from execution_unified.hazard_archive.severity_classifier import (

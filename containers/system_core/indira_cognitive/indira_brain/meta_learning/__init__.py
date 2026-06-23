@@ -4,25 +4,25 @@ Contract-Compliant Real Implementation
 """
 
 from .meta_learning import (
-    MetaLearningType,
-    MetaLearningModel,
+    BayesianMetaLearning,
+    GradientBasedMetaLearning,
     LearningAbility,
     LearningToLearn,
-    StrategyMetaLearning,
-    GradientBasedMetaLearning,
-    BayesianMetaLearning,
+    MetaLearningModel,
     MetaLearningSystem,
-    get_meta_learning_system
+    MetaLearningType,
+    StrategyMetaLearning,
+    get_meta_learning_system,
 )
 
 __all__ = [
-    'MetaLearningType',
-    'MetaLearningModel',
-    'LearningAbility',
-    'LearningToLearn',
-    'StrategyMetaLearning',
-    'GradientBasedMetaLearning',
-    'BayesianMetaLearning',
-    'MetaLearningSystem',
-    'get_meta_learning_system'
+    "MetaLearningType",
+    "MetaLearningModel",
+    "LearningAbility",
+    "LearningToLearn",
+    "StrategyMetaLearning",
+    "GradientBasedMetaLearning",
+    "BayesianMetaLearning",
+    "MetaLearningSystem",
+    "get_meta_learning_system",
 ]

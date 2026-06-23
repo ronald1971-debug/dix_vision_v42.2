@@ -59,25 +59,17 @@ class DatasetEntry:
                 f"DatasetEntry.dataset_id must be non-empty str, got {self.dataset_id!r}"
             )
         if not isinstance(self.ts_ns, int) or isinstance(self.ts_ns, bool):
-            raise ValueError(
-                f"DatasetEntry.ts_ns must be int, got {type(self.ts_ns).__name__}"
-            )
+            raise ValueError(f"DatasetEntry.ts_ns must be int, got {type(self.ts_ns).__name__}")
         if not isinstance(self.kind, str) or not self.kind:
-            raise ValueError(
-                f"DatasetEntry.kind must be non-empty str, got {self.kind!r}"
-            )
+            raise ValueError(f"DatasetEntry.kind must be non-empty str, got {self.kind!r}")
         if not isinstance(self.row_count, int) or isinstance(self.row_count, bool):
             raise ValueError(
                 f"DatasetEntry.row_count must be int, got {type(self.row_count).__name__}"
             )
         if self.row_count < 0:
-            raise ValueError(
-                f"DatasetEntry.row_count must be >= 0, got {self.row_count!r}"
-            )
+            raise ValueError(f"DatasetEntry.row_count must be >= 0, got {self.row_count!r}")
         if not isinstance(self.digest, str) or not self.digest:
-            raise ValueError(
-                f"DatasetEntry.digest must be non-empty str, got {self.digest!r}"
-            )
+            raise ValueError(f"DatasetEntry.digest must be non-empty str, got {self.digest!r}")
 
 
 # ---------------------------------------------------------------------------
@@ -117,9 +109,7 @@ class DatasetRegistry:
     def lookup(self, dataset_id: str) -> DatasetEntry | None:
         """Return the :class:`DatasetEntry` for *dataset_id*, or ``None``."""
         if not isinstance(dataset_id, str) or not dataset_id:
-            raise ValueError(
-                "DatasetRegistry.lookup: dataset_id must be non-empty str"
-            )
+            raise ValueError("DatasetRegistry.lookup: dataset_id must be non-empty str")
         with self._lock:
             return self._entries.get(dataset_id)
 

@@ -55,8 +55,8 @@ class ArchetypePublisher:
         with self._lock:
             last = self._last_published.get(result.symbol)
             count = self._publish_counts[result.symbol]
-            changed = (last != result.archetype)
-            interval_ok = (count % _MIN_REPUBLISH_INTERVAL == 0)
+            changed = last != result.archetype
+            interval_ok = count % _MIN_REPUBLISH_INTERVAL == 0
 
             if not changed and not interval_ok:
                 self._publish_counts[result.symbol] += 1
@@ -103,20 +103,24 @@ class ArchetypePublisher:
     def _emit_insight(self, result: ClassificationResult, *, changed: bool) -> None:
         try:
             from state.event_bus import CognitiveChannel, get_event_bus
-            get_event_bus().publish(CognitiveChannel.INDIRA_INSIGHT, {
-                "subject": "TRADER_ARCHETYPE_CLASSIFIED",
-                "body": (
-                    f"{'New' if changed else 'Confirmed'} dominant archetype "
-                    f"on {result.symbol}: {result.archetype} "
-                    f"(conf={result.confidence:.2f})"
-                ),
-                "archetype": result.archetype,
-                "symbol": result.symbol,
-                "confidence": result.confidence,
-                "changed": changed,
-                "scores": result.scores,
-                "ts_ns": result.ts_ns,
-            })
+
+            get_event_bus().publish(
+                CognitiveChannel.INDIRA_INSIGHT,
+                {
+                    "subject": "TRADER_ARCHETYPE_CLASSIFIED",
+                    "body": (
+                        f"{'New' if changed else 'Confirmed'} dominant archetype "
+                        f"on {result.symbol}: {result.archetype} "
+                        f"(conf={result.confidence:.2f})"
+                    ),
+                    "archetype": result.archetype,
+                    "symbol": result.symbol,
+                    "confidence": result.confidence,
+                    "changed": changed,
+                    "scores": result.scores,
+                    "ts_ns": result.ts_ns,
+                },
+            )
         except Exception as exc:
             _logger.debug("ArchetypePublisher: event bus error: %s", exc)
 
@@ -125,6 +129,7 @@ class ArchetypePublisher:
             from state.memory_tensor.trader_patterns.archetype_store import (
                 get_archetype_store,
             )
+
             store = get_archetype_store()
             store.upsert(
                 symbol=result.symbol,
@@ -139,6 +144,7 @@ class ArchetypePublisher:
     def _emit_ledger(self, result: ClassificationResult) -> None:
         try:
             from state.ledger.append import append_event
+
             append_event(
                 stream="INTELLIGENCE",
                 kind="TRADER_ARCHETYPE",

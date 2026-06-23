@@ -45,8 +45,9 @@ class UncertaintyMap:
 class BlindSpotDetector:
     """Detects areas where the system lacks knowledge."""
 
-    def detect(self, knowledge_gaps: dict[str, float],
-               performance_drops: dict[str, float]) -> tuple[str, ...]:
+    def detect(
+        self, knowledge_gaps: dict[str, float], performance_drops: dict[str, float]
+    ) -> tuple[str, ...]:
         return tuple(k for k, v in knowledge_gaps.items() if v < 0.3 or k in performance_drops)
 
 
@@ -72,22 +73,22 @@ class SelfModel:
         strengths = tuple(d for d, s in domains.items() if s > 0.7)
         gaps = tuple(d for d, s in domains.items() if s < 0.5)
         object.__setattr__(
-            self, '_capability_map',
-            CapabilityMap(domains=domains, strengths=strengths, gaps=gaps)
+            self, "_capability_map", CapabilityMap(domains=domains, strengths=strengths, gaps=gaps)
         )
 
     def update_confidence(self, domain: str, confidence: float) -> None:
         confidences = dict(self._confidence_map.domain_confidence)
         confidences[domain] = confidence
-        object.__setattr__(self, '_confidence_map', ConfidenceMap(domain_confidence=confidences))
+        object.__setattr__(self, "_confidence_map", ConfidenceMap(domain_confidence=confidences))
 
     def update_uncertainty(self, domain: str, uncertainty: float) -> None:
         uncertainties = dict(self._uncertainty_map.domain_uncertainty)
         uncertainties[domain] = uncertainty
         blind_spots = tuple(d for d, u in uncertainties.items() if u > 0.5)
         object.__setattr__(
-            self, '_uncertainty_map',
-            UncertaintyMap(domain_uncertainty=uncertainties, blind_spots=blind_spots)
+            self,
+            "_uncertainty_map",
+            UncertaintyMap(domain_uncertainty=uncertainties, blind_spots=blind_spots),
         )
 
     def get_capability_map(self) -> CapabilityMap:

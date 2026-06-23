@@ -15,10 +15,10 @@ __all__ = ["DepthSnapshot", "DepthEstimator"]
 class DepthSnapshot:
     symbol: str
     ts_ns: int
-    bid_depth: float       # total bid qty within depth_bps of mid
-    ask_depth: float       # total ask qty within depth_bps of mid
-    depth_bps: float       # band used for measurement
-    imbalance: float       # (bid - ask) / (bid + ask), range [-1, 1]
+    bid_depth: float  # total bid qty within depth_bps of mid
+    ask_depth: float  # total ask qty within depth_bps of mid
+    depth_bps: float  # band used for measurement
+    imbalance: float  # (bid - ask) / (bid + ask), range [-1, 1]
 
 
 @dataclass(frozen=True, slots=True)

@@ -34,12 +34,11 @@ import json
 import re
 from typing import Any
 
-from pydantic import ValidationError
-
 from core.contracts.api.cognitive_chat_approvals import (
     ApprovalSideApi,
     ProposedSignalApi,
 )
+from pydantic import ValidationError
 
 __all__ = [
     "PROPOSE_FENCE_PATTERN",

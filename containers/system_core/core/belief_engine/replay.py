@@ -11,6 +11,7 @@ from dataclasses import dataclass
 @dataclass(frozen=True, slots=True)
 class ReplayResult:
     """Result of belief state replay."""
+
     consistent: bool
     ts_ns: int
     events_replayed: int

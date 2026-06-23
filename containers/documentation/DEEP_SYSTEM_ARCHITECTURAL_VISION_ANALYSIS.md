@@ -14,7 +14,7 @@ DIX VISION v42.2 is a sophisticated **Cognitive Operating System** designed for 
 
 **DIX VISION is a Cognitive Trading System**
 - Trading is the core purpose and design goal
-- World understanding and indicator processing are equally important
+- Signal processing is the primary driver (85%) for profitable trading, with world understanding (15%) providing essential enhancement for risk management and regime awareness
 - Profit is the goal, achieved through intelligence
 - Cognitive development enables superior trading performance
 
@@ -33,7 +33,7 @@ DIX VISION v42.2 is a sophisticated **Cognitive Operating System** designed for 
 
 ### 1.2 The World Understanding Paradigm
 
-**Core Principle:** World understanding and indicator processing are equally important - both are essential for profitable cognitive trading.
+**Core Principle (UPDATED - Signal-First Architecture):** Signal processing is the primary driver (85%) for profitable trading, with world understanding (15%) providing essential enhancement for risk management and regime awareness. Trading is fundamentally signal-driven with world context providing essential risk protection.
 
 **World Understanding Components:**
 - **Market State Modeling:** Real-time market representation with regime detection

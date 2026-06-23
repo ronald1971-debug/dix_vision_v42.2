@@ -20,7 +20,6 @@ import importlib
 from typing import Any
 
 from fastapi import APIRouter
-
 from system_unified.time_source import utc_now, wall_ns
 
 
@@ -38,6 +37,7 @@ def build_cognitive_runtime_router() -> APIRouter:
         """UnifiedCognitiveKernel: all infrastructure components + tick count."""
         try:
             from runtime.unified_kernel import get_unified_kernel
+
             return {"ts_iso": utc_now().isoformat(), **get_unified_kernel().snapshot()}
         except Exception as exc:
             return {"error": str(exc)}
@@ -56,6 +56,7 @@ def build_cognitive_runtime_router() -> APIRouter:
         ts_ns = wall_ns()
         try:
             from state.state_sync import get_state_sync
+
             return {"ts_iso": utc_now().isoformat(), **get_state_sync().snapshot(ts_ns=ts_ns)}
         except Exception as exc:
             return {"error": str(exc)}
@@ -71,18 +72,23 @@ def build_cognitive_runtime_router() -> APIRouter:
         health: dict[str, Any] = {"ts_iso": ts_iso, "subsystems": {}}
 
         checks = {
-            "unified_kernel":        ("runtime.unified_kernel", "get_unified_kernel"),
-            "cognitive_spine":       ("runtime.cognitive_spine", "get_cognitive_spine"),
-            "cognition_daemon":      ("runtime.cognition_daemon", "get_cognition_daemon"),
-            "event_bus":             ("state.event_bus", "get_event_bus"),
-            "memory_orchestrator":   ("state.memory_tensor.memory_orchestrator",
-                                      "get_memory_orchestrator"),
-            "indira_runtime":        ("intelligence_engine.cognitive.indira_runtime",
-                                      "get_indira_runtime"),
-            "evolution_orchestrator":("evolution_engine.evolution_orchestrator",
-                                      "get_evolution_orchestrator"),
-            "risk_tracker":          ("governance_engine.risk_engine.risk_tracker",
-                                      "get_risk_tracker"),
+            "unified_kernel": ("runtime.unified_kernel", "get_unified_kernel"),
+            "cognitive_spine": ("runtime.cognitive_spine", "get_cognitive_spine"),
+            "cognition_daemon": ("runtime.cognition_daemon", "get_cognition_daemon"),
+            "event_bus": ("state.event_bus", "get_event_bus"),
+            "memory_orchestrator": (
+                "state.memory_tensor.memory_orchestrator",
+                "get_memory_orchestrator",
+            ),
+            "indira_runtime": (
+                "intelligence_engine.cognitive.indira_runtime",
+                "get_indira_runtime",
+            ),
+            "evolution_orchestrator": (
+                "evolution_engine.evolution_orchestrator",
+                "get_evolution_orchestrator",
+            ),
+            "risk_tracker": ("governance_engine.risk_engine.risk_tracker", "get_risk_tracker"),
         }
 
         for name, (module, factory) in checks.items():
@@ -114,6 +120,7 @@ def build_cognitive_runtime_router() -> APIRouter:
         """Unified telemetry: event throughput/min + subsystem gauges."""
         try:
             from runtime.telemetry_aggregator import get_telemetry_aggregator
+
             return {"ts_iso": utc_now().isoformat(), **get_telemetry_aggregator().summary()}
         except Exception as exc:
             return {"error": str(exc)}
@@ -127,6 +134,7 @@ def build_cognitive_runtime_router() -> APIRouter:
         """CognitionScheduler: active urgency boosts + recent signal log."""
         try:
             from runtime.cognition_scheduler import get_cognition_scheduler
+
             return {"ts_iso": utc_now().isoformat(), **get_cognition_scheduler().snapshot()}
         except Exception as exc:
             return {"error": str(exc)}
@@ -140,6 +148,7 @@ def build_cognitive_runtime_router() -> APIRouter:
         """MemoryCoordinator: auto-capture counts (episodic/semantic/procedural/errors)."""
         try:
             from runtime.memory_coordinator import get_memory_coordinator
+
             return {"ts_iso": utc_now().isoformat(), **get_memory_coordinator().snapshot()}
         except Exception as exc:
             return {"error": str(exc)}
@@ -153,6 +162,7 @@ def build_cognitive_runtime_router() -> APIRouter:
         """CrossBusRouter: events routed between cognitive bus and execution fabric."""
         try:
             from runtime.cross_bus_router import get_cross_bus_router
+
             return {"ts_iso": utc_now().isoformat(), **get_cross_bus_router().snapshot()}
         except Exception as exc:
             return {"error": str(exc)}
@@ -166,6 +176,7 @@ def build_cognitive_runtime_router() -> APIRouter:
         """GovernanceRouter: mode transitions and cogov violations routed to cognition."""
         try:
             from runtime.governance_router import get_governance_router
+
             return {"ts_iso": utc_now().isoformat(), **get_governance_router().snapshot()}
         except Exception as exc:
             return {"error": str(exc)}

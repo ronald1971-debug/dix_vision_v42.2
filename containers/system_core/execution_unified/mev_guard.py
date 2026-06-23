@@ -16,8 +16,9 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass
 
-from .analysis.slippage import estimate as estimate_slip
 from state.ledger.writer import get_writer
+
+from .analysis.slippage import estimate as estimate_slip
 
 # canonical public private-relay URLs (defaults; overridable via env/config)
 FLASHBOTS_DEFAULT = "https://relay.flashbots.net"

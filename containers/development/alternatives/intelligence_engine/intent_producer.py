@@ -48,9 +48,9 @@ _SELL = "SELL"
 
 # Sentinel: the origin used to create intents from the intent producer.
 # Must be a member of AUTHORISED_INTENT_ORIGINS.
-assert _ORIGIN in AUTHORISED_INTENT_ORIGINS, (
-    f"IntentProducer origin {_ORIGIN!r} not in AUTHORISED_INTENT_ORIGINS"
-)
+assert (
+    _ORIGIN in AUTHORISED_INTENT_ORIGINS
+), f"IntentProducer origin {_ORIGIN!r} not in AUTHORISED_INTENT_ORIGINS"
 
 
 def _side_from_direction(direction: str) -> Side:

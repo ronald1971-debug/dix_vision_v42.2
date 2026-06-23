@@ -41,9 +41,7 @@ def verify_phase13_components() -> dict[str, bool]:
             ts_ns=1_700_000_000_000_000_000, requestor="verification"
         )
         current_mode = promotion_integration.get_current_mode()
-        integration_ok = (
-            bound_hash is not None and current_mode == TradingMode.PAPER
-        )
+        integration_ok = bound_hash is not None and current_mode == TradingMode.PAPER
         verification_results["promotion_gate_integration"] = integration_ok
         print(f"  Promotion Gate Integration: {'PASSED' if integration_ok else 'FAILED'}")
         if not integration_ok:
@@ -77,7 +75,6 @@ def verify_no_capital_risk() -> dict[str, bool]:
 
     # Check that paper trading uses virtual capital
     try:
-        from execution_unified.core.paper_trading import PromotionGateIntegration
         cash_balance = adapter.cash_balance()
 
         # Paper trading should have virtual capital, no real money
@@ -92,7 +89,6 @@ def verify_no_capital_risk() -> dict[str, bool]:
 
     # Check that no credentials are required
     try:
-        from execution_unified.core.paper_trading import PromotionGateIntegration
         print("  No Credentials Required: SUCCESS (paper trading)")
 
         credential_free = True
@@ -133,7 +129,7 @@ def verify_full_ledger_recording() -> dict[str, bool]:
         print(f"  Ledger Functional: FAILED - {e}")
 
     try:
-        from execution_unified.core.paper_trading import get_paper_trading_promotion_gate_integration
+        pass
 
         ledger_integrator = get_paper_trade_ledger_integrator()
         ledger_integrator.enable()
@@ -153,7 +149,9 @@ def verify_promotion_gate_approval() -> dict[str, bool]:
     promotion_verification = {}
 
     try:
-        from execution_unified.core.paper_trading import get_paper_trading_promotion_gate_integration
+        from execution_unified.core.paper_trading import (
+            get_paper_trading_promotion_gate_integration,
+        )
 
         promotion_integration = get_paper_trading_promotion_gate_integration()
 
@@ -206,7 +204,7 @@ def verify_100_percent_paper_environment() -> dict[str, bool]:
     paper_verification = {}
 
     try:
-        from execution_unified.core.paper_trading import get_paper_trading_promotion_gate_integration
+        pass
 
         enforcer = get_paper_only_enforcer()
         enforcer.enable_enforcement()
@@ -234,7 +232,7 @@ def verify_100_percent_paper_environment() -> dict[str, bool]:
         print(f"  Live Venue Blocked: FAILED - {e}")
 
     try:
-        from execution_unified.core.paper_trading import get_paper_trading_promotion_gate_integration
+        pass
 
         enforcer = get_paper_only_enforcer()
 
@@ -261,7 +259,7 @@ def verify_100_percent_paper_environment() -> dict[str, bool]:
         print(f"  Paper Venue Allowed: FAILED - {e}")
 
     try:
-        from execution_unified.core.paper_trading import get_paper_trading_promotion_gate_integration
+        pass
 
         enforcer = get_paper_only_enforcer()
         is_paper = enforcer.is_paper_environment()

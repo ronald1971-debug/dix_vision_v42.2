@@ -44,11 +44,6 @@ from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from typing import Annotated, Any, TypedDict
 
-from langchain_core.messages import BaseMessage
-from langgraph.checkpoint.base import BaseCheckpointSaver
-from langgraph.graph import END, START, StateGraph
-from langgraph.graph.message import add_messages
-
 from core.cognitive_router import TaskClass
 from intelligence_engine.cognitive.chat.registry_driven_chat_model import (
     ChatTransport,
@@ -59,6 +54,10 @@ from intelligence_engine.cognitive.checkpointing import (
     AuditLedgerCheckpointSaver,
     LedgerAppend,
 )
+from langchain_core.messages import BaseMessage
+from langgraph.checkpoint.base import BaseCheckpointSaver
+from langgraph.graph import END, START, StateGraph
+from langgraph.graph.message import add_messages
 
 __all__ = [
     "ChatGraphState",

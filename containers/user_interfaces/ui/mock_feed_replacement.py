@@ -34,6 +34,7 @@ NEW_PIP_DEPENDENCIES: Final[tuple[str, ...]] = ()
 
 class FeedType(enum.Enum):
     """Types of data feeds."""
+
     MARKET_DATA = "MARKET_DATA"
     ORDER_BOOK = "ORDER_BOOK"
     TRADES = "TRADES"
@@ -48,6 +49,7 @@ class FeedType(enum.Enum):
 
 class FeedStatus(enum.Enum):
     """Status of data feeds."""
+
     MOCK = "MOCK"  # Using mock data
     TRANSITIONING = "TRANSITIONING"  # Moving from mock to real
     LIVE = "LIVE"  # Using real data
@@ -57,6 +59,7 @@ class FeedStatus(enum.Enum):
 
 class DataSource(enum.Enum):
     """Types of data sources."""
+
     MOCK_GENERATOR = "MOCK_GENERATOR"
     WEBSOCKET = "WEBSOCKET"
     REST_API = "REST_API"
@@ -67,6 +70,7 @@ class DataSource(enum.Enum):
 
 class ValidationLevel(enum.Enum):
     """Levels of data validation."""
+
     NONE = "NONE"  # No validation
     BASIC = "BASIC"  # Basic format validation
     STANDARD = "STANDARD"  # Standard validation
@@ -81,6 +85,7 @@ class ValidationLevel(enum.Enum):
 @dataclasses.dataclass(frozen=True, slots=True)
 class MockFeedReplacementConfig:
     """Configuration for mock feed replacement."""
+
     enable_validation: bool = DEFAULT_ENABLE_VALIDATION
     enable_fallback: bool = DEFAULT_ENABLE_FALLBACK
     min_data_quality: float = DEFAULT_MIN_DATA_QUALITY
@@ -102,6 +107,7 @@ class MockFeedReplacementConfig:
 @dataclasses.dataclass(frozen=True, slots=True)
 class FeedDefinition:
     """Definition of a data feed."""
+
     feed_id: str
     feed_type: FeedType
     name: str
@@ -123,6 +129,7 @@ class FeedDefinition:
 @dataclasses.dataclass(frozen=True, slots=True)
 class DataPoint:
     """A single data point from a feed."""
+
     feed_id: str
     timestamp_ns: int
     data: dict[str, Any]
@@ -136,6 +143,7 @@ class DataPoint:
 @dataclasses.dataclass(frozen=True, slots=True)
 class FeedValidationResult:
     """Result of validating a feed."""
+
     feed_id: str
     is_valid: bool
     quality_score: float
@@ -149,6 +157,7 @@ class FeedValidationResult:
 @dataclasses.dataclass(frozen=True, slots=True)
 class ReplacementMetrics:
     """Metrics about mock feed replacement progress."""
+
     total_feeds: int
     mock_feeds: int
     live_feeds: int
@@ -169,39 +178,39 @@ class ReplacementMetrics:
 
 class MockFeedReplacer:
     """System for replacing mock data feeds with real data sources.
-    
+
     Provides systematic identification of mock feeds, integration
     with real data providers, validation of data quality, and
     fallback mechanisms to ensure continuous operation.
     """
-    
+
     def __init__(
         self,
         config: MockFeedReplacementConfig | None = None,
     ) -> None:
         """Initialize the mock feed replacer.
-        
+
         Args:
             config: Replacement configuration
         """
         self._config = config or MockFeedReplacementConfig()
         self._lock = Lock()
-        
+
         # Feed definitions
         self._feeds: dict[str, FeedDefinition] = {}
-        
+
         # Data sources
         self._data_sources: dict[str, Callable[[], DataPoint]] = {}
-        
+
         # Data cache
         self._data_cache: dict[str, list[DataPoint]] = {}  # feed_id -> data points
-        
+
         # Feed failures
         self._feed_failures: dict[str, int] = {}  # feed_id -> failure count
-        
+
         # Validation results
         self._validation_results: dict[str, FeedValidationResult] = {}
-        
+
         # Metrics
         self._metrics = ReplacementMetrics(
             total_feeds=0,
@@ -216,20 +225,20 @@ class MockFeedReplacer:
             fallback_activations=0,
             transitions_completed=0,
         )
-    
+
     def register_feed(
         self,
         feed_definition: FeedDefinition,
     ) -> None:
         """Register a data feed.
-        
+
         Args:
             feed_definition: Feed definition
         """
         with self._lock:
             self._feeds[feed_definition.feed_id] = feed_definition
             self._data_cache[feed_definition.feed_id] = []
-            
+
             # Update metrics
             self._metrics.total_feeds += 1
             if feed_definition.current_status == FeedStatus.MOCK:
@@ -240,32 +249,32 @@ class MockFeedReplacer:
                 self._metrics.transitioning_feeds += 1
             elif feed_definition.current_status == FeedStatus.FAILED:
                 self._metrics.failed_feeds += 1
-    
+
     def register_data_source(
         self,
         feed_id: str,
         source: Callable[[], DataPoint],
     ) -> None:
         """Register a data source for a feed.
-        
+
         Args:
             feed_id: Feed identifier
             source: Data source callable
         """
         with self._lock:
             self._data_sources[feed_id] = source
-    
+
     def transition_to_real(
         self,
         feed_id: str,
         target_source: DataSource,
     ) -> bool:
         """Transition a feed from mock to real data.
-        
+
         Args:
             feed_id: Feed to transition
             target_source: Target data source
-            
+
         Returns:
             True if transition initiated successfully
         """
@@ -273,10 +282,10 @@ class MockFeedReplacer:
             feed = self._feeds.get(feed_id)
             if not feed:
                 return False
-            
+
             if feed.current_status != FeedStatus.MOCK:
                 return False
-            
+
             # Update feed definition
             updated_feed = dataclasses.replace(
                 feed,
@@ -284,22 +293,22 @@ class MockFeedReplacer:
                 target_source=target_source,
             )
             self._feeds[feed_id] = updated_feed
-            
+
             # Update metrics
             self._metrics.mock_feeds -= 1
             self._metrics.transitioning_feeds += 1
-            
+
             return True
-    
+
     def complete_transition(
         self,
         feed_id: str,
     ) -> bool:
         """Complete a transition to real data.
-        
+
         Args:
             feed_id: Feed to complete transition for
-            
+
         Returns:
             True if transition completed successfully
         """
@@ -307,10 +316,10 @@ class MockFeedReplacer:
             feed = self._feeds.get(feed_id)
             if not feed:
                 return False
-            
+
             if feed.current_status != FeedStatus.TRANSITIONING:
                 return False
-            
+
             # Update feed definition
             updated_feed = dataclasses.replace(
                 feed,
@@ -319,25 +328,25 @@ class MockFeedReplacer:
                 target_source=None,
             )
             self._feeds[feed_id] = updated_feed
-            
+
             # Update metrics
             self._metrics.transitioning_feeds -= 1
             self._metrics.live_feeds += 1
             self._metrics.transitions_completed += 1
-            
+
             return True
-    
+
     def fallback_to_mock(
         self,
         feed_id: str,
         reason: str = "",
     ) -> bool:
         """Fallback a feed to mock data.
-        
+
         Args:
             feed_id: Feed to fallback
             reason: Reason for fallback
-            
+
         Returns:
             True if fallback successful
         """
@@ -345,7 +354,7 @@ class MockFeedReplacer:
             feed = self._feeds.get(feed_id)
             if not feed:
                 return False
-            
+
             # Update feed definition
             updated_feed = dataclasses.replace(
                 feed,
@@ -353,7 +362,7 @@ class MockFeedReplacer:
                 current_source=DataSource.MOCK_GENERATOR,
             )
             self._feeds[feed_id] = updated_feed
-            
+
             # Update metrics
             self._metrics.failed_feeds += 1
             if feed.current_status == FeedStatus.LIVE:
@@ -362,91 +371,95 @@ class MockFeedReplacer:
                 self._metrics.transitioning_feeds -= 1
             self._metrics.mock_feeds += 1
             self._metrics.fallback_activations += 1
-            
+
             # Reset failures
             self._feed_failures[feed_id] = 0
-            
+
             return True
-    
+
     def get_data_point(
         self,
         feed_id: str,
     ) -> DataPoint | None:
         """Get a data point from a feed.
-        
+
         Args:
             feed_id: Feed identifier
-            
+
         Returns:
             Data point or None if feed not found
         """
-        
+
         with self._lock:
             feed = self._feeds.get(feed_id)
             if not feed:
                 return None
-            
+
             # Try to get data from real source
             if feed.current_source != DataSource.MOCK_GENERATOR:
                 source = self._data_sources.get(feed_id)
                 if source:
                     try:
                         data_point = source()
-                        
+
                         # Validate if enabled
                         if self._config.enable_validation:
                             validation_result = self._validate_data_point(data_point, feed)
                             if not validation_result.is_valid:
-                                raise ValueError(f"Validation failed: {validation_result.missing_fields}")
-                        
+                                raise ValueError(
+                                    f"Validation failed: {validation_result.missing_fields}"
+                                )
+
                         # Add to cache
                         cache = self._data_cache.get(feed_id, [])
                         cache.append(data_point)
                         if len(cache) > self._config.data_cache_size:
                             cache.pop(0)
-                        
+
                         # Update metrics
                         self._metrics.total_data_points += 1
                         self._metrics.real_data_points += 1
-                        
+
                         # Reset failures on success
                         self._feed_failures[feed_id] = 0
-                        
+
                         return data_point
                     except Exception as e:
                         # Increment failure count
-                        self._feed_failures[feed_id] = \
-                            self._feed_failures.get(feed_id, 0) + 1
-                        
+                        self._feed_failures[feed_id] = self._feed_failures.get(feed_id, 0) + 1
+
                         # Check if we should fallback
-                        if (self._config.enable_fallback and
-                            self._feed_failures[feed_id] >= self._config.max_failures_before_fallback):
+                        if (
+                            self._config.enable_fallback
+                            and self._feed_failures[feed_id]
+                            >= self._config.max_failures_before_fallback
+                        ):
                             self.fallback_to_mock(feed_id, str(e))
-            
+
             # Fallback to mock data
             mock_data_point = self._generate_mock_data_point(feed)
-            
+
             # Add to cache
             cache = self._data_cache.get(feed_id, [])
             cache.append(mock_data_point)
             if len(cache) > self._config.data_cache_size:
                 cache.pop(0)
-            
+
             # Update metrics
             self._metrics.total_data_points += 1
             self._metrics.mock_data_points += 1
-            
+
             return mock_data_point
-    
+
     def validate_feed(
         self,
         feed_id: str,
     ) -> FeedValidationResult | None:
         """Validate a feed's data quality.
-        
+
         Args:
             feed_id: Feed to validate
-            
+
         Returns:
             Validation result or None if feed not found
         """
@@ -454,7 +467,7 @@ class MockFeedReplacer:
             feed = self._feeds.get(feed_id)
             if not feed:
                 return None
-            
+
             # Get recent data points from cache
             cache = self._data_cache.get(feed_id, [])
             if not cache:
@@ -467,33 +480,34 @@ class MockFeedReplacer:
                     consistency_errors=["No data available"],
                     timestamp_ns=0,
                 )
-            
+
             # Calculate quality score
             quality_scores = [dp.quality_score for dp in cache]
             average_quality = sum(quality_scores) / len(quality_scores) if quality_scores else 0.0
-            
+
             # Check for missing fields
             missing_fields = []
             for data_point in cache[-10:]:  # Check last 10 points
                 for field in feed.required_fields:
                     if field not in data_point.data:
                         missing_fields.append(field)
-            
+
             missing_fields = list(set(missing_fields))
-            
+
             return FeedValidationResult(
                 feed_id=feed_id,
-                is_valid=average_quality >= self._config.min_data_quality and len(missing_fields) == 0,
+                is_valid=average_quality >= self._config.min_data_quality
+                and len(missing_fields) == 0,
                 quality_score=average_quality,
                 missing_fields=missing_fields,
                 invalid_values={},
                 consistency_errors=[],
                 timestamp_ns=cache[-1].timestamp_ns if cache else 0,
             )
-    
+
     def get_metrics(self) -> ReplacementMetrics:
         """Get replacement metrics.
-        
+
         Returns:
             Current metrics
         """
@@ -505,47 +519,47 @@ class MockFeedReplacer:
                 for data_point in cache:
                     total_quality += data_point.quality_score
                     quality_count += 1
-            
+
             avg_quality = total_quality / quality_count if quality_count > 0 else 0.0
-            
+
             return dataclasses.replace(
                 self._metrics,
                 average_quality_score=avg_quality,
             )
-    
+
     def _validate_data_point(
         self,
         data_point: DataPoint,
         feed: FeedDefinition,
     ) -> FeedValidationResult:
         """Validate a data point.
-        
+
         Args:
             data_point: Data point to validate
             feed: Feed definition
-            
+
         Returns:
             Validation result
         """
         import time
-        
+
         missing_fields = []
         for field in feed.required_fields:
             if field not in data_point.data:
                 missing_fields.append(field)
-        
+
         invalid_values = {}
         for field, value in data_point.data.items():
             # Basic validation (can be extended)
             if value is None:
                 invalid_values[field] = "Value is None"
-        
+
         is_valid = (
-            len(missing_fields) == 0 and
-            len(invalid_values) == 0 and
-            data_point.quality_score >= self._config.min_data_quality
+            len(missing_fields) == 0
+            and len(invalid_values) == 0
+            and data_point.quality_score >= self._config.min_data_quality
         )
-        
+
         return FeedValidationResult(
             feed_id=feed.feed_id,
             is_valid=is_valid,
@@ -555,22 +569,22 @@ class MockFeedReplacer:
             consistency_errors=[],
             timestamp_ns=time.time_ns(),
         )
-    
+
     def _generate_mock_data_point(self, feed: FeedDefinition) -> DataPoint:
         """Generate mock data for a feed.
-        
+
         Args:
             feed: Feed definition
-            
+
         Returns:
             Mock data point
         """
         import random
         import time
-        
+
         # Generate mock data based on feed type
         mock_data = {}
-        
+
         if feed.feed_type == FeedType.MARKET_DATA:
             mock_data = {
                 "symbol": "BTC/USDT",
@@ -590,7 +604,7 @@ class MockFeedReplacer:
                 "value": random.uniform(0, 100),
                 "timestamp": time.time_ns(),
             }
-        
+
         return DataPoint(
             feed_id=feed.feed_id,
             timestamp_ns=time.time_ns(),
@@ -608,78 +622,78 @@ class MockFeedReplacer:
 
 class MockFeedReplacementManager:
     """Manager for mock feed replacement."""
-    
+
     def __init__(self, config: MockFeedReplacementConfig | None = None) -> None:
         """Initialize the mock feed replacement manager.
-        
+
         Args:
             config: Replacement configuration
         """
         self._config = config or MockFeedReplacementConfig()
         self._replacer = MockFeedReplacer(config)
-    
+
     def register_feed(self, feed_definition: FeedDefinition) -> None:
         """Register a feed.
-        
+
         Args:
             feed_definition: Feed definition
         """
         self._replacer.register_feed(feed_definition)
-    
+
     def register_data_source(
         self,
         feed_id: str,
         source: Callable[[], DataPoint],
     ) -> None:
         """Register a data source.
-        
+
         Args:
             feed_id: Feed ID
             source: Data source
         """
         self._replacer.register_data_source(feed_id, source)
-    
+
     def transition_to_real(
         self,
         feed_id: str,
         target_source: DataSource,
     ) -> bool:
         """Transition to real data.
-        
+
         Args:
             feed_id: Feed ID
             target_source: Target source
-            
+
         Returns:
             True if successful
         """
         return self._replacer.transition_to_real(feed_id, target_source)
-    
+
     def complete_transition(self, feed_id: str) -> bool:
         """Complete transition.
-        
+
         Args:
             feed_id: Feed ID
-            
+
         Returns:
             True if successful
         """
         return self._replacer.complete_transition(feed_id)
-    
+
     def get_data_point(self, feed_id: str) -> DataPoint | None:
         """Get data point.
-        
+
         Args:
             feed_id: Feed ID
-            
+
         Returns:
             Data point or None
         """
         return self._replacer.get_data_point(feed_id)
-    
+
     def get_metrics(self) -> ReplacementMetrics:
         """Get metrics.
-        
+
         Returns:
             Current metrics
         """

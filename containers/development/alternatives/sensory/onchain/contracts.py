@@ -176,6 +176,7 @@ class HolderShiftAdvisory:
 
 # ── AIX: Wallet Behavior Analyzer (WBA) contracts ────────────────────
 
+
 @dataclass(frozen=True, slots=True)
 class WalletBehaviorProfile:
     """Profile of a wallet's on-chain trading behavior (AIX WBA).

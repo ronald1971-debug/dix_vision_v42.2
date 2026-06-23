@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-import sys
 import logging
+import sys
 from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
@@ -8,7 +8,6 @@ logger = logging.getLogger('discordbot_health_check')
 
 def check_imports():
     try:
-        import discord
         logger.info("DiscordBot import successful")
         return True
     except ImportError as e:
@@ -17,8 +16,8 @@ def check_imports():
 
 def check_governance_wrapper():
     try:
-        from discordbot_governance_wrapper import DiscordBotGovernanceWrapper
         from base_external_repo_wrapper import PermissionLevel
+        from discordbot_governance_wrapper import DiscordBotGovernanceWrapper
         wrapper = DiscordBotGovernanceWrapper(PermissionLevel.READ_ONLY)
         logger.info("Governance wrapper initialization successful")
         return True

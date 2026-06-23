@@ -1,12 +1,13 @@
 """Stub tier wiring module."""
 
-from typing import Any
 from dataclasses import dataclass
+from typing import Any
 
 
 @dataclass
 class TierCompletion:
     """Tier completion status."""
+
     tier0_complete: bool = True
     tier1_complete: bool = True
     tier2_complete: bool = True

@@ -6,8 +6,8 @@
 registry_metadata:
   version: "1.0"
   last_updated: "2026-06-21"
-  total_strategies: 15
-  supported_categories:
+  total_strategies: 27
+supported_categories:
     - discretionary_hybrid
     - systematic_quantitative
     - liquidity_focused
@@ -17,6 +17,12 @@ registry_metadata:
     - arbitrage
     - crypto_native
     - ai_adaptive
+    - ai_powered_adaptive
+    - high_frequency_trading
+    - portfolio_optimization
+    - event_driven_specialist
+    - market_making
+    - behavioral_finance
 
 strategies:
   # === Discretionary Hybrid Strategies ===
@@ -1001,6 +1007,368 @@ strategies:
       - low_whale_activity
 
   # === Strategy Registry Metadata ===
+
+  # === Enhanced AI Powered Adaptive Strategies ===
+  
+  ai_sentiment_adaptive:
+    id: "strat_016"
+    name: "AI Sentiment Adaptive Trading"
+    category: "ai_powered_adaptive"
+    base_trader: "AI Research Lab"
+    philosophy: "sentiment_adaptive"
+    timeframe: ["intraday", "swing"]
+    risk: "dynamic"
+    execution: "algorithmic"
+    regime_bias: ["bull", "bear", "neutral"]
+    
+    assets: ["equities", "crypto", "forex"]
+    entry_conditions:
+      - "sentiment_shift_detected"
+      - "social_media_momentum"
+      - "news_sentiment_analysis"
+    exit_conditions:
+      - "sentiment_reversal"
+      - "risk_limit_reached"
+    indicators: ["nlp_sentiment", "social_volume", "news_flow"]
+    complexity: 9
+    computational_cost: "high"
+    
+    performance_metrics:
+      win_rate: 0.62
+      sharpe_ratio: 1.8
+      max_drawdown: 0.15
+    
+    indira_systems: ["advanced_attention", "theory_of_mind", "causal_reasoning"]
+    
+  machine_learning_pattern:
+    id: "strat_017"
+    name: "Machine Learning Pattern Recognition"
+    category: "ai_powered_adaptive"
+    base_trader: "Quant Firm"
+    philosophy: "ml_patterns"
+    timeframe: ["intraday", "swing"]
+    risk: "moderate"
+    execution: "algorithmic"
+    regime_bias: ["volatility_driven"]
+    
+    assets: ["equities", "futures", "crypto"]
+    entry_conditions:
+      - "ml_pattern_confirmed"
+      - "feature_confluence"
+    exit_conditions:
+      - "pattern_failure"
+      - "target_reached"
+    indicators: ["neural_network", "random_forest", "gradient_boosting"]
+    complexity: 10
+    computational_cost: "high"
+    
+    performance_metrics:
+      win_rate: 0.58
+      sharpe_ratio: 2.1
+      max_drawdown: 0.12
+    
+    indira_systems: ["neuromorphic_computing", "advanced_attention", "meta_learning"]
+
+  # === High Frequency Trading Strategies ===
+  
+  latency_arbitrage:
+    id: "strat_018"
+    name: "Latency Arbitrage"
+    category: "high_frequency_trading"
+    base_trader: "HFT Firm"
+    philosophy: "speed_advantage"
+    timeframe: ["scalp", "microsecond"]
+    risk: "low_per_trade"
+    execution: "algorithmic"
+    regime_bias: ["neutral"]
+    
+    assets: ["equities", "futures", "forex"]
+    entry_conditions:
+      - "price_discrepancy_detected"
+      - "latency_edge_available"
+    exit_conditions:
+      - "price_convergence"
+      - "timeout_exceeded"
+    indicators: ["market_microstructure", "order_flow", "latency_monitor"]
+    complexity: 10
+    computational_cost: "very_high"
+    
+    performance_metrics:
+      win_rate: 0.75
+      sharpe_ratio: 3.5
+      max_drawdown: 0.05
+      
+    indira_systems: ["neuromorphic_computing", "advanced_attention", "quantum_algorithms"]
+      
+  order_book_imbalance:
+    id: "strat_019"
+    name: "Order Book Imbalance Trading"
+    category: "high_frequency_trading"
+    base_trader: "Market Maker"
+    philosophy: "order_flow"
+    timeframe: ["scalp", "millisecond"]
+    risk: "low_per_trade"
+    execution: "algorithmic"
+    regime_bias: ["volatility_driven"]
+    
+    assets: ["equities", "crypto", "futures"]
+    entry_conditions:
+      - "significant_order_imbalance"
+      - "large_order_detected"
+    exit_conditions:
+      - "imbalance_reversal"
+      - "small_profit_target"
+    indicators: ["order_book_depth", "trade_flow", "volume_profile"]
+    complexity: 9
+    computational_cost: "very_high"
+    
+    performance_metrics:
+      win_rate: 0.68
+      sharpe_ratio: 2.8
+      max_drawdown: 0.08
+      
+    indira_systems: ["neuromorphic_computing", "advanced_attention", "meta_learning"]
+
+  # === Portfolio Optimization Strategies ===
+  
+  dynamic_factor_rotation:
+    id: "strat_020"
+    name: "Dynamic Factor Rotation"
+    category: "portfolio_optimization"
+    base_trader: "Quantitative Institution"
+    philosophy: "factor_timing"
+    timeframe: ["position", "monthly"]
+    risk: "moderate"
+    execution: "systematic"
+    regime_bias: ["bull", "bear", "neutral"]
+    
+    assets: ["multi_asset", "etfs", "mutual_funds"]
+    entry_conditions:
+      - "factor_momentum_shift"
+      - "regime_change_detected"
+    exit_conditions:
+      - "factor_decline"
+      - "rebalance_signal"
+    indicators: ["factor_scores", "macro_indicators", "regime_classifier"]
+    complexity: 8
+    computational_cost: "medium"
+    
+    performance_metrics:
+      win_rate: 0.65
+      sharpe_ratio: 1.9
+      max_drawdown: 0.18
+      
+    indira_systems: ["meta_learning", "temporal_reasoning", "advanced_attention"]
+      
+  tactical_asset_allocation:
+    id: "strat_021"
+    name: "Tactical Asset Allocation"
+    category: "portfolio_optimization"
+    base_trader: "Investment Committee"
+    philosophy: "dynamic_allocation"
+    timeframe: ["position", "quarterly"]
+    risk: "moderate"
+    execution: "systematic"
+    regime_bias: ["macro_driven"]
+    
+    assets: ["multi_asset", "bonds", "equities", "commodities"]
+    entry_conditions:
+      - "macro_shift_detected"
+      - "valuation_extremes"
+    exit_conditions:
+      - "macro_reversal"
+      - "rebalance_date"
+    indicators: ["macro_economic", "valuation_metrics", "risk_premia"]
+    complexity: 7
+    computational_cost: "low"
+    
+    performance_metrics:
+      win_rate: 0.70
+      sharpe_ratio: 1.6
+      max_drawdown: 0.20
+      
+    indira_systems: ["temporal_reasoning", "causal_reasoning", "advanced_attention"]
+
+  # === Event Driven Specialist Strategies ===
+  
+  earnings_momentum:
+    id: "strat_022"
+    name: "Earnings Momentum Trading"
+    category: "event_driven_specialist"
+    base_trader: "Event Driven Fund"
+    philosophy: "earnings_surprise"
+    timeframe: ["swing", "position"]
+    risk: "moderate"
+    execution: "discretionary"
+    regime_bias: ["earnings_season"]
+    
+    assets: ["equities", "options"]
+    entry_conditions:
+      - "earnings_surprise"
+      - "guidance_raise"
+    exit_conditions:
+      - "earnings_reversion"
+      - "target_price_reached"
+    indicators: ["earnings_history", "analyst_revisions", "option_flow"]
+    complexity: 6
+    computational_cost: "medium"
+    
+    performance_metrics:
+      win_rate: 0.60
+      sharpe_ratio: 1.7
+      max_drawdown: 0.22
+      
+    indira_systems: ["temporal_reasoning", "causal_reasoning", "advanced_attention"]
+      
+  fda_catalyst_trading:
+    id: "strat_023"
+    name: "FDA Catalyst Trading"
+    category: "event_driven_specialist"
+    base_trader: "Biotech Specialist"
+    philosophy: "regulatory_catalyst"
+    timeframe: ["swing", "event_specific"]
+    risk: "high"
+    execution: "discretionary"
+    regime_bias: ["binary_outcome"]
+    
+    assets: ["biotech_equities", "options"]
+    entry_conditions:
+      - "fda_decision_date"
+      - "clinical_trial_results"
+    exit_conditions:
+      - "catalyst_event"
+      - "stop_loss_trigger"
+    indicators: ["fda_calendar", "trial_data", "analyst_forecasts"]
+    complexity: 8
+    computational_cost: "medium"
+    
+    performance_metrics:
+      win_rate: 0.55
+      sharpe_ratio: 2.2
+      max_drawdown: 0.35
+      
+    indira_systems: ["causal_reasoning", "temporal_reasoning", "advanced_attention"]
+
+  # === Market Making Strategies ===
+  
+  ecn_liquidity_provision:
+    id: "strat_024"
+    name: "ECN Liquidity Provision"
+    category: "market_making"
+    base_trader: "ECN Market Maker"
+    philosophy: "spread_capture"
+    timeframe: ["scalp", "continuous"]
+    risk: "low_per_trade"
+    execution: "algorithmic"
+    regime_bias: ["neutral"]
+    
+    assets: ["equities", "forex", "crypto"]
+    entry_conditions:
+      - "spread_widening"
+      - "inventory_capacity"
+    exit_conditions:
+      - "spread_narrowing"
+      - "inventory_limit"
+    indicators: ["spread_monitor", "inventory_tracker", "depth_imbalance"]
+    complexity: 9
+    computational_cost: "high"
+    
+    performance_metrics:
+      win_rate: 0.72
+      sharpe_ratio: 2.5
+      max_drawdown: 0.10
+      
+    indira_systems: ["neuromorphic_computing", "advanced_attention", "meta_learning"]
+      
+  delta_neutral_market_making:
+    id: "strat_025"
+    name: "Delta Neutral Market Making"
+    category: "market_making"
+    base_trader: "Options Market Maker"
+    philosophy: "volatility_trading"
+    timeframe: ["intraday", "continuous"]
+    risk: "moderate"
+    execution: "algorithmic"
+    regime_bias: ["volatility_driven"]
+    
+    assets: ["options", "equities"]
+    entry_conditions:
+      - "option_demand"
+      - "volatility_surface_arbitrage"
+    exit_conditions:
+      - "delta_neutral_rebalance"
+      - "volatility_convergence"
+    indicators: ["option_greeks", "volatility_surface", "delta_hedge"]
+    complexity: 10
+    computational_cost: "very_high"
+    
+    performance_metrics:
+      win_rate: 0.65
+      sharpe_ratio: 2.0
+      max_drawdown: 0.15
+      
+    indira_systems: ["quantum_algorithms", "neuromorphic_computing", "advanced_attention"]
+
+  # === Behavioral Finance Strategies ===
+  
+  sentiment_contrarian:
+    id: "strat_026"
+    name: "Sentiment Contrarian"
+    category: "behavioral_finance"
+    base_trader: "Behavioral Finance Fund"
+    philosophy: "sentiment_reversal"
+    timeframe: ["swing", "position"]
+    risk: "moderate"
+    execution: "systematic"
+    regime_bias: ["contrarian"]
+    
+    assets: ["equities", "crypto", "forex"]
+    entry_conditions:
+      - "extreme_sentiment"
+      - "crowd_behavior_detected"
+    exit_conditions:
+      - "sentiment_normalization"
+      - "mean_reversion"
+    indicators: ["sentiment_index", "positioning_data", "put_call_ratio"]
+    complexity: 7
+    computational_cost: "medium"
+    
+    performance_metrics:
+      win_rate: 0.62
+      sharpe_ratio: 1.8
+      max_drawdown: 0.20
+      
+    indira_systems: ["theory_of_mind", "artificial_consciousness", "causal_reasoning"]
+      
+  behavioral_anomaly:
+    id: "strat_027"
+    name: "Behavioral Anomaly Exploitation"
+    category: "behavioral_finance"
+    base_trader: "Academic Quant"
+    philosophy: "behavioral_biases"
+    timeframe: ["swing", "position"]
+    risk: "moderate"
+    execution: "systematic"
+    regime_bias: ["anomaly_driven"]
+    
+    assets: ["equities", "futures"]
+    entry_conditions:
+      - "behavioral_bias_detected"
+      - "anomaly_signal"
+    exit_conditions:
+      - "anomaly_reversal"
+      - "normalization"
+    indicators: ["behavioral_metrics", "anomaly_detection", "regime_classifier"]
+    complexity: 8
+    computational_cost: "high"
+    
+    performance_metrics:
+      win_rate: 0.58
+      sharpe_ratio: 1.9
+      max_drawdown: 0.18
+      
+    indira_systems: ["theory_of_mind", "artificial_consciousness", "causal_reasoning"]
+
 
 ensemble_strategies:
   liquid_intelligence_ensemble:

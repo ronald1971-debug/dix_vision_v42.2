@@ -114,9 +114,7 @@ class JaxPolicySearch:
         obs_dim = self._config.obs_dim
 
         def _f(tag: str) -> float:
-            d = hashlib.blake2b(
-                f"jax;seed={seed};gen={gen};{tag}".encode(), digest_size=8
-            ).digest()
+            d = hashlib.blake2b(f"jax;seed={seed};gen={gen};{tag}".encode(), digest_size=8).digest()
             return int.from_bytes(d, "little") / (2**64 - 1)
 
         reward = (_f("reward") - 0.5) * 2.0 + gen * 0.01

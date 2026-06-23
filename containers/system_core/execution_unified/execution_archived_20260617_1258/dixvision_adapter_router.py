@@ -68,9 +68,7 @@ class AdapterRouter:
     def register_adapter(self, adapter: VenueAdapter) -> None:
         self._adapters[adapter.name()] = adapter
 
-    def route(
-        self, intent: ExecutionIntent, venue: str | None = None
-    ) -> TradeResult:
+    def route(self, intent: ExecutionIntent, venue: str | None = None) -> TradeResult:
         target = venue or self._default_venue
         adapter = self._adapters.get(target)
         if not adapter:
@@ -80,9 +78,7 @@ class AdapterRouter:
         return adapter.execute(intent)
 
     def get_available_venues(self) -> list[str]:
-        return [
-            name for name, adapter in self._adapters.items() if adapter.is_available()
-        ]
+        return [name for name, adapter in self._adapters.items() if adapter.is_available()]
 
     def set_default_venue(self, venue: str) -> None:
         if venue not in self._adapters:

@@ -1,26 +1,23 @@
 """Tests for Learning Engine Maturation (Reinforcement Loops and Cognitive Learning Governance)."""
 
-import unittest
-import sys
 import os
+import sys
+import unittest
 
 # Add paths to imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from intelligence_engine.learning import (
-    ReinforcementEngine,
-    get_reinforcement_engine,
     FeedbackSample,
+    GovernanceAction,
+    GovernanceDecision,
+    LearningConstraint,
+    LearningPhase,
+    LearningRateStrategy,
     ParameterBounds,
     ReinforcementUpdate,
-    LearningRateStrategy,
-    ReinforcementStatus,
-    CognitiveLearningGovernance,
     get_cognitive_learning_governance,
-    LearningConstraint,
-    GovernanceDecision,
-    GovernanceAction,
-    LearningPhase,
+    get_reinforcement_engine,
 )
 
 
@@ -326,7 +323,10 @@ class TestLearningEngineIntegration(unittest.TestCase):
         )
 
         # Should get a valid decision
-        self.assertIn(decision.action, [GovernanceAction.ALLOW, GovernanceAction.BLOCK, GovernanceAction.MODIFY])
+        self.assertIn(
+            decision.action,
+            [GovernanceAction.ALLOW, GovernanceAction.BLOCK, GovernanceAction.MODIFY],
+        )
 
 
 def run_tests():
@@ -341,15 +341,15 @@ def run_tests():
     runner = unittest.TextTestRunner(verbosity=2)
     result = runner.run(suite)
 
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("LEARNING ENGINE MATURATION TEST SUMMARY")
-    print("="*70)
+    print("=" * 70)
     print(f"Tests run: {result.testsRun}")
     print(f"Successes: {result.testsRun - len(result.failures) - len(result.errors)}")
     print(f"Failures: {len(result.failures)}")
     print(f"Errors: {len(result.errors)}")
     print(f"Skipped: {len(result.skipped)}")
-    print("="*70)
+    print("=" * 70)
 
     return result.wasSuccessful()
 

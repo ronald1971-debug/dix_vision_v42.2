@@ -65,9 +65,7 @@ class SelfLearningConfig:
                 f"min_trades_per_update must be >= 1, got {self.min_trades_per_update}"
             )
         if not (0.0 <= self.min_win_rate <= 1.0):
-            raise SelfLearningError(
-                f"min_win_rate must be in [0, 1], got {self.min_win_rate}"
-            )
+            raise SelfLearningError(f"min_win_rate must be in [0, 1], got {self.min_win_rate}")
         if self.update_cooldown_ns < 0:
             raise SelfLearningError(
                 f"update_cooldown_ns must be >= 0, got {self.update_cooldown_ns}"
@@ -142,9 +140,7 @@ class SelfLearningState:
         if self.n_updates < 0:
             raise SelfLearningError(f"n_updates must be >= 0, got {self.n_updates}")
         if self.last_update_ts_ns < 0:
-            raise SelfLearningError(
-                f"last_update_ts_ns must be >= 0, got {self.last_update_ts_ns}"
-            )
+            raise SelfLearningError(f"last_update_ts_ns must be >= 0, got {self.last_update_ts_ns}")
         if not (0.0 <= self.win_rate <= 1.0):
             raise SelfLearningError(f"win_rate must be in [0, 1], got {self.win_rate}")
 

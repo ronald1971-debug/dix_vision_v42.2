@@ -87,9 +87,7 @@ class BridgedEntry:
     payload: dict[str, Any]
 
 
-def _authority_entries(
-    db_path: Path | None, limit: int, offset: int
-) -> list[BridgedEntry]:
+def _authority_entries(db_path: Path | None, limit: int, offset: int) -> list[BridgedEntry]:
     """Read rows from the authority SQLite file."""
     if db_path is None or not db_path.exists():
         return []
@@ -129,9 +127,7 @@ def _authority_entries(
         return []
 
 
-def _event_store_entries(
-    db_path: Path | None, limit: int, offset: int
-) -> list[BridgedEntry]:
+def _event_store_entries(db_path: Path | None, limit: int, offset: int) -> list[BridgedEntry]:
     """Read rows from the event-store SQLite file."""
     if db_path is None or not db_path.exists():
         return []
@@ -194,15 +190,11 @@ class LedgerBridge:
         self._authority_db = authority_db
         self._event_db = event_db
 
-    def authority_entries(
-        self, limit: int = 100, offset: int = 0
-    ) -> Sequence[BridgedEntry]:
+    def authority_entries(self, limit: int = 100, offset: int = 0) -> Sequence[BridgedEntry]:
         """Read rows from the governance authority chain."""
         return tuple(_authority_entries(self._authority_db, limit, offset))
 
-    def event_entries(
-        self, limit: int = 100, offset: int = 0
-    ) -> Sequence[BridgedEntry]:
+    def event_entries(self, limit: int = 100, offset: int = 0) -> Sequence[BridgedEntry]:
         """Read rows from the event store chain."""
         return tuple(_event_store_entries(self._event_db, limit, offset))
 
@@ -229,9 +221,7 @@ class LedgerBridge:
 
                 uri = f"file:{self._authority_db}?mode=ro"
                 conn = sqlite3.connect(uri, uri=True, check_same_thread=False)
-                row = conn.execute(
-                    "SELECT COUNT(*) AS n FROM ledger_authority"
-                ).fetchone()
+                row = conn.execute("SELECT COUNT(*) AS n FROM ledger_authority").fetchone()
                 auth_count = int(row[0]) if row else 0
                 conn.close()
             except Exception:  # pragma: no cover

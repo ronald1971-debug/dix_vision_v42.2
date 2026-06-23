@@ -131,9 +131,7 @@ class PaperTradingPromotionGateIntegration:
                 return self._bound_hash
             except FileNotFoundError:
                 # Promotion gates file not found - this is a governance failure
-                raise RuntimeError(
-                    "promotion_gates.yaml not found - cannot bind promotion gates"
-                )
+                raise RuntimeError("promotion_gates.yaml not found - cannot bind promotion gates")
 
     def record_trade(
         self,
@@ -209,9 +207,7 @@ class PaperTradingPromotionGateIntegration:
 
             # Validate promotion sequence
             if not self._is_valid_promotion_sequence(self._current_mode, target_mode):
-                result.reason = (
-                    f"Invalid promotion sequence: {self._current_mode} -> {target_mode}"
-                )
+                result.reason = f"Invalid promotion sequence: {self._current_mode} -> {target_mode}"
                 return result
 
             # Check promotion gate criteria based on target mode
@@ -249,9 +245,7 @@ class PaperTradingPromotionGateIntegration:
 
             return result
 
-    def _is_valid_promotion_sequence(
-        self, current: TradingMode, target: TradingMode
-    ) -> bool:
+    def _is_valid_promotion_sequence(self, current: TradingMode, target: TradingMode) -> bool:
         """Validate that the promotion sequence is valid."""
         valid_sequences = {
             TradingMode.PAPER: {TradingMode.SHADOW},
@@ -271,7 +265,9 @@ class PaperTradingPromotionGateIntegration:
         window_duration_ns = self._metrics.window_end_ns - self._metrics.window_start_ns
         min_window_ns = 30 * 24 * 60 * 60 * 1_000_000_000  # 30 days in ns
         if window_duration_ns < min_window_ns:
-            missing.append(f"Window duration < 30 days (current: {window_duration_ns / (24*60*60*1e9):.1f} days)")
+            missing.append(
+                f"Window duration < 30 days (current: {window_duration_ns / (24*60*60*1e9):.1f} days)"
+            )
 
         # Minimum signal count (500)
         if self._metrics.signal_count < 500:
@@ -309,7 +305,9 @@ class PaperTradingPromotionGateIntegration:
         window_duration_ns = self._metrics.window_end_ns - self._metrics.window_start_ns
         min_window_ns = 14 * 24 * 60 * 60 * 1_000_000_000  # 14 days in ns
         if window_duration_ns < min_window_ns:
-            missing.append(f"Window duration < 14 days (current: {window_duration_ns / (24*60*60*1e9):.1f} days)")
+            missing.append(
+                f"Window duration < 14 days (current: {window_duration_ns / (24*60*60*1e9):.1f} days)"
+            )
 
         # Minimum signal count (250)
         if self._metrics.signal_count < 250:
@@ -346,7 +344,9 @@ class PaperTradingPromotionGateIntegration:
         window_duration_ns = self._metrics.window_end_ns - self._metrics.window_start_ns
         min_window_ns = 30 * 24 * 60 * 60 * 1_000_000_000  # 30 days in ns
         if window_duration_ns < min_window_ns:
-            missing.append(f"Window duration < 30 days (current: {window_duration_ns / (24*60*60*1e9):.1f} days)")
+            missing.append(
+                f"Window duration < 30 days (current: {window_duration_ns / (24*60*60*1e9):.1f} days)"
+            )
 
         # Minimum signal count (1000)
         if self._metrics.signal_count < 1000:

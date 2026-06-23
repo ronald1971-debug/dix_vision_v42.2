@@ -20,10 +20,11 @@ from typing import Any
 @dataclass(frozen=True, slots=True)
 class StrategyScore:
     """Performance score for a single strategy."""
+
     strategy_id: str
-    sharpe: float          # normalised to [0, 1]
-    win_rate: float        # [0, 1]
-    regime_fit: float      # [0, 1] — how well strategy fits current regime
+    sharpe: float  # normalised to [0, 1]
+    win_rate: float  # [0, 1]
+    regime_fit: float  # [0, 1] — how well strategy fits current regime
     composite_score: float = 0.0
 
     def __post_init__(self) -> None:

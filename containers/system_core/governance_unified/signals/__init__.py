@@ -5,6 +5,6 @@ Governance kernel's final approve/reject/modify/halt decision stays a
 deterministic hard rule.
 """
 
-from .neuromorphic_risk import get_neuromorphic_risk, NeuromorphicRisk
+from .neuromorphic_risk import NeuromorphicRisk, get_neuromorphic_risk
 
 __all__ = ["get_neuromorphic_risk", "NeuromorphicRisk"]

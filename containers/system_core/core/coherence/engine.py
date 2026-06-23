@@ -102,9 +102,7 @@ class CoherenceEngine:
         if self._meta_adaptation is None:
             with self._lock:
                 if self._meta_adaptation is None:
-                    self._meta_adaptation = MetaAdaptation(
-                        oracle_config=self._drift_oracle_config
-                    )
+                    self._meta_adaptation = MetaAdaptation(oracle_config=self._drift_oracle_config)
         return self._meta_adaptation
 
     # ------------------------------------------------------------------

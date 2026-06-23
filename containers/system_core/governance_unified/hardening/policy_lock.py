@@ -34,16 +34,17 @@ import logging
 import sqlite3
 import threading
 from dataclasses import dataclass, field
+from datetime import datetime
 from enum import StrEnum
 from pathlib import Path
-from typing import Any, Optional, Dict
-from datetime import datetime
+from typing import Any, Dict, Optional
 
 _logger = logging.getLogger(__name__)
 
 # World context integration (Phase 10.2 enhancement)
 try:
     from world_model.indicator_integration import get_integration_bridge
+
     WORLD_MODEL_AVAILABLE = True
 except ImportError:
     WORLD_MODEL_AVAILABLE = False
@@ -53,7 +54,7 @@ except ImportError:
 @dataclass
 class WorldContext:
     """World context for policy enforcement with enhanced metadata."""
-    
+
     market_regime: str = "unknown"
     market_trend: str = "unknown"
     volatility_regime: str = "unknown"
@@ -78,8 +79,8 @@ class PolicyLockState:
     """Enhanced snapshot of current policy lock state with world context."""
 
     status: LockStatus
-    locked_by: str          # operator_id or "" when unlocked
-    reason: str             # lock/unlock reason
+    locked_by: str  # operator_id or "" when unlocked
+    reason: str  # lock/unlock reason
     ts_ns: int
     world_context: Optional[WorldContext] = None  # Phase 10.2 enhancement
     policy_strictness: str = "standard"  # standard, relaxed, strict
@@ -88,11 +89,11 @@ class PolicyLockState:
 class PolicyLockManager:
     """Enhanced hard policy lock with world-aware enforcement.
 
-    Detects drift and enforces execution suspension with world context integration
-for adaptive policy strictness based on market conditions.
+        Detects drift and enforces execution suspension with world context integration
+    for adaptive policy strictness based on market conditions.
 
-    Args:
-        db_path: SQLite path for persistent lock state.
+        Args:
+            db_path: SQLite path for persistent lock state.
     """
 
     def __init__(self, *, db_path: Path | str = _DEFAULT_DB) -> None:
@@ -103,16 +104,16 @@ for adaptive policy strictness based on market conditions.
         self._state = self._load_state()
         self._check_count: int = 0
         self._drift_count: int = 0
-        
+
         # World context integration (Phase 10.2 enhancement)
         self._world_integration_bridge = None
         self._current_world_context: Optional[WorldContext] = None
         self._policy_strictness: str = "standard"
         self._violation_history: list = []
-        
+
         if WORLD_MODEL_AVAILABLE:
             self._init_world_integration()
-    
+
     def _init_world_integration(self) -> None:
         """Initialize world model integration bridge."""
         try:
@@ -121,39 +122,39 @@ for adaptive policy strictness based on market conditions.
         except Exception as e:
             _logger.warning(f"[POLICY_LOCK] Failed to initialize world integration: {e}")
             self._world_integration_bridge = None
-    
+
     def _get_world_context(self) -> Optional[WorldContext]:
         """Get current world context from world model."""
         if not self._world_integration_bridge:
             return None
-        
+
         try:
             world_state = self._world_integration_bridge.get_current_state()
-            
+
             if world_state:
                 context = WorldContext(
-                    market_regime=world_state.get('market_regime', 'unknown'),
-                    market_trend=world_state.get('market_trend', 'unknown'),
-                    volatility_regime=world_state.get('volatility_regime', 'unknown'),
-                    liquidity_state=world_state.get('liquidity_state', 'unknown'),
-                    agent_activity=world_state.get('agent_activity', {}),
-                    causal_factors=world_state.get('causal_factors', []),
-                    prediction_confidence=world_state.get('prediction_confidence', 0.0),
-                    timestamp=datetime.utcnow()
+                    market_regime=world_state.get("market_regime", "unknown"),
+                    market_trend=world_state.get("market_trend", "unknown"),
+                    volatility_regime=world_state.get("volatility_regime", "unknown"),
+                    liquidity_state=world_state.get("liquidity_state", "unknown"),
+                    agent_activity=world_state.get("agent_activity", {}),
+                    causal_factors=world_state.get("causal_factors", []),
+                    prediction_confidence=world_state.get("prediction_confidence", 0.0),
+                    timestamp=datetime.utcnow(),
                 )
                 self._current_world_context = context
                 return context
-        
+
         except Exception as e:
             _logger.debug(f"[POLICY_LOCK] Failed to get world context: {e}")
-        
+
         return None
-    
+
     def _calculate_policy_strictness(self, world_context: Optional[WorldContext]) -> str:
         """Calculate adaptive policy strictness based on world context."""
         if not world_context:
             return "standard"
-        
+
         # Relax policy strictness during high volatility
         if world_context.volatility_regime == "high":
             return "relaxed"
@@ -170,15 +171,13 @@ for adaptive policy strictness based on market conditions.
 
     def _init_db(self) -> None:
         with self._connect() as conn:
-            conn.execute(
-                """CREATE TABLE IF NOT EXISTS policy_lock_state (
+            conn.execute("""CREATE TABLE IF NOT EXISTS policy_lock_state (
                     id        INTEGER PRIMARY KEY CHECK (id = 1),
                     status    TEXT NOT NULL DEFAULT 'UNLOCKED',
                     locked_by TEXT NOT NULL DEFAULT '',
                     reason    TEXT NOT NULL DEFAULT '',
                     ts_ns     INTEGER NOT NULL DEFAULT 0
-                )"""
-            )
+                )""")
             conn.execute(
                 "INSERT OR IGNORE INTO policy_lock_state(id,status,locked_by,reason,ts_ns)"
                 " VALUES(1,'UNLOCKED','','',0)"
@@ -204,9 +203,7 @@ for adaptive policy strictness based on market conditions.
                 )
         except Exception:
             pass
-        return PolicyLockState(
-            status=LockStatus.UNLOCKED, locked_by="", reason="", ts_ns=0
-        )
+        return PolicyLockState(status=LockStatus.UNLOCKED, locked_by="", reason="", ts_ns=0)
 
     def _persist_state(self, state: PolicyLockState) -> None:
         try:
@@ -275,7 +272,7 @@ for adaptive policy strictness based on market conditions.
         # Get world context for adaptive policy strictness
         world_context = self._get_world_context()
         self._policy_strictness = self._calculate_policy_strictness(world_context)
-        
+
         with self._lock:
             self._check_count += 1
             state = self._state
@@ -288,14 +285,14 @@ for adaptive policy strictness based on market conditions.
                 reason=state.reason,
                 ts_ns=state.ts_ns,
                 world_context=world_context,
-                policy_strictness=self._policy_strictness
+                policy_strictness=self._policy_strictness,
             )
 
         hazard = self._run_drift_check(ts_ns)
         if hazard is not None:
             # Apply world-aware policy strictness
             should_enforce = self._should_enforce_drift(hazard, world_context)
-            
+
             if should_enforce:
                 # Drift detected while locked → escalate
                 with self._lock:
@@ -306,26 +303,30 @@ for adaptive policy strictness based on market conditions.
                         reason=f"DRIFT: {getattr(hazard, 'detail', str(hazard))}",
                         ts_ns=ts_ns,
                         world_context=world_context,
-                        policy_strictness=self._policy_strictness
+                        policy_strictness=self._policy_strictness,
                     )
                     self._state = new_state
                     self._persist_state(new_state)
-                    self._violation_history.append({
-                        'ts_ns': ts_ns,
-                        'strictness': self._policy_strictness,
-                        'world_regime': world_context.market_regime if world_context else "unknown"
-                    })
+                    self._violation_history.append(
+                        {
+                            "ts_ns": ts_ns,
+                            "strictness": self._policy_strictness,
+                            "world_regime": (
+                                world_context.market_regime if world_context else "unknown"
+                            ),
+                        }
+                    )
                 self._emit_drift_hazard(ts_ns)
                 _logger.critical(
                     "PolicyLockManager: DRIFT DETECTED while locked — governance BLOCKED (strictness=%s)",
-                    self._policy_strictness
+                    self._policy_strictness,
                 )
                 return new_state
             else:
                 # Policy relaxed due to world conditions - log warning only
                 _logger.warning(
                     "PolicyLockManager: DRIFT DETECTED but enforcement relaxed due to world conditions (strictness=%s)",
-                    self._policy_strictness
+                    self._policy_strictness,
                 )
 
         # Still clean
@@ -335,9 +336,9 @@ for adaptive policy strictness based on market conditions.
             reason=state.reason,
             ts_ns=state.ts_ns,
             world_context=world_context,
-            policy_strictness=self._policy_strictness
+            policy_strictness=self._policy_strictness,
         )
-    
+
     def _should_enforce_drift(self, hazard: Any, world_context: Optional[WorldContext]) -> bool:
         """Determine whether to enforce drift based on world context and strictness."""
         if self._policy_strictness == "strict":
@@ -349,10 +350,10 @@ for adaptive policy strictness based on market conditions.
         elif self._policy_strictness == "relaxed":
             # Relax enforcement for non-critical drifts in relaxed mode
             # Only enforce for critical security drifts
-            hazard_detail = getattr(hazard, 'detail', str(hazard)).lower()
-            critical_keywords = ['security', 'auth', 'permission', 'access']
+            hazard_detail = getattr(hazard, "detail", str(hazard)).lower()
+            critical_keywords = ["security", "auth", "permission", "access"]
             return any(keyword in hazard_detail for keyword in critical_keywords)
-        
+
         return True
 
     def governance_blocked(self) -> bool:
@@ -370,7 +371,7 @@ for adaptive policy strictness based on market conditions.
             s = self._state
             # Get current world context
             world_context = self._get_world_context()
-        
+
         snapshot_data = {
             "status": s.status.value,
             "locked_by": s.locked_by,
@@ -385,12 +386,14 @@ for adaptive policy strictness based on market conditions.
                 "available": WORLD_MODEL_AVAILABLE,
                 "active": self._world_integration_bridge is not None,
                 "current_regime": world_context.market_regime if world_context else "unknown",
-                "volatility_regime": world_context.volatility_regime if world_context else "unknown",
+                "volatility_regime": (
+                    world_context.volatility_regime if world_context else "unknown"
+                ),
                 "market_trend": world_context.market_trend if world_context else "unknown",
             },
             "violation_history_count": len(self._violation_history),
         }
-        
+
         return snapshot_data
 
     # ------------------------------------------------------------------
@@ -403,6 +406,7 @@ for adaptive policy strictness based on market conditions.
             from ..control_plane.policy_hash_anchor import (
                 get_policy_hash_anchor,
             )
+
             anchor = get_policy_hash_anchor()
             if not anchor.is_bound():
                 return None
@@ -415,6 +419,7 @@ for adaptive policy strictness based on market conditions.
     def _write_ledger(kind: str, operator_id: str, reason: str, ts_ns: int) -> None:
         try:
             from state.ledger.append import append_event
+
             append_event(
                 stream="AUTHORITY",
                 kind=kind,
@@ -432,16 +437,21 @@ for adaptive policy strictness based on market conditions.
     def _emit_drift_hazard(ts_ns: int) -> None:
         try:
             from state.event_bus import CognitiveChannel, get_event_bus
-            get_event_bus().publish(CognitiveChannel.DYON_VIOLATION, {
-                "source": "policy_lock",
-                "hazard": "POLICY_DRIFT_WHILE_LOCKED",
-                "severity": "CRITICAL",
-                "ts_ns": ts_ns,
-            })
+
+            get_event_bus().publish(
+                CognitiveChannel.DYON_VIOLATION,
+                {
+                    "source": "policy_lock",
+                    "hazard": "POLICY_DRIFT_WHILE_LOCKED",
+                    "severity": "CRITICAL",
+                    "ts_ns": ts_ns,
+                },
+            )
         except Exception:
             pass
         try:
             from state.ledger.append import append_event
+
             append_event(
                 stream="GOVERNANCE",
                 kind="POLICY_DRIFT_LOCKED",
@@ -460,9 +470,7 @@ _manager: PolicyLockManager | None = None
 _manager_lock = threading.Lock()
 
 
-def get_policy_lock_manager(
-    *, db_path: Path | str = _DEFAULT_DB
-) -> PolicyLockManager:
+def get_policy_lock_manager(*, db_path: Path | str = _DEFAULT_DB) -> PolicyLockManager:
     global _manager
     with _manager_lock:
         if _manager is None:

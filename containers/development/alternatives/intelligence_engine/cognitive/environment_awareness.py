@@ -88,6 +88,7 @@ class EnvironmentAwareness:
     def _read_mode() -> str:
         try:
             from state.system_mode import get_system_mode
+
             return get_system_mode().value
         except Exception:
             return "UNKNOWN"
@@ -102,6 +103,7 @@ class EnvironmentAwareness:
     def _read_memory() -> dict:
         try:
             from state.memory_tensor.memory_orchestrator import get_memory_orchestrator
+
             snap = get_memory_orchestrator().snapshot()
             return {
                 "episodic": snap.get("episodic_size", 0),
@@ -116,6 +118,7 @@ class EnvironmentAwareness:
             from intelligence_engine.research.autonomous_research_runtime import (
                 get_research_runtime,
             )
+
             snap = get_research_runtime().snapshot()
             return {
                 "running": snap.get("running", False),
@@ -135,6 +138,7 @@ class EnvironmentAwareness:
         """Return live market context string from MarketState, or '' if no data."""
         try:
             from state.market_state import get_market_state
+
             return get_market_state().format_for_context(max_symbols=3)
         except Exception:
             return ""

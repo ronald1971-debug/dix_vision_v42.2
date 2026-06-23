@@ -178,9 +178,7 @@ class EventStore:
             params.append(source)
         where = "WHERE " + " AND ".join(parts)
         params.append(limit)
-        cur = self._conn.execute(
-            f"SELECT * FROM events {where} ORDER BY id ASC LIMIT ?", params
-        )
+        cur = self._conn.execute(f"SELECT * FROM events {where} ORDER BY id ASC LIMIT ?", params)
         cols = [d[0] for d in cur.description]
         return [dict(zip(cols, row, strict=False)) for row in cur.fetchall()]
 

@@ -12,6 +12,7 @@ from dataclasses import dataclass
 @dataclass(frozen=True, slots=True)
 class BeliefUpdate:
     """A belief update event from an engine."""
+
     ts_ns: int
     engine: str
     domain: str

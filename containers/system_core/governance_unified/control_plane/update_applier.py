@@ -14,12 +14,13 @@ state. INV-15 / TEST-01.
 from __future__ import annotations
 
 from core.contracts.strategy_registry import StrategyRecord
+
+from ..strategy_registry import StrategyRegistry
 from .update_validator import (
     ProposedUpdate,
     UpdateDecision,
     UpdateVerdict,
 )
-from ..strategy_registry import StrategyRegistry
 
 
 class UpdateApplier:

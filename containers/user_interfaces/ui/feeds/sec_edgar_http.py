@@ -65,13 +65,13 @@ def parse_edgar_filing(
         ticker = str(filing_data.get("ticker", ""))
         form_type = str(filing_data.get("form", ""))
         file_date = str(filing_data.get("file_date", ""))
-        
+
         # Extract filing description if available
         description = str(filing_data.get("description", f"{form_type} filing"))
-        
+
         # Extract document link if available
         filing_url = str(filing_data.get("filing_url", ""))
-        
+
     except (KeyError, ValueError, TypeError):
         return None
 
@@ -98,7 +98,7 @@ async def search_edgar_filings(
     limit: int = 25,
 ) -> list[dict[str, Any]] | None:
     """Search SEC EDGAR for filings matching search term."""
-    
+
     headers = {
         "User-Agent": "DixVision/1.0 (Market Intelligence System)",
         "Accept": "application/json",
@@ -115,7 +115,7 @@ async def search_edgar_filings(
         response = await client.get(SEC_EDGAR_URL, headers=headers, params=params, timeout=15.0)
         response.raise_for_status()
         data = response.json()
-        
+
         # Parse search results
         filings = data.get("filings", [])
         return filings

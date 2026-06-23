@@ -38,10 +38,10 @@ from state.ledger.event_store import append_event
 # Constants
 # ---------------------------------------------------------------------------
 
-DRIFT_RATE_WARNING = 0.05          # cosine drift per hour; above this is abnormal
-SPIKE_THRESHOLD = 0.25             # single-window spike in drift magnitude
-BASELINE_WINDOW_HOURS = 168        # 7 days
-MIN_BASELINE_SAMPLES = 10          # minimum samples before stability checking
+DRIFT_RATE_WARNING = 0.05  # cosine drift per hour; above this is abnormal
+SPIKE_THRESHOLD = 0.25  # single-window spike in drift magnitude
+BASELINE_WINDOW_HOURS = 168  # 7 days
+MIN_BASELINE_SAMPLES = 10  # minimum samples before stability checking
 
 _BASELINE_WINDOW_NS = BASELINE_WINDOW_HOURS * 3_600_000_000_000
 
@@ -129,8 +129,10 @@ class IdentityStabilityMonitor:
                 f"drift_magnitude={drift_magnitude:.4f} approaching spike threshold"
             )
 
-        detail = "; ".join(detail_parts) if detail_parts else (
-            f"similarity={similarity:.4f}, drift={drift_magnitude:.4f}, OK"
+        detail = (
+            "; ".join(detail_parts)
+            if detail_parts
+            else (f"similarity={similarity:.4f}, drift={drift_magnitude:.4f}, OK")
         )
 
         report = IdentityStabilityReport(

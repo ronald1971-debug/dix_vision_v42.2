@@ -4,23 +4,23 @@ Contract-Compliant Real Implementation
 """
 
 from .advanced_attention import (
-    AttentionType,
-    AttentionWeights,
-    MultiHeadAttention,
-    CrossModalAttention,
-    HierarchicalAttention,
     AdaptiveAttention,
     AdvancedAttentionMechanisms,
-    get_attention_system
+    AttentionType,
+    AttentionWeights,
+    CrossModalAttention,
+    HierarchicalAttention,
+    MultiHeadAttention,
+    get_attention_system,
 )
 
 __all__ = [
-    'AttentionType',
-    'AttentionWeights',
-    'MultiHeadAttention',
-    'CrossModalAttention',
-    'HierarchicalAttention',
-    'AdaptiveAttention',
-    'AdvancedAttentionMechanisms',
-    'get_attention_system'
+    "AttentionType",
+    "AttentionWeights",
+    "MultiHeadAttention",
+    "CrossModalAttention",
+    "HierarchicalAttention",
+    "AdaptiveAttention",
+    "AdvancedAttentionMechanisms",
+    "get_attention_system",
 ]

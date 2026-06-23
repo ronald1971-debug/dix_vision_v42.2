@@ -148,9 +148,7 @@ class LiveTradingGovernanceLayer:
             self._live_trading_enabled = False
             return True
 
-    def request_approval(
-        self, context: LiveTradeGovernanceContext
-    ) -> GovernanceApprovalDecision:
+    def request_approval(self, context: LiveTradeGovernanceContext) -> GovernanceApprovalDecision:
         """Request governance approval for a live trade.
 
         Args:
@@ -203,9 +201,7 @@ class LiveTradingGovernanceLayer:
 
             return decision
 
-    def validate_live_execution(
-        self, signal: SignalEvent, execution: ExecutionEvent
-    ) -> bool:
+    def validate_live_execution(self, signal: SignalEvent, execution: ExecutionEvent) -> bool:
         """Validate that a live execution has proper governance approval.
 
         This is a post-execution validation to ensure that any execution
@@ -240,9 +236,7 @@ class LiveTradingGovernanceLayer:
                     return True
 
             # Live execution without governance approval
-            self._record_violation(
-                signal, execution, "Live execution without governance approval"
-            )
+            self._record_violation(signal, execution, "Live execution without governance approval")
             return False
 
     def _validate_mode_promotion(self, mode: str) -> bool:
@@ -308,16 +302,12 @@ class LiveTradingGovernanceLayer:
             },
         )
 
-    def add_listener(
-        self, listener: Callable[[GovernanceApprovalDecision], None]
-    ) -> None:
+    def add_listener(self, listener: Callable[[GovernanceApprovalDecision], None]) -> None:
         """Add a listener for governance decisions."""
         with self._lock:
             self._listeners.append(listener)
 
-    def remove_listener(
-        self, listener: Callable[[GovernanceApprovalDecision], None]
-    ) -> None:
+    def remove_listener(self, listener: Callable[[GovernanceApprovalDecision], None]) -> None:
         """Remove a listener for governance decisions."""
         with self._lock:
             if listener in self._listeners:
@@ -339,9 +329,7 @@ class LiveTradingGovernanceLayer:
                 "total_decisions": total,
                 "approvals": self._approval_count,
                 "rejections": self._rejection_count,
-                "approval_rate": (
-                    self._approval_count / total if total > 0 else 0.0
-                ),
+                "approval_rate": (self._approval_count / total if total > 0 else 0.0),
             }
 
     def is_live_trading_enabled(self) -> bool:

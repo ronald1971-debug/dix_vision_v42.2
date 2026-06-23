@@ -16,9 +16,9 @@ __all__ = ["LeadLagResult", "LeadLagDetector"]
 class LeadLagResult:
     symbol_a: str
     symbol_b: str
-    lag_bars: int       # positive = A leads B; negative = B leads A
+    lag_bars: int  # positive = A leads B; negative = B leads A
     correlation: float
-    confidence: float   # 0.0–1.0, abs(correlation) as proxy
+    confidence: float  # 0.0–1.0, abs(correlation) as proxy
 
 
 def _pearson(xs: list[float], ys: list[float]) -> float:
@@ -55,9 +55,9 @@ class LeadLagDetector:
 
         for lag in range(-self._max_lag, self._max_lag + 1):
             if lag >= 0:
-                corr = _pearson(pa[:n - lag], pb[lag:]) if lag < n else 0.0
+                corr = _pearson(pa[: n - lag], pb[lag:]) if lag < n else 0.0
             else:
-                corr = _pearson(pa[-lag:], pb[:n + lag]) if -lag < n else 0.0
+                corr = _pearson(pa[-lag:], pb[: n + lag]) if -lag < n else 0.0
             if abs(corr) > abs(best_corr):
                 best_corr = corr
                 best_lag = lag

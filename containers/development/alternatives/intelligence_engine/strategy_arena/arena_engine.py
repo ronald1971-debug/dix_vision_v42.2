@@ -213,14 +213,13 @@ class ArenaEngine:
             self._emit_archetype_events(ts_ns, pre_scores)
         return killed
 
-    def _emit_archetype_events(
-        self, ts_ns: int, pre_scores: dict[str, float]
-    ) -> None:
+    def _emit_archetype_events(self, ts_ns: int, pre_scores: dict[str, float]) -> None:
         """Best-effort ArchetypeEvolutionEvent emission. Never raises."""
         try:
             from intelligence_engine.cognitive.observability_emitter import (
                 emit_archetype_evolution,
             )
+
             for slot in self.active_slots:
                 old = pre_scores.get(slot.strategy_id)
                 new = slot.composite_score

@@ -15,24 +15,24 @@ __all__ = ["PerformanceClaim", "ValidationResult", "PerformanceValidator"]
 class PerformanceClaim:
     source_id: str
     ts_ns: int
-    return_pct: float       # claimed total return %
-    win_rate: float         # claimed win rate [0, 1]
-    trade_count: int        # number of trades claimed
-    drawdown_pct: float     # claimed max drawdown %
+    return_pct: float  # claimed total return %
+    win_rate: float  # claimed win rate [0, 1]
+    trade_count: int  # number of trades claimed
+    drawdown_pct: float  # claimed max drawdown %
 
 
 @dataclass(frozen=True, slots=True)
 class ValidationResult:
     source_id: str
     ts_ns: int
-    credibility_score: float   # [0, 1]
+    credibility_score: float  # [0, 1]
     flags: tuple[str, ...]
     passed: bool
 
 
-_UNREALISTIC_RETURN = 10_000.0   # >10,000% is implausible without context
-_MIN_TRADE_COUNT = 10            # fewer trades → low statistical confidence
-_MAX_WIN_RATE = 0.95             # above this is suspicious
+_UNREALISTIC_RETURN = 10_000.0  # >10,000% is implausible without context
+_MIN_TRADE_COUNT = 10  # fewer trades → low statistical confidence
+_MAX_WIN_RATE = 0.95  # above this is suspicious
 
 
 class PerformanceValidator:

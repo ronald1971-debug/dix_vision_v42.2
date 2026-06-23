@@ -67,13 +67,21 @@ class Identity:
 
     def set_maturity(self, domain: str, level: MaturityLevel, evidence: str = "") -> None:
         """Set maturity level for a domain."""
-        existing = [(ma, i) for i, ma in enumerate(self.maturity_assessments) if ma.domain == domain]
+        existing = [
+            (ma, i) for i, ma in enumerate(self.maturity_assessments) if ma.domain == domain
+        ]
 
         if existing:
             ma, idx = existing[0]
             # Would need to update - simplified
             self.maturity_assessments = tuple(
-                m if i != idx else MaturityAssessment(domain=domain, current_level=level, evidence=(evidence,))
+                (
+                    m
+                    if i != idx
+                    else MaturityAssessment(
+                        domain=domain, current_level=level, evidence=(evidence,)
+                    )
+                )
                 for i, m in enumerate(self.maturity_assessments)
             )
         else:
@@ -88,5 +96,7 @@ class Identity:
             "capability_count": len(self.capabilities),
             "active_objectives": list(self.active_objectives),
             "disabled_count": len(self.disabled_capabilities),
-            "highest_maturity": max((ma.current_level for ma in self.maturity_assessments), default=MaturityLevel.NOVICE),
+            "highest_maturity": max(
+                (ma.current_level for ma in self.maturity_assessments), default=MaturityLevel.NOVICE
+            ),
         }

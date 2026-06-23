@@ -1,0 +1,197 @@
+# Governance Registry
+# DIX VISION v42.2 - Governance Configuration
+
+governance:
+  # Governance System Status
+  governance_system:
+    enabled: true
+    type: "cognitive_control_center"
+    location: "containers/cognitive_control_center/"
+    integration: "governance_unified"
+    description: "Cognitive governance system for control operations"
+  
+  # Approval Requirements
+  approval:
+    enabled: true
+    require_approval_for:
+      - learning_operations
+      - cognitive_operations
+      - trading_operations
+      - risk_management_decisions
+      - signal_first_ratio_adjustments
+    
+    approval_threshold:
+      default: 0.70  # 70% governance approval required
+      high_risk: 0.90  # 90% for high-risk operations
+      low_risk: 0.50  # 50% for low-risk operations
+    
+    auto_approval_conditions:
+      pre_approved_operations:
+        - standard_routine_operations
+        - within_predefined_limits
+      operator_override_available: true
+  
+  # Signal-First Governance Integration
+  signal_first_governance:
+    enabled: true
+    require_approval_for_ratio_changes: true
+    ratio_change_threshold: 0.10  # 10% change requires approval
+    extreme_ratio_threshold: 0.90  # 90% ratio requires governance review
+    description: "Governance integration for signal-first architecture"
+    
+    governance_checks:
+      - signal_first_compliance_check
+      - signal_world_ratio_validation
+      - dashboard_control_authority
+      - trading_form_optimization_approval
+      - world_context_integration_validation
+  
+  # Audit Trail
+  audit_trail:
+    enabled: true
+    log_all_governance_actions: true
+    log_all_learning_operations: true
+    log_all_cognitive_operations: true
+    log_all_trading_operations: true
+    retention_period_days: 365
+    storage_location: "containers/governance/audit/"
+    
+    # Audit Trail Fields
+    required_fields:
+      - timestamp
+      - operator_id
+      - operation_type
+      - approval_status
+      - decision_rationale
+      - risk_assessment
+  
+  # Monitoring and Alerts
+  monitoring:
+    real_time_monitoring: true
+    alert_systems:
+      email: true
+      slack: false
+      telegram: false
+      dashboard: true
+    
+    alert_conditions:
+      - governance_approval_denied
+      - signal_first_compliance_violation
+      - risk_limit_exceeded
+      - unauthorized_operations
+  
+  # Operator Sovereignty
+  operator_sovereignty:
+    ultimate_control: true
+    operator_can_override: true
+    operator_can_approve_extreme_ratios: true
+    operator_can_disable_governance: false  # Governance must remain enabled
+    operator_can_adjust_dashboard_control: true
+    description: "Operator maintains ultimate control per Tier-0 Build Contract"
+  
+  # Decision Authority
+  decision_authority:
+    cognitive_decisions:
+      authority_level: "cognitive_control_center"
+      can_be_overridden: false  # Cognitive decisions require governance
+      description: "Cognitive decisions require governance approval"
+    
+    trading_decisions:
+      authority_level: "hybrid"
+      operator_can_override: true
+      governance_can_override: true
+      description: "Trading decisions have hybrid authority"
+    
+    learning_decisions:
+      authority_level: "governance_approval_required"
+      can_be_overridden: false
+      description: "Learning operations require governance approval"
+    
+    signal_first_decisions:
+      authority_level: "governance_with_dashboard_control"
+      operator_can_override: true  # Via dashboard slider
+      governance_can_override: true  # For extreme ratios
+      description: "Signal-first decisions controlled via dashboard with governance oversight"
+  
+  # Governance Integration with Phase 1
+  phase1_integration:
+    signal_first_governance:
+      enabled: true
+      compliance_checking: true
+      ratio_validation: true
+      world_context_validation: true
+      description: "Governance integration for Phase 1 signal-first architecture"
+    
+    dashboard_control_governance:
+      enabled: true
+      operator_control_monitoring: true
+      ratio_change_logging: true
+      manual_override_audit_trail: true
+      description: "Governance oversight for dashboard control"
+    
+    trading_form_optimization_governance:
+      enabled: true
+      form_change_approval: false  # Auto-optimization without approval
+      extreme_form_risk_review: true
+      description: "Governance review for high-risk trading form changes"
+  
+  # Risk Governance
+  risk_governance:
+    risk_approval_required: true
+    risk_threshold_approval:
+      high_risk: 0.05  # 5% position size
+      extreme_risk: 0.10  # 10% position size
+    risk_monitoring: true
+    real_time_risk_alerts: true
+    description: "Governance for risk management decisions"
+  
+  # Conflict Resolution
+  conflict_resolution:
+    enabled: true
+    escalation_hierarchy:
+      - level_1: "cognitive_control_center"
+      - level_2: "human_operator"
+      - level_3: "system_shutdown"
+    resolution_methods:
+      - automated_negotiation
+      - operator_intervention
+      - emergency_stop
+    
+  # Compliance Enforcement
+  compliance:
+    contract_compliance:
+      tier_0_build_contract: true
+      canonical_architecture_compliance: true
+      zero_placeholder_policy: true
+      real_capability_requirement: true
+    
+    enforcement_mechanisms:
+      - automated_compliance_checks
+      - compliance_validation_before_operation
+      - non_compliance_prevention
+      - violation_logging
+      - violation_reporting
+
+# Governance Interfaces
+governance_interfaces:
+  cognitive_systems:
+    indira_cognitive: true
+    dyon_cognitive: true
+    intelligence_engine_cognitive: true
+    cognitive_control: true
+  
+  learning_systems:
+    learning_engine: true
+    meta_learning: true
+    reinforcement_learning: true
+  
+  trading_systems:
+    execution: true
+    strategies: true
+    risk_management: true
+
+# Version information
+version: "1.0.0"
+created_date: "2026-06-21"
+updated_date: "2026-06-21"
+compatible_with: "DIX VISION v42.2+"

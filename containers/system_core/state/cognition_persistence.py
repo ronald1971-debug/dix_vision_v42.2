@@ -127,9 +127,7 @@ class CognitionPersistenceStore:
         except Exception as exc:
             _logger.debug("save_episode error: %s", exc)
 
-    def load_episodes(
-        self, store_kind: str, *, limit: int = 500
-    ) -> list[dict[str, Any]]:
+    def load_episodes(self, store_kind: str, *, limit: int = 500) -> list[dict[str, Any]]:
         """Return up to *limit* most-recent episodes for *store_kind*."""
         try:
             with self._lock:
@@ -260,8 +258,14 @@ class CognitionPersistenceStore:
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     (
-                        topic, task_type, status, pages_fetched,
-                        confidence, trust_score, json.dumps(sources), ts_ns,
+                        topic,
+                        task_type,
+                        status,
+                        pages_fetched,
+                        confidence,
+                        trust_score,
+                        json.dumps(sources),
+                        ts_ns,
                     ),
                 )
                 conn.commit()

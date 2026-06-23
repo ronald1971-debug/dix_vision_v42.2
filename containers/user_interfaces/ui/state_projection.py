@@ -135,10 +135,7 @@ class StateProjection:
         health should use this instead of calling ``check_self()`` on
         each engine directly.
         """
-        return {
-            s.name: {"healthy": s.healthy, "detail": s.detail}
-            for s in self._snap.services
-        }
+        return {s.name: {"healthy": s.healthy, "detail": s.detail} for s in self._snap.services}
 
     def engine_health_rows(self) -> list[dict[str, Any]]:
         """Service health as a list of rows for the EngineStatusGrid.
@@ -159,11 +156,13 @@ class StateProjection:
                 bucket = "offline"
             else:
                 bucket = "alive"
-            rows.append({
-                "engine_name": s.name,
-                "bucket": bucket,
-                "detail": s.detail,
-            })
+            rows.append(
+                {
+                    "engine_name": s.name,
+                    "bucket": bucket,
+                    "detail": s.detail,
+                }
+            )
         return rows
 
     # -- Cognitive governance projection --------------------------------

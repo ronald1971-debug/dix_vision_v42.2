@@ -2,6 +2,7 @@
 
 from typing import Any
 
+
 class Strategy:
     """Stub strategy."""
 

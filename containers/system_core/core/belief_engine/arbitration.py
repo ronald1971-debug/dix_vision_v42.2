@@ -53,7 +53,7 @@ def arbitrate(context: ArbitrationContext) -> ArbitrationResult:
     scores = {
         "signal": context.signal_confidence,
         "trader": context.trader_confidence * 1.2,  # Trader models get authority boost
-        "macro": context.macro_confidence * 1.1,    # Macro gets slight boost
+        "macro": context.macro_confidence * 1.1,  # Macro gets slight boost
     }
 
     now = max(context.signal_recency_ns, context.trader_recency_ns, context.macro_recency_ns)
@@ -78,15 +78,31 @@ def arbitrate(context: ArbitrationContext) -> ArbitrationResult:
 
     winner = max(scores, key=scores.get)
     beliefs = {
-        "signal": "bullish" if scores["signal"] > 0.5 else "bearish" if scores["signal"] < 0.5 else "neutral",
-        "trader": "bullish" if scores["trader"] > 0.5 else "bearish" if scores["trader"] < 0.5 else "neutral",
-        "macro": "bullish" if scores["macro"] > 0.5 else "bearish" if scores["macro"] < 0.5 else "neutral",
+        "signal": (
+            "bullish"
+            if scores["signal"] > 0.5
+            else "bearish" if scores["signal"] < 0.5 else "neutral"
+        ),
+        "trader": (
+            "bullish"
+            if scores["trader"] > 0.5
+            else "bearish" if scores["trader"] < 0.5 else "neutral"
+        ),
+        "macro": (
+            "bullish"
+            if scores["macro"] > 0.5
+            else "bearish" if scores["macro"] < 0.5 else "neutral"
+        ),
     }
 
     return ArbitrationResult(
         winner=winner,
         belief=beliefs[winner],
         effective_confidence=scores[winner],
-        applied_rules=(ArbitrationRule.CONFIDENCE_WEIGHTED, ArbitrationRule.SOURCE_AUTHORITY,
-                       ArbitrationRule.RECENCY_BONUS, ArbitrationRule.CONSISTENCY_BOOST),
+        applied_rules=(
+            ArbitrationRule.CONFIDENCE_WEIGHTED,
+            ArbitrationRule.SOURCE_AUTHORITY,
+            ArbitrationRule.RECENCY_BONUS,
+            ArbitrationRule.CONSISTENCY_BOOST,
+        ),
     )

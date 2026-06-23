@@ -30,9 +30,7 @@ def verify_phase12_components() -> dict[str, bool]:
     print("Testing Governance Testing System...")
     try:
         governance_results = run_governance_test_suite()
-        governance_passed = all(
-            result.passed for result in governance_results.values()
-        )
+        governance_passed = all(result.passed for result in governance_results.values())
         verification_results["governance_testing"] = governance_passed
         print(f"  Governance Testing: {'PASSED' if governance_passed else 'FAILED'}")
         if not governance_passed:
@@ -47,9 +45,7 @@ def verify_phase12_components() -> dict[str, bool]:
     print("Testing Evolution Sandbox...")
     try:
         evolution_results = run_evolution_sandbox_suite()
-        evolution_passed = all(
-            result.passed for result in evolution_results.values()
-        )
+        evolution_passed = all(result.passed for result in evolution_results.values())
         verification_results["evolution_sandbox"] = evolution_passed
         print(f"  Evolution Sandbox: {'PASSED' if evolution_passed else 'FAILED'}")
         if not evolution_passed:
@@ -64,9 +60,7 @@ def verify_phase12_components() -> dict[str, bool]:
     print("Testing Learning Validation...")
     try:
         learning_results = run_learning_validation_suite()
-        learning_passed = all(
-            result.passed for result in learning_results.values()
-        )
+        learning_passed = all(result.passed for result in learning_results.values())
         verification_results["learning_validation"] = learning_passed
         print(f"  Learning Validation: {'PASSED' if learning_passed else 'FAILED'}")
         if not learning_passed:
@@ -80,9 +74,7 @@ def verify_phase12_components() -> dict[str, bool]:
     # Test 4: Full Integration Suite
     print("Testing Full Integration Suite...")
     try:
-        integration_report = run_full_simulation_suite(
-            target_cognition_component="indira", seed=42
-        )
+        integration_report = run_full_simulation_suite(target_cognition_component="indira", seed=42)
         integration_passed = integration_report.passed
         verification_results["integration"] = integration_passed
         print(f"  Integration Suite: {'PASSED' if integration_passed else 'FAILED'}")

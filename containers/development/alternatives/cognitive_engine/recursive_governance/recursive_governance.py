@@ -31,8 +31,9 @@ class RecursiveGovernance:
         self._lock = threading.Lock()
         self._audit: list[ImprovementGate] = []
 
-    def gate_improvement(self, proposal_id: str, max_allowed_risk: float,
-                         actual_risk: float) -> ImprovementGate:
+    def gate_improvement(
+        self, proposal_id: str, max_allowed_risk: float, actual_risk: float
+    ) -> ImprovementGate:
         approved = actual_risk <= max_allowed_risk
         gate = ImprovementGate(
             proposal_id=proposal_id,
@@ -60,6 +61,7 @@ class RecursiveGovernance:
 def _now_ns() -> int:
     try:
         from system.time_source import wall_ns
+
         return wall_ns()
     except Exception:
         return int(_time.time() * 1e9)

@@ -159,7 +159,9 @@ class MetaLearningLoop:
                 reason = "Found improvement — switching to exploitation."
             elif self._cycles_in_mode > self._patience * 3:
                 new_mode = LearningMode.RESET
-                self._lr = self._base_lr * 3.0  # capped: unbounded 10x could drive params to extremes
+                self._lr = (
+                    self._base_lr * 3.0
+                )  # capped: unbounded 10x could drive params to extremes
                 self._explore = 0.5
                 reason = "Exploration exhausted — resetting learning."
             else:
@@ -234,7 +236,7 @@ class MetaLearningLoop:
         stability = self._compute_stability()
         improving = 1.0 if self._is_improving() else 0.0
         explored = min(len(self._performance_history) / self._window, 1.0)
-        return (stability * 0.4 + improving * 0.3 + explored * 0.3)
+        return stability * 0.4 + improving * 0.3 + explored * 0.3
 
     @property
     def should_evolve(self) -> bool:

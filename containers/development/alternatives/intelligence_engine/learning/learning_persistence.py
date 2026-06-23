@@ -73,7 +73,7 @@ class LearningPersistence:
         self._tick_count = 0
         self._learner = SlowLoopLearner(
             _PARAMETER_BOUNDS,
-            time_unix_s_provider=lambda: 0,   # INV-15: do not read wall clock
+            time_unix_s_provider=lambda: 0,  # INV-15: do not read wall clock
             freeze_policy=self._make_freeze_policy(),
             ema_alpha=DEFAULT_EMA_ALPHA,
         )
@@ -150,6 +150,7 @@ class LearningPersistence:
     def _persist(self, snap: ParameterSnapshot, ts_ns: int) -> None:
         try:
             from state.cognition_persistence import get_cognition_persistence_store
+
             get_cognition_persistence_store().save_episode(
                 store_kind=_STORE_KIND,
                 episode_id=f"lp_snap_{self._tick_count}",
@@ -170,6 +171,7 @@ class LearningPersistence:
         """Load the most recent ParameterSnapshot from SQLite and seed the learner."""
         try:
             from state.cognition_persistence import get_cognition_persistence_store
+
             rows = get_cognition_persistence_store().load_episodes(_STORE_KIND, limit=1)
             if not rows:
                 return
@@ -191,10 +193,13 @@ class LearningPersistence:
             self._last_snapshot = ParameterSnapshot(
                 ts_unix_s=0,
                 version=str(d.get("version", "v1")),
-                values={n: self._learner._params[n].value for n in _PARAMETER_BOUNDS},  # noqa: SLF001
+                values={
+                    n: self._learner._params[n].value for n in _PARAMETER_BOUNDS
+                },  # noqa: SLF001
                 ema={n: self._learner._params[n].ema for n in _PARAMETER_BOUNDS},  # noqa: SLF001
                 sample_counts={
-                    n: self._learner._params[n].samples_seen for n in _PARAMETER_BOUNDS  # noqa: SLF001
+                    n: self._learner._params[n].samples_seen
+                    for n in _PARAMETER_BOUNDS  # noqa: SLF001
                 },
                 frozen=False,
             )
@@ -216,6 +221,7 @@ class LearningPersistence:
         try:
             from core.contracts.governance import SystemMode
             from core.contracts.learning_evolution_freeze import LearningEvolutionFreezePolicy
+
             return LearningEvolutionFreezePolicy(mode=SystemMode.PAPER, operator_override=True)
         except Exception:
             return None

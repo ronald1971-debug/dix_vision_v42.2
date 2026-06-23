@@ -284,7 +284,21 @@ def verify_auditable() -> dict[str, bool]:
                 (),
                 {
                     "decision": GovernanceDecisionType.APPROVED,
-                    "context": type("Context", (), {"trade_id": "test", "venue": "binance", "symbol": "BTC/USDT", "side": "BUY", "size_usd": 1000.0, "portfolio_usd": 100000.0, "strategy": "test", "timestamp_ns": ts_ns, "mode": "LIVE"}),
+                    "context": type(
+                        "Context",
+                        (),
+                        {
+                            "trade_id": "test",
+                            "venue": "binance",
+                            "symbol": "BTC/USDT",
+                            "side": "BUY",
+                            "size_usd": 1000.0,
+                            "portfolio_usd": 100000.0,
+                            "strategy": "test",
+                            "timestamp_ns": ts_ns,
+                            "mode": "LIVE",
+                        },
+                    ),
                     "reason": "Test decision",
                     "approver": "test",
                     "approved_by": "test",

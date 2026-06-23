@@ -26,8 +26,8 @@ from typing import Any
 
 _logger = logging.getLogger(__name__)
 
-TRUST_FLOOR_CRITICAL: float = 0.10   # below this → CRITICAL invariant breach
-TRUST_FLOOR_WARNING: float = 0.30    # below this → WARNING
+TRUST_FLOOR_CRITICAL: float = 0.10  # below this → CRITICAL invariant breach
+TRUST_FLOOR_WARNING: float = 0.30  # below this → WARNING
 
 
 class InvariantSeverity(StrEnum):
@@ -101,8 +101,12 @@ class RuntimeInvariantMonitor:
 
         with self._lock:
             self._total_checks += 1
-            violated = tuple(r.invariant_id for r in results if r.severity is InvariantSeverity.VIOLATED)
-            warned = tuple(r.invariant_id for r in results if r.severity is InvariantSeverity.WARNING)
+            violated = tuple(
+                r.invariant_id for r in results if r.severity is InvariantSeverity.VIOLATED
+            )
+            warned = tuple(
+                r.invariant_id for r in results if r.severity is InvariantSeverity.WARNING
+            )
             if violated:
                 self._violation_count += 1
             report = MonitorReport(
@@ -147,6 +151,7 @@ class RuntimeInvariantMonitor:
                 InvariantVerifier,
                 PositionLimitProblem,
             )
+
             v = InvariantVerifier(InProcessSMTBackend())
         except Exception as exc:
             _logger.debug("invariant_monitor: verifier unavailable: %s", exc)
@@ -155,9 +160,13 @@ class RuntimeInvariantMonitor:
         # ---- position limit proof ----------------------------------------
         try:
             max_pos, max_lev, cap = self._live_position_params()
-            report = v.verify_position_limit(PositionLimitProblem(
-                max_position=max_pos, max_leverage=max_lev, exposure_cap=cap,
-            ))
+            report = v.verify_position_limit(
+                PositionLimitProblem(
+                    max_position=max_pos,
+                    max_leverage=max_lev,
+                    exposure_cap=cap,
+                )
+            )
             results.append(_formal_to_result(report))
         except Exception as exc:
             _logger.debug("invariant_monitor: position proof error: %s", exc)
@@ -165,9 +174,12 @@ class RuntimeInvariantMonitor:
         # ---- autonomy escalation proof -----------------------------------
         try:
             ranks, edges = self._live_mode_params()
-            report = v.verify_autonomy_escalation(AutonomyEscalationProblem(
-                mode_ranks=ranks, allowed_edges=edges,
-            ))
+            report = v.verify_autonomy_escalation(
+                AutonomyEscalationProblem(
+                    mode_ranks=ranks,
+                    allowed_edges=edges,
+                )
+            )
             results.append(_formal_to_result(report))
         except Exception as exc:
             _logger.debug("invariant_monitor: autonomy proof error: %s", exc)
@@ -175,10 +187,15 @@ class RuntimeInvariantMonitor:
         # ---- governance bypass proof ------------------------------------
         try:
             nodes, edges_g, gov_nodes, src, sink = self._live_authority_graph()
-            report = v.verify_no_governance_bypass(GovernanceBypassProblem(
-                nodes=nodes, edges=edges_g,
-                governance_nodes=gov_nodes, source=src, sink=sink,
-            ))
+            report = v.verify_no_governance_bypass(
+                GovernanceBypassProblem(
+                    nodes=nodes,
+                    edges=edges_g,
+                    governance_nodes=gov_nodes,
+                    source=src,
+                    sink=sink,
+                )
+            )
             results.append(_formal_to_result(report))
         except Exception as exc:
             _logger.debug("invariant_monitor: bypass proof error: %s", exc)
@@ -194,25 +211,32 @@ class RuntimeInvariantMonitor:
             from governance_unified.control_plane.policy_hash_anchor import (
                 get_policy_hash_anchor,
             )
+
             anchor = get_policy_hash_anchor()
             if not anchor.is_bound():
-                return [InvariantResult(
-                    invariant_id="POLICY-BOUND",
-                    severity=InvariantSeverity.WARNING,
-                    detail="policy hash anchor not yet bound for this session",
-                )]
+                return [
+                    InvariantResult(
+                        invariant_id="POLICY-BOUND",
+                        severity=InvariantSeverity.WARNING,
+                        detail="policy hash anchor not yet bound for this session",
+                    )
+                ]
             hazard = anchor.verify_no_drift(ts_ns)
             if hazard is None:
-                return [InvariantResult(
+                return [
+                    InvariantResult(
+                        invariant_id="POLICY-DRIFT",
+                        severity=InvariantSeverity.HOLDS,
+                        detail="policy files unchanged since session bind",
+                    )
+                ]
+            return [
+                InvariantResult(
                     invariant_id="POLICY-DRIFT",
-                    severity=InvariantSeverity.HOLDS,
-                    detail="policy files unchanged since session bind",
-                )]
-            return [InvariantResult(
-                invariant_id="POLICY-DRIFT",
-                severity=InvariantSeverity.VIOLATED,
-                detail=f"policy drift detected: {getattr(hazard, 'detail', str(hazard))}",
-            )]
+                    severity=InvariantSeverity.VIOLATED,
+                    detail=f"policy drift detected: {getattr(hazard, 'detail', str(hazard))}",
+                )
+            ]
         except Exception as exc:
             _logger.debug("invariant_monitor: policy drift check error: %s", exc)
             return []
@@ -224,6 +248,7 @@ class RuntimeInvariantMonitor:
             return []
         try:
             from governance_unified.hardening.trust_scorer import get_trust_scorer
+
             scorer = get_trust_scorer()
             all_scores = scorer.all_scores()
         except Exception:
@@ -231,25 +256,31 @@ class RuntimeInvariantMonitor:
         results = []
         for engine_id, score in all_scores.items():
             if score < TRUST_FLOOR_CRITICAL:
-                results.append(InvariantResult(
-                    invariant_id="TRUST-FLOOR",
-                    severity=InvariantSeverity.VIOLATED,
-                    detail=f"engine {engine_id!r} trust={score:.3f} below critical floor {TRUST_FLOOR_CRITICAL}",
-                    counterexample={"engine_id": engine_id, "score": f"{score:.4f}"},
-                ))
+                results.append(
+                    InvariantResult(
+                        invariant_id="TRUST-FLOOR",
+                        severity=InvariantSeverity.VIOLATED,
+                        detail=f"engine {engine_id!r} trust={score:.3f} below critical floor {TRUST_FLOOR_CRITICAL}",
+                        counterexample={"engine_id": engine_id, "score": f"{score:.4f}"},
+                    )
+                )
             elif score < TRUST_FLOOR_WARNING:
-                results.append(InvariantResult(
-                    invariant_id="TRUST-FLOOR",
-                    severity=InvariantSeverity.WARNING,
-                    detail=f"engine {engine_id!r} trust={score:.3f} below warning floor {TRUST_FLOOR_WARNING}",
-                    counterexample={"engine_id": engine_id, "score": f"{score:.4f}"},
-                ))
+                results.append(
+                    InvariantResult(
+                        invariant_id="TRUST-FLOOR",
+                        severity=InvariantSeverity.WARNING,
+                        detail=f"engine {engine_id!r} trust={score:.3f} below warning floor {TRUST_FLOOR_WARNING}",
+                        counterexample={"engine_id": engine_id, "score": f"{score:.4f}"},
+                    )
+                )
         if not results:
-            results.append(InvariantResult(
-                invariant_id="TRUST-FLOOR",
-                severity=InvariantSeverity.HOLDS,
-                detail="all engine trust scores above floor",
-            ))
+            results.append(
+                InvariantResult(
+                    invariant_id="TRUST-FLOOR",
+                    severity=InvariantSeverity.HOLDS,
+                    detail="all engine trust scores above floor",
+                )
+            )
         return results
 
     def _check_gate_wired(self) -> list[InvariantResult]:
@@ -257,18 +288,23 @@ class RuntimeInvariantMonitor:
         # Use importlib.util.find_spec to verify the module is on sys.path
         # without triggering an actual cross-engine import.
         import importlib.util
+
         spec = importlib.util.find_spec("execution_engine.execution_gate")
         if spec is not None:
-            return [InvariantResult(
+            return [
+                InvariantResult(
+                    invariant_id="GATE-WIRED",
+                    severity=InvariantSeverity.HOLDS,
+                    detail="execution gate module is present in sys.path",
+                )
+            ]
+        return [
+            InvariantResult(
                 invariant_id="GATE-WIRED",
-                severity=InvariantSeverity.HOLDS,
-                detail="execution gate module is present in sys.path",
-            )]
-        return [InvariantResult(
-            invariant_id="GATE-WIRED",
-            severity=InvariantSeverity.VIOLATED,
-            detail="execution_engine.execution_gate not found on sys.path",
-        )]
+                severity=InvariantSeverity.VIOLATED,
+                detail="execution_engine.execution_gate not found on sys.path",
+            )
+        ]
 
     # ------------------------------------------------------------------
     # Live system parameter extraction
@@ -279,6 +315,7 @@ class RuntimeInvariantMonitor:
         """Return (max_position, max_leverage, exposure_cap) from live risk evaluator."""
         try:
             from governance_unified.control_plane.risk_evaluator import RiskEvaluator
+
             ev = RiskEvaluator()
             max_pos = getattr(ev, "MAX_POSITION_QTY", 100.0)
             max_lev = getattr(ev, "MAX_LEVERAGE", 10.0)
@@ -293,20 +330,29 @@ class RuntimeInvariantMonitor:
         # Standard DIX mode ranks: MANUAL=0, SEMI_AUTO=1, FULL_AUTO=2
         ranks: tuple[int, ...] = (0, 1, 2)
         edges: tuple[tuple[int, int], ...] = (
-            (0, 1), (1, 2),   # one-step promotions
-            (2, 1), (1, 0), (2, 0),  # demotions allowed
+            (0, 1),
+            (1, 2),  # one-step promotions
+            (2, 1),
+            (1, 0),
+            (2, 0),  # demotions allowed
         )
         return ranks, edges
 
     @staticmethod
     def _live_authority_graph() -> tuple[
-        tuple[str, ...], tuple[tuple[str, str], ...],
-        tuple[str, ...], str, str,
+        tuple[str, ...],
+        tuple[tuple[str, str], ...],
+        tuple[str, ...],
+        str,
+        str,
     ]:
         """Return (nodes, edges, gov_nodes, source, sink) from authority graph."""
         nodes: tuple[str, ...] = (
-            "data_feed", "governance_engine", "intelligence_engine",
-            "execution_engine", "venue",
+            "data_feed",
+            "governance_engine",
+            "intelligence_engine",
+            "execution_engine",
+            "venue",
         )
         edges: tuple[tuple[str, str], ...] = (
             ("data_feed", "intelligence_engine"),
@@ -325,15 +371,20 @@ class RuntimeInvariantMonitor:
     def _emit_hazards(violated_ids: tuple[str, ...], ts_ns: int) -> None:
         try:
             from state.event_bus import CognitiveChannel, get_event_bus
-            get_event_bus().publish(CognitiveChannel.DYON_VIOLATION, {
-                "source": "invariant_monitor",
-                "violated_invariants": list(violated_ids),
-                "ts_ns": ts_ns,
-            })
+
+            get_event_bus().publish(
+                CognitiveChannel.DYON_VIOLATION,
+                {
+                    "source": "invariant_monitor",
+                    "violated_invariants": list(violated_ids),
+                    "ts_ns": ts_ns,
+                },
+            )
         except Exception:
             pass
         try:
             from state.ledger.append import append_event
+
             append_event(
                 stream="GOVERNANCE",
                 kind="INVARIANT_VIOLATION",
@@ -351,6 +402,7 @@ class RuntimeInvariantMonitor:
 
 def _formal_to_result(report: Any) -> InvariantResult:
     from governance_unified.control_plane.invariant_verifier import VerificationStatus
+
     if report.status is VerificationStatus.HOLDS:
         severity = InvariantSeverity.HOLDS
     else:

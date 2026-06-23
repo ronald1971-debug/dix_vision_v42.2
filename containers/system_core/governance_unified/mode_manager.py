@@ -27,20 +27,20 @@ from system_unified.state import get_state_manager
 class OperationalMode(StrEnum):
     """Operational overlay states (reflected into the FSM via mode_manager)."""
 
-    INIT           = "INIT"
-    NORMAL         = "NORMAL"
-    DEGRADED       = "DEGRADED"
-    SAFE_MODE      = "SAFE_MODE"
+    INIT = "INIT"
+    NORMAL = "NORMAL"
+    DEGRADED = "DEGRADED"
+    SAFE_MODE = "SAFE_MODE"
     EMERGENCY_HALT = "EMERGENCY_HALT"
 
     @property
     def fsm_target(self) -> FsmMode:
         """Map this operational overlay onto the canonical FSM mode."""
         mapping = {
-            OperationalMode.INIT:           FsmMode.SAFE,
-            OperationalMode.NORMAL:         FsmMode.PAPER,
-            OperationalMode.DEGRADED:       FsmMode.PAPER,
-            OperationalMode.SAFE_MODE:      FsmMode.SAFE,
+            OperationalMode.INIT: FsmMode.SAFE,
+            OperationalMode.NORMAL: FsmMode.PAPER,
+            OperationalMode.DEGRADED: FsmMode.PAPER,
+            OperationalMode.SAFE_MODE: FsmMode.SAFE,
             OperationalMode.EMERGENCY_HALT: FsmMode.LOCKED,
         }
         return mapping[self]
@@ -75,11 +75,11 @@ class ModeManager:
     def current_operational_mode(self) -> OperationalMode:
         fsm = self.current_fsm_mode()
         reverse = {
-            FsmMode.SAFE:         OperationalMode.SAFE_MODE,
-            FsmMode.PAPER:        OperationalMode.NORMAL,
-            FsmMode.CANARY:       OperationalMode.NORMAL,
-            FsmMode.LIVE:         OperationalMode.NORMAL,
-            FsmMode.AUTO:         OperationalMode.NORMAL,
+            FsmMode.SAFE: OperationalMode.SAFE_MODE,
+            FsmMode.PAPER: OperationalMode.NORMAL,
+            FsmMode.CANARY: OperationalMode.NORMAL,
+            FsmMode.LIVE: OperationalMode.NORMAL,
+            FsmMode.AUTO: OperationalMode.NORMAL,
             FsmMode.LOCKED: OperationalMode.EMERGENCY_HALT,
         }
         return reverse.get(fsm, OperationalMode.SAFE_MODE)
@@ -122,7 +122,6 @@ class ModeManager:
                 )
             except Exception as e:
                 _logger.warning(f"[MODE_MANAGER] Error during mode transition: {e}")
-                pass
             return True
 
     def halt(self, reason: str = "") -> None:
@@ -166,7 +165,6 @@ class ModeManager:
                 )
             except Exception as e:
                 _logger.warning(f"[MODE_MANAGER] Error during mode transition: {e}")
-                pass
 
     def _enter_lockdown(
         self,
@@ -205,7 +203,6 @@ class ModeManager:
                 )
             except Exception as e:
                 _logger.warning(f"[MODE_MANAGER] Error during mode transition: {e}")
-                pass
 
 
 _mgr: ModeManager | None = None

@@ -2,7 +2,7 @@
 Security layer - Phase 9 implementation
 """
 
-from security_manager import SecurityManager, SecurityLevel, AccessControl, AuditLogger
+from security_manager import AccessControl, AuditLogger, SecurityLevel, SecurityManager
 
 __all__ = [
     "SecurityManager",

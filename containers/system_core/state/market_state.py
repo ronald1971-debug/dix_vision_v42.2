@@ -38,7 +38,7 @@ class PriceTick:
     symbol: str
     price: float
     volume: float
-    source: str   # "alpaca" | "binance" | "paper" | ...
+    source: str  # "alpaca" | "binance" | "paper" | ...
     ts_ns: int
 
 
@@ -46,14 +46,14 @@ class PriceTick:
 # SymbolState — per-symbol LKV + rolling window
 # ---------------------------------------------------------------------------
 
-_WINDOW = 20   # rolling price window for volatility calculation
+_WINDOW = 20  # rolling price window for volatility calculation
 
 
 @dataclass
 class SymbolState:
     latest: PriceTick
     prev_price: float
-    window: deque   # deque[float]
+    window: deque  # deque[float]
 
     def trend(self) -> str:
         delta = self.latest.price - self.prev_price
@@ -207,8 +207,9 @@ class MarketState:
     def _publish(tick: PriceTick) -> None:
         try:
             from state.event_bus import CognitiveChannel, get_event_bus
+
             get_event_bus().publish(
-                CognitiveChannel.MARKET_TICK,   # type: ignore[attr-defined]
+                CognitiveChannel.MARKET_TICK,  # type: ignore[attr-defined]
                 {
                     "symbol": tick.symbol,
                     "price": tick.price,

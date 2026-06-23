@@ -173,9 +173,7 @@ class FlashCrashSynth:
     def params(self) -> FlashCrashParams:
         return self._params
 
-    def simulate(
-        self, symbol: str, ts_ns: int, start_price: float
-    ) -> FlashCrashResult:
+    def simulate(self, symbol: str, ts_ns: int, start_price: float) -> FlashCrashResult:
         """Generate a deterministic flash-crash bar series.
 
         Args:
@@ -193,9 +191,7 @@ class FlashCrashSynth:
         if not symbol:
             raise ValueError("FlashCrashSynth.simulate: symbol must be non-empty")
         if ts_ns < 0:
-            raise ValueError(
-                f"FlashCrashSynth.simulate: ts_ns must be >= 0, got {ts_ns!r}"
-            )
+            raise ValueError(f"FlashCrashSynth.simulate: ts_ns must be >= 0, got {ts_ns!r}")
         if not start_price > 0.0:
             raise ValueError(
                 f"FlashCrashSynth.simulate: start_price must be > 0, got {start_price!r}"
@@ -226,7 +222,9 @@ class FlashCrashSynth:
             price = max(0.0, step_target * noise_factor)
             # Volume spikes during crash: higher near the nadir.
             volume_multiplier = max(0.1, 1.0 + 3.0 * t + rng.uniform(-0.2, 0.2))
-            bars.append(FlashCrashBar(bar_index=i, price=price, volume_multiplier=volume_multiplier))
+            bars.append(
+                FlashCrashBar(bar_index=i, price=price, volume_multiplier=volume_multiplier)
+            )
             current_price = price
 
         # Record nadir from the crash phase.
@@ -246,7 +244,9 @@ class FlashCrashSynth:
             price = max(0.0, step_target * noise_factor)
             # Volume subsides during recovery.
             volume_multiplier = max(0.1, 1.5 - 0.5 * t + rng.uniform(-0.1, 0.1))
-            bars.append(FlashCrashBar(bar_index=bar_index, price=price, volume_multiplier=volume_multiplier))
+            bars.append(
+                FlashCrashBar(bar_index=bar_index, price=price, volume_multiplier=volume_multiplier)
+            )
 
         bars_tuple = tuple(bars)
 

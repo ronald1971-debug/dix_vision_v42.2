@@ -22,40 +22,41 @@ from enum import StrEnum
 
 
 class ContractViolationKind(StrEnum):
-    INTERFACE_MISMATCH      = "INTERFACE_MISMATCH"    # expected API not present
-    NULL_CONTRACT           = "NULL_CONTRACT"          # subsystem registered no contract
-    VERSION_MISMATCH        = "VERSION_MISMATCH"       # incompatible schema versions
-    TIMEOUT_VIOLATION       = "TIMEOUT_VIOLATION"      # contract SLA breached
-    MISSING_LEDGER_EMIT     = "MISSING_LEDGER_EMIT"    # subsystem not emitting audit events
+    INTERFACE_MISMATCH = "INTERFACE_MISMATCH"  # expected API not present
+    NULL_CONTRACT = "NULL_CONTRACT"  # subsystem registered no contract
+    VERSION_MISMATCH = "VERSION_MISMATCH"  # incompatible schema versions
+    TIMEOUT_VIOLATION = "TIMEOUT_VIOLATION"  # contract SLA breached
+    MISSING_LEDGER_EMIT = "MISSING_LEDGER_EMIT"  # subsystem not emitting audit events
 
 
 class TopologyViolationKind(StrEnum):
-    B1_CROSS_ENGINE_IMPORT   = "B1_CROSS_ENGINE_IMPORT"   # direct cross-engine import
-    DOMAIN_BOUNDARY_BREACH   = "DOMAIN_BOUNDARY_BREACH"   # execution↔system boundary
-    UNDECLARED_DEPENDENCY    = "UNDECLARED_DEPENDENCY"     # runtime import not declared
-    CIRCULAR_IMPORT          = "CIRCULAR_IMPORT"           # import cycle detected
+    B1_CROSS_ENGINE_IMPORT = "B1_CROSS_ENGINE_IMPORT"  # direct cross-engine import
+    DOMAIN_BOUNDARY_BREACH = "DOMAIN_BOUNDARY_BREACH"  # execution↔system boundary
+    UNDECLARED_DEPENDENCY = "UNDECLARED_DEPENDENCY"  # runtime import not declared
+    CIRCULAR_IMPORT = "CIRCULAR_IMPORT"  # import cycle detected
 
 
 class ConvergenceState(StrEnum):
-    DIVERGING   = "DIVERGING"   # subsystem drifting from integration target
-    STALLED     = "STALLED"     # integration progress has stopped
-    CONVERGING  = "CONVERGING"  # on track
-    INTEGRATED  = "INTEGRATED"  # fully wired and observable
+    DIVERGING = "DIVERGING"  # subsystem drifting from integration target
+    STALLED = "STALLED"  # integration progress has stopped
+    CONVERGING = "CONVERGING"  # on track
+    INTEGRATED = "INTEGRATED"  # fully wired and observable
 
 
 class SystemGovernanceSeverity(StrEnum):
-    INFO     = "INFO"
-    WARNING  = "WARNING"
-    HIGH     = "HIGH"
+    INFO = "INFO"
+    WARNING = "WARNING"
+    HIGH = "HIGH"
     CRITICAL = "CRITICAL"
 
 
 @dataclass(frozen=True, slots=True)
 class ContractViolation:
     """A runtime inter-subsystem contract violation."""
+
     ts_ns: int
-    source: str                     # subsystem that produced the violation
-    target: str                     # subsystem that expected the contract
+    source: str  # subsystem that produced the violation
+    target: str  # subsystem that expected the contract
     kind: ContractViolationKind
     severity: SystemGovernanceSeverity
     detail: str = ""
@@ -64,9 +65,10 @@ class ContractViolation:
 @dataclass(frozen=True, slots=True)
 class TopologyViolation:
     """An illegal module topology event."""
+
     ts_ns: int
-    importer: str                   # module doing the importing
-    importee: str                   # module being illegally imported
+    importer: str  # module doing the importing
+    importee: str  # module being illegally imported
     kind: TopologyViolationKind
     severity: SystemGovernanceSeverity
     detail: str = ""
@@ -75,6 +77,7 @@ class TopologyViolation:
 @dataclass(frozen=True, slots=True)
 class ReplayIntegrityResult:
     """Result of a deterministic replay validation."""
+
     ts_ns: int
     event_id: str
     deterministic: bool
@@ -86,27 +89,29 @@ class ReplayIntegrityResult:
 @dataclass(frozen=True, slots=True)
 class ConvergenceRecord:
     """Convergence status of a single subsystem."""
+
     ts_ns: int
     subsystem: str
     state: ConvergenceState
-    has_contracts: bool             # exposes typed inter-subsystem contracts
-    emits_audit_events: bool        # writes governance events to ledger
-    observable: bool                # has observability endpoint / snapshot()
-    supports_replay: bool           # deterministic event source
-    operator_visible: bool          # operator can see its state
-    integration_score: float        # 0.0 = isolated … 1.0 = fully integrated
+    has_contracts: bool  # exposes typed inter-subsystem contracts
+    emits_audit_events: bool  # writes governance events to ledger
+    observable: bool  # has observability endpoint / snapshot()
+    supports_replay: bool  # deterministic event source
+    operator_visible: bool  # operator can see its state
+    integration_score: float  # 0.0 = isolated … 1.0 = fully integrated
     detail: str = ""
 
 
 @dataclass(frozen=True, slots=True)
 class DependencyValidationResult:
     """Result of a dependency contract check for a module."""
+
     ts_ns: int
     module: str
     declared_deps: tuple[str, ...]
     runtime_deps: tuple[str, ...]
-    undeclared: tuple[str, ...]     # in runtime but not declared
-    missing: tuple[str, ...]        # declared but not importable
+    undeclared: tuple[str, ...]  # in runtime but not declared
+    missing: tuple[str, ...]  # declared but not importable
     passed: bool
     detail: str = ""
 
@@ -114,6 +119,7 @@ class DependencyValidationResult:
 @dataclass(frozen=True, slots=True)
 class RuntimeConsistencyReport:
     """Cross-subsystem state consistency check result."""
+
     ts_ns: int
     check_name: str
     consistent: bool
@@ -125,12 +131,13 @@ class RuntimeConsistencyReport:
 @dataclass(frozen=True, slots=True)
 class SystemGovernanceStatus:
     """Aggregate snapshot of all system governance guards."""
+
     ts_ns: int
     overall_healthy: bool
     contracts_healthy: bool
     topology_clean: bool
     replay_deterministic: bool
-    convergence_score: float        # 0.0 = fragmented … 1.0 = fully integrated
+    convergence_score: float  # 0.0 = fragmented … 1.0 = fully integrated
     consistency_ok: bool
     dependencies_valid: bool
     active_violations: int

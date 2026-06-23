@@ -9,19 +9,18 @@ Author: DIX VISION Governance Engine
 Version: 42.2
 """
 
-from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional, Callable
 import logging
+from abc import ABC, abstractmethod
 from datetime import datetime
 from enum import Enum
+from typing import Any, Dict
+
 
 class GovernanceViolation(Exception):
     """Raised when governance rules are violated"""
-    pass
 
 class SafetyViolation(Exception):
     """Raised when safety checks fail"""
-    pass
 
 class PermissionLevel(Enum):
     """Operator permission levels"""
@@ -151,7 +150,6 @@ class BaseExternalRepoGovernanceWrapper(ABC):
         
         This should contain the actual implementation of calling the external repository.
         """
-        pass
     
     def get_operation_history(self, limit: int = 100) -> list:
         """Get recent operation history for audit"""

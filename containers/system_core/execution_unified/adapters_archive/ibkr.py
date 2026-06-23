@@ -111,6 +111,7 @@ class IBKRAdapter:
         """
         try:
             import ib_insync  # noqa: PLC0415
+
             self._ib = ib_insync.IB()
             self._ib.connect(
                 host=self._host,
@@ -122,7 +123,9 @@ class IBKRAdapter:
             self._connected = True
             logger.info(
                 "IBKRAdapter (platforms): connected %s:%s client_id=%s",
-                self._host, self._port, self._client_id,
+                self._host,
+                self._port,
+                self._client_id,
             )
             return True
         except ImportError:
@@ -169,18 +172,20 @@ class IBKRAdapter:
                         realized = float(entry.realizedPnL or 0.0)
                         break
 
-                result.append(IBKRPosition(
-                    contract_id=int(contract.conId or 0),
-                    symbol=str(contract.symbol or ""),
-                    sec_type=str(contract.secType or "STK"),
-                    exchange=str(contract.exchange or ""),
-                    currency=str(contract.currency or "USD"),
-                    quantity=float(p.position or 0.0),
-                    avg_cost=float(p.avgCost or 0.0),
-                    market_value=float(p.position or 0.0) * float(p.avgCost or 0.0),
-                    unrealized_pnl=unrealized,
-                    realized_pnl=realized,
-                ))
+                result.append(
+                    IBKRPosition(
+                        contract_id=int(contract.conId or 0),
+                        symbol=str(contract.symbol or ""),
+                        sec_type=str(contract.secType or "STK"),
+                        exchange=str(contract.exchange or ""),
+                        currency=str(contract.currency or "USD"),
+                        quantity=float(p.position or 0.0),
+                        avg_cost=float(p.avgCost or 0.0),
+                        market_value=float(p.position or 0.0) * float(p.avgCost or 0.0),
+                        unrealized_pnl=unrealized,
+                        realized_pnl=realized,
+                    )
+                )
             return result
         except Exception as exc:  # noqa: BLE001
             logger.error("IBKRAdapter.fetch_positions: %s", exc)
@@ -250,7 +255,6 @@ class IBKRAdapter:
             return None
         try:
             import ib_insync  # noqa: PLC0415
-
             from system_unified import time_source  # noqa: PLC0415
 
             if sec_type == "CASH":

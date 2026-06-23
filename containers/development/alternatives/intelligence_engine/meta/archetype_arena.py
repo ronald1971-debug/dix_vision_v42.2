@@ -19,11 +19,12 @@ from typing import Any
 @dataclass(frozen=True, slots=True)
 class ArenaMatch:
     """Result of a head-to-head archetype match."""
+
     match_id: str
     ts_ns: int
     archetype_a: str
     archetype_b: str
-    winner: str          # archetype_id of winner, or "" for draw
+    winner: str  # archetype_id of winner, or "" for draw
     score_a: float
     score_b: float
     regime: str

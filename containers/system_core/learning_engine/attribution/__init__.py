@@ -23,16 +23,17 @@ from learning_engine.attribution.mistake_classifier import (
 from learning_engine.attribution.outcome_linker import OutcomeLinker, PatternAttribution
 from learning_engine.attribution.pnl_decomposer import PnLComponents, PnLDecomposer
 
+
 class AttributionEngine:
     """Main attribution engine that combines all attribution components"""
-    
+
     def __init__(self):
         self._decision_attributor = DecisionAttributor()
         self._mistake_classifier = MistakeClassifier()
         self._edge_decay_tracker = EdgeDecayTracker()
         self._outcome_linker = OutcomeLinker()
         self._pnl_decomposer = PnLDecomposer()
-    
+
     def analyze_outcome(self, trade_data: dict) -> dict:
         """Complete attribution analysis of a trade outcome"""
         return {
@@ -40,12 +41,13 @@ class AttributionEngine:
             "mistake_classification": self._mistake_classifier.classify(trade_data),
             "edge_health": self._edge_decay_tracker.get_health(trade_data),
             "pattern_attribution": self._outcome_linker.link_to_patterns(trade_data),
-            "pnl_decomposition": self._pnl_decomposer.decompose(trade_data)
+            "pnl_decomposition": self._pnl_decomposer.decompose(trade_data),
         }
+
 
 __all__ = [
     "PnLDecomposer",
-    "PnLComponents", 
+    "PnLComponents",
     "DecisionAttributor",
     "Attribution",
     "MistakeClassifier",
@@ -54,5 +56,5 @@ __all__ = [
     "EdgeHealth",
     "OutcomeLinker",
     "PatternAttribution",
-    "AttributionEngine"
+    "AttributionEngine",
 ]

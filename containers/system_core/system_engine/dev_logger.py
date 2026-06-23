@@ -36,13 +36,13 @@ from typing import Any, Final
 
 from system_engine.logging import (
     _ALLOWED_TIERS,
+)
+from system_engine.logging import LOGGER_VERSION as _STRUCT_LOGGER_VERSION
+from system_engine.logging import (
     LoggingError,
     LogLevel,
     LogLine,
     build_log_line,
-)
-from system_engine.logging import (
-    LOGGER_VERSION as _STRUCT_LOGGER_VERSION,
 )
 
 DEV_LOGGER_VERSION: Final[str] = "v1.0-I05"

@@ -36,7 +36,7 @@ def fuse_bayesian(confidences: tuple[float, ...]) -> float:
         return 0.0
     result = 1.0
     for c in confidences:
-        result *= (1 - c)
+        result *= 1 - c
     return 1 - result
 
 

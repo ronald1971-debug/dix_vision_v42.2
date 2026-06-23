@@ -25,6 +25,7 @@ from core.contracts.strategy_registry import (
     StrategyRecord,
     is_legal_transition,
 )
+
 from .control_plane.ledger_authority_writer import (
     LedgerAuthorityWriter,
 )

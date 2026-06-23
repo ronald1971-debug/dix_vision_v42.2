@@ -140,7 +140,9 @@ class EvolutionSandbox:
         # Step 5: Performance impact assessment
         result.performance_impact = self._assess_performance_impact(config.proposal)
         if result.performance_impact > 0.5:  # 50% degradation threshold
-            result.warnings.append(f"Performance impact {result.performance_impact:.2%} exceeds threshold")
+            result.warnings.append(
+                f"Performance impact {result.performance_impact:.2%} exceeds threshold"
+            )
 
         # Step 6: Final approval decision
         result.passed = (
@@ -149,7 +151,9 @@ class EvolutionSandbox:
             and result.runtime_valid
             and result.governance_compliant
         )
-        result.approval_recommendation = self._generate_approval_recommendation(result, config.proposal)
+        result.approval_recommendation = self._generate_approval_recommendation(
+            result, config.proposal
+        )
 
         self._proposal_results[config.proposal.proposal_id] = result
         return result
@@ -321,7 +325,7 @@ def run_evolution_sandbox_suite() -> dict[str, SandboxTestResult]:
         proposal_type=EvolutionProposalType.CODE_PATCH,
         target_file="example.py",
         original_code="def add(a, b):\n    return a + b\n",
-        proposed_code="def add(a, b):\n    \"\"\"Add two numbers.\"\"\"\n    return a + b\n",
+        proposed_code='def add(a, b):\n    """Add two numbers."""\n    return a + b\n',
         description="Add docstring to add function",
         risk_level="LOW",
     )

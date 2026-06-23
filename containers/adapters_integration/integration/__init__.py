@@ -7,8 +7,8 @@ Provides system-level integration components including:
 """
 
 from .world_indicator_coordinator import (
-    IntegrationMode,
     IntegratedMarketAnalysis,
+    IntegrationMode,
     IntegrationPerformanceMetrics,
     WorldIndicatorCoordinator,
     get_world_indicator_coordinator,

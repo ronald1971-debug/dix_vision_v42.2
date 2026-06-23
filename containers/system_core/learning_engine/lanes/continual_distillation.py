@@ -68,9 +68,7 @@ class DistillationConfig:
 
     def __post_init__(self) -> None:
         if self.temperature <= 0.0 or not math.isfinite(self.temperature):
-            raise DistillationError(
-                f"temperature must be finite and > 0, got {self.temperature}"
-            )
+            raise DistillationError(f"temperature must be finite and > 0, got {self.temperature}")
         if not (0.0 <= self.alpha <= 1.0):
             raise DistillationError(f"alpha must be in [0, 1], got {self.alpha}")
         if self.learning_rate <= 0.0 or not math.isfinite(self.learning_rate):
@@ -152,9 +150,7 @@ class DistillationState:
 # ---------------------------------------------------------------------------
 
 
-def _compute_digest(
-    params: tuple[float, ...], n_steps: int, final_loss: float
-) -> str:
+def _compute_digest(params: tuple[float, ...], n_steps: int, final_loss: float) -> str:
     h = hashlib.blake2b(digest_size=16)
     h.update(n_steps.to_bytes(8, "little"))
     h.update(repr(final_loss).encode())
@@ -182,9 +178,7 @@ def make_initial_state(n_params: int, *, init_value: float = 0.0) -> Distillatio
         raise DistillationError(f"n_params must be >= 1, got {n_params}")
     params = tuple(float(init_value) for _ in range(n_params))
     digest = _compute_digest(params, 0, 0.0)
-    return DistillationState(
-        student_params=params, n_steps=0, final_loss=0.0, digest=digest
-    )
+    return DistillationState(student_params=params, n_steps=0, final_loss=0.0, digest=digest)
 
 
 # ---------------------------------------------------------------------------
@@ -246,17 +240,12 @@ def soft_cross_entropy(
     p_teacher = _softmax(teacher_logits, temperature)
     p_student = _softmax(student_logits, temperature)
     # Cross-entropy: -sum(p_t * log(p_s))
-    ce = -sum(
-        pt * math.log(max(ps, 1e-12))
-        for pt, ps in zip(p_teacher, p_student, strict=True)
-    )
+    ce = -sum(pt * math.log(max(ps, 1e-12)) for pt, ps in zip(p_teacher, p_student, strict=True))
     # Scale by T^2 to preserve gradient magnitude
-    return ce * (temperature ** 2)
+    return ce * (temperature**2)
 
 
-def _hard_cross_entropy(
-    student_logits: tuple[float, ...], hard_label: int
-) -> float:
+def _hard_cross_entropy(student_logits: tuple[float, ...], hard_label: int) -> float:
     """Standard cross-entropy against a one-hot hard label.
 
     Args:
@@ -367,8 +356,7 @@ def distillation_step(
             param_grad[idx] += logit_grad[c] * fj
 
     new_params = tuple(
-        student_params[i] - config.learning_rate * param_grad[i]
-        for i in range(n_params)
+        student_params[i] - config.learning_rate * param_grad[i] for i in range(n_params)
     )
     return new_params, loss
 

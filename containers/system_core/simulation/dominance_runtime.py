@@ -34,8 +34,8 @@ from typing import Any
 
 _logger = logging.getLogger(__name__)
 
-DOMINANCE_THRESHOLD: float = 60.0   # minimum fitness score to claim dominance
-DOMINANCE_STREAK: int = 3           # consecutive rounds at top before claiming dominance
+DOMINANCE_THRESHOLD: float = 60.0  # minimum fitness score to claim dominance
+DOMINANCE_STREAK: int = 3  # consecutive rounds at top before claiming dominance
 
 
 @dataclass
@@ -148,40 +148,52 @@ class SimulationDominanceRuntime:
         try:
             from evolution_engine.dyon.dyon_runtime import get_dyon_runtime
             from simulation.mutation_tournament import TournamentGenome
+
             dyon = get_dyon_runtime()
             proposals = dyon.recent_proposals(limit=self._genome_per_round)
             for prop in proposals:
-                genomes.append(TournamentGenome(
-                    genome_id=prop.proposal_id[:32],
-                    description=prop.description[:128],
-                    params={"risk_management": 0.5 + (hash(prop.proposal_id) % 5) * 0.08},
-                    mutation_class="CLASS_A",
-                    source_module=prop.source_module,
-                ))
+                genomes.append(
+                    TournamentGenome(
+                        genome_id=prop.proposal_id[:32],
+                        description=prop.description[:128],
+                        params={"risk_management": 0.5 + (hash(prop.proposal_id) % 5) * 0.08},
+                        mutation_class="CLASS_A",
+                        source_module=prop.source_module,
+                    )
+                )
         except Exception:
             pass
 
         # Fill with synthetic genomes if not enough real proposals
         try:
             from simulation.mutation_tournament import TournamentGenome
+
             archetypes = [
-                ("momentum_genome", {"trend_following": 0.80, "momentum": 0.75, "risk_management": 0.65}),
+                (
+                    "momentum_genome",
+                    {"trend_following": 0.80, "momentum": 0.75, "risk_management": 0.65},
+                ),
                 ("value_genome", {"value": 0.85, "mean_reversion": 0.70, "patience": 0.90}),
                 ("quant_genome", {"systematic": 0.90, "quant": 0.88, "risk_management": 0.82}),
-                ("macro_genome", {"macro_awareness": 0.88, "regime_sensitivity": 0.85, "patience": 0.80}),
+                (
+                    "macro_genome",
+                    {"macro_awareness": 0.88, "regime_sensitivity": 0.85, "patience": 0.80},
+                ),
                 ("hft_genome", {"speed": 0.92, "systematic": 0.88, "risk_management": 0.75}),
                 ("crypto_genome", {"momentum": 0.82, "risk_tolerance": 0.80, "speed": 0.65}),
             ]
             existing_ids = {g.genome_id for g in genomes}
             for gid, params in archetypes:
                 if gid not in existing_ids and len(genomes) < self._genome_per_round:
-                    genomes.append(TournamentGenome(
-                        genome_id=gid,
-                        description=f"Archetype genome: {gid}",
-                        params=params,
-                        mutation_class="CLASS_A",
-                        source_module="simulation.dominance_runtime",
-                    ))
+                    genomes.append(
+                        TournamentGenome(
+                            genome_id=gid,
+                            description=f"Archetype genome: {gid}",
+                            params=params,
+                            mutation_class="CLASS_A",
+                            source_module="simulation.dominance_runtime",
+                        )
+                    )
         except Exception:
             pass
 
@@ -191,6 +203,7 @@ class SimulationDominanceRuntime:
         """Run a mutation tournament and update the scoreboard."""
         try:
             from simulation.mutation_tournament import get_mutation_tournament
+
             tournament = get_mutation_tournament()
             result = tournament.run(genomes, ts_ns)
         except Exception as exc:
@@ -233,7 +246,8 @@ class SimulationDominanceRuntime:
                         self._dominance_achieved = True
                         _logger.info(
                             "SIMULATION DOMINANCE ACHIEVED: strategy=%s fitness=%.1f",
-                            sid, rec.best_fitness,
+                            sid,
+                            rec.best_fitness,
                         )
 
         # Submit top survivors to GovernedEvolutionPipeline
@@ -245,6 +259,7 @@ class SimulationDominanceRuntime:
         """Feed tournament survivors into the GovernedEvolutionPipeline."""
         try:
             from evolution_engine.governed_pipeline import get_governed_pipeline
+
             pipeline = get_governed_pipeline()
             for survivor in result.survivors[:3]:
                 pipeline.submit(
@@ -261,19 +276,24 @@ class SimulationDominanceRuntime:
         """Emit tournament result to DYON observability channels."""
         try:
             from state.event_bus import CognitiveChannel, get_event_bus
-            get_event_bus().publish(CognitiveChannel.DYON_SCAN_COMPLETE, {
-                "source": "simulation_dominance",
-                "tournament_id": result.tournament_id,
-                "genome_count": result.genome_count,
-                "survivor_count": result.survivor_count,
-                "dominance_achieved": self._dominance_achieved,
-                "dominant_strategy": self._dominant_strategy,
-                "ts_ns": ts_ns,
-            })
+
+            get_event_bus().publish(
+                CognitiveChannel.DYON_SCAN_COMPLETE,
+                {
+                    "source": "simulation_dominance",
+                    "tournament_id": result.tournament_id,
+                    "genome_count": result.genome_count,
+                    "survivor_count": result.survivor_count,
+                    "dominance_achieved": self._dominance_achieved,
+                    "dominant_strategy": self._dominant_strategy,
+                    "ts_ns": ts_ns,
+                },
+            )
         except Exception:
             pass
         try:
             from state.ledger.append import append_event
+
             append_event(
                 stream="SYSTEM",
                 kind="SIMULATION_TOURNAMENT",

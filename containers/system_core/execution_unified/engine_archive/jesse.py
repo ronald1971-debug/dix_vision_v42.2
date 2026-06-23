@@ -46,9 +46,7 @@ class JesseAdapter:
 
     name: str = "jesse"
 
-    def fetch_signals(
-        self, *, raw_signals: list[dict[str, Any]]
-    ) -> list[JesseSignal]:
+    def fetch_signals(self, *, raw_signals: list[dict[str, Any]]) -> list[JesseSignal]:
         """Normalize Jesse strategy signal records."""
         return [
             JesseSignal(
@@ -64,9 +62,7 @@ class JesseAdapter:
             for s in raw_signals
         ]
 
-    def fetch_backtests(
-        self, *, raw_backtests: list[dict[str, Any]]
-    ) -> list[dict[str, Any]]:
+    def fetch_backtests(self, *, raw_backtests: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """Normalize Jesse backtest result records."""
         return [
             {
@@ -102,9 +98,7 @@ class JesseAdapter:
             for c in raw_candles
         ]
 
-    def fetch_strategy_results(
-        self, *, raw_results: dict[str, Any]
-    ) -> dict[str, Any]:
+    def fetch_strategy_results(self, *, raw_results: dict[str, Any]) -> dict[str, Any]:
         """Normalize Jesse strategy performance summary."""
         return {
             "platform": self.name,
@@ -114,9 +108,7 @@ class JesseAdapter:
             "total_return": float(
                 raw_results.get("total_return", raw_results.get("net_profit_pct", 0.0))
             ),
-            "trades": int(
-                raw_results.get("total_completed_trades", raw_results.get("trades", 0))
-            ),
+            "trades": int(raw_results.get("total_completed_trades", raw_results.get("trades", 0))),
             "win_rate": float(raw_results.get("win_rate", 0.0)),
             "calmar_ratio": float(raw_results.get("calmar_ratio", 0.0)),
             "serenity_index": float(raw_results.get("serenity_index", 0.0)),

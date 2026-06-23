@@ -111,9 +111,9 @@ TEST_INTENT_ORIGINS: Final[frozenset[str]] = frozenset(
 
 # Disjointness invariant pinned by
 # :func:`tests.test_execution_intent.test_test_origins_disjoint_from_production`.
-assert AUTHORISED_INTENT_ORIGINS.isdisjoint(TEST_INTENT_ORIGINS), (
-    "production origins must not overlap with test-only origins"
-)
+assert AUTHORISED_INTENT_ORIGINS.isdisjoint(
+    TEST_INTENT_ORIGINS
+), "production origins must not overlap with test-only origins"
 
 
 def _canonical_fields(

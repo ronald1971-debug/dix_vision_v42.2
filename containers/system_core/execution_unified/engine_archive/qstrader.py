@@ -46,9 +46,7 @@ class QSTraderAdapter:
 
     name: str = "qstrader"
 
-    def fetch_signals(
-        self, *, raw_signals: list[dict[str, Any]]
-    ) -> list[QSTraderSignal]:
+    def fetch_signals(self, *, raw_signals: list[dict[str, Any]]) -> list[QSTraderSignal]:
         """Normalize QSTrader portfolio rebalancing signal records."""
         return [
             QSTraderSignal(
@@ -63,9 +61,7 @@ class QSTraderAdapter:
             for s in raw_signals
         ]
 
-    def fetch_backtests(
-        self, *, raw_backtests: list[dict[str, Any]]
-    ) -> list[dict[str, Any]]:
+    def fetch_backtests(self, *, raw_backtests: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """Normalize QSTrader portfolio backtest result records."""
         return [
             {
@@ -106,26 +102,18 @@ class QSTraderAdapter:
             for p in raw_prices
         ]
 
-    def fetch_strategy_results(
-        self, *, raw_results: dict[str, Any]
-    ) -> dict[str, Any]:
+    def fetch_strategy_results(self, *, raw_results: dict[str, Any]) -> dict[str, Any]:
         """Normalize QSTrader portfolio performance summary."""
         return {
             "platform": self.name,
             "strategy": str(raw_results.get("strategy", raw_results.get("alpha_model", ""))),
-            "sharpe": float(
-                raw_results.get("sharpe", raw_results.get("annualised_sharpe", 0.0))
-            ),
+            "sharpe": float(raw_results.get("sharpe", raw_results.get("annualised_sharpe", 0.0))),
             "max_drawdown": float(raw_results.get("max_drawdown", 0.0)),
             "total_return": float(
                 raw_results.get("total_return", raw_results.get("cum_return", 0.0))
             ),
-            "cagr": float(
-                raw_results.get("cagr", raw_results.get("annualised_return", 0.0))
-            ),
-            "trades": int(
-                raw_results.get("trades", raw_results.get("total_rebalances", 0))
-            ),
+            "cagr": float(raw_results.get("cagr", raw_results.get("annualised_return", 0.0))),
+            "trades": int(raw_results.get("trades", raw_results.get("total_rebalances", 0))),
             "sortino": float(raw_results.get("sortino", 0.0)),
             "information_ratio": float(raw_results.get("information_ratio", 0.0)),
         }

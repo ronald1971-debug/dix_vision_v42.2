@@ -31,12 +31,10 @@ from __future__ import annotations
 
 import logging
 import threading
-import statistics
-import math
-from dataclasses import dataclass, field
-from typing import Any, Optional, Dict, List, Tuple
 from collections import deque
+from dataclasses import dataclass, field
 from datetime import datetime
+from typing import Any, Dict, List, Optional, Tuple
 
 from .real_time_risk import RealTimeRiskEngine, RiskState
 
@@ -45,6 +43,7 @@ _logger = logging.getLogger(__name__)
 # World context integration (Phase 10.1 enhancement)
 try:
     from world_model.indicator_integration import get_integration_bridge
+
     WORLD_MODEL_AVAILABLE = True
 except ImportError:
     WORLD_MODEL_AVAILABLE = False
@@ -54,7 +53,7 @@ except ImportError:
 @dataclass
 class WorldContext:
     """World context for risk evaluation with enhanced metadata."""
-    
+
     market_regime: str = "unknown"
     market_trend: str = "unknown"
     volatility_regime: str = "unknown"
@@ -68,7 +67,7 @@ class WorldContext:
 @dataclass
 class PortfolioRiskMetrics:
     """Enhanced portfolio risk metrics with world context."""
-    
+
     var_95: float = 0.0  # Value at Risk at 95% confidence
     var_99: float = 0.0  # Value at Risk at 99% confidence
     cvar_95: float = 0.0  # Conditional VaR at 95% confidence
@@ -81,6 +80,7 @@ class PortfolioRiskMetrics:
     confidence_interval: Tuple[float, float] = (0.0, 1.0)  # 95% CI for risk score
     world_aware: bool = False  # Whether world context was used
     world_regime: str = "unknown"  # World regime at calculation time
+
 
 _STORE_KIND = "risk_tracker"
 
@@ -95,10 +95,10 @@ class FillRecord:
     """One confirmed fill from the execution layer."""
 
     symbol: str
-    side: str           # "buy" | "sell"
-    qty: float          # always positive
+    side: str  # "buy" | "sell"
+    qty: float  # always positive
     price: float
-    realized_pnl: float   # 0.0 for opening fills; non-zero for closing
+    realized_pnl: float  # 0.0 for opening fills; non-zero for closing
     ts_ns: int
 
 
@@ -146,22 +146,22 @@ class RiskTracker:
         self._fill_count: int = 0
         self._manual_halt: bool = False
         self._last_breach: str = ""
-        self._fills: list[FillRecord] = []   # recent fills, capped at 200
+        self._fills: list[FillRecord] = []  # recent fills, capped at 200
 
         # World context integration (Phase 10.1 enhancement)
         self._world_integration_bridge = None
         self._current_world_context: Optional[WorldContext] = None
         self._world_adjusted_limits: dict[str, float] = {}
-        
+
         # Enhanced risk metrics (Phase 10.1 enhancement)
         self._price_history: dict[str, deque] = {}  # Symbol → price history for VaR
         self._portfolio_metrics: Optional[PortfolioRiskMetrics] = None
-        
+
         if WORLD_MODEL_AVAILABLE:
             self._init_world_integration()
 
         self._restore()
-    
+
     def _init_world_integration(self) -> None:
         """Initialize world model integration bridge."""
         try:
@@ -170,32 +170,32 @@ class RiskTracker:
         except Exception as e:
             _logger.warning(f"[RISK_TRACKER] Failed to initialize world integration: {e}")
             self._world_integration_bridge = None
-    
+
     def _get_world_context(self) -> Optional[WorldContext]:
         """Get current world context from world model."""
         if not self._world_integration_bridge:
             return None
-        
+
         try:
             world_state = self._world_integration_bridge.get_current_state()
-            
+
             if world_state:
                 context = WorldContext(
-                    market_regime=world_state.get('market_regime', 'unknown'),
-                    market_trend=world_state.get('market_trend', 'unknown'),
-                    volatility_regime=world_state.get('volatility_regime', 'unknown'),
-                    liquidity_state=world_state.get('liquidity_state', 'unknown'),
-                    agent_activity=world_state.get('agent_activity', {}),
-                    causal_factors=world_state.get('causal_factors', []),
-                    prediction_confidence=world_state.get('prediction_confidence', 0.0),
-                    timestamp=datetime.utcnow()
+                    market_regime=world_state.get("market_regime", "unknown"),
+                    market_trend=world_state.get("market_trend", "unknown"),
+                    volatility_regime=world_state.get("volatility_regime", "unknown"),
+                    liquidity_state=world_state.get("liquidity_state", "unknown"),
+                    agent_activity=world_state.get("agent_activity", {}),
+                    causal_factors=world_state.get("causal_factors", []),
+                    prediction_confidence=world_state.get("prediction_confidence", 0.0),
+                    timestamp=datetime.utcnow(),
                 )
                 self._current_world_context = context
                 return context
-        
+
         except Exception as e:
             _logger.debug(f"[RISK_TRACKER] Failed to get world context: {e}")
-        
+
         return None
 
     # ------------------------------------------------------------------
@@ -226,8 +226,12 @@ class RiskTracker:
             The live RiskState after integrating the fill.
         """
         fill = FillRecord(
-            symbol=symbol, side=side, qty=qty,
-            price=price, realized_pnl=realized_pnl, ts_ns=ts_ns,
+            symbol=symbol,
+            side=side,
+            qty=qty,
+            price=price,
+            realized_pnl=realized_pnl,
+            ts_ns=ts_ns,
         )
         with self._lock:
             # Update net position
@@ -295,10 +299,10 @@ class RiskTracker:
                 sym: {"qty": qty, "price": self._last_prices.get(sym, 0.0)}
                 for sym, qty in self._positions.items()
             }
-            
+
             # Calculate enhanced portfolio risk metrics
             portfolio_metrics = self.calculate_portfolio_risk()
-            
+
             snapshot_data = {
                 "halted": state.halted,
                 "breach_reason": state.breach_reason,
@@ -328,17 +332,23 @@ class RiskTracker:
                     "liquidity_risk": round(portfolio_metrics.liquidity_risk, 3),
                     "stress_test_loss": round(portfolio_metrics.stress_test_loss, 2),
                     "risk_score": round(portfolio_metrics.risk_score, 3),
-                    "confidence_interval": [round(x, 3) for x in portfolio_metrics.confidence_interval],
+                    "confidence_interval": [
+                        round(x, 3) for x in portfolio_metrics.confidence_interval
+                    ],
                     "world_aware": portfolio_metrics.world_aware,
                     "world_regime": portfolio_metrics.world_regime,
                 },
                 "world_integration": {
                     "available": WORLD_MODEL_AVAILABLE,
                     "active": self._world_integration_bridge is not None,
-                    "current_regime": self._current_world_context.market_regime if self._current_world_context else "unknown",
-                }
+                    "current_regime": (
+                        self._current_world_context.market_regime
+                        if self._current_world_context
+                        else "unknown"
+                    ),
+                },
             }
-            
+
             return snapshot_data
 
     def format_for_context(self) -> str:
@@ -353,39 +363,43 @@ class RiskTracker:
     # Enhanced Risk Calculations (Phase 10.1)
     # ------------------------------------------------------------------
 
-    def calculate_portfolio_risk(self, world_context: Optional[WorldContext] = None) -> PortfolioRiskMetrics:
+    def calculate_portfolio_risk(
+        self, world_context: Optional[WorldContext] = None
+    ) -> PortfolioRiskMetrics:
         """Calculate enhanced portfolio risk metrics with world context."""
         # Get world context if not provided
         if world_context is None:
             world_context = self._get_world_context()
-        
+
         with self._lock:
             # Calculate VaR with world-aware parameters
             var_95, var_99 = self._calculate_var(world_context)
-            
+
             # Calculate CVaR
             cvar_95 = self._calculate_cvar(var_95, world_context)
-            
+
             # Calculate correlation-based risk
             correlation_risk = self._calculate_correlation_risk()
-            
+
             # Calculate concentration risk
             concentration_risk = self._calculate_concentration_risk()
-            
+
             # Calculate liquidity risk
             liquidity_risk = self._calculate_liquidity_risk(world_context)
-            
+
             # Calculate stress test loss
             stress_test_loss = self._calculate_stress_test_loss(world_context)
-            
+
             # Calculate overall risk score
             risk_score = self._calculate_overall_risk_score(
                 var_95, correlation_risk, concentration_risk, liquidity_risk, stress_test_loss
             )
-            
+
             # Calculate confidence interval
-            confidence_interval = self._calculate_risk_confidence_interval(risk_score, world_context)
-            
+            confidence_interval = self._calculate_risk_confidence_interval(
+                risk_score, world_context
+            )
+
             metrics = PortfolioRiskMetrics(
                 var_95=var_95,
                 var_99=var_99,
@@ -398,12 +412,12 @@ class RiskTracker:
                 risk_score=risk_score,
                 confidence_interval=confidence_interval,
                 world_aware=world_context is not None,
-                world_regime=world_context.market_regime if world_context else "unknown"
+                world_regime=world_context.market_regime if world_context else "unknown",
             )
-            
+
             self._portfolio_metrics = metrics
             return metrics
-    
+
     def _calculate_var(self, world_context: Optional[WorldContext]) -> Tuple[float, float]:
         """Calculate Value at Risk with world-aware confidence levels."""
         # Use world context to adjust confidence levels
@@ -418,12 +432,12 @@ class RiskTracker:
             # Standard confidence levels
             confidence_95 = 0.95
             confidence_99 = 0.99
-        
+
         # Calculate VaR using simplified approach (would use historical simulation in production)
         total_notional = self._notional_locked()
         var_95 = total_notional * 0.05  # Simplified: 5% of exposure
         var_99 = total_notional * 0.10  # Simplified: 10% of exposure
-        
+
         # Adjust based on volatility regime
         if world_context:
             if world_context.volatility_regime == "high":
@@ -432,127 +446,135 @@ class RiskTracker:
             elif world_context.volatility_regime == "low":
                 var_95 *= 0.8  # Decrease VaR in low volatility
                 var_99 *= 0.8
-        
+
         return (var_95, var_99)
-    
+
     def _calculate_cvar(self, var_95: float, world_context: Optional[WorldContext]) -> float:
         """Calculate Conditional VaR (Expected Shortfall)."""
         # CVaR is typically 1.2-1.5 times VaR
         cvar_multiplier = 1.3
-        
+
         # Adjust based on world conditions
         if world_context and world_context.volatility_regime == "high":
             cvar_multiplier = 1.5  # Higher tail risk in high volatility
-        
+
         return var_95 * cvar_multiplier
-    
+
     def _calculate_correlation_risk(self) -> float:
         """Calculate correlation-based risk across positions."""
         if len(self._positions) < 2:
             return 0.0
-        
+
         # Simplified correlation risk calculation
         # In production, would use historical returns to calculate correlation matrix
         positions = list(self._positions.values())
         total_notional = self._notional_locked()
-        
+
         if total_notional == 0:
             return 0.0
-        
+
         # Calculate concentration as a proxy for correlation risk
         max_position = max(abs(p) for p in positions)
         concentration = max_position / total_notional
-        
+
         return concentration * 0.5  # Simplified correlation risk
-    
+
     def _calculate_concentration_risk(self) -> float:
         """Calculate concentration risk across positions."""
         if not self._positions:
             return 0.0
-        
+
         total_notional = self._notional_locked()
         if total_notional == 0:
             return 0.0
-        
+
         # Calculate Herfindahl-Hirschman Index (HHI) for concentration
         notional_per_symbol = {
-            sym: abs(qty) * self._last_prices.get(sym, 0.0)
-            for sym, qty in self._positions.items()
+            sym: abs(qty) * self._last_prices.get(sym, 0.0) for sym, qty in self._positions.items()
         }
-        
+
         hhi = sum((notional / total_notional) ** 2 for notional in notional_per_symbol.values())
-        
+
         # HHI ranges from 0 (perfect diversification) to 1 (single position)
         return hhi
-    
+
     def _calculate_liquidity_risk(self, world_context: Optional[WorldContext]) -> float:
         """Calculate liquidity risk based on world context."""
         base_liquidity_risk = 0.1  # Base liquidity risk
-        
+
         if world_context:
             if world_context.liquidity_state == "low":
                 base_liquidity_risk = 0.4  # High liquidity risk
             elif world_context.liquidity_state == "medium":
                 base_liquidity_risk = 0.2  # Medium liquidity risk
-        
+
         return base_liquidity_risk
-    
+
     def _calculate_stress_test_loss(self, world_context: Optional[WorldContext]) -> float:
         """Calculate potential loss under stress scenario."""
         total_notional = self._notional_locked()
-        
+
         # Base stress scenario: 20% market decline
         stress_multiplier = 0.20
-        
+
         # Adjust based on world conditions
         if world_context:
             if world_context.volatility_regime == "high":
                 stress_multiplier = 0.30  # Higher stress loss in high volatility
             elif world_context.market_trend == "bearish":
                 stress_multiplier = 0.35  # Higher stress loss in bearish market
-        
+
         return total_notional * stress_multiplier
-    
+
     def _calculate_overall_risk_score(
-        self, var_95: float, correlation_risk: float, 
-        concentration_risk: float, liquidity_risk: float, stress_test_loss: float
+        self,
+        var_95: float,
+        correlation_risk: float,
+        concentration_risk: float,
+        liquidity_risk: float,
+        stress_test_loss: float,
     ) -> float:
         """Calculate overall risk score from individual risk components."""
         # Normalize components to 0-1 scale
         total_notional = self._notional_locked()
         if total_notional == 0:
             return 0.0
-        
+
         normalized_var = min(1.0, var_95 / total_notional)
         normalized_correlation = correlation_risk
         normalized_concentration = concentration_risk
         normalized_liquidity = liquidity_risk
         normalized_stress = min(1.0, stress_test_loss / total_notional)
-        
+
         # Weighted average of risk components
         weights = [0.3, 0.2, 0.2, 0.15, 0.15]  # VaR, correlation, concentration, liquidity, stress
-        components = [normalized_var, normalized_correlation, normalized_concentration, 
-                     normalized_liquidity, normalized_stress]
-        
+        components = [
+            normalized_var,
+            normalized_correlation,
+            normalized_concentration,
+            normalized_liquidity,
+            normalized_stress,
+        ]
+
         risk_score = sum(w * c for w, c in zip(weights, components))
         return min(1.0, risk_score)
-    
+
     def _calculate_portfolio_beta(self) -> float:
         """Calculate portfolio beta (simplified)."""
         # In production, would calculate based on individual position betas
         # For now, return a reasonable default
         return 1.0
-    
+
     def _calculate_risk_confidence_interval(
         self, risk_score: float, world_context: Optional[WorldContext]
     ) -> Tuple[float, float]:
         """Calculate confidence interval for risk score."""
         # Use 95% confidence interval
         margin = 0.05 if world_context and world_context.prediction_confidence > 0.8 else 0.10
-        
+
         lower = max(0.0, risk_score - margin)
         upper = min(1.0, risk_score + margin)
-        
+
         return (lower, upper)
 
     # ------------------------------------------------------------------
@@ -575,8 +597,7 @@ class RiskTracker:
 
     def _notional_locked(self) -> float:
         return sum(
-            abs(qty) * self._last_prices.get(sym, 0.0)
-            for sym, qty in self._positions.items()
+            abs(qty) * self._last_prices.get(sym, 0.0) for sym, qty in self._positions.items()
         )
 
     def _max_pos_locked(self) -> float:
@@ -591,6 +612,7 @@ class RiskTracker:
     def _persist(self, ts_ns: int) -> None:
         try:
             from state.cognition_persistence import get_cognition_persistence_store
+
             with self._lock:
                 data = {
                     "positions": dict(self._positions),
@@ -612,6 +634,7 @@ class RiskTracker:
     def _restore(self) -> None:
         try:
             from state.cognition_persistence import get_cognition_persistence_store
+
             rows = get_cognition_persistence_store().load_episodes(_STORE_KIND, limit=1)
             if not rows:
                 return
@@ -623,7 +646,9 @@ class RiskTracker:
                 self._peak_equity = float(d.get("peak_equity", self._starting_equity))
                 self._fill_count = int(d.get("fill_count", 0))
                 self._manual_halt = bool(d.get("manual_halt", False))
-            _logger.info("RiskTracker: restored %d positions from persistence", len(self._positions))
+            _logger.info(
+                "RiskTracker: restored %d positions from persistence", len(self._positions)
+            )
         except Exception as exc:
             _logger.debug("RiskTracker._restore error: %s", exc)
 
@@ -636,13 +661,16 @@ class RiskTracker:
         """Propagate confirmed fill price to MarketState LKV cache (best-effort)."""
         try:
             from state.market_state import PriceTick, get_market_state
-            get_market_state().update(PriceTick(
-                symbol=symbol,
-                price=price,
-                volume=0.0,
-                source="risk_tracker_fill",
-                ts_ns=ts_ns,
-            ))
+
+            get_market_state().update(
+                PriceTick(
+                    symbol=symbol,
+                    price=price,
+                    volume=0.0,
+                    source="risk_tracker_fill",
+                    ts_ns=ts_ns,
+                )
+            )
         except Exception:
             pass
 
@@ -654,8 +682,9 @@ class RiskTracker:
     def _publish_breach(state: RiskState, ts_ns: int) -> None:
         try:
             from state.event_bus import CognitiveChannel, get_event_bus
+
             get_event_bus().publish(
-                CognitiveChannel.RISK_BREACH,   # type: ignore[attr-defined]
+                CognitiveChannel.RISK_BREACH,  # type: ignore[attr-defined]
                 {
                     "halted": state.halted,
                     "breach_reason": state.breach_reason,

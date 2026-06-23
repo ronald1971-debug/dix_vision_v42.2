@@ -4,25 +4,25 @@ Contract-Compliant Real Implementation
 """
 
 from .artificial_consciousness import (
+    ArtificialConsciousness,
     ConsciousnessState,
-    QualiaRepresentation,
-    MetacognitiveState,
     GlobalWorkspaceTheory,
     IntegratedInformationTheory,
     MetacognitionLayer,
+    MetacognitiveState,
+    QualiaRepresentation,
     SubjectiveExperienceModeler,
-    ArtificialConsciousness,
-    get_artificial_consciousness
+    get_artificial_consciousness,
 )
 
 __all__ = [
-    'ConsciousnessState',
-    'QualiaRepresentation',
-    'MetacognitiveState',
-    'GlobalWorkspaceTheory',
-    'IntegratedInformationTheory',
-    'MetacognitionLayer',
-    'SubjectiveExperienceModeler',
-    'ArtificialConsciousness',
-    'get_artificial_consciousness'
+    "ConsciousnessState",
+    "QualiaRepresentation",
+    "MetacognitiveState",
+    "GlobalWorkspaceTheory",
+    "IntegratedInformationTheory",
+    "MetacognitionLayer",
+    "SubjectiveExperienceModeler",
+    "ArtificialConsciousness",
+    "get_artificial_consciousness",
 ]

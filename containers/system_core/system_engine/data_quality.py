@@ -310,9 +310,9 @@ def validate_row(expectation: Expectation, row: Mapping[str, Any]) -> Expectatio
             expectation=expectation,
             passed=ok,
             observed=value,
-            message=""
-            if ok
-            else (f"column {col!r} value {value!r} does not match pattern {pattern!r}"),
+            message=(
+                "" if ok else (f"column {col!r} value {value!r} does not match pattern {pattern!r}")
+            ),
         )
 
     if expectation.kind == ExpectationKind.TYPE_CHECK:
@@ -324,9 +324,11 @@ def validate_row(expectation: Expectation, row: Mapping[str, Any]) -> Expectatio
             expectation=expectation,
             passed=ok,
             observed=value,
-            message=""
-            if ok
-            else (f"column {col!r} expected type {type_name!r}, got {type(value).__name__!r}"),
+            message=(
+                ""
+                if ok
+                else (f"column {col!r} expected type {type_name!r}, got {type(value).__name__!r}")
+            ),
         )
 
     raise DataQualityError(f"unknown expectation kind: {expectation.kind!r}")

@@ -63,18 +63,15 @@ class AltDataContext:
 
 
 class MacroProvider(Protocol):
-    def get_latest(self) -> list[MacroData]:
-        ...
+    def get_latest(self) -> list[MacroData]: ...
 
 
 class NewsProvider(Protocol):
-    def get_recent(self, hours: int = 24) -> list[NewsEvent]:
-        ...
+    def get_recent(self, hours: int = 24) -> list[NewsEvent]: ...
 
 
 class SocialProvider(Protocol):
-    def get_recent(self, symbols: list[str] | None = None) -> list[SocialSignal]:
-        ...
+    def get_recent(self, symbols: list[str] | None = None) -> list[SocialSignal]: ...
 
 
 class AltDataEngine:

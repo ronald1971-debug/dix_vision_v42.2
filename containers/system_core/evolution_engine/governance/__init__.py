@@ -1,14 +1,14 @@
 """Governance Module."""
 
 from .autonomous_governance import (
-    GovernanceConstraint,
-    ComplianceValidation,
-    GovernanceAction,
     AuditLogEntry,
-    ConstraintValidator,
-    PermissionChecker,
     AuditLogger,
     AutonomousGovernanceSystem,
+    ComplianceValidation,
+    ConstraintValidator,
+    GovernanceAction,
+    GovernanceConstraint,
+    PermissionChecker,
     get_autonomous_governance_system,
 )
 

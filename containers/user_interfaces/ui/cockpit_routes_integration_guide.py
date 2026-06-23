@@ -21,6 +21,7 @@ Usage:
 # 3. ADD THESE PYDANTIC MODELS TO THE EXISTING MODELS SECTION (after line 112)
 # Add these models to the existing Pydantic models section:
 
+
 class OrderSubmitIn(BaseModel):
     symbol: str
     side: str
@@ -31,30 +32,36 @@ class OrderSubmitIn(BaseModel):
     operator_id: str = "operator"
     reason: str = ""
 
+
 class OrderCancelIn(BaseModel):
     order_id: str
     operator_id: str = "operator"
     reason: str = ""
+
 
 class OrderCancelAllIn(BaseModel):
     symbol: str | None = None
     operator_id: str = "operator"
     reason: str = ""
 
+
 class StrategyActionIn(BaseModel):
     strategy_id: str
     operator_id: str = "operator"
     reason: str = ""
+
 
 class PositionCloseIn(BaseModel):
     position_id: str
     operator_id: str = "operator"
     reason: str = ""
 
+
 class LedgerReplayIn(BaseModel):
     from_sequence: int
     to_sequence: int | None = None
     stream: str = ""
+
 
 # 4. ADD THESE EXPORTS TO __all__ SECTION (after line 1142)
 # Add these to the __all__ list:

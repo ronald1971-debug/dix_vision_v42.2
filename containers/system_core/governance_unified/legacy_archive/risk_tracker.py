@@ -51,10 +51,10 @@ class FillRecord:
     """One confirmed fill from the execution layer."""
 
     symbol: str
-    side: str           # "buy" | "sell"
-    qty: float          # always positive
+    side: str  # "buy" | "sell"
+    qty: float  # always positive
     price: float
-    realized_pnl: float   # 0.0 for opening fills; non-zero for closing
+    realized_pnl: float  # 0.0 for opening fills; non-zero for closing
     ts_ns: int
 
 
@@ -102,7 +102,7 @@ class RiskTracker:
         self._fill_count: int = 0
         self._manual_halt: bool = False
         self._last_breach: str = ""
-        self._fills: list[FillRecord] = []   # recent fills, capped at 200
+        self._fills: list[FillRecord] = []  # recent fills, capped at 200
 
         self._restore()
 
@@ -134,8 +134,12 @@ class RiskTracker:
             The live RiskState after integrating the fill.
         """
         fill = FillRecord(
-            symbol=symbol, side=side, qty=qty,
-            price=price, realized_pnl=realized_pnl, ts_ns=ts_ns,
+            symbol=symbol,
+            side=side,
+            qty=qty,
+            price=price,
+            realized_pnl=realized_pnl,
+            ts_ns=ts_ns,
         )
         with self._lock:
             # Update net position
@@ -251,8 +255,7 @@ class RiskTracker:
 
     def _notional_locked(self) -> float:
         return sum(
-            abs(qty) * self._last_prices.get(sym, 0.0)
-            for sym, qty in self._positions.items()
+            abs(qty) * self._last_prices.get(sym, 0.0) for sym, qty in self._positions.items()
         )
 
     def _max_pos_locked(self) -> float:
@@ -267,6 +270,7 @@ class RiskTracker:
     def _persist(self, ts_ns: int) -> None:
         try:
             from state.cognition_persistence import get_cognition_persistence_store
+
             with self._lock:
                 data = {
                     "positions": dict(self._positions),
@@ -288,6 +292,7 @@ class RiskTracker:
     def _restore(self) -> None:
         try:
             from state.cognition_persistence import get_cognition_persistence_store
+
             rows = get_cognition_persistence_store().load_episodes(_STORE_KIND, limit=1)
             if not rows:
                 return
@@ -299,7 +304,9 @@ class RiskTracker:
                 self._peak_equity = float(d.get("peak_equity", self._starting_equity))
                 self._fill_count = int(d.get("fill_count", 0))
                 self._manual_halt = bool(d.get("manual_halt", False))
-            _logger.info("RiskTracker: restored %d positions from persistence", len(self._positions))
+            _logger.info(
+                "RiskTracker: restored %d positions from persistence", len(self._positions)
+            )
         except Exception as exc:
             _logger.debug("RiskTracker._restore error: %s", exc)
 
@@ -312,13 +319,16 @@ class RiskTracker:
         """Propagate confirmed fill price to MarketState LKV cache (best-effort)."""
         try:
             from state.market_state import PriceTick, get_market_state
-            get_market_state().update(PriceTick(
-                symbol=symbol,
-                price=price,
-                volume=0.0,
-                source="risk_tracker_fill",
-                ts_ns=ts_ns,
-            ))
+
+            get_market_state().update(
+                PriceTick(
+                    symbol=symbol,
+                    price=price,
+                    volume=0.0,
+                    source="risk_tracker_fill",
+                    ts_ns=ts_ns,
+                )
+            )
         except Exception:
             pass
 
@@ -330,8 +340,9 @@ class RiskTracker:
     def _publish_breach(state: RiskState, ts_ns: int) -> None:
         try:
             from state.event_bus import CognitiveChannel, get_event_bus
+
             get_event_bus().publish(
-                CognitiveChannel.RISK_BREACH,   # type: ignore[attr-defined]
+                CognitiveChannel.RISK_BREACH,  # type: ignore[attr-defined]
                 {
                     "halted": state.halted,
                     "breach_reason": state.breach_reason,

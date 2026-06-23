@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class StateTransition:
     """A state transition in the simulation."""
+
     transition_id: str
     from_state: str
     to_state: str
@@ -29,19 +30,19 @@ class StateTransition:
 
 class ProductionStateSimulator:
     """Production-grade state simulator."""
-    
+
     def __init__(self) -> None:
         self._state_transitions: List[StateTransition] = []
         self._current_state: str = "initial"
-        
+
     def start(self) -> bool:
         logger.info("[STATE_SIMULATOR] Production state simulator started")
         return True
-    
+
     def stop(self) -> bool:
         logger.info("[STATE_SIMULATOR] Production state simulator stopped")
         return True
-    
+
     def transition_state(self, to_state: str, conditions: Dict[str, Any]) -> StateTransition:
         """Transition to a new state."""
         from_state = self._current_state
@@ -50,12 +51,12 @@ class ProductionStateSimulator:
             from_state=from_state,
             to_state=to_state,
             conditions=conditions,
-            timestamp=now().utc_time.isoformat()
+            timestamp=now().utc_time.isoformat(),
         )
         self._state_transitions.append(transition)
         self._current_state = to_state
         return transition
-    
+
     def get_current_state(self) -> str:
         """Get the current state."""
         return self._current_state

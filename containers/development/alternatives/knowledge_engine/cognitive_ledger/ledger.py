@@ -2,7 +2,7 @@
 
 Records:
     - Belief Created
-    - Belief Changed  
+    - Belief Changed
     - Strategy Proposed
     - Trader Reclassified
     - Confidence Increased/Decreased
@@ -67,8 +67,9 @@ class CognitiveLedger:
             self._index_by_subject[event.subject] = []
         self._index_by_subject[event.subject].append(event.event_id)
 
-    def query(self, event_type: CognitiveEventType | None = None,
-              subject: str | None = None) -> list[CognitiveEvent]:
+    def query(
+        self, event_type: CognitiveEventType | None = None, subject: str | None = None
+    ) -> list[CognitiveEvent]:
         result = self._events
         if event_type:
             result = [e for e in result if e.event_type == event_type]
@@ -129,6 +130,7 @@ class CognitiveLedger:
     def get_knowledge_timeline(self, knowledge_id: str) -> list[CognitiveEvent]:
         """Get all lifecycle events for a specific knowledge item."""
         return [
-            e for e in self._events
+            e
+            for e in self._events
             if e.event_type.name.startswith("KNOWLEDGE_") and e.subject == knowledge_id
         ]

@@ -62,27 +62,27 @@ def parse_polymarket_market(
         market_id = str(market_data.get("market_id", ""))
         question = str(market_data.get("question", ""))
         description = str(market_data.get("description", ""))
-        
+
         # Price and outcome data
         price = float(market_data.get("price", "0"))
         volume = float(market_data.get("volume", "0"))
-        
+
         # Market metadata
         end_time = market_data.get("end_date")
         category = str(market_data.get("category", "general"))
-        
+
         # Outcome information
         outcome_type = str(market_data.get("outcome_type", "binary"))
-        
+
         # Determine market status
         active = market_data.get("active", True)
-        
+
         # Calculate implied probability from price
         if outcome_type == "binary":
             probability = price  # Price is probability for binary markets
         else:
             probability = price * 100  # Rough estimate for other types
-        
+
     except (KeyError, ValueError, TypeError):
         return None
 
@@ -117,7 +117,7 @@ async def fetch_polymarket_markets(
     limit: int = 25,
 ) -> list[dict[str, Any]] | None:
     """Fetch prediction markets from Polymarket CLOB."""
-    
+
     headers = {
         "User-Agent": "DixVision/1.0 (Market Intelligence System)",
         "Accept": "application/json",
@@ -137,7 +137,7 @@ async def fetch_polymarket_markets(
         )
         response.raise_for_status()
         data = response.json()
-        
+
         # Parse market data
         markets = data.get("data", [])
         return markets
@@ -240,7 +240,9 @@ class PolymarketHTTPPoller:
                 if self._stop_event.is_set():
                     break
 
-                market_data = parse_polymarket_market(market, ts_ns=self._clock_ns(), venue=self._venue)
+                market_data = parse_polymarket_market(
+                    market, ts_ns=self._clock_ns(), venue=self._venue
+                )
                 if market_data is None:
                     self._errors += 1
                     continue

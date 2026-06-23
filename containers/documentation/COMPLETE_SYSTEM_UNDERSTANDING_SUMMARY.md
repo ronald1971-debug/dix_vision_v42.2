@@ -18,7 +18,7 @@ This document provides the complete comprehensive understanding of DIX VISION v4
 **Core Identity:**
 - **IS** a cognitive trading system
 - Trading is the core purpose and design goal
-- World understanding and indicator processing are equally important
+- Signal processing is the primary driver (85%) for profitable trading, with world understanding (15%) providing essential enhancement for risk management and regime awareness
 - Profit is the goal, achieved through intelligence
 - Cognitive development enables superior trading performance
 
@@ -35,7 +35,7 @@ This document provides the complete comprehensive understanding of DIX VISION v4
 
 **Architectural Foundation:**
 - Trading is the core purpose - cognitive trading system
-- World understanding and indicator processing are equally important
+- Signal processing is the primary driver (85%) for profitable trading, with world understanding (15%) providing essential enhancement for risk management and regime awareness
 - Intelligence enables profitable trading - profit through smarts
 - System self-evolution for improved trading performance
 - Operator sovereignty over autonomous action

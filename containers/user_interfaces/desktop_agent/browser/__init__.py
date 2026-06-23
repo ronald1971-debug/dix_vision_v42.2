@@ -2,9 +2,9 @@
 Browser layer - Phase 3 implementation
 """
 
-from browser_controller import BrowserController, BrowserState, BrowserType, BrowserAction
-from tab_manager import TabManager, TabState, TabInfo
-from profile_manager import ProfileManager, ProfileType, BrowserProfile
+from browser_controller import BrowserAction, BrowserController, BrowserState, BrowserType
+from profile_manager import BrowserProfile, ProfileManager, ProfileType
+from tab_manager import TabInfo, TabManager, TabState
 
 __all__ = [
     "BrowserController",

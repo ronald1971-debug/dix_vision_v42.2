@@ -2,7 +2,7 @@
 Memory layer - Phase 9 implementation
 """
 
-from memory_manager import MemoryManager, KnowledgeStore, ContextManager
+from memory_manager import ContextManager, KnowledgeStore, MemoryManager
 
 __all__ = [
     "MemoryManager",

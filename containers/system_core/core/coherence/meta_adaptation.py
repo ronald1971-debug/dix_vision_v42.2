@@ -206,9 +206,7 @@ class MetaAdaptation:
     def pending_signals(self) -> tuple[AdaptationSignal, ...]:
         """Return all unapproved adaptation signals in creation order."""
         return tuple(
-            self._signals[sid]
-            for sid in self._signal_order
-            if not self._signals[sid].approved
+            self._signals[sid] for sid in self._signal_order if not self._signals[sid].approved
         )
 
     def all_signals(self) -> tuple[AdaptationSignal, ...]:

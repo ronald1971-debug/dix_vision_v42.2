@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-import sys
 import logging
+import sys
 from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
@@ -8,7 +8,6 @@ logger = logging.getLogger('fastapi_enhanced_health_check')
 
 def check_imports():
     try:
-        import fastapi
         logger.info("FastAPI Enhanced import successful")
         return True
     except ImportError as e:
@@ -17,8 +16,8 @@ def check_imports():
 
 def check_governance_wrapper():
     try:
-        from fastapi_enhanced_governance_wrapper import FastAPIEnhancedGovernanceWrapper
         from base_external_repo_wrapper import PermissionLevel
+        from fastapi_enhanced_governance_wrapper import FastAPIEnhancedGovernanceWrapper
         wrapper = FastAPIEnhancedGovernanceWrapper(PermissionLevel.READ_ONLY)
         logger.info("Governance wrapper initialization successful")
         return True

@@ -35,8 +35,8 @@ class HazardLane:
     """Priority queue bus for HazardEvent (CRITICAL dispatched first)."""
 
     def __init__(self, maxsize: int = 10_000) -> None:
-        self._q: queue.PriorityQueue[tuple[int, int, HazardEvent]] = (
-            queue.PriorityQueue(maxsize=maxsize)
+        self._q: queue.PriorityQueue[tuple[int, int, HazardEvent]] = queue.PriorityQueue(
+            maxsize=maxsize
         )
         self._handlers: list[HazardLaneHandler] = []
         self._lock = threading.Lock()
@@ -49,9 +49,7 @@ class HazardLane:
         self._running = True
         if self._worker is not None and self._worker.is_alive():
             return
-        self._worker = threading.Thread(
-            target=self._dispatch_loop, daemon=True, name="HazardLane"
-        )
+        self._worker = threading.Thread(target=self._dispatch_loop, daemon=True, name="HazardLane")
         self._worker.start()
 
     def stop(self) -> None:

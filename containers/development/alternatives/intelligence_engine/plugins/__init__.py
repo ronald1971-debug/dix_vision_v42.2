@@ -12,12 +12,12 @@ from intelligence_engine.plugins.footprint_delta import FootprintDeltaV1
 from intelligence_engine.plugins.liquidity_physics import LiquidityPhysicsV1
 from intelligence_engine.plugins.microstructure import MicrostructureV1
 from intelligence_engine.plugins.microstructure_advanced import (
-    MicrostructurePattern,
-    OrderBookSnapshot,
     LiquidityProfile,
+    MicrostructurePattern,
+    MicrostructurePatternRecognizer,
     MicrostructureSignal,
     OrderBookAnalyzer,
-    MicrostructurePatternRecognizer,
+    OrderBookSnapshot,
 )
 from intelligence_engine.plugins.news_reaction import NewsReactionV1
 from intelligence_engine.plugins.on_chain_pulse import OnChainPulseV1

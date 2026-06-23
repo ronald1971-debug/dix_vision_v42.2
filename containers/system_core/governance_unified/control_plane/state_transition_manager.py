@@ -53,6 +53,7 @@ from core.contracts.operator_consent import (
     OperatorConsentValidator,
     edge_requires_consent,
 )
+
 from .ledger_authority_writer import (
     LedgerAuthorityWriter,
 )

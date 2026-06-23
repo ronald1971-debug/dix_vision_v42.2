@@ -50,9 +50,9 @@ class CognitionTimeline:
 
     def __init__(self, db_path: Path = _DEFAULT_DB) -> None:
         self._db_path = db_path
-        self._lock    = threading.Lock()
-        self._conn:   sqlite3.Connection | None = None
-        self._total:  int = 0
+        self._lock = threading.Lock()
+        self._conn: sqlite3.Connection | None = None
+        self._total: int = 0
 
     # ------------------------------------------------------------------
     # Lifecycle
@@ -105,34 +105,46 @@ class CognitionTimeline:
     def query(
         self,
         *,
-        since_ns:  int | None = None,
-        until_ns:  int | None = None,
-        kinds:     list[str] | None = None,
-        source:    str | None = None,
-        limit:     int = 50,
+        since_ns: int | None = None,
+        until_ns: int | None = None,
+        kinds: list[str] | None = None,
+        source: str | None = None,
+        limit: int = 50,
     ) -> list[dict]:
         """Return matching rows as plain dicts, newest-first."""
         try:
             clauses: list[str] = []
-            params:  list      = []
+            params: list = []
             if since_ns is not None:
-                clauses.append("ts_ns >= ?"); params.append(since_ns)
+                clauses.append("ts_ns >= ?")
+                params.append(since_ns)
             if until_ns is not None:
-                clauses.append("ts_ns <= ?"); params.append(until_ns)
+                clauses.append("ts_ns <= ?")
+                params.append(until_ns)
             if kinds:
                 placeholders = ",".join("?" * len(kinds))
                 clauses.append(f"kind IN ({placeholders})")
                 params.extend(kinds)
             if source is not None:
-                clauses.append("source = ?"); params.append(source)
+                clauses.append("source = ?")
+                params.append(source)
             where = ("WHERE " + " AND ".join(clauses)) if clauses else ""
-            sql   = f"SELECT * FROM memory_timeline {where} ORDER BY ts_ns DESC LIMIT ?"
+            sql = f"SELECT * FROM memory_timeline {where} ORDER BY ts_ns DESC LIMIT ?"
             params.append(limit)
             with self._lock:
                 conn = self._get_conn()
                 rows = conn.execute(sql, params).fetchall()
-            cols = ("record_id", "kind", "ts_ns", "source", "summary",
-                    "body", "tags", "confidence", "parent_id")
+            cols = (
+                "record_id",
+                "kind",
+                "ts_ns",
+                "source",
+                "summary",
+                "body",
+                "tags",
+                "confidence",
+                "parent_id",
+            )
             return [dict(zip(cols, row)) for row in rows]
         except Exception as exc:
             _logger.debug("timeline.query error: %s", exc)
@@ -141,18 +153,18 @@ class CognitionTimeline:
     def count(self) -> int:
         try:
             with self._lock:
-                return self._get_conn().execute(
-                    "SELECT COUNT(*) FROM memory_timeline"
-                ).fetchone()[0]
+                return (
+                    self._get_conn().execute("SELECT COUNT(*) FROM memory_timeline").fetchone()[0]
+                )
         except Exception:
             return 0
 
     def snapshot(self) -> dict:
         return {
-            "active":    True,
+            "active": True,
             "total_appended": self._total,
             "persisted": self.count(),
-            "db_path":   str(self._db_path),
+            "db_path": str(self._db_path),
         }
 
 

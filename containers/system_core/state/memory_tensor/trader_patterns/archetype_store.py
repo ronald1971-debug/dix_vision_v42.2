@@ -67,26 +67,19 @@ class Archetype:
                 f"Archetype.archetype_id must be non-empty str, got {self.archetype_id!r}"
             )
         if not isinstance(self.ts_ns, int) or isinstance(self.ts_ns, bool):
-            raise ValueError(
-                f"Archetype.ts_ns must be int, got {type(self.ts_ns).__name__}"
-            )
+            raise ValueError(f"Archetype.ts_ns must be int, got {type(self.ts_ns).__name__}")
         if not isinstance(self.name, str) or not self.name:
-            raise ValueError(
-                f"Archetype.name must be non-empty str, got {self.name!r}"
-            )
+            raise ValueError(f"Archetype.name must be non-empty str, got {self.name!r}")
         if self.state not in _VALID_STATES:
             raise ValueError(
-                f"Archetype.state must be one of {sorted(_VALID_STATES)!r}, "
-                f"got {self.state!r}"
+                f"Archetype.state must be one of {sorted(_VALID_STATES)!r}, " f"got {self.state!r}"
             )
         if not isinstance(self.decay_rate, float):
             raise ValueError(
                 f"Archetype.decay_rate must be float, got {type(self.decay_rate).__name__}"
             )
         if self.decay_rate < 0.0:
-            raise ValueError(
-                f"Archetype.decay_rate must be >= 0.0, got {self.decay_rate!r}"
-            )
+            raise ValueError(f"Archetype.decay_rate must be >= 0.0, got {self.decay_rate!r}")
         if not isinstance(self.performance_score, float):
             raise ValueError(
                 "Archetype.performance_score must be float, "
@@ -129,9 +122,7 @@ class ArchetypeStore:
     def get(self, archetype_id: str) -> Archetype | None:
         """Return the :class:`Archetype` for *archetype_id*, or ``None``."""
         if not isinstance(archetype_id, str) or not archetype_id:
-            raise ValueError(
-                "ArchetypeStore.get: archetype_id must be non-empty str"
-            )
+            raise ValueError("ArchetypeStore.get: archetype_id must be non-empty str")
         with self._lock:
             return self._archetypes.get(archetype_id)
 
@@ -142,9 +133,7 @@ class ArchetypeStore:
         ``archetype_id`` ascending for INV-15 deterministic ordering.
         """
         with self._lock:
-            archetypes = [
-                a for a in self._archetypes.values() if a.state == "ACTIVE"
-            ]
+            archetypes = [a for a in self._archetypes.values() if a.state == "ACTIVE"]
         archetypes.sort(key=lambda a: (-a.performance_score, a.archetype_id))
         return tuple(archetypes)
 

@@ -19,10 +19,13 @@ import threading
 from collections import deque
 from collections.abc import Callable
 
+
 # Lazy import to avoid circular dependency when loaded through execution_unified/__init__.py
 def _get_event_types():
     from core.contracts.events import EventKind, SystemEvent
+
     return EventKind, SystemEvent
+
 
 __all__ = ["OfflineLane", "OfflineLaneHandler", "get_offline_lane"]
 
@@ -50,7 +53,7 @@ class OfflineLane:
     def emit(self, event: object) -> bool:
         # Lazy import to avoid circular dependency
         EventKind, _ = _get_event_types()
-        if getattr(event, 'kind', None) != EventKind.SYSTEM:
+        if getattr(event, "kind", None) != EventKind.SYSTEM:
             return False
         with self._lock:
             if len(self._buffer) >= (self._buffer.maxlen or 100_000):

@@ -28,16 +28,24 @@ class HiddenStateDetector:
         self,
         ts_ns: int,
         *,
-        price_trend: float,       # -1.0 to 1.0
-        volume_trend: float,      # -1.0 to 1.0
-        spread_trend: float,      # -1.0 to 1.0
-        volatility: float,        # 0.0 to 1.0
+        price_trend: float,  # -1.0 to 1.0
+        volume_trend: float,  # -1.0 to 1.0
+        spread_trend: float,  # -1.0 to 1.0
+        volatility: float,  # 0.0 to 1.0
     ) -> HiddenState:
         scores = {
-            "accumulation": max(0.0, -price_trend) * 0.4 + max(0.0, volume_trend) * 0.4 + (1.0 - volatility) * 0.2,
-            "markup": max(0.0, price_trend) * 0.5 + max(0.0, volume_trend) * 0.3 + (1.0 - volatility) * 0.2,
-            "distribution": max(0.0, price_trend) * 0.3 + max(0.0, -volume_trend) * 0.4 + volatility * 0.3,
-            "markdown": max(0.0, -price_trend) * 0.5 + max(0.0, -volume_trend) * 0.3 + volatility * 0.2,
+            "accumulation": max(0.0, -price_trend) * 0.4
+            + max(0.0, volume_trend) * 0.4
+            + (1.0 - volatility) * 0.2,
+            "markup": max(0.0, price_trend) * 0.5
+            + max(0.0, volume_trend) * 0.3
+            + (1.0 - volatility) * 0.2,
+            "distribution": max(0.0, price_trend) * 0.3
+            + max(0.0, -volume_trend) * 0.4
+            + volatility * 0.3,
+            "markdown": max(0.0, -price_trend) * 0.5
+            + max(0.0, -volume_trend) * 0.3
+            + volatility * 0.2,
         }
         total = sum(scores.values()) or 1e-6
         probs = {s: v / total for s, v in scores.items()}
@@ -49,10 +57,14 @@ class HiddenStateDetector:
             ts_ns=ts_ns,
             state=state,
             confidence=conf if state != "unknown" else 0.0,
-            features=tuple(sorted({
-                "price_trend": price_trend,
-                "volume_trend": volume_trend,
-                "spread_trend": spread_trend,
-                "volatility": volatility,
-            }.items())),
+            features=tuple(
+                sorted(
+                    {
+                        "price_trend": price_trend,
+                        "volume_trend": volume_trend,
+                        "spread_trend": spread_trend,
+                        "volatility": volatility,
+                    }.items()
+                )
+            ),
         )

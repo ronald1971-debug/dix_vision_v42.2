@@ -26,9 +26,7 @@ class AttentionWeight:
 
     def normalize(self) -> AttentionWeight:
         """Return normalized weights summing to 1.0."""
-        total = sum(
-            [self.opportunity, self.risk, self.novelty, self.uncertainty]
-        )
+        total = sum([self.opportunity, self.risk, self.novelty, self.uncertainty])
         if total == 0:
             return AttentionWeight(0.25, 0.25, 0.25, 0.25)
         return AttentionWeight(

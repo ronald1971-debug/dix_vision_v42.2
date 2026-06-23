@@ -27,57 +27,57 @@ from enum import StrEnum
 
 
 class CognitiveViolationKind(StrEnum):
-    OVERCONFIDENCE                = "OVERCONFIDENCE"
-    CALIBRATION_DRIFT             = "CALIBRATION_DRIFT"
-    MAGICAL_BELIEF_JUMP           = "MAGICAL_BELIEF_JUMP"
-    MEMORY_CONTAMINATION          = "MEMORY_CONTAMINATION"
-    EMBEDDING_COLLAPSE            = "EMBEDDING_COLLAPSE"
-    MUTATION_OUT_OF_BUDGET        = "MUTATION_OUT_OF_BUDGET"
-    MUTATION_IRREVERSIBLE         = "MUTATION_IRREVERSIBLE"
-    LINEAGE_GAP                   = "LINEAGE_GAP"
-    LINEAGE_CYCLE                 = "LINEAGE_CYCLE"
-    HALLUCINATION_LOOP            = "HALLUCINATION_LOOP"
-    SELF_REFERENTIAL_REWARD       = "SELF_REFERENTIAL_REWARD"
-    EPISTEMIC_DRIFT_WARNING       = "EPISTEMIC_DRIFT_WARNING"
-    EPISTEMIC_DRIFT_CRITICAL      = "EPISTEMIC_DRIFT_CRITICAL"
-    SYNTHETIC_FEEDBACK            = "SYNTHETIC_FEEDBACK"
-    REWARD_HACKING                = "REWARD_HACKING"
-    IDENTITY_INSTABILITY          = "IDENTITY_INSTABILITY"
-    CAUSAL_GHOST                  = "CAUSAL_GHOST"
-    CAUSAL_DOMAIN_LEAK            = "CAUSAL_DOMAIN_LEAK"
-    LEARNING_NOT_GROUNDED         = "LEARNING_NOT_GROUNDED"
+    OVERCONFIDENCE = "OVERCONFIDENCE"
+    CALIBRATION_DRIFT = "CALIBRATION_DRIFT"
+    MAGICAL_BELIEF_JUMP = "MAGICAL_BELIEF_JUMP"
+    MEMORY_CONTAMINATION = "MEMORY_CONTAMINATION"
+    EMBEDDING_COLLAPSE = "EMBEDDING_COLLAPSE"
+    MUTATION_OUT_OF_BUDGET = "MUTATION_OUT_OF_BUDGET"
+    MUTATION_IRREVERSIBLE = "MUTATION_IRREVERSIBLE"
+    LINEAGE_GAP = "LINEAGE_GAP"
+    LINEAGE_CYCLE = "LINEAGE_CYCLE"
+    HALLUCINATION_LOOP = "HALLUCINATION_LOOP"
+    SELF_REFERENTIAL_REWARD = "SELF_REFERENTIAL_REWARD"
+    EPISTEMIC_DRIFT_WARNING = "EPISTEMIC_DRIFT_WARNING"
+    EPISTEMIC_DRIFT_CRITICAL = "EPISTEMIC_DRIFT_CRITICAL"
+    SYNTHETIC_FEEDBACK = "SYNTHETIC_FEEDBACK"
+    REWARD_HACKING = "REWARD_HACKING"
+    IDENTITY_INSTABILITY = "IDENTITY_INSTABILITY"
+    CAUSAL_GHOST = "CAUSAL_GHOST"
+    CAUSAL_DOMAIN_LEAK = "CAUSAL_DOMAIN_LEAK"
+    LEARNING_NOT_GROUNDED = "LEARNING_NOT_GROUNDED"
     # ------------------------------------------------------------------
     # v3.7 Epistemology — beliefs must carry their own lineage
     # ------------------------------------------------------------------
-    BELIEF_LINEAGE_MISSING        = "BELIEF_LINEAGE_MISSING"
-    BELIEF_LINEAGE_BROKEN         = "BELIEF_LINEAGE_BROKEN"
+    BELIEF_LINEAGE_MISSING = "BELIEF_LINEAGE_MISSING"
+    BELIEF_LINEAGE_BROKEN = "BELIEF_LINEAGE_BROKEN"
     # ------------------------------------------------------------------
     # v3.7 Truth Maintenance — auto belief revision on new evidence
     # ------------------------------------------------------------------
-    BELIEF_REVISION_TRIGGERED     = "BELIEF_REVISION_TRIGGERED"
+    BELIEF_REVISION_TRIGGERED = "BELIEF_REVISION_TRIGGERED"
     # ------------------------------------------------------------------
     # v3.7 Contradiction — first-class contradiction events
     # ------------------------------------------------------------------
-    BELIEF_CONTRADICTION          = "BELIEF_CONTRADICTION"
+    BELIEF_CONTRADICTION = "BELIEF_CONTRADICTION"
     # ------------------------------------------------------------------
     # v3.7 Self-Awareness — system knows its own boundaries
     # ------------------------------------------------------------------
-    SELF_AWARENESS_VIOLATION      = "SELF_AWARENESS_VIOLATION"
+    SELF_AWARENESS_VIOLATION = "SELF_AWARENESS_VIOLATION"
     # ------------------------------------------------------------------
     # v3.7 Failure Intelligence — failures studied as assets
     # ------------------------------------------------------------------
     FAILURE_CLASSIFICATION_PENDING = "FAILURE_CLASSIFICATION_PENDING"
-    FAILURE_REPEAT                = "FAILURE_REPEAT"
+    FAILURE_REPEAT = "FAILURE_REPEAT"
     # ------------------------------------------------------------------
     # v3.7 Meta-Learning — learning about learning
     # ------------------------------------------------------------------
-    META_LEARNING_SIGNAL          = "META_LEARNING_SIGNAL"
+    META_LEARNING_SIGNAL = "META_LEARNING_SIGNAL"
 
 
 class CognitiveSeverity(StrEnum):
-    INFO     = "INFO"
-    WARNING  = "WARNING"
-    HIGH     = "HIGH"
+    INFO = "INFO"
+    WARNING = "WARNING"
+    HIGH = "HIGH"
     CRITICAL = "CRITICAL"
 
 
@@ -85,12 +85,14 @@ class CognitiveSeverity(StrEnum):
 # v3.7 Epistemology — belief carries its own lineage
 # ---------------------------------------------------------------------------
 
+
 @dataclass(frozen=True, slots=True)
 class BeliefLineage:
     """WHY a belief exists — its complete evidence chain.
 
     Every belief must carry lineage. Not just value.
     """
+
     ts_ns: int
     belief_id: str
     domain: str
@@ -108,9 +110,11 @@ class BeliefLineage:
 # v3.7 Contradiction — first-class contradiction events
 # ---------------------------------------------------------------------------
 
+
 @dataclass(frozen=True, slots=True)
 class ContradictionReport:
     """Paired beliefs that contradict each other."""
+
     ts_ns: int
     contradiction_id: str
     belief_a_id: str
@@ -127,9 +131,11 @@ class ContradictionReport:
 # v3.7 Truth Maintenance — belief revision under new evidence
 # ---------------------------------------------------------------------------
 
+
 @dataclass(frozen=True, slots=True)
 class BeliefRevision:
     """Revision of an existing belief under new evidence."""
+
     ts_ns: int
     revision_id: str
     belief_id: str
@@ -145,9 +151,11 @@ class BeliefRevision:
 # v3.7 Failure Intelligence — failures become assets
 # ---------------------------------------------------------------------------
 
+
 @dataclass(frozen=True, slots=True)
 class FailureRecord:
     """A single failure — tracked so failures become assets."""
+
     ts_ns: int
     failure_id: str
     category: str
@@ -163,9 +171,11 @@ class FailureRecord:
 # v3.7 Meta-Learning — learning about learning
 # ---------------------------------------------------------------------------
 
+
 @dataclass(frozen=True, slots=True)
 class MetaLearningReport:
     """Reports which learning approach is performing best."""
+
     ts_ns: int
     lane_id: str
     approach: str
@@ -179,9 +189,11 @@ class MetaLearningReport:
 # v3.7 Self-Awareness — system knows its own boundaries
 # ---------------------------------------------------------------------------
 
+
 @dataclass(frozen=True, slots=True)
 class SelfAwarenessReport:
     """What DIXVISION knows about itself."""
+
     ts_ns: int
     known_capabilities: tuple[str, ...]
     known_limitations: tuple[str, ...]
@@ -194,9 +206,11 @@ class SelfAwarenessReport:
 # v3.7 Learning closed-loop outcome
 # ---------------------------------------------------------------------------
 
+
 @dataclass(frozen=True, slots=True)
 class LearningOutcomeReport:
     """Closed-loop outcome for a learning signal."""
+
     ts_ns: int
     signal_id: str
     predicted_confidence: float
@@ -209,9 +223,11 @@ class LearningOutcomeReport:
 # Pre-existing contracts (preserved from original)
 # ---------------------------------------------------------------------------
 
+
 @dataclass(frozen=True, slots=True)
 class BeliefIntegrityReport:
     """Result of a belief-update validation check."""
+
     ts_ns: int
     belief_id: str
     source: str
@@ -226,6 +242,7 @@ class BeliefIntegrityReport:
 @dataclass(frozen=True, slots=True)
 class MemoryContaminationReport:
     """Result of a vector-memory health scan."""
+
     ts_ns: int
     store_name: str
     passed: bool
@@ -240,6 +257,7 @@ class MemoryContaminationReport:
 @dataclass(frozen=True, slots=True)
 class MutationValidationResult:
     """Gate result for a proposed strategy mutation."""
+
     ts_ns: int
     mutation_id: str
     source: str
@@ -253,6 +271,7 @@ class MutationValidationResult:
 @dataclass(frozen=True, slots=True)
 class HallucinationReport:
     """Detected self-referential inference loop."""
+
     ts_ns: int
     source: str
     loop_depth: int
@@ -265,6 +284,7 @@ class HallucinationReport:
 @dataclass(frozen=True, slots=True)
 class EpistemicDriftReport:
     """Rolling divergence between predicted and observed outcomes."""
+
     ts_ns: int
     window_ns: int
     drift_score: float
@@ -279,6 +299,7 @@ class EpistemicDriftReport:
 @dataclass(frozen=True, slots=True)
 class LearningTruthfulnessReport:
     """Ratio of externally-grounded to synthetic learning signals."""
+
     ts_ns: int
     window_n: int
     external_ratio: float
@@ -292,6 +313,7 @@ class LearningTruthfulnessReport:
 @dataclass(frozen=True, slots=True)
 class LineageValidationResult:
     """Strategy lineage chain integrity check."""
+
     ts_ns: int
     strategy_id: str
     chain_depth: int
@@ -303,6 +325,7 @@ class LineageValidationResult:
 @dataclass(frozen=True, slots=True)
 class IdentityStabilityReport:
     """Archetype / behavioral fingerprint drift measurement."""
+
     ts_ns: int
     trader_id: str
     similarity_score: float
@@ -315,6 +338,7 @@ class IdentityStabilityReport:
 @dataclass(frozen=True, slots=True)
 class SyntheticFeedbackReport:
     """Detection of paper/simulated signals polluting live learning."""
+
     ts_ns: int
     source: str
     mode: str
@@ -326,6 +350,7 @@ class SyntheticFeedbackReport:
 @dataclass(frozen=True, slots=True)
 class RewardHackingReport:
     """Reward-function gaming detection."""
+
     ts_ns: int
     strategy_id: str
     reward_trend: float
@@ -339,6 +364,7 @@ class RewardHackingReport:
 @dataclass(frozen=True, slots=True)
 class CausalConsistencyReport:
     """Attribution chain causal-consistency check."""
+
     ts_ns: int
     decision_id: str
     passed: bool
@@ -349,6 +375,7 @@ class CausalConsistencyReport:
 @dataclass(frozen=True, slots=True)
 class CognitiveIntegrityStatus:
     """Aggregate snapshot of all cognitive-governance guards."""
+
     ts_ns: int
     overall_healthy: bool
     belief_integrity_ok: bool

@@ -15,10 +15,10 @@ __all__ = ["AdversarialPlan", "AdversarialExecutor"]
 class AdversarialPlan:
     symbol: str
     ts_ns: int
-    recommended_side: str       # "BUY" or "SELL"
-    limit_offset_bps: float     # how far from mid to place limit (bps)
-    order_type: str             # "LIMIT" or "MARKET"
-    urgency: float              # 0.0 = patient, 1.0 = immediate
+    recommended_side: str  # "BUY" or "SELL"
+    limit_offset_bps: float  # how far from mid to place limit (bps)
+    order_type: str  # "LIMIT" or "MARKET"
+    urgency: float  # 0.0 = patient, 1.0 = immediate
     rationale: str = ""
 
 
@@ -57,7 +57,8 @@ class AdversarialExecutor:
             rationale = f"patient limit: spread={spread_bps:.1f}bps offset={offset:.1f}bps"
 
         return AdversarialPlan(
-            symbol=symbol, ts_ns=ts_ns,
+            symbol=symbol,
+            ts_ns=ts_ns,
             recommended_side=side,
             limit_offset_bps=offset,
             order_type=order_type,

@@ -155,13 +155,17 @@ class MemoryContaminationDetector:
 
         # Contamination score: blend drift and collapse signals
         drift_score = min(overall_drift / DRIFT_CRITICAL, 1.0) if DRIFT_CRITICAL > 0 else 0.0
-        collapse_score = max(0.0, 1.0 - (std_dev / COLLAPSE_WARNING)) if std_dev < COLLAPSE_WARNING else 0.0
+        collapse_score = (
+            max(0.0, 1.0 - (std_dev / COLLAPSE_WARNING)) if std_dev < COLLAPSE_WARNING else 0.0
+        )
         contamination_score = min(1.0, (drift_score * 0.6 + collapse_score * 0.4))
 
         passed = len(violations) == 0
         detail_parts = []
         if overall_drift >= DRIFT_WARNING:
-            detail_parts.append(f"drift_rate={overall_drift:.4f}/hr, {anomalous_clusters} anomalous concept(s)")
+            detail_parts.append(
+                f"drift_rate={overall_drift:.4f}/hr, {anomalous_clusters} anomalous concept(s)"
+            )
         if std_dev <= COLLAPSE_WARNING:
             detail_parts.append(f"embedding_std_dev={std_dev:.4f} below collapse threshold")
         detail = "; ".join(detail_parts) if detail_parts else "OK"

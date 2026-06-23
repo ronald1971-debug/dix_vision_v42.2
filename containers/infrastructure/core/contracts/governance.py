@@ -3,20 +3,24 @@ Core Contracts Governance
 Real implementation for governance contracts
 """
 
-from dataclasses import dataclass, field
-from typing import Optional, Dict, Any
-from enum import Enum
 import time
+from dataclasses import dataclass, field
+from enum import Enum
+from typing import Any, Dict, Optional
+
 
 class GovernanceKind(Enum):
     """Governance event kinds"""
+
     MODE_CHANGE = "mode_change"
     CONSTRAINT_VIOLATION = "constraint_violation"
     AUTHORIZATION = "authorization"
     AUDIT = "audit"
 
+
 class SystemMode(Enum):
     """System operating modes"""
+
     NORMAL = "normal"
     LIVE = "live"
     AUTO = "auto"
@@ -32,8 +36,10 @@ class SystemMode(Enum):
     SHUTDOWN = "shutdown"
     RECOVERY = "recovery"
 
+
 class OperatorAction(Enum):
     """Operator action kinds"""
+
     APPROVE = "approve"
     DENY = "deny"
     OVERRIDE = "override"
@@ -47,9 +53,11 @@ class OperatorAction(Enum):
     REQUEST_MODE = "request_mode"
     REQUEST_INTENT = "request_intent"
 
+
 @dataclass
 class LedgerEntry:
     """Ledger entry for governance tracking"""
+
     entry_id: str = ""  # Entry ID
     kind: GovernanceKind = GovernanceKind.AUDIT  # Entry kind
     source: str = ""  # Source of entry
@@ -60,7 +68,7 @@ class LedgerEntry:
     payload: Dict[str, Any] = field(default_factory=dict)
     timestamp: float = field(default_factory=time.time)
     metadata: Dict[str, Any] = field(default_factory=dict)
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary"""
         return {
@@ -69,12 +77,14 @@ class LedgerEntry:
             "source": self.source,
             "payload": self.payload,
             "timestamp": self.timestamp,
-            "metadata": self.metadata
+            "metadata": self.metadata,
         }
+
 
 @dataclass
 class OperatorRequest:
     """Operator request for approval/action"""
+
     request_id: str
     action: OperatorAction
     description: str
@@ -83,16 +93,20 @@ class OperatorRequest:
     approved: bool = False
     operator_id: Optional[str] = None
 
+
 class GovernanceDecision(Enum):
     """Governance decision kinds"""
+
     APPROVE = "approve"
     REJECT = "reject"
     DEFER = "defer"
     OVERRIDE = "override"
     ESCALATE = "escalate"
 
+
 class DecisionKind(Enum):
     """Decision kind enumeration"""
+
     GOVERNANCE = "governance"
     OPERATOR = "operator"
     AUTOMATED = "automated"
@@ -102,16 +116,20 @@ class DecisionKind(Enum):
     EXCEPTION = "exception"
     STRATEGIC = "strategic"
 
+
 class IntentHorizon(Enum):
     """Intent horizon enumeration"""
+
     IMMEDIATE = "immediate"
     SHORT_TERM = "short_term"
     MEDIUM_TERM = "medium_term"
     LONG_TERM = "long_term"
     INDEFINITE = "indefinite"
 
+
 class IntentObjective(Enum):
     """Intent objective enumeration"""
+
     PROFIT = "profit"
     RISK_MANAGEMENT = "risk_management"
     GROWTH = "growth"
@@ -123,8 +141,10 @@ class IntentObjective(Enum):
     SAFETY = "safety"
     COMPLIANCE = "compliance"
 
+
 class IntentRiskMode(Enum):
     """Intent risk mode enumeration"""
+
     CONSERVATIVE = "conservative"
     MODERATE = "moderate"
     AGGRESSIVE = "aggressive"
@@ -136,9 +156,11 @@ class IntentRiskMode(Enum):
     STRATEGIC = "strategic"
     DEFENSIVE = "defensive"
 
+
 @dataclass
 class RiskAssessment:
     """Risk assessment information"""
+
     assessment_id: str
     risk_level: str
     risk_score: float
@@ -146,13 +168,15 @@ class RiskAssessment:
     mitigation_strategies: list = field(default_factory=list)
     timestamp: float = field(default_factory=time.time)
     assessor_id: str = ""
-    
+
     def is_high_risk(self) -> bool:
         """Check if assessment indicates high risk"""
         return self.risk_level == "high" or self.risk_score >= 0.7
 
+
 class ConstraintKind(Enum):
     """Constraint kind enumeration"""
+
     RISK_LIMIT = "risk_limit"
     POSITION_LIMIT = "position_limit"
     EXPOSURE_LIMIT = "exposure_limit"
@@ -161,8 +185,10 @@ class ConstraintKind(Enum):
     COMPLIANCE = "compliance"
     OPERATIONAL = "operational"
 
+
 class ConstraintScope(Enum):
     """Constraint scope enumeration"""
+
     SYSTEM = "system"
     ENGINE = "engine"
     STRATEGY = "strategy"
@@ -170,31 +196,35 @@ class ConstraintScope(Enum):
     ACCOUNT = "account"
     OPERATION = "operation"
 
+
 @dataclass
 class Constraint:
     """Governance constraint definition"""
+
     constraint_id: str
     constraint_type: str
     description: str
     severity: str = "medium"
     enabled: bool = True
     parameters: Dict[str, Any] = field(default_factory=dict)
-    
+
     def is_satisfied(self, context: Dict[str, Any]) -> bool:
         """Check if constraint is satisfied given context"""
         # Real implementation would check constraint logic
         return True
 
+
 @dataclass
 class ModeTransitionRequest:
     """Request for mode transition"""
+
     from_mode: str
     to_mode: str
     reason: str
     operator_id: str
     timestamp: float = field(default_factory=time.time)
     approved: bool = False
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary"""
         return {
@@ -203,12 +233,14 @@ class ModeTransitionRequest:
             "reason": self.reason,
             "operator_id": self.operator_id,
             "timestamp": self.timestamp,
-            "approved": self.approved
+            "approved": self.approved,
         }
+
 
 @dataclass
 class ComplianceReport:
     """Compliance report for governance checks"""
+
     report_id: str
     timestamp: float = field(default_factory=time.time)
     compliant: bool = True
@@ -216,21 +248,23 @@ class ComplianceReport:
     warnings: list = field(default_factory=list)
     score: float = 1.0
     metadata: Dict[str, Any] = field(default_factory=dict)
-    
+
     def is_compliant(self) -> bool:
         """Check if system is compliant"""
         return self.compliant and len(self.violations) == 0
 
+
 @dataclass
 class ModeTransitionDecision:
     """Decision for mode transition request"""
+
     request_id: str
     approved: bool
     reason: str
     operator_id: str
     timestamp: float = field(default_factory=time.time)
     conditions: Dict[str, Any] = field(default_factory=dict)
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary"""
         return {
@@ -239,12 +273,14 @@ class ModeTransitionDecision:
             "reason": self.reason,
             "operator_id": self.operator_id,
             "timestamp": self.timestamp,
-            "conditions": self.conditions
+            "conditions": self.conditions,
         }
+
 
 @dataclass
 class IntentTransitionRequest:
     """Request for intent transition"""
+
     intent_id: str
     from_intent: str
     to_intent: str
@@ -252,7 +288,7 @@ class IntentTransitionRequest:
     operator_id: str
     timestamp: float = field(default_factory=time.time)
     approved: bool = False
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary"""
         return {
@@ -262,19 +298,21 @@ class IntentTransitionRequest:
             "reason": self.reason,
             "operator_id": self.operator_id,
             "timestamp": self.timestamp,
-            "approved": self.approved
+            "approved": self.approved,
         }
+
 
 @dataclass
 class IntentTransitionDecision:
     """Decision for intent transition"""
+
     intent_id: str
     approved: bool
     reason: str
     operator_id: str
     timestamp: float = field(default_factory=time.time)
     conditions: Dict[str, Any] = field(default_factory=dict)
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary"""
         return {
@@ -283,7 +321,28 @@ class IntentTransitionDecision:
             "reason": self.reason,
             "operator_id": self.operator_id,
             "timestamp": self.timestamp,
-            "conditions": self.conditions
+            "conditions": self.conditions,
         }
 
-__all__ = ["GovernanceKind", "SystemMode", "GovernanceDecision", "DecisionKind", "IntentHorizon", "IntentObjective", "IntentRiskMode", "RiskAssessment", "ConstraintKind", "ConstraintScope", "OperatorAction", "LedgerEntry", "OperatorRequest", "Constraint", "ModeTransitionRequest", "ComplianceReport", "ModeTransitionDecision", "IntentTransitionRequest", "IntentTransitionDecision"]
+
+__all__ = [
+    "GovernanceKind",
+    "SystemMode",
+    "GovernanceDecision",
+    "DecisionKind",
+    "IntentHorizon",
+    "IntentObjective",
+    "IntentRiskMode",
+    "RiskAssessment",
+    "ConstraintKind",
+    "ConstraintScope",
+    "OperatorAction",
+    "LedgerEntry",
+    "OperatorRequest",
+    "Constraint",
+    "ModeTransitionRequest",
+    "ComplianceReport",
+    "ModeTransitionDecision",
+    "IntentTransitionRequest",
+    "IntentTransitionDecision",
+]

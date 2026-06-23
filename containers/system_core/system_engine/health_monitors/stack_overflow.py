@@ -112,9 +112,7 @@ class StackOverflowMonitor:
             "watched_tags": list(self._watched_tags),
             "last_check_ts_ns": self._last_check_ts_ns,
             "flagged_question_count": len(self._flagged_questions),
-            "flagged_questions": {
-                qid: dict(info) for qid, info in self._flagged_questions.items()
-            },
+            "flagged_questions": {qid: dict(info) for qid, info in self._flagged_questions.items()},
         }
 
 

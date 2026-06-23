@@ -5,8 +5,8 @@ docker-py Container Health Check
 This script performs health checks for the docker-py container.
 """
 
-import sys
 import logging
+import sys
 from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
@@ -25,8 +25,8 @@ def check_imports():
 def check_governance_wrapper():
     """Check if governance wrapper can be initialized"""
     try:
-        from docker_py_governance_wrapper import Docker_pyGovernanceWrapper
         from base_external_repo_wrapper import PermissionLevel
+        from docker_py_governance_wrapper import Docker_pyGovernanceWrapper
         
         wrapper = Docker_pyGovernanceWrapper(PermissionLevel.READ_ONLY)
         logger.info("Governance wrapper initialization successful")

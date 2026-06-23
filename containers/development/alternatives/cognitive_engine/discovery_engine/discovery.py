@@ -69,9 +69,7 @@ class DiscoveryEngine:
     def get_discoveries(self, category: str | None = None) -> list[dict]:
         with self._lock:
             ids = (
-                self._by_category.get(category, [])
-                if category
-                else list(self._discoveries.keys())
+                self._by_category.get(category, []) if category else list(self._discoveries.keys())
             )
         return [self._to_dict(self._discoveries[i]) for i in ids]
 
@@ -107,6 +105,7 @@ class DiscoveryEngine:
 def _now_ns() -> int:
     try:
         from system.time_source import wall_ns
+
         return wall_ns()
     except Exception:
         return int(_time.time() * 1e9)

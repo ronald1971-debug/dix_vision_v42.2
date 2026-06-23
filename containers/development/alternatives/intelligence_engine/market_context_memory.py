@@ -491,7 +491,7 @@ class MarketContextMemory:
         """
         # Analyze context data for patterns like trends, reversals, breakouts, etc.
         import time
-        
+
         # Get recent contexts for analysis
         recent_contexts = self._retrieve_recent_contexts(context, 20)
         
@@ -669,7 +669,7 @@ class MarketContextMemory:
         """
         import secrets
         import time
-        
+
         # Create pattern record
         pattern = MarketPattern(
             pattern_id=secrets.token_hex(16),

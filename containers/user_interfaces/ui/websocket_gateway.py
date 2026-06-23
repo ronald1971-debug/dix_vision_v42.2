@@ -41,6 +41,7 @@ LOG = logging.getLogger(__name__)
 
 class StreamChannel(enum.Enum):
     """WebSocket stream channels."""
+
     MARKET_DATA = "MARKET_DATA"
     EXECUTION = "EXECUTION"
     GOVERNANCE = "GOVERNANCE"
@@ -56,6 +57,7 @@ class StreamChannel(enum.Enum):
 
 class MessagePriority(enum.Enum):
     """Priority levels for messages."""
+
     LOW = "LOW"
     NORMAL = "NORMAL"
     HIGH = "HIGH"
@@ -64,6 +66,7 @@ class MessagePriority(enum.Enum):
 
 class ConnectionStatus(enum.Enum):
     """Status of WebSocket connections."""
+
     CONNECTING = "CONNECTING"
     CONNECTED = "CONNECTED"
     DISCONNECTED = "DISCONNECTED"
@@ -73,6 +76,7 @@ class ConnectionStatus(enum.Enum):
 
 class GatewayEventType(enum.Enum):
     """Types of gateway events."""
+
     SUBSCRIPTION = "SUBSCRIPTION"
     UNSUBSCRIPTION = "UNSUBSCRIPTION"
     CONNECTION_OPENED = "CONNECTION_OPENED"
@@ -91,6 +95,7 @@ class GatewayEventType(enum.Enum):
 @dataclasses.dataclass(frozen=True, slots=True)
 class GatewayConfig:
     """Configuration for the WebSocket gateway."""
+
     max_connections: int = DEFAULT_MAX_CONNECTIONS
     message_queue_size: int = DEFAULT_MESSAGE_QUEUE_SIZE
     heartbeat_interval_sec: int = DEFAULT_HEARTBEAT_INTERVAL_SEC
@@ -115,6 +120,7 @@ class GatewayConfig:
 @dataclasses.dataclass(frozen=True, slots=True)
 class StreamMessage:
     """A message to be streamed over WebSocket."""
+
     channel: StreamChannel
     data: dict[str, Any]
     priority: MessagePriority = MessagePriority.NORMAL
@@ -125,15 +131,18 @@ class StreamMessage:
     def __post_init__(self) -> None:
         if self.timestamp_ns == 0:
             import time
-            object.__setattr__(self, 'timestamp_ns', time.time_ns())
+
+            object.__setattr__(self, "timestamp_ns", time.time_ns())
         if not self.message_id:
             import secrets
-            object.__setattr__(self, 'message_id', secrets.token_hex(16))
+
+            object.__setattr__(self, "message_id", secrets.token_hex(16))
 
 
 @dataclasses.dataclass(frozen=True, slots=True)
 class Subscription:
     """A client subscription to a channel."""
+
     client_id: str
     channel: StreamChannel
     filters: dict[str, Any]
@@ -143,6 +152,7 @@ class Subscription:
 @dataclasses.dataclass(frozen=True, slots=True)
 class ClientConnection:
     """A WebSocket client connection."""
+
     client_id: str
     websocket: Any  # WebSocket connection object
     status: ConnectionStatus
@@ -157,6 +167,7 @@ class ClientConnection:
 @dataclasses.dataclass(frozen=True, slots=True)
 class GatewayMetrics:
     """Metrics about the gateway performance."""
+
     total_connections: int
     active_connections: int
     total_messages: int
@@ -178,7 +189,7 @@ class GatewayMetrics:
 
 class WebSocketGateway:
     """Unified WebSocket gateway for real-time data streaming.
-    
+
     Provides a single entry point for all real-time data feeds including:
     - Market data (tickers, order books, trades)
     - Execution events (orders, fills, cancellations)
@@ -189,54 +200,55 @@ class WebSocketGateway:
     - News and on-chain events
     - Portfolio and risk updates
     - Alerts and notifications
-    
+
     The gateway handles connection management, authentication,
     subscription management, message routing, and provides
     comprehensive metrics for monitoring.
     """
-    
+
     def __init__(
         self,
         config: GatewayConfig | None = None,
     ) -> None:
         """Initialize the WebSocket gateway.
-        
+
         Args:
             config: Gateway configuration
         """
         self._config = config or GatewayConfig()
         self._lock = Lock()
-        
+
         # Connection management
         self._connections: dict[str, ClientConnection] = {}
-        self._subscriptions: dict[str, list[Subscription]] = defaultdict(list)  # channel -> subscriptions
-        
+        self._subscriptions: dict[str, list[Subscription]] = defaultdict(
+            list
+        )  # channel -> subscriptions
+
         # Message queues by priority
         self._message_queues: dict[MessagePriority, deque[StreamMessage]] = {
-            priority: deque(maxlen=self._config.message_queue_size)
-            for priority in MessagePriority
+            priority: deque(maxlen=self._config.message_queue_size) for priority in MessagePriority
         }
-        
+
         # Event handlers
         self._event_handlers: list[Callable[[GatewayEventType, dict[str, Any]], None]] = []
-        
+
         # Channel data sources
         self._data_sources: dict[StreamChannel, Callable[[], Any]] = {}
-        
+
         # Metrics
         self._metrics = self._init_metrics()
         self._message_latencies: deque[int] = deque(maxlen=100)
-        
+
         # Background task
         self._running = False
         self._broadcast_task: asyncio.Task | None = None
-    
+
     async def start(self) -> None:
         """Start the gateway background tasks."""
         self._running = True
         self._broadcast_task = asyncio.create_task(self._broadcast_loop())
         LOG.info("WebSocket gateway started")
-    
+
     async def stop(self) -> None:
         """Stop the gateway background tasks."""
         self._running = False
@@ -247,7 +259,7 @@ class WebSocketGateway:
             except asyncio.CancelledError:
                 pass
         LOG.info("WebSocket gateway stopped")
-    
+
     def register_connection(
         self,
         client_id: str,
@@ -255,18 +267,18 @@ class WebSocketGateway:
         metadata: dict[str, Any] | None = None,
     ) -> None:
         """Register a new WebSocket connection.
-        
+
         Args:
             client_id: Unique client identifier
             websocket: WebSocket connection object
             metadata: Additional connection metadata
         """
         import time
-        
+
         with self._lock:
             if len(self._connections) >= self._config.max_connections:
                 raise RuntimeError("Maximum connections reached")
-            
+
             connection = ClientConnection(
                 client_id=client_id,
                 websocket=websocket,
@@ -275,18 +287,21 @@ class WebSocketGateway:
                 last_activity_ns=time.time_ns(),
                 metadata=metadata or {},
             )
-            
+
             self._connections[client_id] = connection
             self._metrics.total_connections += 1
             self._metrics.active_connections += 1
-            
-            self._emit_event(GatewayEventType.CONNECTION_OPENED, {
-                "client_id": client_id,
-            })
-    
+
+            self._emit_event(
+                GatewayEventType.CONNECTION_OPENED,
+                {
+                    "client_id": client_id,
+                },
+            )
+
     def unregister_connection(self, client_id: str) -> None:
         """Unregister a WebSocket connection.
-        
+
         Args:
             client_id: Client identifier to remove
         """
@@ -296,18 +311,20 @@ class WebSocketGateway:
                 connection = self._connections[client_id]
                 for channel in connection.subscribed_channels:
                     self._subscriptions[channel] = [
-                        sub for sub in self._subscriptions[channel]
-                        if sub.client_id != client_id
+                        sub for sub in self._subscriptions[channel] if sub.client_id != client_id
                     ]
-                
+
                 # Remove connection
                 del self._connections[client_id]
                 self._metrics.active_connections -= 1
-                
-                self._emit_event(GatewayEventType.CONNECTION_CLOSED, {
-                    "client_id": client_id,
-                })
-    
+
+                self._emit_event(
+                    GatewayEventType.CONNECTION_CLOSED,
+                    {
+                        "client_id": client_id,
+                    },
+                )
+
     def authenticate(
         self,
         client_id: str,
@@ -315,25 +332,25 @@ class WebSocketGateway:
         user_id: str = "",
     ) -> bool:
         """Authenticate a WebSocket connection.
-        
+
         Args:
             client_id: Client identifier
             token: Authentication token
             user_id: User identifier
-            
+
         Returns:
             True if authentication successful
         """
         import time
-        
+
         if not self._config.enable_auth:
             return True
-        
+
         with self._lock:
             connection = self._connections.get(client_id)
             if not connection:
                 return False
-            
+
             # Simple token validation (production would use proper JWT/cookie validation)
             if token and len(token) > 10:
                 updated_connection = dataclasses.replace(
@@ -344,20 +361,26 @@ class WebSocketGateway:
                     last_activity_ns=time.time_ns(),
                 )
                 self._connections[client_id] = updated_connection
-                
+
                 self._metrics.authentication_successes += 1
-                self._emit_event(GatewayEventType.AUTHENTICATION_SUCCESS, {
-                    "client_id": client_id,
-                    "user_id": user_id,
-                })
+                self._emit_event(
+                    GatewayEventType.AUTHENTICATION_SUCCESS,
+                    {
+                        "client_id": client_id,
+                        "user_id": user_id,
+                    },
+                )
                 return True
             else:
                 self._metrics.authentication_failures += 1
-                self._emit_event(GatewayEventType.AUTHENTICATION_FAILURE, {
-                    "client_id": client_id,
-                })
+                self._emit_event(
+                    GatewayEventType.AUTHENTICATION_FAILURE,
+                    {
+                        "client_id": client_id,
+                    },
+                )
                 return False
-    
+
     def subscribe(
         self,
         client_id: str,
@@ -365,25 +388,25 @@ class WebSocketGateway:
         filters: dict[str, Any] | None = None,
     ) -> bool:
         """Subscribe a client to a channel.
-        
+
         Args:
             client_id: Client identifier
             channel: Channel to subscribe to
             filters: Optional filters for the subscription
-            
+
         Returns:
             True if subscription successful
         """
         import time
-        
+
         with self._lock:
             connection = self._connections.get(client_id)
             if not connection:
                 return False
-            
+
             if not connection.authenticated and self._config.enable_auth:
                 return False
-            
+
             # Add subscription
             subscription = Subscription(
                 client_id=client_id,
@@ -391,34 +414,38 @@ class WebSocketGateway:
                 filters=filters or {},
                 subscribed_at_ns=time.time_ns(),
             )
-            
+
             self._subscriptions[channel].append(subscription)
             connection.subscribed_channels.add(channel)
-            
+
             # Update metrics
             self._metrics.total_subscriptions += 1
             self._metrics.active_subscriptions += 1
-            self._metrics.subscriptions_by_channel[channel.value] = \
+            self._metrics.subscriptions_by_channel[channel.value] = (
                 self._metrics.subscriptions_by_channel.get(channel.value, 0) + 1
-            
-            self._emit_event(GatewayEventType.SUBSCRIPTION, {
-                "client_id": client_id,
-                "channel": channel.value,
-            })
-            
+            )
+
+            self._emit_event(
+                GatewayEventType.SUBSCRIPTION,
+                {
+                    "client_id": client_id,
+                    "channel": channel.value,
+                },
+            )
+
             return True
-    
+
     def unsubscribe(
         self,
         client_id: str,
         channel: StreamChannel,
     ) -> bool:
         """Unsubscribe a client from a channel.
-        
+
         Args:
             client_id: Client identifier
             channel: Channel to unsubscribe from
-            
+
         Returns:
             True if unsubscription successful
         """
@@ -426,30 +453,32 @@ class WebSocketGateway:
             connection = self._connections.get(client_id)
             if not connection:
                 return False
-            
+
             # Remove subscription
             self._subscriptions[channel] = [
-                sub for sub in self._subscriptions[channel]
-                if sub.client_id != client_id
+                sub for sub in self._subscriptions[channel] if sub.client_id != client_id
             ]
-            
+
             if channel in connection.subscribed_channels:
                 connection.subscribed_channels.remove(channel)
                 self._metrics.active_subscriptions -= 1
-            
-            self._emit_event(GatewayEventType.UNSUBSCRIPTION, {
-                "client_id": client_id,
-                "channel": channel.value,
-            })
-            
+
+            self._emit_event(
+                GatewayEventType.UNSUBSCRIPTION,
+                {
+                    "client_id": client_id,
+                    "channel": channel.value,
+                },
+            )
+
             return True
-    
+
     def publish(
         self,
         message: StreamMessage,
     ) -> None:
         """Publish a message to a channel.
-        
+
         Args:
             message: Message to publish
         """
@@ -457,43 +486,45 @@ class WebSocketGateway:
             # Add to appropriate priority queue
             queue = self._message_queues[message.priority]
             queue.append(message)
-            
+
             # Update metrics
             self._metrics.total_messages += 1
-            self._metrics.messages_by_channel[message.channel.value] = \
+            self._metrics.messages_by_channel[message.channel.value] = (
                 self._metrics.messages_by_channel.get(message.channel.value, 0) + 1
-            self._metrics.messages_by_priority[message.priority.value] = \
+            )
+            self._metrics.messages_by_priority[message.priority.value] = (
                 self._metrics.messages_by_priority.get(message.priority.value, 0) + 1
-    
+            )
+
     def register_data_source(
         self,
         channel: StreamChannel,
         data_source: Callable[[], Any],
     ) -> None:
         """Register a data source for a channel.
-        
+
         Args:
             channel: Channel to provide data for
             data_source: Callable that returns data
         """
         with self._lock:
             self._data_sources[channel] = data_source
-    
+
     def register_event_handler(
         self,
         handler: Callable[[GatewayEventType, dict[str, Any]], None],
     ) -> None:
         """Register an event handler.
-        
+
         Args:
             handler: Event handler callable
         """
         with self._lock:
             self._event_handlers.append(handler)
-    
+
     def get_metrics(self) -> GatewayMetrics:
         """Get gateway metrics.
-        
+
         Returns:
             Current metrics
         """
@@ -502,7 +533,7 @@ class WebSocketGateway:
             avg_latency = 0.0
             if self._message_latencies:
                 avg_latency = sum(self._message_latencies) / len(self._message_latencies)
-            
+
             return GatewayMetrics(
                 total_connections=self._metrics.total_connections,
                 active_connections=self._metrics.active_connections,
@@ -517,51 +548,55 @@ class WebSocketGateway:
                 authentication_failures=self._metrics.authentication_failures,
                 connection_errors=self._metrics.connection_errors,
             )
-    
+
     async def _broadcast_loop(self) -> None:
         """Background task to broadcast messages to subscribed clients."""
         while self._running:
             try:
                 # Process messages in priority order (CRITICAL -> HIGH -> NORMAL -> LOW)
-                priorities = [MessagePriority.CRITICAL, MessagePriority.HIGH, 
-                            MessagePriority.NORMAL, MessagePriority.LOW]
-                
+                priorities = [
+                    MessagePriority.CRITICAL,
+                    MessagePriority.HIGH,
+                    MessagePriority.NORMAL,
+                    MessagePriority.LOW,
+                ]
+
                 for priority in priorities:
                     queue = self._message_queues[priority]
                     if queue:
                         message = queue.popleft()
                         await self._broadcast_message(message)
-                
+
                 await asyncio.sleep(0.01)  # Small delay to prevent busy waiting
-                
+
             except Exception as e:
                 LOG.error(f"Error in broadcast loop: {e}")
                 await asyncio.sleep(1)
-    
+
     async def _broadcast_message(self, message: StreamMessage) -> None:
         """Broadcast a message to subscribed clients.
-        
+
         Args:
             message: Message to broadcast
         """
         import time
-        
+
         start_ns = time.time_ns()
-        
+
         # Get subscriptions for the channel
         subscriptions = self._subscriptions.get(message.channel, [])
-        
+
         for subscription in subscriptions:
             try:
                 connection = self._connections.get(subscription.client_id)
                 if not connection or not connection.websocket:
                     continue
-                
+
                 # Apply filters
                 if subscription.filters:
                     if not self._apply_filters(message.data, subscription.filters):
                         continue
-                
+
                 # Send message
                 payload = {
                     "channel": message.channel.value,
@@ -571,39 +606,39 @@ class WebSocketGateway:
                     "correlation_id": message.correlation_id,
                     "data": message.data,
                 }
-                
+
                 # Convert to JSON
                 json_payload = json.dumps(payload)
-                
+
                 # Send via WebSocket (placeholder - actual implementation depends on WebSocket library)
                 # await connection.websocket.send_text(json_payload)
-                
+
                 # Update activity
                 updated_connection = dataclasses.replace(
                     connection,
                     last_activity_ns=time.time_ns(),
                 )
                 self._connections[subscription.client_id] = updated_connection
-                
+
             except Exception as e:
                 LOG.error(f"Error broadcasting to client {subscription.client_id}: {e}")
                 self._metrics.connection_errors += 1
-        
+
         # Track latency
         latency_ms = (time.time_ns() - start_ns) / 1_000_000
         self._message_latencies.append(latency_ms)
-    
+
     def _apply_filters(
         self,
         data: dict[str, Any],
         filters: dict[str, Any],
     ) -> bool:
         """Apply filters to determine if data matches subscription.
-        
+
         Args:
             data: Message data
             filters: Filter criteria
-            
+
         Returns:
             True if data matches filters
         """
@@ -612,14 +647,14 @@ class WebSocketGateway:
             if key in data and data[key] != value:
                 return False
         return True
-    
+
     def _emit_event(
         self,
         event_type: GatewayEventType,
         payload: dict[str, Any],
     ) -> None:
         """Emit a gateway event to handlers.
-        
+
         Args:
             event_type: Type of event
             payload: Event payload
@@ -629,7 +664,7 @@ class WebSocketGateway:
                 handler(event_type, payload)
             except Exception as e:
                 LOG.error(f"Error in event handler: {e}")
-    
+
     def _init_metrics(self) -> GatewayMetrics:
         """Initialize gateway metrics."""
         return GatewayMetrics(
@@ -655,20 +690,20 @@ class WebSocketGateway:
 
 class WebSocketGatewayFactory:
     """Factory for creating and managing WebSocket gateways."""
-    
+
     _instance: WebSocketGateway | None = None
     _lock = Lock()
-    
+
     @classmethod
     def get_instance(
         cls,
         config: GatewayConfig | None = None,
     ) -> WebSocketGateway:
         """Get or create the singleton gateway instance.
-        
+
         Args:
             config: Gateway configuration
-            
+
         Returns:
             Gateway instance
         """
@@ -677,7 +712,7 @@ class WebSocketGatewayFactory:
                 if cls._instance is None:
                     cls._instance = WebSocketGateway(config)
         return cls._instance
-    
+
     @classmethod
     def reset(cls) -> None:
         """Reset the singleton instance (for testing)."""

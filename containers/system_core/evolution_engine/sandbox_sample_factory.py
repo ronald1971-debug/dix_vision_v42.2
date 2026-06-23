@@ -813,6 +813,7 @@ def sample_factory_appo_trainer(
             try:
                 # sample-factory >= 2.x exposes model building utilities.
                 from sample_factory.model.encoder import make_img_encoder  # noqa: F401
+
                 _sf_model_available = True
             except ImportError:
                 _sf_model_available = False
@@ -831,20 +832,14 @@ def sample_factory_appo_trainer(
                     self.policy_head = nn.Linear(hidden, act_n)
                     self.value_head = nn.Linear(hidden, 1)
 
-                def forward(
-                    self, obs: object
-                ) -> tuple[torch.Tensor, torch.Tensor]:
+                def forward(self, obs: object) -> tuple[torch.Tensor, torch.Tensor]:
                     if not isinstance(obs, torch.Tensor):
-                        obs = torch.as_tensor(
-                            np.asarray(obs), dtype=torch.float32, device=device
-                        )
+                        obs = torch.as_tensor(np.asarray(obs), dtype=torch.float32, device=device)
                     h = self.encoder(obs)
                     return self.policy_head(h), self.value_head(h).squeeze(-1)
 
             model = _APPOActorCritic().to(device)
-            optim = torch.optim.Adam(
-                model.parameters(), lr=arguments.learning_rate
-            )
+            optim = torch.optim.Adam(model.parameters(), lr=arguments.learning_rate)
 
             # ------------------------------------------------------------------
             # APPO training loop:
@@ -927,9 +922,7 @@ def sample_factory_appo_trainer(
                 with torch.no_grad():
                     step_obs = obs_arr.copy()
                     for _s in range(n_collect):
-                        obs_t = torch.as_tensor(
-                            step_obs[None], dtype=torch.float32, device=device
-                        )
+                        obs_t = torch.as_tensor(step_obs[None], dtype=torch.float32, device=device)
                         logits, val = model(obs_t)
                         dist = torch.distributions.Categorical(logits=logits)
                         act_t = dist.sample()
@@ -991,16 +984,10 @@ def sample_factory_appo_trainer(
                     adv[i] = gae
                     returns[i] = gae + val_buf[i]
 
-                obs_t = torch.as_tensor(
-                    np.stack(obs_buf), dtype=torch.float32, device=device
-                )
+                obs_t = torch.as_tensor(np.stack(obs_buf), dtype=torch.float32, device=device)
                 act_t = torch.as_tensor(act_buf, dtype=torch.long, device=device)
-                old_logp_t = torch.as_tensor(
-                    logp_buf, dtype=torch.float32, device=device
-                )
-                ret_t = torch.as_tensor(
-                    returns, dtype=torch.float32, device=device
-                )
+                old_logp_t = torch.as_tensor(logp_buf, dtype=torch.float32, device=device)
+                ret_t = torch.as_tensor(returns, dtype=torch.float32, device=device)
                 adv_t = torch.as_tensor(adv, dtype=torch.float32, device=device)
                 adv_t = (adv_t - adv_t.mean()) / (adv_t.std() + 1e-8)
 

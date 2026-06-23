@@ -22,7 +22,9 @@ class Strategy(CognitiveObject):
     regime_fitness: dict = field(default_factory=dict)
 
     @classmethod
-    def create(cls, *, object_id: str, ts_ns: int, strategy_id: str, lifecycle: str = 'DRAFT', **kwargs):
+    def create(
+        cls, *, object_id: str, ts_ns: int, strategy_id: str, lifecycle: str = "DRAFT", **kwargs
+    ):
         return cls(
             object_id=object_id,
             object_type=ObjectKind.STRATEGY,

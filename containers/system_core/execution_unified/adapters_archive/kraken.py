@@ -130,7 +130,9 @@ class KrakenAdapter(BaseAdapter):
             self._record_error()
             logger.error(
                 "KrakenAdapter.connect: failed. adapter_id=%s error=%s: %s",
-                self.adapter_id, type(exc).__name__, str(exc)[:256],
+                self.adapter_id,
+                type(exc).__name__,
+                str(exc)[:256],
             )
             return False
 
@@ -209,7 +211,12 @@ class KrakenAdapter(BaseAdapter):
             logger.debug(
                 "KrakenAdapter.submit_order: submitted. adapter_id=%s order_id=%s "
                 "symbol=%s side=%s qty=%.8g latency_ms=%.2f",
-                self.adapter_id, order_id, symbol, kraken_type, quantity, latency_ms,
+                self.adapter_id,
+                order_id,
+                symbol,
+                kraken_type,
+                quantity,
+                latency_ms,
             )
             return FillReport(
                 adapter_id=self.adapter_id,
@@ -230,7 +237,10 @@ class KrakenAdapter(BaseAdapter):
             self._record_error()
             logger.error(
                 "KrakenAdapter.submit_order: failed. adapter_id=%s symbol=%s error=%s: %s",
-                self.adapter_id, symbol, type(exc).__name__, str(exc)[:256],
+                self.adapter_id,
+                symbol,
+                type(exc).__name__,
+                str(exc)[:256],
             )
             raise RuntimeError(
                 f"KrakenAdapter.submit_order failed: {type(exc).__name__}: {exc}"
@@ -256,14 +266,19 @@ class KrakenAdapter(BaseAdapter):
                 raise RuntimeError(f"Kraken API error: {result['error']}")
             logger.info(
                 "KrakenAdapter.cancel_order: cancelled. adapter_id=%s order_id=%s symbol=%s",
-                self.adapter_id, exchange_order_id, symbol,
+                self.adapter_id,
+                exchange_order_id,
+                symbol,
             )
             return True
         except Exception as exc:  # noqa: BLE001
             self._record_error()
             logger.error(
                 "KrakenAdapter.cancel_order: failed. adapter_id=%s order_id=%s error=%s: %s",
-                self.adapter_id, exchange_order_id, type(exc).__name__, str(exc)[:256],
+                self.adapter_id,
+                exchange_order_id,
+                type(exc).__name__,
+                str(exc)[:256],
             )
             raise RuntimeError(
                 f"KrakenAdapter.cancel_order failed: {type(exc).__name__}: {exc}"
@@ -289,7 +304,9 @@ class KrakenAdapter(BaseAdapter):
             self._record_error()
             logger.error(
                 "KrakenAdapter.get_balances: failed. adapter_id=%s error=%s: %s",
-                self.adapter_id, type(exc).__name__, str(exc)[:256],
+                self.adapter_id,
+                type(exc).__name__,
+                str(exc)[:256],
             )
             raise RuntimeError(
                 f"KrakenAdapter.get_balances failed: {type(exc).__name__}: {exc}"
@@ -351,9 +368,7 @@ class KrakenAdapter(BaseAdapter):
                 return json.loads(resp.read())
         except urllib.error.HTTPError as exc:
             body_text = exc.read().decode("utf-8", errors="replace")
-            raise RuntimeError(
-                f"Kraken HTTP {exc.code} on {path}: {body_text[:256]}"
-            ) from exc
+            raise RuntimeError(f"Kraken HTTP {exc.code} on {path}: {body_text[:256]}") from exc
 
     def _require_connected(self) -> None:
         """Raise RuntimeError if the adapter is not in CONNECTED state."""

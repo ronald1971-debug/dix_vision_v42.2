@@ -52,7 +52,9 @@ class CognitiveAuditTrail(CognitiveObject):
         return any(t.is_large_shift for t in self.transitions if isinstance(t, BeliefTransition))
 
     def involves_belief(self, belief_id: str) -> bool:
-        return any(t.belief_id == belief_id for t in self.transitions if isinstance(t, BeliefTransition))
+        return any(
+            t.belief_id == belief_id for t in self.transitions if isinstance(t, BeliefTransition)
+        )
 
 
 __all__ = [

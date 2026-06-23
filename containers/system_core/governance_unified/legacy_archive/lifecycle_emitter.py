@@ -42,9 +42,7 @@ class LifecycleEmitter:
 
     def emit(self, plugin_id: str, lifecycle: str) -> Mapping[str, str]:
         """Build a lifecycle payload, invoke the sink, and return the payload."""
-        payload = lifecycle_event_payload(
-            plugin_id, lifecycle, source=plugin_id
-        )
+        payload = lifecycle_event_payload(plugin_id, lifecycle, source=plugin_id)
         self._sink(payload)
         return payload
 

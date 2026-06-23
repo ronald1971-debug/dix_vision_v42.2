@@ -6,8 +6,8 @@ This script performs health checks for the CCXT container to ensure
 proper functioning of the cryptocurrency trading capabilities.
 """
 
-import sys
 import logging
+import sys
 from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
@@ -16,7 +16,6 @@ logger = logging.getLogger('ccxt_health_check')
 def check_imports():
     """Check if required modules can be imported"""
     try:
-        import ccxt
         logger.info("CCXT import successful")
         return True
     except ImportError as e:
@@ -26,8 +25,8 @@ def check_imports():
 def check_governance_wrapper():
     """Check if governance wrapper can be initialized"""
     try:
-        from ccxt_governance_wrapper import CCXTGovernanceWrapper
         from base_external_repo_wrapper import PermissionLevel
+        from ccxt_governance_wrapper import CCXTGovernanceWrapper
         
         wrapper = CCXTGovernanceWrapper(PermissionLevel.READ_ONLY)
         logger.info("Governance wrapper initialization successful")

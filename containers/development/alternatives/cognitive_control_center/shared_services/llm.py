@@ -31,17 +31,14 @@ ENHANCED FEATURES:
 from __future__ import annotations
 
 import json
-import threading
-import urllib.request
 import os
 import sys
+import threading
+import urllib.request
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import StrEnum
-from typing import Callable, Optional, Dict, List
-
-from core.secrets import get_secret
-from system.config import get_config
+from typing import Dict, List, Optional
 
 from cognitive_control_center.agent_operations_center.activity_feeds import (
     ActivityType,
@@ -51,11 +48,14 @@ from cognitive_control_center.core.operating_environment import (
     CognitiveEntityType,
     get_cognitive_environment,
 )
+from core.secrets import get_secret
+from system.config import get_config
 
 # Try to import world model components for world context integration
 try:
-    sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+    sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
     from world_model.indicator_integration import get_integration_bridge
+
     WORLD_MODEL_AVAILABLE = True
 except ImportError:
     WORLD_MODEL_AVAILABLE = False
@@ -77,6 +77,7 @@ class Capability(StrEnum):
 @dataclass
 class WorldContext:
     """World model context for LLM provider selection and behavior."""
+
     market_regime: str  # bullish, bearish, sideways, high_volatility
     market_trend: str  # trending, mean_reverting
     volatility_regime: str  # high, normal, low
@@ -85,7 +86,7 @@ class WorldContext:
     causal_factors: List[str]  # relevant causal factors
     prediction_confidence: float  # world model prediction confidence
     timestamp: datetime
-    
+
     def to_dict(self) -> dict:
         """Convert to dictionary for processing."""
         return {
@@ -96,7 +97,7 @@ class WorldContext:
             "agent_activity": self.agent_activity,
             "causal_factors": self.causal_factors,
             "prediction_confidence": self.prediction_confidence,
-            "timestamp": self.timestamp.isoformat()
+            "timestamp": self.timestamp.isoformat(),
         }
 
 
@@ -238,7 +239,7 @@ class ProviderStatus:
 class CognitiveLLMRouter:
     """
     Cognitive LLM router for the unified control center.
-    
+
     PRESERVES: All cockpit/llm.py functionality
     ENHANCES: Cognitive environment integration and observability
     """
@@ -248,7 +249,7 @@ class CognitiveLLMRouter:
         self._environment = get_cognitive_environment()
         self._activity_feeds = get_activity_feeds()
         self._lock = threading.RLock()
-        
+
         self._status: dict[str, ProviderStatus] = {
             p.name: ProviderStatus(
                 name=p.name,
@@ -293,7 +294,7 @@ class CognitiveLLMRouter:
     ) -> LLMResponse:
         """
         Ask the LLM router for a response.
-        
+
         PRESERVES: All logic from cockpit/llm.py
         ENHANCES: Workspace context and cognitive environment logging
         """
@@ -305,21 +306,25 @@ class CognitiveLLMRouter:
             )
             if preferred:
                 candidates = [preferred] + [p for p in candidates if p.name != prefer]
-        
+
         if not candidates:
-            return self._templated(prompt, system, required, reason="no_provider_with_caps", workspace=workspace)
-        
+            return self._templated(
+                prompt, system, required, reason="no_provider_with_caps", workspace=workspace
+            )
+
         for p in candidates:
             resp = self._dispatch(p, prompt, system, max_tokens, workspace=workspace)
             self._record(p, resp)
-            
+
             # ENHANCED: Log to cognitive environment
             self._log_llm_call(p, prompt, system, resp, workspace=workspace)
-            
+
             if resp.ok():
                 return resp
-        
-        return self._templated(prompt, system, required, reason="all_providers_failed", workspace=workspace)
+
+        return self._templated(
+            prompt, system, required, reason="all_providers_failed", workspace=workspace
+        )
 
     # ------------------------------------------------------------------
     def _enabled(self, p: Provider) -> bool:
@@ -383,7 +388,7 @@ class CognitiveLLMRouter:
     ) -> LLMResponse:
         """
         Dispatch to provider.
-        
+
         PRESERVES: All logic from cockpit/llm.py
         ENHANCES: Workspace context
         """
@@ -393,15 +398,23 @@ class CognitiveLLMRouter:
                 resp = _call_ollama(p, prompt, system, max_tokens)
             elif p.name == "anthropic_claude":
                 resp = _call_anthropic(p, prompt, system, max_tokens)
-            elif p.name in ("openai_gpt4o", "xai_grok", "deepseek", "perplexity", "cognition_devin"):
+            elif p.name in (
+                "openai_gpt4o",
+                "xai_grok",
+                "deepseek",
+                "perplexity",
+                "cognition_devin",
+            ):
                 resp = _call_openai_compatible(p, prompt, system, max_tokens)
             elif p.name == "google_gemini":
                 resp = _call_gemini(p, prompt, system, max_tokens)
             else:
-                resp = LLMResponse(text="", provider=p.name, model=p.model, error="unsupported_provider")
+                resp = LLMResponse(
+                    text="", provider=p.name, model=p.model, error="unsupported_provider"
+                )
         except Exception as e:
             resp = LLMResponse(text="", provider=p.name, model=p.model, error=repr(e))
-        
+
         # ENHANCED: Add workspace context
         resp.workspace = workspace
         return resp
@@ -435,9 +448,7 @@ def _config_get(key: str, default: bool) -> bool:
 
 
 # Preserve exact HTTP call helpers from cockpit/llm.py
-def _call_openai_compatible(
-    p: Provider, prompt: str, system: str, max_tokens: int
-) -> LLMResponse:
+def _call_openai_compatible(p: Provider, prompt: str, system: str, max_tokens: int) -> LLMResponse:
     """Preserve exact _call_openai_compatible from cockpit/llm.py"""
     key = get_secret(p.env_key, default="")
     payload = {
@@ -467,9 +478,7 @@ def _call_openai_compatible(
     )
 
 
-def _call_anthropic(
-    p: Provider, prompt: str, system: str, max_tokens: int
-) -> LLMResponse:
+def _call_anthropic(p: Provider, prompt: str, system: str, max_tokens: int) -> LLMResponse:
     """Preserve exact _call_anthropic from cockpit/llm.py"""
     key = get_secret(p.env_key, default="")
     payload = {
@@ -503,9 +512,7 @@ def _call_anthropic(
     )
 
 
-def _call_gemini(
-    p: Provider, prompt: str, system: str, max_tokens: int
-) -> LLMResponse:
+def _call_gemini(p: Provider, prompt: str, system: str, max_tokens: int) -> LLMResponse:
     """Preserve exact _call_gemini from cockpit/llm.py"""
     key = get_secret(p.env_key, default="")
     url = f"{p.endpoint}/models/{p.model}:generateContent"
@@ -525,9 +532,7 @@ def _call_gemini(
     return LLMResponse(text=text.strip(), provider=p.name, model=p.model)
 
 
-def _call_ollama(
-    p: Provider, prompt: str, system: str, max_tokens: int
-) -> LLMResponse:
+def _call_ollama(p: Provider, prompt: str, system: str, max_tokens: int) -> LLMResponse:
     """Preserve exact _call_ollama from cockpit/llm.py"""
     payload = {
         "model": p.model,
@@ -544,48 +549,60 @@ def _call_ollama(
     text = body.get("response", "")
     return LLMResponse(text=text.strip(), provider=p.name, model=p.model)
 
+
 # World Context Integration Methods for CognitiveLLMRouter
+
 
 def _add_world_context_methods(cls):
     """Add world context integration methods to CognitiveLLMRouter class."""
-    
-    def ask_with_world_understanding(self,
-                                     prompt: str,
-                                     *,
-                                     system: str = "",
-                                     required=frozenset({Capability.REASON}),
-                                     prefer: str | None = None,
-                                     max_tokens: int = 512,
-                                     workspace: str | None = None,
-                                     world_context: Optional[WorldContext] = None):
+
+    def ask_with_world_understanding(
+        self,
+        prompt: str,
+        *,
+        system: str = "",
+        required=frozenset({Capability.REASON}),
+        prefer: str | None = None,
+        max_tokens: int = 512,
+        workspace: str | None = None,
+        world_context: Optional[WorldContext] = None,
+    ):
         """
         Ask LLM router with world understanding enhancement.
-        
+
         ENHANCED: World context integration for intelligent provider selection and prompts
         """
         # Get world context if not provided
         if not world_context:
-            world_context = self._get_world_context() if hasattr(self, '_get_world_context') else None
-        
+            world_context = (
+                self._get_world_context() if hasattr(self, "_get_world_context") else None
+            )
+
         # Enhance system prompt with world context
-        if world_context and hasattr(self, '_enhance_system_prompt_with_world_context'):
+        if world_context and hasattr(self, "_enhance_system_prompt_with_world_context"):
             system = self._enhance_system_prompt_with_world_context(system, world_context)
-        
+
         # Get standard LLM response
-        response = self.ask(prompt, system=system, required=required, prefer=prefer, 
-                          max_tokens=max_tokens, workspace=workspace)
-        
+        response = self.ask(
+            prompt,
+            system=system,
+            required=required,
+            prefer=prefer,
+            max_tokens=max_tokens,
+            workspace=workspace,
+        )
+
         # Enhance response with world context if available
         if world_context and response.ok():
             response.agent_activity_id = f"world_ctx_{world_context.timestamp.isoformat()}"
-        
+
         return response
-    
+
     def _get_world_context_impl(self):
         """Get current world context from world model integration."""
         if not WORLD_MODEL_AVAILABLE:
             return None
-        
+
         try:
             bridge = get_integration_bridge()
             if bridge:
@@ -597,48 +614,55 @@ def _add_world_context_methods(cls):
                     agent_activity={},
                     causal_factors=[],
                     prediction_confidence=0.75,
-                    timestamp=datetime.utcnow()
+                    timestamp=datetime.utcnow(),
                 )
                 return context
         except Exception as e:
             sys.stderr.write(f"[cognitive_llm] Error getting world context: {e}\n")
-        
+
         return None
-    
-    def _enhance_system_prompt_with_world_context_impl(self, system: str, world_context: WorldContext):
+
+    def _enhance_system_prompt_with_world_context_impl(
+        self, system: str, world_context: WorldContext
+    ):
         """Enhance system prompt with world context information."""
         if not system:
             system = ""
-        
+
         world_info_parts = []
         world_info_parts.append(f"Current market regime: {world_context.market_regime}")
-        
+
         if world_context.market_trend != "neutral":
             world_info_parts.append(f"Market trend: {world_context.market_trend}")
-        
+
         if world_context.volatility_regime == "high":
             world_info_parts.append("High volatility detected - consider uncertainty in responses")
-        
+
         if world_context.liquidity_state == "low":
             world_info_parts.append("Low liquidity conditions - consider execution implications")
-        
+
         if world_context.causal_factors:
-            world_info_parts.append(f"Active causal factors: {', '.join(world_context.causal_factors[:3])}")
-        
+            world_info_parts.append(
+                f"Active causal factors: {', '.join(world_context.causal_factors[:3])}"
+            )
+
         if world_context.agent_activity:
-            active_agents = [agent for agent, activity in world_context.agent_activity.items() if activity > 0.7]
+            active_agents = [
+                agent for agent, activity in world_context.agent_activity.items() if activity > 0.7
+            ]
             if active_agents:
                 world_info_parts.append(f"Highly active market agents: {', '.join(active_agents)}")
-        
+
         if world_info_parts:
             world_context_str = "\n".join(world_info_parts)
             return f"{system}\n\nWorld Context:\n{world_context_str}"
-        
+
         return system
-    
+
     cls.ask_with_world_understanding = ask_with_world_understanding
     cls._get_world_context = _get_world_context_impl
     cls._enhance_system_prompt_with_world_context = _enhance_system_prompt_with_world_context_impl
+
 
 # Add world context methods to CognitiveLLMRouter
 _add_world_context_methods(CognitiveLLMRouter)
@@ -652,7 +676,7 @@ _router_lock = threading.Lock()
 def get_router() -> CognitiveLLMRouter:
     """
     Get the singleton LLM router instance.
-    
+
     PRESERVES: Exact API from cockpit/llm.py
     ENHANCES: Returns CognitiveLLMRouter instead of LLMRouter
     """

@@ -50,14 +50,17 @@ _logger = logging.getLogger(__name__)
 # Tick cadences
 REPO_INSPECT_INTERVAL: int = 300
 DEAD_CODE_INTERVAL: int = 600
-DEPENDENCY_GRAPH_INTERVAL: int = 300   # co-cadence with repo inspector
-TEST_COVERAGE_INTERVAL: int = 600      # co-cadence with dead code detector
+DEPENDENCY_GRAPH_INTERVAL: int = 300  # co-cadence with repo inspector
+TEST_COVERAGE_INTERVAL: int = 600  # co-cadence with dead code detector
 REPORT_INTERVAL: int = 100
 
 # Architecture grade → status colour for operator display
 _GRADE_COLOR: dict[str, str] = {
-    "A": "green", "B": "teal", "C": "yellow",
-    "D": "orange", "F": "red",
+    "A": "green",
+    "B": "teal",
+    "C": "yellow",
+    "D": "orange",
+    "F": "red",
 }
 
 
@@ -83,7 +86,7 @@ class EvolutionReport:
     patches_promoted: int
     patches_rejected: int
     dead_modules_detected: int
-    persistent_violations: list[str]   # top recurrent violation keys
+    persistent_violations: list[str]  # top recurrent violation keys
     top_recommendations: list[str]
     status_color: str
     # AIX code foresight extensions
@@ -133,7 +136,7 @@ class DyonEngineeringRuntime:
         self._lock = threading.Lock()
         self._tick_count: int = 0
         self._activated: bool = False
-        self._reports: list[EvolutionReport] = []   # ring: last 10
+        self._reports: list[EvolutionReport] = []  # ring: last 10
         self._period_start_tick: int = 0
         self._period_scans: int = 0
         self._period_violations: int = 0
@@ -219,6 +222,7 @@ class DyonEngineeringRuntime:
         # DyonRuntime snapshot (topology scan + proposals)
         try:
             from evolution_engine.dyon.dyon_runtime import get_dyon_runtime
+
             out["dyon_core"] = get_dyon_runtime().snapshot(proposal_limit=15)
         except Exception as exc:
             out["dyon_core"] = {"error": str(exc)}
@@ -226,6 +230,7 @@ class DyonEngineeringRuntime:
         # Architecture drift
         try:
             from evolution_engine.dyon.drift_monitor import get_drift_monitor
+
             out["architecture_drift"] = get_drift_monitor().snapshot()
         except Exception as exc:
             out["architecture_drift"] = {"error": str(exc)}
@@ -233,6 +238,7 @@ class DyonEngineeringRuntime:
         # Repository structure
         try:
             from evolution_engine.dyon.repo_inspector import get_repo_inspector
+
             out["repository"] = get_repo_inspector(repo_root=self._root).snapshot_dict()
         except Exception as exc:
             out["repository"] = {"error": str(exc)}
@@ -240,6 +246,7 @@ class DyonEngineeringRuntime:
         # Dead code
         try:
             from evolution_engine.dyon.dead_code_detector import get_dead_code_detector
+
             out["dead_code"] = get_dead_code_detector(repo_root=self._root).snapshot()
         except Exception as exc:
             out["dead_code"] = {"error": str(exc)}
@@ -247,6 +254,7 @@ class DyonEngineeringRuntime:
         # Dependency graph (cycle + B1 violation analysis)
         try:
             from evolution_engine.dyon.dependency_graph import get_dependency_graph
+
             out["dependency_graph"] = get_dependency_graph().snapshot_dict()
         except Exception as exc:
             out["dependency_graph"] = {"error": str(exc)}
@@ -254,6 +262,7 @@ class DyonEngineeringRuntime:
         # Test coverage (which modules have tests, which don't)
         try:
             from evolution_engine.dyon.test_coverage_tracker import get_test_coverage_tracker
+
             out["test_coverage"] = get_test_coverage_tracker(repo_root=self._root).snapshot()
         except Exception as exc:
             out["test_coverage"] = {"error": str(exc)}
@@ -261,6 +270,7 @@ class DyonEngineeringRuntime:
         # Governed pipeline (mutation queue + governance stream)
         try:
             from evolution_engine.governed_pipeline import get_governed_pipeline
+
             out["mutation_queue"] = get_governed_pipeline().snapshot(limit=20)
         except Exception as exc:
             out["mutation_queue"] = {"error": str(exc)}
@@ -268,6 +278,7 @@ class DyonEngineeringRuntime:
         # DyonMemory (violation recurrence)
         try:
             from evolution_engine.dyon.dyon_memory import get_dyon_memory
+
             out["violation_memory"] = get_dyon_memory().snapshot(top_n=15)
         except Exception as exc:
             out["violation_memory"] = {"error": str(exc)}
@@ -275,6 +286,7 @@ class DyonEngineeringRuntime:
         # Simulation dominance (sandbox execution)
         try:
             from simulation.dominance_runtime import get_simulation_dominance_runtime
+
             out["simulation"] = get_simulation_dominance_runtime().snapshot()
         except Exception as exc:
             out["simulation"] = {"error": str(exc)}
@@ -285,6 +297,7 @@ class DyonEngineeringRuntime:
         """One-sentence DYON health narrative for consciousness stream."""
         try:
             from evolution_engine.dyon.drift_monitor import get_drift_monitor
+
             monitor = get_drift_monitor()
             return monitor.format_for_narrative()
         except Exception:
@@ -298,6 +311,7 @@ class DyonEngineeringRuntime:
         """Drive DyonRuntime.tick(); returns scan result or None."""
         try:
             from evolution_engine.dyon.dyon_runtime import get_dyon_runtime
+
             return get_dyon_runtime().tick(ts_ns=ts_ns)
         except Exception as exc:
             _logger.debug("DyonEngineeringRuntime: dyon_runtime tick error: %s", exc)
@@ -307,6 +321,7 @@ class DyonEngineeringRuntime:
         """Process a completed topology scan — update drift, emit narrative."""
         try:
             from evolution_engine.dyon.drift_monitor import get_drift_monitor
+
             violations_list = []
             if hasattr(scan_result, "violations"):
                 violations_list = [
@@ -336,6 +351,7 @@ class DyonEngineeringRuntime:
         """Run a repo inspection scan."""
         try:
             from evolution_engine.dyon.repo_inspector import get_repo_inspector
+
             snap = get_repo_inspector(repo_root=self._root).scan(ts_ns)
             self._emit_repo_narrative(snap, ts_ns)
         except Exception as exc:
@@ -345,6 +361,7 @@ class DyonEngineeringRuntime:
         """Run dead code detection scan."""
         try:
             from evolution_engine.dyon.dead_code_detector import get_dead_code_detector
+
             detected = get_dead_code_detector(repo_root=self._root).scan(ts_ns)
             if detected:
                 self._emit_dead_code_narrative(detected, ts_ns)
@@ -355,6 +372,7 @@ class DyonEngineeringRuntime:
         """Run dependency graph analysis (cycle + B1 violation detection)."""
         try:
             from evolution_engine.dyon.dependency_graph import get_dependency_graph
+
             snap = get_dependency_graph().scan(ts_ns)
             if snap.b1_violations or snap.cycles:
                 self._emit_dependency_narrative(snap, ts_ns)
@@ -365,6 +383,7 @@ class DyonEngineeringRuntime:
         """Run test coverage scan."""
         try:
             from evolution_engine.dyon.test_coverage_tracker import get_test_coverage_tracker
+
             snap = get_test_coverage_tracker(repo_root=self._root).scan(ts_ns)
             self._emit_coverage_narrative(snap, ts_ns)
         except Exception as exc:
@@ -386,27 +405,39 @@ class DyonEngineeringRuntime:
 
             # Patch counts from pipeline
             stages: dict[str, int] = pipeline_snap.get("stage_counts", {})
-            promoted = stages.get("PROMOTED", 0) + stages.get("MONITORING", 0) + stages.get("AUDITED", 0)
+            promoted = (
+                stages.get("PROMOTED", 0) + stages.get("MONITORING", 0) + stages.get("AUDITED", 0)
+            )
             rejected = stages.get("REJECTED", 0) + stages.get("ROLLED_BACK", 0)
             total_proposals = pipeline_snap.get("total_proposals", 0)
 
             # Top recommendations
             recs: list[str] = []
             if state.grade in ("D", "F"):
-                recs.append("CRITICAL: Resolve architectural violations immediately — health grade below threshold")
+                recs.append(
+                    "CRITICAL: Resolve architectural violations immediately — health grade below threshold"
+                )
             if state.trend == "DEGRADING":
-                recs.append("Architecture drift is worsening — prioritize B1 and INV-15 violation cleanup")
+                recs.append(
+                    "Architecture drift is worsening — prioritize B1 and INV-15 violation cleanup"
+                )
             if state.spike_detected:
-                recs.append("Violation spike detected this scan — inspect recent commits for boundary violations")
+                recs.append(
+                    "Violation spike detected this scan — inspect recent commits for boundary violations"
+                )
             persistent = mem_snap.get("top_persistent", [])
             if persistent:
                 top_viol = persistent[0].get("violation_key", "")
                 recs.append(f"Persistent violation: {top_viol} — consider architectural refactor")
             dead_count = dead_snap.get("dead_module_count", 0)
             if dead_count >= 5:
-                recs.append(f"{dead_count} dead/suspect modules detected — review and remove to reduce cognitive load")
+                recs.append(
+                    f"{dead_count} dead/suspect modules detected — review and remove to reduce cognitive load"
+                )
             if not recs:
-                recs.append("Architecture is healthy — continue monitoring and simulation-driven evolution")
+                recs.append(
+                    "Architecture is healthy — continue monitoring and simulation-driven evolution"
+                )
 
             with self._lock:
                 period_ticks = self._tick_count - self._period_start_tick
@@ -436,9 +467,7 @@ class DyonEngineeringRuntime:
                 patches_promoted=promoted,
                 patches_rejected=rejected,
                 dead_modules_detected=dead_snap.get("dead_module_count", 0),
-                persistent_violations=[
-                    p.get("violation_key", "") for p in persistent[:5]
-                ],
+                persistent_violations=[p.get("violation_key", "") for p in persistent[:5]],
                 top_recommendations=recs[:5],
                 status_color=_GRADE_COLOR.get(state.grade, "gray"),
             )
@@ -463,18 +492,22 @@ class DyonEngineeringRuntime:
         """Emit DYON boot announcement to DYON_SCAN_COMPLETE channel."""
         try:
             from state.event_bus import CognitiveChannel, get_event_bus
-            get_event_bus().publish(CognitiveChannel.DYON_SCAN_COMPLETE, {
-                "source": "dyon_engineering_runtime",
-                "scan_count": 0,
-                "files_scanned": 0,
-                "violation_count": 0,
-                "critical_count": 0,
-                "warning_count": 0,
-                "clean": True,
-                "scan_duration_ms": 0.0,
-                "narrative": "DYON online — engineering intelligence active, beginning architecture observation",
-                "ts_ns": 0,
-            })
+
+            get_event_bus().publish(
+                CognitiveChannel.DYON_SCAN_COMPLETE,
+                {
+                    "source": "dyon_engineering_runtime",
+                    "scan_count": 0,
+                    "files_scanned": 0,
+                    "violation_count": 0,
+                    "critical_count": 0,
+                    "warning_count": 0,
+                    "clean": True,
+                    "scan_duration_ms": 0.0,
+                    "narrative": "DYON online — engineering intelligence active, beginning architecture observation",
+                    "ts_ns": 0,
+                },
+            )
         except Exception:
             pass
 
@@ -494,22 +527,26 @@ class DyonEngineeringRuntime:
             if spike:
                 narrative += " ⚠ SPIKE DETECTED"
             from state.event_bus import CognitiveChannel, get_event_bus
-            get_event_bus().publish(CognitiveChannel.DYON_SCAN_COMPLETE, {
-                "source": "dyon_engineering_runtime",
-                "scan_count": getattr(state, "scan_count", 0),
-                "files_scanned": getattr(scan_result, "files_scanned", 0),
-                "violation_count": violations,
-                "critical_count": len(getattr(scan_result, "critical_violations", [])),
-                "warning_count": len(getattr(scan_result, "warning_violations", [])),
-                "clean": violations == 0,
-                "scan_duration_ms": getattr(scan_result, "scan_duration_ms", 0.0),
-                "health_score": health,
-                "architecture_grade": grade,
-                "drift_trend": trend,
-                "spike_detected": spike,
-                "narrative": narrative,
-                "ts_ns": ts_ns,
-            })
+
+            get_event_bus().publish(
+                CognitiveChannel.DYON_SCAN_COMPLETE,
+                {
+                    "source": "dyon_engineering_runtime",
+                    "scan_count": getattr(state, "scan_count", 0),
+                    "files_scanned": getattr(scan_result, "files_scanned", 0),
+                    "violation_count": violations,
+                    "critical_count": len(getattr(scan_result, "critical_violations", [])),
+                    "warning_count": len(getattr(scan_result, "warning_violations", [])),
+                    "clean": violations == 0,
+                    "scan_duration_ms": getattr(scan_result, "scan_duration_ms", 0.0),
+                    "health_score": health,
+                    "architecture_grade": grade,
+                    "drift_trend": trend,
+                    "spike_detected": spike,
+                    "narrative": narrative,
+                    "ts_ns": ts_ns,
+                },
+            )
         except Exception:
             pass
 
@@ -519,21 +556,25 @@ class DyonEngineeringRuntime:
             edges = getattr(snap, "edge_count", 0)
             isolated = len(getattr(snap, "isolated_modules", []))
             from state.event_bus import CognitiveChannel, get_event_bus
-            get_event_bus().publish(CognitiveChannel.DYON_SCAN_COMPLETE, {
-                "source": "repo_inspector",
-                "scan_count": 0,
-                "files_scanned": files,
-                "violation_count": isolated,
-                "critical_count": 0,
-                "warning_count": isolated,
-                "clean": isolated == 0,
-                "scan_duration_ms": getattr(snap, "scan_duration_ms", 0.0),
-                "narrative": (
-                    f"Repository scan: {files} modules, {edges} import edges, "
-                    f"{isolated} isolated modules"
-                ),
-                "ts_ns": ts_ns,
-            })
+
+            get_event_bus().publish(
+                CognitiveChannel.DYON_SCAN_COMPLETE,
+                {
+                    "source": "repo_inspector",
+                    "scan_count": 0,
+                    "files_scanned": files,
+                    "violation_count": isolated,
+                    "critical_count": 0,
+                    "warning_count": isolated,
+                    "clean": isolated == 0,
+                    "scan_duration_ms": getattr(snap, "scan_duration_ms", 0.0),
+                    "narrative": (
+                        f"Repository scan: {files} modules, {edges} import edges, "
+                        f"{isolated} isolated modules"
+                    ),
+                    "ts_ns": ts_ns,
+                },
+            )
         except Exception:
             pass
 
@@ -543,21 +584,25 @@ class DyonEngineeringRuntime:
             isolated = sum(1 for d in detected if getattr(d, "classification", "") == "ISOLATED")
             stubs = sum(1 for d in detected if getattr(d, "classification", "") == "STUB")
             from state.event_bus import CognitiveChannel, get_event_bus
-            get_event_bus().publish(CognitiveChannel.DYON_SCAN_COMPLETE, {
-                "source": "dead_code_detector",
-                "scan_count": 0,
-                "files_scanned": len(detected),
-                "violation_count": orphans + isolated,
-                "critical_count": 0,
-                "warning_count": orphans + isolated,
-                "clean": (orphans + isolated) == 0,
-                "scan_duration_ms": 0.0,
-                "narrative": (
-                    f"Dead code scan: {orphans} orphaned, {isolated} isolated, "
-                    f"{stubs} stub modules detected"
-                ),
-                "ts_ns": ts_ns,
-            })
+
+            get_event_bus().publish(
+                CognitiveChannel.DYON_SCAN_COMPLETE,
+                {
+                    "source": "dead_code_detector",
+                    "scan_count": 0,
+                    "files_scanned": len(detected),
+                    "violation_count": orphans + isolated,
+                    "critical_count": 0,
+                    "warning_count": orphans + isolated,
+                    "clean": (orphans + isolated) == 0,
+                    "scan_duration_ms": 0.0,
+                    "narrative": (
+                        f"Dead code scan: {orphans} orphaned, {isolated} isolated, "
+                        f"{stubs} stub modules detected"
+                    ),
+                    "ts_ns": ts_ns,
+                },
+            )
         except Exception:
             pass
 
@@ -566,21 +611,25 @@ class DyonEngineeringRuntime:
             cycles = getattr(snap, "cycles", [])
             b1 = getattr(snap, "b1_violations", [])
             from state.event_bus import CognitiveChannel, get_event_bus
-            get_event_bus().publish(CognitiveChannel.DYON_SCAN_COMPLETE, {
-                "source": "dependency_graph",
-                "scan_count": 0,
-                "files_scanned": getattr(snap, "total_modules", 0),
-                "violation_count": len(b1),
-                "critical_count": len(b1),
-                "warning_count": len(cycles),
-                "clean": len(b1) == 0 and len(cycles) == 0,
-                "scan_duration_ms": getattr(snap, "scan_duration_ms", 0.0),
-                "narrative": (
-                    f"Dependency graph: {len(cycles)} import cycles, "
-                    f"{len(b1)} B1 boundary violations detected"
-                ),
-                "ts_ns": ts_ns,
-            })
+
+            get_event_bus().publish(
+                CognitiveChannel.DYON_SCAN_COMPLETE,
+                {
+                    "source": "dependency_graph",
+                    "scan_count": 0,
+                    "files_scanned": getattr(snap, "total_modules", 0),
+                    "violation_count": len(b1),
+                    "critical_count": len(b1),
+                    "warning_count": len(cycles),
+                    "clean": len(b1) == 0 and len(cycles) == 0,
+                    "scan_duration_ms": getattr(snap, "scan_duration_ms", 0.0),
+                    "narrative": (
+                        f"Dependency graph: {len(cycles)} import cycles, "
+                        f"{len(b1)} B1 boundary violations detected"
+                    ),
+                    "ts_ns": ts_ns,
+                },
+            )
         except Exception:
             pass
 
@@ -590,49 +639,58 @@ class DyonEngineeringRuntime:
             uncovered = getattr(snap, "uncovered", 0)
             pct = getattr(snap, "coverage_pct", 0.0)
             from state.event_bus import CognitiveChannel, get_event_bus
-            get_event_bus().publish(CognitiveChannel.DYON_SCAN_COMPLETE, {
-                "source": "test_coverage_tracker",
-                "scan_count": 0,
-                "files_scanned": getattr(snap, "total_modules", 0),
-                "violation_count": uncovered,
-                "critical_count": 0,
-                "warning_count": uncovered,
-                "clean": uncovered == 0,
-                "scan_duration_ms": getattr(snap, "scan_duration_ms", 0.0),
-                "narrative": (
-                    f"Test coverage: {covered} covered, {uncovered} uncovered "
-                    f"({pct:.1f}% effective coverage)"
-                ),
-                "ts_ns": ts_ns,
-            })
+
+            get_event_bus().publish(
+                CognitiveChannel.DYON_SCAN_COMPLETE,
+                {
+                    "source": "test_coverage_tracker",
+                    "scan_count": 0,
+                    "files_scanned": getattr(snap, "total_modules", 0),
+                    "violation_count": uncovered,
+                    "critical_count": 0,
+                    "warning_count": uncovered,
+                    "clean": uncovered == 0,
+                    "scan_duration_ms": getattr(snap, "scan_duration_ms", 0.0),
+                    "narrative": (
+                        f"Test coverage: {covered} covered, {uncovered} uncovered "
+                        f"({pct:.1f}% effective coverage)"
+                    ),
+                    "ts_ns": ts_ns,
+                },
+            )
         except Exception:
             pass
 
     def _emit_report_narrative(self, report: EvolutionReport, ts_ns: int) -> None:
         try:
             from state.event_bus import CognitiveChannel, get_event_bus
-            get_event_bus().publish(CognitiveChannel.DYON_SCAN_COMPLETE, {
-                "source": "evolution_report",
-                "scan_count": report.scan_count_this_period,
-                "files_scanned": 0,
-                "violation_count": report.violations_detected,
-                "critical_count": 0,
-                "warning_count": report.violations_detected,
-                "clean": report.violations_detected == 0,
-                "scan_duration_ms": 0.0,
-                "narrative": (
-                    f"Evolution report [{report.report_id}]: grade {report.architecture_grade}, "
-                    f"health {report.health_score:.0f}/100, trend {report.drift_trend}, "
-                    f"{report.patches_proposed} patches, {report.patches_promoted} promoted"
-                ),
-                "ts_ns": ts_ns,
-            })
+
+            get_event_bus().publish(
+                CognitiveChannel.DYON_SCAN_COMPLETE,
+                {
+                    "source": "evolution_report",
+                    "scan_count": report.scan_count_this_period,
+                    "files_scanned": 0,
+                    "violation_count": report.violations_detected,
+                    "critical_count": 0,
+                    "warning_count": report.violations_detected,
+                    "clean": report.violations_detected == 0,
+                    "scan_duration_ms": 0.0,
+                    "narrative": (
+                        f"Evolution report [{report.report_id}]: grade {report.architecture_grade}, "
+                        f"health {report.health_score:.0f}/100, trend {report.drift_trend}, "
+                        f"{report.patches_proposed} patches, {report.patches_promoted} promoted"
+                    ),
+                    "ts_ns": ts_ns,
+                },
+            )
         except Exception:
             pass
 
     def _last_ts_ns(self) -> int:
         try:
             from system_unified.time_source import wall_ns
+
             return wall_ns()
         except Exception:
             return 0

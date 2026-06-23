@@ -18,17 +18,18 @@ from dataclasses import dataclass
 from typing import Any
 
 _REGIME_MULTIPLIERS: dict[str, float] = {
-    "TREND_UP":   1.2,
+    "TREND_UP": 1.2,
     "TREND_DOWN": 1.2,
-    "RANGE":      0.8,
-    "VOL_SPIKE":  0.4,
-    "UNKNOWN":    1.0,
+    "RANGE": 0.8,
+    "VOL_SPIKE": 0.4,
+    "UNKNOWN": 1.0,
 }
 
 
 @dataclass(frozen=True, slots=True)
 class AllocationRequest:
     """Capital allocation request from a strategy."""
+
     strategy_id: str
     regime: str
     requested_usd: float
@@ -38,6 +39,7 @@ class AllocationRequest:
 @dataclass(frozen=True, slots=True)
 class AllocationDecision:
     """Resolved capital allocation for a strategy."""
+
     strategy_id: str
     allocated_usd: float
     allocation_fraction: float

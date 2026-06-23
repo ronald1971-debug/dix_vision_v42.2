@@ -23,15 +23,17 @@ _DEFAULT_WINDOW = 1000
 @dataclass(frozen=True, slots=True)
 class LatencySample:
     """A single latency observation."""
-    source: str          # exchange id or adapter id
+
+    source: str  # exchange id or adapter id
     symbol: str
-    latency_ns: int      # processing_ts_ns - exchange_ts_ns
-    ts_ns: int           # when this sample was recorded
+    latency_ns: int  # processing_ts_ns - exchange_ts_ns
+    ts_ns: int  # when this sample was recorded
 
 
 @dataclass(frozen=True, slots=True)
 class LatencyStats:
     """Rolling latency statistics snapshot."""
+
     source: str
     sample_count: int
     min_ns: int

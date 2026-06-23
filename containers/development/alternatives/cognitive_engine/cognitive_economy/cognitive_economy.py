@@ -31,8 +31,9 @@ class CognitiveEconomy:
         self._lock = threading.Lock()
         self._allocations: list[ResourceAllocation] = []
 
-    def allocate(self, resource_type: str, target: str,
-                 expected_gain: float, budget: float = 1.0) -> ResourceAllocation:
+    def allocate(
+        self, resource_type: str, target: str, expected_gain: float, budget: float = 1.0
+    ) -> ResourceAllocation:
         alloc = ResourceAllocation(
             resource_type=resource_type,
             target=target,
@@ -60,6 +61,7 @@ class CognitiveEconomy:
 def _now_ns() -> int:
     try:
         from system.time_source import wall_ns
+
         return wall_ns()
     except Exception:
         return int(_time.time() * 1e9)

@@ -28,14 +28,15 @@ class CritiqueVerdict(StrEnum):
 
 
 class CritiqueSeverity(StrEnum):
-    BLOCKING = "BLOCKING"    # must pass for patch to proceed
-    WARNING = "WARNING"      # reported but does not block
+    BLOCKING = "BLOCKING"  # must pass for patch to proceed
+    WARNING = "WARNING"  # reported but does not block
     INFO = "INFO"
 
 
 @dataclass(frozen=True, slots=True)
 class CritiqueCheck:
     """A single critique check definition."""
+
     check_id: str
     name: str
     severity: CritiqueSeverity
@@ -45,6 +46,7 @@ class CritiqueCheck:
 @dataclass(frozen=True, slots=True)
 class CritiqueResult:
     """Result of applying one check to one patch."""
+
     check_id: str
     verdict: CritiqueVerdict
     message: str
@@ -54,11 +56,12 @@ class CritiqueResult:
 @dataclass(frozen=True, slots=True)
 class CritiqueReport:
     """Aggregated critique report for one patch version."""
+
     report_id: str
     patch_id: str
     iteration: int
     results: tuple[CritiqueResult, ...]
-    blocked: bool           # True if any BLOCKING check FAILed
+    blocked: bool  # True if any BLOCKING check FAILed
     ts_ns: int
 
     @property
@@ -121,23 +124,27 @@ class CritiqueLoop:
                 verdict = fn(patch_id, patch_data)
             except Exception as exc:
                 verdict = CritiqueVerdict.FAIL
-                results.append(CritiqueResult(
-                    check_id=check.check_id,
-                    verdict=CritiqueVerdict.FAIL,
-                    message=f"check_exception: {exc}",
-                    ts_ns=ts_ns,
-                ))
+                results.append(
+                    CritiqueResult(
+                        check_id=check.check_id,
+                        verdict=CritiqueVerdict.FAIL,
+                        message=f"check_exception: {exc}",
+                        ts_ns=ts_ns,
+                    )
+                )
                 if check.severity == CritiqueSeverity.BLOCKING:
                     blocked = True
                 continue
 
             msg = verdict.value
-            results.append(CritiqueResult(
-                check_id=check.check_id,
-                verdict=verdict,
-                message=msg,
-                ts_ns=ts_ns,
-            ))
+            results.append(
+                CritiqueResult(
+                    check_id=check.check_id,
+                    verdict=verdict,
+                    message=msg,
+                    ts_ns=ts_ns,
+                )
+            )
             if verdict == CritiqueVerdict.FAIL and check.severity == CritiqueSeverity.BLOCKING:
                 blocked = True
 

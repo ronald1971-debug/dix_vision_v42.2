@@ -4,11 +4,11 @@ Core execution capabilities
 """
 
 from .semi_auto import (
-    SemiAutoState,
-    SemiAutoRequest,
     SemiAutoDecision,
     SemiAutoExecutor,
-    get_semi_auto_executor
+    SemiAutoRequest,
+    SemiAutoState,
+    get_semi_auto_executor,
 )
 
 __all__ = [
@@ -16,5 +16,5 @@ __all__ = [
     "SemiAutoRequest",
     "SemiAutoDecision",
     "SemiAutoExecutor",
-    "get_semi_auto_executor"
+    "get_semi_auto_executor",
 ]

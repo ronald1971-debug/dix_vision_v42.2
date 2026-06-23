@@ -2,11 +2,14 @@
 
 from typing import Any
 
+
 class ParameterBounds:
     """Stub parameter bounds."""
 
+
 class FeedbackSample:
     """Stub feedback sample."""
+
 
 class SlowLoopLearner:
     """Stub slow loop learner."""

@@ -30,18 +30,18 @@ _logger = logging.getLogger(__name__)
 
 _DEFAULT_DB = Path("data") / "execution_audit.db"
 
-FILL_FREQ_MAX_PER_MIN: int = 120        # fills per symbol per minute
-NOTIONAL_ANOMALY_USD: float = 500_000.0 # single fill notional threshold
-BURST_MAX_FILLS: int = 50               # total fills in any 60-second window
+FILL_FREQ_MAX_PER_MIN: int = 120  # fills per symbol per minute
+NOTIONAL_ANOMALY_USD: float = 500_000.0  # single fill notional threshold
+BURST_MAX_FILLS: int = 50  # total fills in any 60-second window
 
 _NS_PER_MIN: int = 60_000_000_000
 
 
 class AuditOutcome(StrEnum):
-    FILLED   = "FILLED"
+    FILLED = "FILLED"
     REJECTED = "REJECTED"
-    BLOCKED  = "BLOCKED"   # gate blocked
-    PARTIAL  = "PARTIAL"
+    BLOCKED = "BLOCKED"  # gate blocked
+    PARTIAL = "PARTIAL"
 
 
 @dataclass(frozen=True, slots=True)
@@ -50,7 +50,7 @@ class ExecutionDecision:
 
     decision_id: str
     symbol: str
-    side: str           # BUY | SELL
+    side: str  # BUY | SELL
     quantity: float
     price: float
     notional_usd: float
@@ -108,8 +108,7 @@ class ExecutionAuditor:
 
     def _init_db(self) -> None:
         with self._connect() as conn:
-            conn.execute(
-                """CREATE TABLE IF NOT EXISTS execution_decisions (
+            conn.execute("""CREATE TABLE IF NOT EXISTS execution_decisions (
                     id            INTEGER PRIMARY KEY AUTOINCREMENT,
                     decision_id   TEXT NOT NULL,
                     symbol        TEXT NOT NULL,
@@ -122,16 +121,12 @@ class ExecutionAuditor:
                     venue         TEXT NOT NULL,
                     reason        TEXT NOT NULL,
                     ts_ns         INTEGER NOT NULL
-                )"""
-            )
+                )""")
             conn.execute(
                 "CREATE INDEX IF NOT EXISTS idx_exec_symbol_ts "
                 "ON execution_decisions(symbol, ts_ns)"
             )
-            conn.execute(
-                "CREATE INDEX IF NOT EXISTS idx_exec_ts "
-                "ON execution_decisions(ts_ns)"
-            )
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_exec_ts " "ON execution_decisions(ts_ns)")
             conn.execute("PRAGMA journal_mode=WAL")
             conn.commit()
 
@@ -254,40 +249,46 @@ class ExecutionAuditor:
             # FREQ-ANOMALY: per-symbol fills in last minute
             recent_sym = [t for t in self._symbol_fills[symbol] if t >= window_start]
             if len(recent_sym) > FILL_FREQ_MAX_PER_MIN:
-                anomalies.append(AnomalyReport(
-                    kind="FREQ-ANOMALY",
-                    symbol=symbol,
-                    detail=(
-                        f"{len(recent_sym)} fills/{symbol} in last 60s "
-                        f"exceeds limit={FILL_FREQ_MAX_PER_MIN}"
-                    ),
-                    ts_ns=ts,
-                ))
+                anomalies.append(
+                    AnomalyReport(
+                        kind="FREQ-ANOMALY",
+                        symbol=symbol,
+                        detail=(
+                            f"{len(recent_sym)} fills/{symbol} in last 60s "
+                            f"exceeds limit={FILL_FREQ_MAX_PER_MIN}"
+                        ),
+                        ts_ns=ts,
+                    )
+                )
 
             # BURST-ANOMALY: total fills across all symbols in last minute
             recent_burst = [t for t in self._burst_window if t >= window_start]
             if len(recent_burst) > BURST_MAX_FILLS:
-                anomalies.append(AnomalyReport(
-                    kind="BURST-ANOMALY",
-                    symbol=symbol,
-                    detail=(
-                        f"{len(recent_burst)} total fills in last 60s "
-                        f"exceeds burst limit={BURST_MAX_FILLS}"
-                    ),
-                    ts_ns=ts,
-                ))
+                anomalies.append(
+                    AnomalyReport(
+                        kind="BURST-ANOMALY",
+                        symbol=symbol,
+                        detail=(
+                            f"{len(recent_burst)} total fills in last 60s "
+                            f"exceeds burst limit={BURST_MAX_FILLS}"
+                        ),
+                        ts_ns=ts,
+                    )
+                )
 
         # SIZE-ANOMALY: check notional (no lock needed — immutable decision)
         if decision.notional_usd > NOTIONAL_ANOMALY_USD:
-            anomalies.append(AnomalyReport(
-                kind="SIZE-ANOMALY",
-                symbol=symbol,
-                detail=(
-                    f"notional_usd={decision.notional_usd:,.0f} "
-                    f"exceeds threshold={NOTIONAL_ANOMALY_USD:,.0f}"
-                ),
-                ts_ns=ts,
-            ))
+            anomalies.append(
+                AnomalyReport(
+                    kind="SIZE-ANOMALY",
+                    symbol=symbol,
+                    detail=(
+                        f"notional_usd={decision.notional_usd:,.0f} "
+                        f"exceeds threshold={NOTIONAL_ANOMALY_USD:,.0f}"
+                    ),
+                    ts_ns=ts,
+                )
+            )
 
         return anomalies
 
@@ -304,10 +305,17 @@ class ExecutionAuditor:
                     "outcome,source_engine,venue,reason,ts_ns)"
                     " VALUES(?,?,?,?,?,?,?,?,?,?,?)",
                     (
-                        decision.decision_id, decision.symbol, decision.side,
-                        decision.quantity, decision.price, decision.notional_usd,
-                        decision.outcome.value, decision.source_engine,
-                        decision.venue, decision.reason, decision.ts_ns,
+                        decision.decision_id,
+                        decision.symbol,
+                        decision.side,
+                        decision.quantity,
+                        decision.price,
+                        decision.notional_usd,
+                        decision.outcome.value,
+                        decision.source_engine,
+                        decision.venue,
+                        decision.reason,
+                        decision.ts_ns,
                     ),
                 )
                 conn.commit()
@@ -318,18 +326,23 @@ class ExecutionAuditor:
     def _emit_anomaly(anomaly: AnomalyReport) -> None:
         try:
             from state.event_bus import CognitiveChannel, get_event_bus
-            get_event_bus().publish(CognitiveChannel.DYON_VIOLATION, {
-                "source": "execution_auditor",
-                "hazard": anomaly.kind,
-                "symbol": anomaly.symbol,
-                "detail": anomaly.detail,
-                "severity": "WARNING",
-                "ts_ns": anomaly.ts_ns,
-            })
+
+            get_event_bus().publish(
+                CognitiveChannel.DYON_VIOLATION,
+                {
+                    "source": "execution_auditor",
+                    "hazard": anomaly.kind,
+                    "symbol": anomaly.symbol,
+                    "detail": anomaly.detail,
+                    "severity": "WARNING",
+                    "ts_ns": anomaly.ts_ns,
+                },
+            )
         except Exception:
             pass
         try:
             from state.ledger.append import append_event
+
             append_event(
                 stream="GOVERNANCE",
                 kind="EXECUTION_ANOMALY",
@@ -349,19 +362,20 @@ class ExecutionAuditor:
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _row_to_dict(row: tuple) -> dict[str, Any]:
     return {
-        "decision_id":   row[0],
-        "symbol":        row[1],
-        "side":          row[2],
-        "quantity":      row[3],
-        "price":         row[4],
-        "notional_usd":  row[5],
-        "outcome":       row[6],
+        "decision_id": row[0],
+        "symbol": row[1],
+        "side": row[2],
+        "quantity": row[3],
+        "price": row[4],
+        "notional_usd": row[5],
+        "outcome": row[6],
         "source_engine": row[7],
-        "venue":         row[8],
-        "reason":        row[9],
-        "ts_ns":         row[10],
+        "venue": row[8],
+        "reason": row[9],
+        "ts_ns": row[10],
     }
 
 

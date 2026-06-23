@@ -16,6 +16,7 @@ from runtime.observability import ObservabilityHub
 @dataclass
 class DashboardState:
     """Serializable dashboard state for the frontend."""
+
     connected: bool = False
     last_sync: float = 0.0
     belief_count: int = 0

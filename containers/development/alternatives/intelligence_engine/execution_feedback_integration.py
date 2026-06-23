@@ -306,8 +306,8 @@ class ExecutionFeedbackIntegrator:
         Returns:
             Aggregated feedback or None if no data
         """
-        import time
         import secrets
+        import time
         
         if window_ms is None:
             window_ms = self._config.feedback_aggregation_window_ms

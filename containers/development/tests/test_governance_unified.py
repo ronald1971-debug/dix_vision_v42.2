@@ -1,27 +1,27 @@
 """Tests for the unified governance system consolidation."""
 
+import os
+import sys
 import unittest
 import warnings
-import sys
-import os
 
 # Add paths to imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 # Import the unified governance system
 from governance_unified import (
-    UnifiedGovernanceKernel,
-    get_unified_governance_kernel,
-    GovernanceRequest,
+    AuthorityDecision,
+    AuthorityRequest,
     GovernanceDecision,
     GovernanceOutcome,
-    AuthorityRequest,
-    AuthorityDecision,
+    GovernanceRequest,
+    IntentType,
     ModeTransitionRequest,
     ModeTransitionResult,
     RiskAssessment,
     SystemMode,
-    IntentType,
+    UnifiedGovernanceKernel,
+    get_unified_governance_kernel,
 )
 
 
@@ -135,11 +135,11 @@ class TestUnifiedGovernanceSystem(unittest.TestCase):
         # Suppress deprecation warnings for this test
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", DeprecationWarning)
-            
+
             try:
                 # This should work due to backward compatibility
                 from governance import get_governance_kernel
-                
+
                 # The returned kernel should be the unified one
                 legacy_kernel = get_governance_kernel()
                 self.assertIsInstance(legacy_kernel, UnifiedGovernanceKernel)
@@ -151,10 +151,10 @@ class TestUnifiedGovernanceSystem(unittest.TestCase):
         """Test backward compatibility with old governance_engine imports."""
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", DeprecationWarning)
-            
+
             try:
                 from governance_engine import GovernanceEngine
-                
+
                 # The returned engine should be the unified kernel
                 engine = GovernanceEngine()
                 self.assertIsInstance(engine, UnifiedGovernanceKernel)
@@ -210,15 +210,15 @@ def run_tests():
     result = runner.run(suite)
 
     # Print summary
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("UNIFIED GOVERNANCE SYSTEM TEST SUMMARY")
-    print("="*70)
+    print("=" * 70)
     print(f"Tests run: {result.testsRun}")
     print(f"Successes: {result.testsRun - len(result.failures) - len(result.errors)}")
     print(f"Failures: {len(result.failures)}")
     print(f"Errors: {len(result.errors)}")
     print(f"Skipped: {len(result.skipped)}")
-    print("="*70)
+    print("=" * 70)
 
     return result.wasSuccessful()
 

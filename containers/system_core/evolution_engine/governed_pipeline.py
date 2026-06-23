@@ -52,12 +52,12 @@ class PipelineRecord:
     ts_ns_created: int
     description: str
     source_module: str
-    mutation_class: str              # CLASS_A | CLASS_B | CLASS_C
+    mutation_class: str  # CLASS_A | CLASS_B | CLASS_C
 
     stage: PipelineStage = PipelineStage.PROPOSED
-    sandbox_outcome: str = ""        # PASS | FAIL | SKIP
-    benchmark_delta: float = 0.0    # improvement vs baseline
-    governance_verdict: str = ""     # APPROVED | DENIED | DEFERRED
+    sandbox_outcome: str = ""  # PASS | FAIL | SKIP
+    benchmark_delta: float = 0.0  # improvement vs baseline
+    governance_verdict: str = ""  # APPROVED | DENIED | DEFERRED
     audit_digest: str = ""
     stage_log: list[dict[str, Any]] = field(default_factory=list)
     ts_ns_updated: int = 0
@@ -65,11 +65,13 @@ class PipelineRecord:
     def log_stage(self, stage: PipelineStage, note: str, ts_ns: int) -> None:
         self.stage = stage
         self.ts_ns_updated = ts_ns
-        self.stage_log.append({
-            "stage": stage.value,
-            "note": note,
-            "ts_ns": ts_ns,
-        })
+        self.stage_log.append(
+            {
+                "stage": stage.value,
+                "note": note,
+                "ts_ns": ts_ns,
+            }
+        )
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -134,7 +136,8 @@ class GovernedEvolutionPipeline:
             if len(self._records) >= self._max_active:
                 _logger.debug(
                     "GovernedEvolutionPipeline: capacity full (%d), drop %s",
-                    self._max_active, proposal_id,
+                    self._max_active,
+                    proposal_id,
                 )
                 return False
             record = PipelineRecord(
@@ -205,7 +208,8 @@ class GovernedEvolutionPipeline:
         with self._lock:
             record = self._records.get(proposal_id)
             if record is None or record.stage not in (
-                PipelineStage.PROMOTED, PipelineStage.MONITORING
+                PipelineStage.PROMOTED,
+                PipelineStage.MONITORING,
             ):
                 return False
             record.log_stage(PipelineStage.ROLLED_BACK, reason, ts_ns)
@@ -234,7 +238,7 @@ class GovernedEvolutionPipeline:
             "total_proposals": len(all_records),
             "stage_counts": stage_counts,
             "active": active,
-            "proposals": active,        # alias for dashboard compatibility
+            "proposals": active,  # alias for dashboard compatibility
             "recently_completed": completed,
         }
 
@@ -285,6 +289,7 @@ class GovernedEvolutionPipeline:
         outcome = "PASS"
         try:
             from evolution_engine.patch_pipeline.sandbox import PatchSandbox
+
             sb = PatchSandbox()
             result = sb.run(record.proposal_id, record.description)
             outcome = "PASS" if result else "FAIL"
@@ -302,6 +307,7 @@ class GovernedEvolutionPipeline:
         delta = 0.0
         try:
             from evolution_engine.patch_pipeline.backtest import BacktestStage
+
             stage = BacktestStage()
             delta = stage.delta_vs_baseline(record.proposal_id) or 0.0
         except Exception:
@@ -356,6 +362,7 @@ class GovernedEvolutionPipeline:
         """Promote to strategy registry (best-effort)."""
         try:
             import importlib
+
             mod = importlib.import_module("governance_engine.strategy_registry")
             reg = mod.get_strategy_registry()
             if hasattr(reg, "promote"):
@@ -367,6 +374,7 @@ class GovernedEvolutionPipeline:
     def _compute_audit_digest(record: PipelineRecord, ts_ns: int) -> str:
         import hashlib
         import json
+
         doc = {
             "proposal_id": record.proposal_id,
             "mutation_class": record.mutation_class,
@@ -384,6 +392,7 @@ class GovernedEvolutionPipeline:
         """Persist the audit record to the ledger."""
         try:
             from state.ledger.append import append_event
+
             append_event(
                 stream="SYSTEM",
                 kind="EVOLUTION_AUDIT",
@@ -403,34 +412,37 @@ class GovernedEvolutionPipeline:
 
     # Maps governed pipeline stages to (RepairStage, RepairOutcome) for SSE stream
     _STAGE_TO_REPAIR: dict[str, tuple[str, str]] = {
-        PipelineStage.SANDBOX:      ("SIMULATION",  "IN_PROGRESS"),
-        PipelineStage.BENCHMARK:    ("VALIDATION",  "IN_PROGRESS"),
-        PipelineStage.GOV_REVIEW:   ("VALIDATION",  "IN_PROGRESS"),
-        PipelineStage.PROMOTED:     ("DEPLOYMENT",  "SUCCESS"),
-        PipelineStage.MONITORING:   ("DEPLOYMENT",  "IN_PROGRESS"),
-        PipelineStage.ROLLED_BACK:  ("ROLLBACK",    "ROLLED_BACK"),
-        PipelineStage.AUDITED:      ("DEPLOYMENT",  "SUCCESS"),
-        PipelineStage.REJECTED:     ("ROLLBACK",    "FAILED"),
+        PipelineStage.SANDBOX: ("SIMULATION", "IN_PROGRESS"),
+        PipelineStage.BENCHMARK: ("VALIDATION", "IN_PROGRESS"),
+        PipelineStage.GOV_REVIEW: ("VALIDATION", "IN_PROGRESS"),
+        PipelineStage.PROMOTED: ("DEPLOYMENT", "SUCCESS"),
+        PipelineStage.MONITORING: ("DEPLOYMENT", "IN_PROGRESS"),
+        PipelineStage.ROLLED_BACK: ("ROLLBACK", "ROLLED_BACK"),
+        PipelineStage.AUDITED: ("DEPLOYMENT", "SUCCESS"),
+        PipelineStage.REJECTED: ("ROLLBACK", "FAILED"),
     }
 
-    def _emit_transition(
-        self, proposal_id: str, stage: PipelineStage, ts_ns: int
-    ) -> None:
+    def _emit_transition(self, proposal_id: str, stage: PipelineStage, ts_ns: int) -> None:
         """Publish stage transition to DYON event bus channel and SSE stream."""
         try:
             from state.event_bus import CognitiveChannel, get_event_bus
-            get_event_bus().publish(CognitiveChannel.DYON_PROPOSAL, {
-                "proposal_id": proposal_id,
-                "pipeline_stage": stage.value,
-                "governed_pipeline": True,
-                "ts_ns": ts_ns,
-            })
+
+            get_event_bus().publish(
+                CognitiveChannel.DYON_PROPOSAL,
+                {
+                    "proposal_id": proposal_id,
+                    "pipeline_stage": stage.value,
+                    "governed_pipeline": True,
+                    "ts_ns": ts_ns,
+                },
+            )
         except Exception:
             pass
         try:
             from evolution_engine.charter.dyon_observability_emitter import (
                 emit_patch_proposal,
             )
+
             emit_patch_proposal(
                 ts_ns=ts_ns,
                 proposal_id=proposal_id,
@@ -451,14 +463,13 @@ class GovernedEvolutionPipeline:
                 from evolution_engine.charter.dyon_observability_emitter import (
                     emit_repair_pipeline,
                 )
+
                 emit_repair_pipeline(
                     ts_ns=ts_ns,
                     pipeline_id=f"gp-{proposal_id[:24]}",
                     stage=repair_stage,
                     target="governed_pipeline",
-                    description=(
-                        f"Proposal {proposal_id}: {stage.value}"
-                    ),
+                    description=(f"Proposal {proposal_id}: {stage.value}"),
                     outcome=repair_outcome,
                     patch_proposal_id=proposal_id,
                 )

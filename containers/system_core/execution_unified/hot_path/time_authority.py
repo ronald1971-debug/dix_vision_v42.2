@@ -60,6 +60,7 @@ class TimeAuthority:
         if ts is not None:
             return ts
         import time  # noqa: PLC0415 — lazy: keeps module-level import-free for INV-15
+
         return time.monotonic_ns()
 
     def wall_ns(self) -> int:  # noqa: PLR6301 — declared non-deterministic
@@ -69,6 +70,7 @@ class TimeAuthority:
         metrics — never for hot-path logic (INV-58 / B-CLOCK).
         """
         import time  # noqa: PLC0415
+
         return time.time_ns()
 
     # ------------------------------------------------------------------
@@ -83,7 +85,9 @@ class TimeAuthority:
                    Pass ``None`` to exit replay mode and resume live clock.
         """
         if ts_ns is not None and not isinstance(ts_ns, int):
-            raise TypeError(f"TimeAuthority.set_replay_ts: ts_ns must be int | None, got {type(ts_ns).__name__}")
+            raise TypeError(
+                f"TimeAuthority.set_replay_ts: ts_ns must be int | None, got {type(ts_ns).__name__}"
+            )
         if isinstance(ts_ns, int) and ts_ns < 0:
             raise ValueError(f"TimeAuthority.set_replay_ts: ts_ns must be >= 0, got {ts_ns!r}")
         with self._lock:

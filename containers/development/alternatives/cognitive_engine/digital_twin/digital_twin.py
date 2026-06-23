@@ -64,6 +64,7 @@ class CognitiveDigitalTwin:
 def _now_ns() -> int:
     try:
         from system.time_source import wall_ns
+
         return wall_ns()
     except Exception:
         return int(_time.time() * 1e9)

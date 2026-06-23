@@ -8,8 +8,8 @@ unsupervised learning, reinforcement learning, and adaptive learning.
 
 from learning_engine.orchestrator import (
     LearningOperation,
-    ModelState,
     LearningOrchestrator,
+    ModelState,
     get_learning_orchestrator,
 )
 

@@ -6,24 +6,18 @@ This module provides REST API endpoints for the Agent Operations Center, allowin
 the Dashboard2026 frontend to access real-time agent observability data.
 """
 
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
-from typing import Optional, List, Dict, Any
 from datetime import datetime
+from typing import Any, Dict, List, Optional
 
-from cognitive_control_center.core.operating_environment import (
-    get_cognitive_environment,
-    CognitiveEntityType,
-    AgentActivity,
-    AgentAssignment,
-    AgentProject,
-    AgentMemory,
-)
 from cognitive_control_center.agent_operations_center.activity_feeds import (
     get_activity_feeds,
-    ActivityType,
 )
-
+from cognitive_control_center.core.operating_environment import (
+    CognitiveEntityType,
+    get_cognitive_environment,
+)
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
 
 router = APIRouter(prefix="/agent-ops", tags=["agent-operations"])
 
@@ -103,6 +97,7 @@ class EnvironmentStateResponse(BaseModel):
 
 # API Endpoints
 
+
 @router.get("/environment", response_model=EnvironmentStateResponse)
 async def get_environment_state():
     """Get current cognitive environment state."""
@@ -116,7 +111,7 @@ async def get_agent_activities():
     """Get all current agent activities for observability."""
     env = get_cognitive_environment()
     activities = env.get_agent_activities()
-    
+
     return [
         AgentActivityResponse(
             agent_type=activity.agent_type.value,
@@ -145,10 +140,10 @@ async def get_agent_activity(agent_id: str):
     """Get current activity for a specific agent."""
     env = get_cognitive_environment()
     activities = env.get_agent_activities()
-    
+
     if agent_id not in activities:
         return None
-    
+
     activity = activities[agent_id]
     return AgentActivityResponse(
         agent_type=activity.agent_type.value,
@@ -174,16 +169,16 @@ async def get_agent_activity(agent_id: str):
 async def get_agent_summaries():
     """Get summaries of all agent activities."""
     feeds = get_activity_feeds()
-    
+
     # Get all agent IDs from the environment
     env = get_cognitive_environment()
     activities = env.get_agent_activities()
-    
+
     summaries = []
     for agent_id in activities.keys():
         summary = feeds.get_agent_summary(agent_id)
         summaries.append(AgentSummaryResponse(**summary))
-    
+
     return summaries
 
 
@@ -192,7 +187,7 @@ async def get_indira_activity():
     """Get current INDIRA activity for observability."""
     env = get_cognitive_environment()
     activities = env.get_agent_activities()
-    
+
     # Find INDIRA agent
     for activity in activities.values():
         if activity.agent_type == CognitiveEntityType.INDIRA:
@@ -209,7 +204,7 @@ async def get_indira_activity():
                 current_trader_modeling=activity.current_trader_modeling,
                 current_strategy_work=activity.current_strategy_work,
             )
-    
+
     return None
 
 
@@ -218,7 +213,7 @@ async def get_dyon_activity():
     """Get current DYON activity for observability."""
     env = get_cognitive_environment()
     activities = env.get_agent_activities()
-    
+
     # Find DYON agent
     for activity in activities.values():
         if activity.agent_type == CognitiveEntityType.DYON:
@@ -237,7 +232,7 @@ async def get_dyon_activity():
                 current_build=activity.current_build,
                 current_testing=activity.current_testing,
             )
-    
+
     return None
 
 
@@ -245,16 +240,16 @@ async def get_dyon_activity():
 async def get_assignments(agent_type: Optional[str] = None):
     """Get all assignments, optionally filtered by agent type."""
     env = get_cognitive_environment()
-    
+
     agent_filter = None
     if agent_type:
         try:
             agent_filter = CognitiveEntityType(agent_type)
         except ValueError:
             raise HTTPException(status_code=400, detail=f"Invalid agent type: {agent_type}")
-    
+
     assignments = env.get_assignments(agent_filter)
-    
+
     return [
         AssignmentResponse(
             assignment_id=a.assignment_id,
@@ -275,16 +270,16 @@ async def get_assignments(agent_type: Optional[str] = None):
 async def get_projects(agent_type: Optional[str] = None):
     """Get all projects, optionally filtered by agent type."""
     env = get_cognitive_environment()
-    
+
     agent_filter = None
     if agent_type:
         try:
             agent_filter = CognitiveEntityType(agent_type)
         except ValueError:
             raise HTTPException(status_code=400, detail=f"Invalid agent type: {agent_type}")
-    
+
     projects = env.get_projects(agent_filter)
-    
+
     return [
         ProjectResponse(
             project_id=p.project_id,
@@ -305,7 +300,7 @@ async def get_task_queue():
     """Get current task queue."""
     env = get_cognitive_environment()
     queue = env.get_task_queue()
-    
+
     return [
         AssignmentResponse(
             assignment_id=a.assignment_id,
@@ -327,7 +322,7 @@ async def get_agent_memories(agent_id: Optional[str] = None, limit: int = 50):
     """Get agent memories, optionally filtered by agent ID."""
     env = get_cognitive_environment()
     memories = env.get_agent_memories(agent_id)
-    
+
     return [
         MemoryResponse(
             agent_id=m.agent_id,
@@ -345,7 +340,7 @@ async def get_agent_timeline(agent_id: Optional[str] = None, limit: int = 50):
     """Get agent timeline events."""
     env = get_cognitive_environment()
     events = env.get_agent_timeline(agent_id, limit)
-    
+
     return [
         {
             "entity_type": e.entity_type.value,
@@ -364,7 +359,7 @@ async def get_recent_activity(minutes: int = 5, limit: int = 50):
     """Get recent activity across all agents."""
     feeds = get_activity_feeds()
     recent = feeds.get_recent_activity(minutes=minutes, limit=limit)
-    
+
     return [
         {
             "agent_type": e.agent_type.value,

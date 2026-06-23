@@ -5,15 +5,16 @@ Contract-Compliant Real Implementation
 Real center communication infrastructure for Dashboard2026 cognitive command center
 """
 
-from typing import Dict, List, Optional, Any, Tuple, Callable
-from datetime import datetime, timedelta
-from dataclasses import dataclass, field
-from enum import Enum
-import logging
-import structlog
-from collections import defaultdict, deque
-import uuid
 import asyncio
+import logging
+import uuid
+from collections import defaultdict, deque
+from dataclasses import dataclass, field
+from datetime import datetime, timedelta
+from enum import Enum
+from typing import Any, Callable, Dict, List, Optional, Tuple
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 

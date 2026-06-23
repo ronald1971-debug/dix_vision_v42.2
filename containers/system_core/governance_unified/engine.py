@@ -44,6 +44,7 @@ from core.contracts.governance import (
     SystemMode,
 )
 from core.contracts.signal_trust import SignalTrust, default_cap_for
+
 from .control_plane import (
     ComplianceValidator,
     EventClassifier,
@@ -558,4 +559,3 @@ GovernanceKernel = RuntimeEngine
 
 
 # Import BeliefState for legacy support
-from governance_unified.belief_state import BeliefState

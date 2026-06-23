@@ -66,21 +66,13 @@ class AlmostTrade:
 
     def __post_init__(self) -> None:
         if not isinstance(self.trade_id, str) or not self.trade_id:
-            raise ValueError(
-                f"AlmostTrade.trade_id must be non-empty str, got {self.trade_id!r}"
-            )
+            raise ValueError(f"AlmostTrade.trade_id must be non-empty str, got {self.trade_id!r}")
         if not isinstance(self.ts_ns, int) or isinstance(self.ts_ns, bool):
-            raise ValueError(
-                f"AlmostTrade.ts_ns must be int, got {type(self.ts_ns).__name__}"
-            )
+            raise ValueError(f"AlmostTrade.ts_ns must be int, got {type(self.ts_ns).__name__}")
         if not isinstance(self.symbol, str) or not self.symbol:
-            raise ValueError(
-                f"AlmostTrade.symbol must be non-empty str, got {self.symbol!r}"
-            )
+            raise ValueError(f"AlmostTrade.symbol must be non-empty str, got {self.symbol!r}")
         if not isinstance(self.side, str) or not self.side:
-            raise ValueError(
-                f"AlmostTrade.side must be non-empty str, got {self.side!r}"
-            )
+            raise ValueError(f"AlmostTrade.side must be non-empty str, got {self.side!r}")
         if not isinstance(self.confidence, float):
             raise ValueError(
                 f"AlmostTrade.confidence must be float, got {type(self.confidence).__name__}"

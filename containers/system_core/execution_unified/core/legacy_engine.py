@@ -12,8 +12,6 @@ from __future__ import annotations
 import threading
 import time
 
-from execution_unified.core.hazard.async_bus import get_hazard_bus
-from system_unified.time_source import get_time_source
 from system.logger import get_logger
 from system.state import get_state_manager
 

@@ -38,14 +38,13 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-from fastapi import APIRouter
-
 from core.contracts.api.governance import (
     DriftResponse,
     HazardsResponse,
     PromotionGatesResponse,
     SourcesResponse,
 )
+from fastapi import APIRouter
 from governance_unified.control_plane.promotion_gates import (
     DEFAULT_PROMOTION_GATES_PATH,
     compute_file_hash,

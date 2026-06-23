@@ -13,8 +13,8 @@ from dataclasses import dataclass, field
 from core.contracts.engine import (
     HealthState,
     HealthStatus,
-    PluginLifecycle,
     MicrostructurePlugin,
+    PluginLifecycle,
 )
 from core.contracts.events import Side, SignalEvent
 from core.contracts.market import MarketTick
@@ -73,7 +73,9 @@ class LiquidityPhysicsV1(MicrostructurePlugin):
         else:
             return ()
 
-        confidence = min(1.0, abs(liquidity_ratio - 1.0) * self.volume_threshold / self.confidence_scale)
+        confidence = min(
+            1.0, abs(liquidity_ratio - 1.0) * self.volume_threshold / self.confidence_scale
+        )
         if confidence < self.min_confidence:
             return ()
 

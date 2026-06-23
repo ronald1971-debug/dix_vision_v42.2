@@ -5,7 +5,7 @@ This package contains post-trade and pre-trade analysis tools:
 - tca: Post-trade Transaction Cost Analysis
 """
 
-from .slippage import SlippageEstimate, estimate, worst_acceptable_price, min_acceptable_price
+from .slippage import SlippageEstimate, estimate, min_acceptable_price, worst_acceptable_price
 from .tca import Fill, TCAReport, analyze
 
 __all__ = [

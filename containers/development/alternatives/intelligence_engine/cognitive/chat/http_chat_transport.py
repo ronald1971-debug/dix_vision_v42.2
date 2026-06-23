@@ -53,13 +53,12 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
 
-from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, SystemMessage
-
 from core.cognitive_router import AIProvider
 from intelligence_engine.cognitive.chat.registry_driven_chat_model import (
     ChatTransport,
     TransientProviderError,
 )
+from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, SystemMessage
 
 __all__ = [
     "DEFAULT_TIMEOUT_S",
@@ -665,13 +664,15 @@ class LocalVLLMChatTransport:
     ENV_VAR = "VLLM_BASE_URL"
     DEFAULT_URL = "http://localhost:8000"
 
-    def __init__(self, *, timeout: float = DEFAULT_TIMEOUT_S,
-                 env: Mapping[str, str] | None = None) -> None:
+    def __init__(
+        self, *, timeout: float = DEFAULT_TIMEOUT_S, env: Mapping[str, str] | None = None
+    ) -> None:
         self._timeout = timeout
         self._env = env
 
-    def invoke(self, provider: AIProvider, messages: Sequence[BaseMessage],
-               /, **kwargs: Any) -> str:
+    def invoke(
+        self, provider: AIProvider, messages: Sequence[BaseMessage], /, **kwargs: Any
+    ) -> str:
         from intelligence_engine.cognitive.chat.vllm_transport import VLLMTransport
 
         env = self._env if self._env is not None else os.environ
@@ -679,13 +680,10 @@ class LocalVLLMChatTransport:
         model = kwargs.get("model", provider.model or "default")
         transport = VLLMTransport(base_url=base_url, timeout_s=int(self._timeout))
         if not transport.health():
-            raise TransientProviderError(
-                f"local_vllm: server not reachable at {base_url}"
-            )
+            raise TransientProviderError(f"local_vllm: server not reachable at {base_url}")
         resp = transport.chat(
             model=model,
-            messages=[{"role": _role_for(m), "content": _coerce_text(m.content)}
-                      for m in messages],
+            messages=[{"role": _role_for(m), "content": _coerce_text(m.content)} for m in messages],
             temperature=float(kwargs.get("temperature", 0.0)),
             max_tokens=int(kwargs.get("max_tokens", 1024)),
         )
@@ -704,13 +702,15 @@ class LocalLlamaChatTransport:
 
     ENV_VAR = "LLAMA_MODEL_PATH"
 
-    def __init__(self, *, timeout: float = DEFAULT_TIMEOUT_S,
-                 env: Mapping[str, str] | None = None) -> None:
+    def __init__(
+        self, *, timeout: float = DEFAULT_TIMEOUT_S, env: Mapping[str, str] | None = None
+    ) -> None:
         self._timeout = timeout
         self._env = env
 
-    def invoke(self, provider: AIProvider, messages: Sequence[BaseMessage],
-               /, **kwargs: Any) -> str:
+    def invoke(
+        self, provider: AIProvider, messages: Sequence[BaseMessage], /, **kwargs: Any
+    ) -> str:
         from intelligence_engine.cognitive.chat.llama_transport import LlamaTransport
 
         env = self._env if self._env is not None else os.environ
@@ -724,8 +724,7 @@ class LocalLlamaChatTransport:
             n_ctx=int(kwargs.get("n_ctx", 4096)),
         )
         resp = transport.chat(
-            messages=[{"role": _role_for(m), "content": _coerce_text(m.content)}
-                      for m in messages],
+            messages=[{"role": _role_for(m), "content": _coerce_text(m.content)} for m in messages],
             temperature=float(kwargs.get("temperature", 0.0)),
             max_tokens=int(kwargs.get("max_tokens", 1024)),
         )
@@ -745,13 +744,15 @@ class LocalTensorRTChatTransport:
     ENV_VAR = "TENSORRT_BASE_URL"
     DEFAULT_URL = "http://localhost:8001"
 
-    def __init__(self, *, timeout: float = DEFAULT_TIMEOUT_S,
-                 env: Mapping[str, str] | None = None) -> None:
+    def __init__(
+        self, *, timeout: float = DEFAULT_TIMEOUT_S, env: Mapping[str, str] | None = None
+    ) -> None:
         self._timeout = timeout
         self._env = env
 
-    def invoke(self, provider: AIProvider, messages: Sequence[BaseMessage],
-               /, **kwargs: Any) -> str:
+    def invoke(
+        self, provider: AIProvider, messages: Sequence[BaseMessage], /, **kwargs: Any
+    ) -> str:
         from intelligence_engine.cognitive.chat.tensorrt_transport import TensorRTTransport
 
         env = self._env if self._env is not None else os.environ
@@ -759,13 +760,10 @@ class LocalTensorRTChatTransport:
         model = kwargs.get("model", provider.model or "tensorrt-default")
         transport = TensorRTTransport(base_url=base_url, timeout_s=int(self._timeout))
         if not transport.health():
-            raise TransientProviderError(
-                f"local_tensorrt: server not reachable at {base_url}"
-            )
+            raise TransientProviderError(f"local_tensorrt: server not reachable at {base_url}")
         resp = transport.chat(
             model=model,
-            messages=[{"role": _role_for(m), "content": _coerce_text(m.content)}
-                      for m in messages],
+            messages=[{"role": _role_for(m), "content": _coerce_text(m.content)} for m in messages],
             temperature=float(kwargs.get("temperature", 0.0)),
             max_tokens=int(kwargs.get("max_tokens", 1024)),
         )

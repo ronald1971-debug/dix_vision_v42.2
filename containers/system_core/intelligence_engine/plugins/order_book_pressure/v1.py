@@ -12,8 +12,8 @@ from dataclasses import dataclass
 from core.contracts.engine import (
     HealthState,
     HealthStatus,
-    PluginLifecycle,
     MicrostructurePlugin,
+    PluginLifecycle,
 )
 from core.contracts.events import Side, SignalEvent
 from core.contracts.market import MarketTick
@@ -57,7 +57,7 @@ class OrderBookPressureV1(MicrostructurePlugin):
 
         # Calculate pressure based on last position relative to spread
         position = (tick.last - tick.bid) / (tick.ask - tick.bid)
-        
+
         if position > (0.5 + self.pressure_threshold / 2):
             side = Side.BUY
         elif position < (0.5 - self.pressure_threshold / 2):

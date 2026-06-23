@@ -23,6 +23,7 @@ from dataclasses import dataclass
 @dataclass(frozen=True, slots=True)
 class FailureRecord:
     """A single failure."""
+
     ts_ns: int
     failure_id: str
     category: str
@@ -140,6 +141,7 @@ class FailureTracker:
 def _now_ns() -> int:
     try:
         from system.time_source import wall_ns
+
         return wall_ns()
     except Exception:
         return int(_time.time() * 1e9)

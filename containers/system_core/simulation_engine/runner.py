@@ -9,8 +9,8 @@ import time
 from dataclasses import dataclass, field
 from typing import Any
 
-from governance_unified.engine_constraint_compiler import ConstraintCompiler
 from governance_unified.engine import GovernanceKernel
+from governance_unified.engine_constraint_compiler import ConstraintCompiler
 from mind.beliefs import BeliefSystem
 from mind.hypotheses import HypothesisEngine
 from mind.intent import IntentGenerator

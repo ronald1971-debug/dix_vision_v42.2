@@ -98,22 +98,20 @@ class TraderOntology:
 
     def get_relationships(self, trader_id: str) -> tuple[TraderRelationship, ...]:
         return tuple(
-            r for r in self._relationships
-            if r.source_id == trader_id or r.target_id == trader_id
+            r for r in self._relationships if r.source_id == trader_id or r.target_id == trader_id
         )
 
     def get_similar_traders(
         self, trader_id: str, threshold: float = 0.5
     ) -> tuple[TraderProfile, ...]:
         rels = [
-            r for r in self._relationships
+            r
+            for r in self._relationships
             if r.source_id == trader_id
             and r.relationship_type == RelationshipType.SIMILAR
             and r.strength >= threshold
         ]
-        return tuple(
-            self._profiles[r.target_id] for r in rels if r.target_id in self._profiles
-        )
+        return tuple(self._profiles[r.target_id] for r in rels if r.target_id in self._profiles)
 
     @property
     def profile_count(self) -> int:

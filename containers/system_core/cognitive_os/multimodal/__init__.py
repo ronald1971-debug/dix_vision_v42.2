@@ -1,19 +1,19 @@
 """Cross-Modal Understanding Module."""
 
 from .cross_modal_understanding import (
-    ModalityType,
-    FusionStrategy,
     AlignmentMethod,
-    ModalityFeature,
+    CrossModalAligner,
     CrossModalAlignment,
-    MultiModalEmbedding,
     CrossModalQuery,
     CrossModalResult,
-    FeatureExtractor,
-    CrossModalAligner,
-    MultiModalFuser,
     CrossModalRetriever,
     CrossModalUnderstandingEngine,
+    FeatureExtractor,
+    FusionStrategy,
+    ModalityFeature,
+    ModalityType,
+    MultiModalEmbedding,
+    MultiModalFuser,
     get_cross_modal_engine,
 )
 

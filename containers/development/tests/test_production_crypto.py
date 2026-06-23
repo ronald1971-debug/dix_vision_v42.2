@@ -1,20 +1,19 @@
 """Tests for Production-Grade Components."""
 
-import unittest
-import sys
 import os
+import sys
+import unittest
 
 # Add paths to imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from trust_root.production_crypto import (
-    ProductionHashGenerator,
-    ProductionSignatureOperations,
-    ProductionKeyDerivation,
-    ProductionEncryption,
-    ProductionTrustRoot,
-    get_production_trust_root,
     CRYPTOGRAPHY_AVAILABLE,
+    ProductionEncryption,
+    ProductionHashGenerator,
+    ProductionKeyDerivation,
+    ProductionSignatureOperations,
+    get_production_trust_root,
 )
 
 
@@ -32,7 +31,7 @@ class TestProductionCrypto(unittest.TestCase):
 
         self.assertIsInstance(hash_value, str)
         self.assertEqual(len(hash_value), 64)  # SHA-256 produces 64 hex characters
-        self.assertTrue(all(c in '0123456789abcdef' for c in hash_value))
+        self.assertTrue(all(c in "0123456789abcdef" for c in hash_value))
 
     def test_sha3_256_hash_generation(self):
         """Test real SHA3-256 hash generation."""
@@ -178,10 +177,7 @@ class TestProductionTrustRoot(unittest.TestCase):
     def test_register_trust_anchor(self):
         """Test registering production trust anchor."""
         anchor = self.trust_root.register_production_trust_anchor(
-            anchor_id="test_anchor_1",
-            purpose="signing",
-            key_type="RSA",
-            key_size=2048
+            anchor_id="test_anchor_1", purpose="signing", key_type="RSA", key_size=2048
         )
 
         self.assertIn("anchor_id", anchor)
@@ -195,9 +191,7 @@ class TestProductionTrustRoot(unittest.TestCase):
         data = b"test component data"
 
         foundation_hash = self.trust_root.create_production_foundation_hash(
-            component=component,
-            version=version,
-            data=data
+            component=component, version=version, data=data
         )
 
         self.assertIn("hash_id", foundation_hash)
@@ -208,23 +202,17 @@ class TestProductionTrustRoot(unittest.TestCase):
         """Test creating production verification artifact."""
         # First register an anchor
         anchor = self.trust_root.register_production_trust_anchor(
-            anchor_id="test_anchor_2",
-            purpose="verification",
-            key_type="RSA",
-            key_size=2048
+            anchor_id="test_anchor_2", purpose="verification", key_type="RSA", key_size=2048
         )
 
         # Create foundation hash
         foundation_hash = self.trust_root.create_production_foundation_hash(
-            component="test_component",
-            version="1.0.0",
-            data=b"test data"
+            component="test_component", version="1.0.0", data=b"test data"
         )
 
         # Create verification artifact
         artifact = self.trust_root.create_production_verification_artifact(
-            foundation_hash=foundation_hash,
-            anchor_id="test_anchor_2"
+            foundation_hash=foundation_hash, anchor_id="test_anchor_2"
         )
 
         self.assertIn("artifact_id", artifact)
@@ -235,21 +223,15 @@ class TestProductionTrustRoot(unittest.TestCase):
         """Test verifying production artifact."""
         # Register anchor and create artifact
         anchor = self.trust_root.register_production_trust_anchor(
-            anchor_id="test_anchor_3",
-            purpose="verification_test",
-            key_type="RSA",
-            key_size=2048
+            anchor_id="test_anchor_3", purpose="verification_test", key_type="RSA", key_size=2048
         )
 
         foundation_hash = self.trust_root.create_production_foundation_hash(
-            component="test_component",
-            version="1.0.0",
-            data=b"test data"
+            component="test_component", version="1.0.0", data=b"test data"
         )
 
         artifact = self.trust_root.create_production_verification_artifact(
-            foundation_hash=foundation_hash,
-            anchor_id="test_anchor_3"
+            foundation_hash=foundation_hash, anchor_id="test_anchor_3"
         )
 
         # Verify artifact
@@ -282,9 +264,9 @@ def run_production_tests():
     runner = unittest.TextTestRunner(verbosity=2)
     result = runner.run(suite)
 
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("PRODUCTION COMPONENT TEST SUMMARY")
-    print("="*70)
+    print("=" * 70)
     print(f"Tests run: {result.testsRun}")
     print(f"Successes: {result.testsRun - len(result.failures) - len(result.errors)}")
     print(f"Failures: {len(result.failures)}")
@@ -292,7 +274,7 @@ def run_production_tests():
     print(f"Skipped: {len(result.skipped)}")
     if not CRYPTOGRAPHY_AVAILABLE:
         print("Note: Some tests skipped because cryptography library is not available")
-    print("="*70)
+    print("=" * 70)
 
     return result.wasSuccessful()
 

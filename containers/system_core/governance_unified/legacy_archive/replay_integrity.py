@@ -84,9 +84,7 @@ class ReplayIntegrityGuard:
 
         # Detect undeclared non-deterministic elements
         undeclared = tuple(
-            key
-            for key in payload
-            if key in _KNOWN_NON_DETERMINISTIC and key not in declared_set
+            key for key in payload if key in _KNOWN_NON_DETERMINISTIC and key not in declared_set
         )
 
         # Compute replay hash over deterministic keys only

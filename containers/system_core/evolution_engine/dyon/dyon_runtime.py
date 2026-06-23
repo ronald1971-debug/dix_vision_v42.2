@@ -44,10 +44,10 @@ class DyonPatchProposal:
 
     proposal_id: str
     ts_ns: int
-    invariant_id: str      # "B1" | "L2" | "L3" | "INV-15"
+    invariant_id: str  # "B1" | "L2" | "L3" | "INV-15"
     source_module: str
     imported_module: str
-    severity: str          # "CRITICAL" | "WARNING"
+    severity: str  # "CRITICAL" | "WARNING"
     description: str
     recommended_action: str
 
@@ -169,6 +169,7 @@ class DyonRuntime:
         try:
             from evolution_engine.dyon.dyon_memory import get_dyon_memory
             from evolution_engine.dyon.patch_generator import get_patch_generator
+
             patch_gen = get_patch_generator(repo_root=self._root)
             dyon_mem = get_dyon_memory()
         except Exception:
@@ -204,6 +205,7 @@ class DyonRuntime:
             if instruction is not None:
                 try:
                     from evolution_engine.dyon.patch_simulator import get_patch_simulator
+
                     sim_result = get_patch_simulator(repo_root=self._root).simulate(
                         instruction, ts_ns=ts_ns
                     )
@@ -230,9 +232,7 @@ class DyonRuntime:
                 proposal_id = f"dyon_patch_{ts_ns}_{i}"
 
             # Escalate recurrent violations in the description
-            recurrence_note = (
-                f" [recurrence #{recurrence}]" if recurrence > 1 else ""
-            )
+            recurrence_note = f" [recurrence #{recurrence}]" if recurrence > 1 else ""
 
             proposal = DyonPatchProposal(
                 proposal_id=proposal_id,
@@ -246,7 +246,7 @@ class DyonRuntime:
             )
             self._proposals.append(proposal)
             if len(self._proposals) > self._max_proposals:
-                self._proposals = self._proposals[-self._max_proposals:]
+                self._proposals = self._proposals[-self._max_proposals :]
             self._emit_proposal(proposal, sim_outcome=sim_outcome)
 
             # ---- 4. Record patch as PROPOSED in memory ---------------------
@@ -278,6 +278,7 @@ class DyonRuntime:
             from evolution_engine.charter.dyon_observability_emitter import (
                 emit_patch_proposal,
             )
+
             emit_patch_proposal(
                 ts_ns=proposal.ts_ns,
                 proposal_id=proposal.proposal_id,
@@ -291,16 +292,20 @@ class DyonRuntime:
             pass
         try:
             from state.event_bus import CognitiveChannel, get_event_bus
-            get_event_bus().publish(CognitiveChannel.DYON_PROPOSAL, {
-                "proposal_id": proposal.proposal_id,
-                "invariant_id": proposal.invariant_id,
-                "source_module": proposal.source_module,
-                "imported_module": proposal.imported_module,
-                "severity": proposal.severity,
-                "description": proposal.description,
-                "sim_outcome": sim_outcome or "PENDING",
-                "ts_ns": proposal.ts_ns,
-            })
+
+            get_event_bus().publish(
+                CognitiveChannel.DYON_PROPOSAL,
+                {
+                    "proposal_id": proposal.proposal_id,
+                    "invariant_id": proposal.invariant_id,
+                    "source_module": proposal.source_module,
+                    "imported_module": proposal.imported_module,
+                    "severity": proposal.severity,
+                    "description": proposal.description,
+                    "sim_outcome": sim_outcome or "PENDING",
+                    "ts_ns": proposal.ts_ns,
+                },
+            )
         except Exception:
             pass
 
@@ -308,16 +313,20 @@ class DyonRuntime:
         """Publish DYON_SCAN_COMPLETE event to the cognitive event bus."""
         try:
             from state.event_bus import CognitiveChannel, get_event_bus
-            get_event_bus().publish(CognitiveChannel.DYON_SCAN_COMPLETE, {
-                "scan_count": self._scan_count,
-                "files_scanned": result.files_scanned,
-                "violation_count": result.violation_count,
-                "critical_count": len(result.critical_violations),
-                "warning_count": len(result.warning_violations),
-                "clean": result.is_clean(),
-                "scan_duration_ms": round(result.scan_duration_ms, 2),
-                "ts_ns": ts_ns,
-            })
+
+            get_event_bus().publish(
+                CognitiveChannel.DYON_SCAN_COMPLETE,
+                {
+                    "scan_count": self._scan_count,
+                    "files_scanned": result.files_scanned,
+                    "violation_count": result.violation_count,
+                    "critical_count": len(result.critical_violations),
+                    "warning_count": len(result.warning_violations),
+                    "clean": result.is_clean(),
+                    "scan_duration_ms": round(result.scan_duration_ms, 2),
+                    "ts_ns": ts_ns,
+                },
+            )
         except Exception:
             pass
 

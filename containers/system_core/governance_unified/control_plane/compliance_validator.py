@@ -19,6 +19,7 @@ from __future__ import annotations
 from collections.abc import Iterable, Mapping
 
 from core.contracts.governance import ComplianceReport, SystemMode
+
 from .exposure_store import (
     ExposureStore,
     day_iso_from_ns,

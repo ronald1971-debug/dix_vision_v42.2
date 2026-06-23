@@ -48,6 +48,7 @@ from __future__ import annotations
 from collections.abc import Callable, Sequence
 from typing import Any, Protocol, runtime_checkable
 
+from core.cognitive_router import AIProvider, TaskClass
 from langchain_core.callbacks.manager import (
     CallbackManagerForLLMRun,
 )
@@ -55,8 +56,6 @@ from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import AIMessage, BaseMessage
 from langchain_core.outputs import ChatGeneration, ChatResult
 from pydantic import ConfigDict, Field
-
-from core.cognitive_router import AIProvider, TaskClass
 
 __all__ = [
     "AllProvidersFailedError",

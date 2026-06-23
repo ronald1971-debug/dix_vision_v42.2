@@ -8,20 +8,14 @@ Author: DIX VISION System Domain Adapter
 Version: 42.2
 """
 
-import logging
-from typing import Any, Dict, List, Optional, Union
-from datetime import datetime
-import json
-
 import sys
-import os
+from datetime import datetime
+from typing import Any, Dict
+
 sys.path.append('/app/adapters')
 
-from base_domain_adapter import (
-    SystemDomainAdapter,
-    DomainType,
-    DataFormat
-)
+from base_domain_adapter import DataFormat, SystemDomainAdapter
+
 
 class FastAPIDomainAdapter(SystemDomainAdapter):
     """

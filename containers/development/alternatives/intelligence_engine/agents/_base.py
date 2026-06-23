@@ -21,7 +21,6 @@ from collections.abc import Iterable, Mapping, Sequence
 from pathlib import Path
 
 import yaml
-
 from core.contracts.agent import AgentDecisionTrace
 
 

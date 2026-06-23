@@ -1,5 +1,6 @@
 """Stub learning gate."""
 
+
 class LearningGate:
     """Stub learning gate."""
 
