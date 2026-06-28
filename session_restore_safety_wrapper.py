@@ -151,8 +151,9 @@ class SessionRestoreSafetyWrapper:
                 import ctypes
                 libc = ctypes.CDLL("libc.so.6")
                 libc.malloc_trim(0)
-            except:
-                pass
+            except Exception as e:
+                logger.warning(f"Memory cleanup failed (libc.malloc_trim): {e}")
+                logger.debug("Memory cleanup skipped, continuing with session restore")
 
             logger.info("Cleanup completed")
             return True

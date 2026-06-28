@@ -1,0 +1,50 @@
+name: TIER-0 Contract Compliance Check
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  contract-compliance:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+
+      - name: Run Contract Compliance Checker
+        id: compliance_check
+        run: |
+          python check_contract_compliance.py . --output compliance_report.txt
+        continue-on-error: false
+
+      - name: Upload Compliance Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: contract-compliance-report
+          path: compliance_report.txt
+
+      - name: Check for Violations
+        if: steps.compliance_check.outcome == 'failure'
+        run: |
+          echo "❌ BUILD FAILED: Contract violations detected"
+          echo "Please fix all TIER-0 contract violations before committing"
+          echo "See the uploaded compliance report for details"
+          exit 1
+
+      - name: Summary
+        if: steps.compliance_check.outcome == 'success'
+        run: |
+          echo "✅ TIER-0 Contract Compliance Check Passed"
+          echo "No contract violations detected"

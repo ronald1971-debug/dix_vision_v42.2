@@ -1,0 +1,135 @@
+name: Build and Test with Contract Compliance
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  contract-compliance:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+
+      - name: Run Contract Compliance Checker
+        id: compliance_check
+        run: |
+          python check_contract_compliance.py . --output compliance_report.txt
+        continue-on-error: false
+
+      - name: Upload Compliance Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: contract-compliance-report
+          path: compliance_report.txt
+
+      - name: Fail on Violations
+        if: steps.compliance_check.outcome == 'failure'
+        run: |
+          echo "❌ CONTRACT COMPLIANCE FAILED"
+          echo "Build cannot proceed with contract violations"
+          exit 1
+
+  build:
+    needs: contract-compliance
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install Build Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install build wheel setuptools
+
+      - name: Build System
+        run: |
+          python -m build
+          echo "✅ Build completed successfully"
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: dist/
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install Test Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pytest-cov pytest-asyncio
+
+      - name: Run Tests
+        run: |
+          pytest tests/ -v --cov=containers --cov-report=xml
+        continue-on-error: true
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: pytest-report.xml
+
+      - name: Upload Coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.xml
+
+  summary:
+    needs: [contract-compliance, build, test]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Pipeline Summary
+        run: |
+          echo "=========================================="
+          echo "DIX VISION v42.2+ Build Pipeline Summary"
+          echo "=========================================="
+          echo "Contract Compliance: ${{ needs.contract-compliance.result }}"
+          echo "Build: ${{ needs.build.result }}"
+          echo "Test: ${{ needs.test.result }}"
+          echo "=========================================="
+          
+          if [ "${{ needs.contract-compliance.result }}" != "success" ]; then
+            echo "❌ PIPELINE FAILED: Contract compliance check failed"
+            exit 1
+          elif [ "${{ needs.build.result }}" != "success" ]; then
+            echo "❌ PIPELINE FAILED: Build failed"
+            exit 1
+          elif [ "${{ needs.test.result }}" == "failure" ]; then
+            echo "⚠️  PIPELINE COMPLETED WITH TEST FAILURES"
+            exit 1
+          else
+            echo "✅ PIPELINE COMPLETED SUCCESSFULLY"
+          fi

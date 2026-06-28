@@ -47,8 +47,9 @@ class TargetedOOMFix:
             import ctypes
             libc = ctypes.CDLL("libc.so.6")
             libc.malloc_trim(0)
-        except:
-            pass
+        except Exception as e:
+            logger.warning(f"Memory compaction failed (libc.malloc_trim): {e}")
+            logger.debug("Memory compaction skipped, continuing with emergency cleanup")
 
         self.emergency_cleanup_done = True
         logger.info("Emergency cleanup completed")
@@ -93,8 +94,9 @@ class TargetedOOMFix:
                     try:
                         os.remove(file)
                         logger.info(f"Removed: {file}")
-                    except:
-                        pass
+                    except Exception as e:
+                        logger.warning(f"Failed to remove temporary file {file}: {e}")
+                        logger.debug("Continuing with other files")
             else:
                 # Directory pattern
                 for root, dirs, files in os.walk("."):
@@ -103,8 +105,9 @@ class TargetedOOMFix:
                         try:
                             shutil.rmtree(cache_path)
                             logger.info(f"Removed cache directory: {cache_path}")
-                        except:
-                            pass
+                        except Exception as e:
+                            logger.warning(f"Failed to remove cache directory {cache_path}: {e}")
+                            logger.debug("Continuing with other directories")
 
     def clear_temp_directories(self):
         """Clear temporary directories"""
@@ -134,11 +137,12 @@ class TargetedOOMFix:
                 try:
                     if proc.info['name'] and 'devin' in proc.info['name'].lower():
                         devin_mem += proc.info['memory_info'].rss
-                except:
-                    pass
+                except Exception as e:
+                    logger.debug(f"Error reading process memory info: {e}")
             logger.info(f"Devin memory: {devin_mem / (1024**3):.2f} GB")
-        except:
-            pass
+        except Exception as e:
+            logger.warning(f"Failed to collect Devin memory statistics: {e}")
+            logger.debug("Memory monitoring will continue with partial data")
 
         return mem.percent
 

@@ -1,0 +1,8 @@
+{
+  "total_files_checked": 2950,
+  "total_violations": 609,
+  "error_count": 609,
+  "warning_count": 0,
+  "violations_by_type": {
+    "PLACEHOLDER": [
+      

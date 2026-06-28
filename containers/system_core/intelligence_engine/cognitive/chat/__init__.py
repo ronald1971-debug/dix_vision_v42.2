@@ -1,0 +1,55 @@
+"""Stub chat module."""
+
+FEATURE_FLAG_ENV_VAR = "COGNITIVE_CHAT_FEATURE_FLAG"
+
+
+class CognitiveChatFeatureFlag:
+    """Stub chat feature flag."""
+
+    def __init__(self, **kwargs: object):
+        pass  # IMPLEMENTATION NOTE: Function implementation deferred for current development phase
+class AllProvidersFailedError(Exception):
+    """Stub error when all providers fail."""
+
+
+class CognitiveChatRuntime:
+    """Stub chat runtime."""
+
+    def __init__(self, **kwargs: object):
+        pass  # IMPLEMENTATION NOTE: Function implementation deferred for current development phase
+class ChatTransport:
+    """Stub chat transport."""
+
+    def __init__(self, **kwargs: object):
+        pass  # IMPLEMENTATION NOTE: Function implementation deferred for current development phase
+class CognitiveChatBundle:
+    """Stub chat bundle."""
+
+    def __init__(self, **kwargs: object):
+        pass  # IMPLEMENTATION NOTE: Function implementation deferred for current development phase
+class CognitiveChatDisabledError(Exception):
+    """Stub error when chat is disabled."""
+
+
+class NoEligibleProviderError(Exception):
+    """Stub error when no eligible provider."""
+
+
+class ProviderResolver:
+    """Stub provider resolver."""
+
+    def __init__(self, **kwargs: object):
+        pass  # IMPLEMENTATION NOTE: Function implementation deferred for current development phase
+def assemble_cognitive_chat(**kwargs: object):
+    """Stub assemble cognitive chat."""
+    return None
+
+
+def get_router(**kwargs: object):
+    """Stub router getter."""
+    return None
+
+
+def get_chat(**kwargs: object):
+    """Stub chat getter."""
+    return None

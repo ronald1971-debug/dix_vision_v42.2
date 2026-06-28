@@ -1,0 +1,9 @@
+repos:
+  - repo: local
+    hooks:
+      - id: contract-compliance
+        name: TIER-0 Contract Compliance
+        entry: python check_contract_compliance.py .
+        language: system
+        pass_filenames: false
+        always_run: true
