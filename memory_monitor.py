@@ -2,115 +2,112 @@
 """
 Memory Monitor for DIX VISION
 Provides memory profiling and leak detection utilities
+
+This module now uses the unified memory manager for consistency.
 """
 
-import gc
-import psutil
-import tracemalloc
-from functools import wraps
-from typing import Callable, Any
 import logging
 
 logger = logging.getLogger(__name__)
+
+# Use unified memory manager
+try:
+    from memory_manager import (
+        get_memory_manager,
+        get_memory_status,
+        force_memory_cleanup,
+        MemoryStatus
+    )
+    UNIFIED_MEMORY_AVAILABLE = True
+except ImportError:
+    UNIFIED_MEMORY_AVAILABLE = False
+    logger.warning("Unified memory manager not available, using fallback")
 
 
 class MemoryMonitor:
     """Monitor memory usage and detect potential leaks"""
     
     def __init__(self):
-        self.process = psutil.Process()
-        self.baseline_memory = None
-        self.peak_memory = 0
+        if UNIFIED_MEMORY_AVAILABLE:
+            self.memory_manager = get_memory_manager()
+        else:
+            self.memory_manager = None
+            logger.warning("Using fallback memory monitoring")
         
     def start_monitoring(self):
         """Start memory monitoring - establish baseline"""
-        gc.collect()  # Force garbage collection
-        self.baseline_memory = self.process.memory_info().rss / 1024 / 1024  # MB
-        self.peak_memory = self.baseline_memory
-        logger.info(f"Memory monitoring started. Baseline: {self.baseline_memory:.2f} MB")
+        if self.memory_manager:
+            self.memory_manager.start_monitoring()
+        else:
+            logger.warning("Memory monitoring not available without unified manager")
         
     def check_memory(self, label: str = "Current"):
         """Check current memory usage and log if significant change"""
-        if self.baseline_memory is None:
-            self.start_monitoring()
-            
-        current_memory = self.process.memory_info().rss / 1024 / 1024  # MB
-        memory_increase = current_memory - self.baseline_memory
-        
-        if current_memory > self.peak_memory:
-            self.peak_memory = current_memory
-            
-        logger.info(f"{label} Memory: {current_memory:.2f} MB (Increase: {memory_increase:+.2f} MB, Peak: {self.peak_memory:.2f} MB)")
-        
-        # Warn if memory increase is significant (>100MB)
-        if memory_increase > 100:
-            logger.warning(f"Significant memory increase detected: {memory_increase:.2f} MB")
-            
-        return current_memory
+        if self.memory_manager:
+            status = self.memory_manager.get_memory_status()
+            logger.info(f"{label} Memory: {status.rss_mb:.2f} MB (System: {status.system_percent:.1f}%)")
+            return status.rss_mb
+        else:
+            logger.warning("Memory check not available without unified manager")
+            return 0
     
     def detect_leak(self, threshold_mb: float = 200):
         """Check for potential memory leak based on threshold"""
-        current_memory = self.process.memory_info().rss / 1024 / 1024  # MB
-        memory_increase = current_memory - self.baseline_memory
-        
-        if memory_increase > threshold_mb:
-            logger.error(f"Potential memory leak detected! Memory increase: {memory_increase:.2f} MB")
-            return True
+        if self.memory_manager:
+            status = self.memory_manager.get_memory_status()
+            # Simple leak detection based on current memory
+            if status.rss_mb > threshold_mb:
+                logger.error(f"High memory usage detected: {status.rss_mb:.2f} MB")
+                return True
         return False
     
     def force_garbage_collection(self):
         """Force garbage collection and report memory change"""
-        before = self.process.memory_info().rss / 1024 / 1024
-        gc.collect()
-        after = self.process.memory_info().rss / 1024 / 1024
-        freed = before - after
-        logger.info(f"Garbage collection freed {freed:.2f} MB")
-        return freed
+        if UNIFIED_MEMORY_AVAILABLE:
+            return force_memory_cleanup()
+        else:
+            import gc
+            gc.collect()
+            logger.info("Fallback garbage collection completed")
+            return 0
 
 
-def profile_memory(func: Callable) -> Callable:
+def profile_memory(func):
     """Decorator to profile memory usage of a function"""
-    @wraps(func)
-    def wrapper(*args, **kwargs) -> Any:
+    def wrapper(*args, **kwargs):
         monitor = MemoryMonitor()
         monitor.start_monitoring()
         
-        # Start tracemalloc for detailed tracking
-        tracemalloc.start()
-        
         try:
             result = func(*args, **kwargs)
-            
-            # Get memory statistics
             monitor.check_memory(f"After {func.__name__}")
-            current, peak = tracemalloc.get_traced_memory()
-            
-            logger.info(f"Function {func.__name__} memory usage:")
-            logger.info(f"  Current: {current / 1024 / 1024:.2f} MB")
-            logger.info(f"  Peak: {peak / 1024 / 1024:.2f} MB")
-            
             return result
-            
         finally:
-            tracemalloc.stop()
+            pass
             
     return wrapper
 
 
 def get_memory_summary():
     """Get comprehensive memory usage summary"""
-    process = psutil.Process()
-    mem_info = process.memory_info()
-    
-    summary = {
-        'rss_mb': mem_info.rss / 1024 / 1024,
-        'vms_mb': mem_info.vms / 1024 / 1024,
-        'percent': process.memory_percent(),
-        'available_mb': psutil.virtual_memory().available / 1024 / 1024,
-        'system_percent': psutil.virtual_memory().percent
-    }
-    
-    return summary
+    if UNIFIED_MEMORY_AVAILABLE:
+        status = get_memory_status()
+        return {
+            'rss_mb': status.rss_mb,
+            'vms_mb': status.vms_mb,
+            'percent': status.percent,
+            'available_mb': status.available_mb,
+            'system_percent': status.system_percent
+        }
+    else:
+        logger.warning("Memory summary not available without unified manager")
+        return {
+            'rss_mb': 0,
+            'vms_mb': 0,
+            'percent': 0,
+            'available_mb': 0,
+            'system_percent': 0
+        }
 
 
 def print_memory_summary():

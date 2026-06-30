@@ -1,0 +1,35 @@
+# DIX VISION System Configuration
+# This is the main configuration file for the DIX VISION system
+
+system:
+  mode: "development"  # development, production, desktop, portable
+  log_level: "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  max_workers: 4  # Number of worker threads
+  timeout_seconds: 30  # Default timeout for operations
+
+network:
+  host: "127.0.0.1"  # Bind host
+  ports:
+    desktop: 8765  # Desktop AgentOS port
+    dashboard: 8080  # Dashboard port
+    backend: 8000  # Backend port
+    docker_backend: 8080  # Docker backend port
+    docker_dashboard: 5173  # Docker dashboard port
+
+memory:
+  warning_threshold: 70  # Memory warning threshold (%)
+  critical_threshold: 85  # Memory critical threshold (%)
+  process_limit: 1024  # Process memory limit (MB)
+  enable_monitoring: true  # Enable memory monitoring
+
+paths:
+  data_root: "~/.local/share/dix_vision"  # Data directory root
+  logs: "~/.local/share/dix_vision/logs"  # Logs directory
+  cache: "~/.cache/dix_vision"  # Cache directory
+  config: "~/.config/dix_vision"  # Configuration directory
+
+features:
+  enable_metrics: true  # Enable metrics collection
+  enable_monitoring: true  # Enable system monitoring
+  enable_telemetry: false  # Enable telemetry
+  enable_debug_mode: false  # Enable debug features

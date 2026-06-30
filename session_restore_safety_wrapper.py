@@ -138,22 +138,20 @@ class SessionRestoreSafetyWrapper:
         try:
             logger.info("Forcing cleanup before session restore...")
 
-            # Aggressive garbage collection
-            gc.collect()
-            gc.collect()  # Run twice for thorough cleanup
+            # Use unified memory manager if available
+            try:
+                from memory_manager import force_memory_cleanup
+                freed = force_memory_cleanup()
+                logger.info(f"Unified memory manager freed {freed:.2f} MB")
+            except ImportError:
+                logger.warning("Unified memory manager not available, using fallback")
+                # Fallback to basic garbage collection
+                gc.collect()
+                gc.collect()
 
             # Clear Python internal caches
             if hasattr(sys, '_clear_type_cache'):
                 sys._clear_type_cache()
-
-            # Force process memory release (platform-specific)
-            try:
-                import ctypes
-                libc = ctypes.CDLL("libc.so.6")
-                libc.malloc_trim(0)
-            except Exception as e:
-                logger.warning(f"Memory cleanup failed (libc.malloc_trim): {e}")
-                logger.debug("Memory cleanup skipped, continuing with session restore")
 
             logger.info("Cleanup completed")
             return True
