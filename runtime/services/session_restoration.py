@@ -7,6 +7,7 @@ Handles session state management, persistence, and recovery.
 
 from __future__ import annotations
 
+import gzip
 import json
 import logging
 import threading
@@ -69,21 +70,49 @@ class SessionStorage(ABC):
 
 
 class FileSessionStorage(SessionStorage):
-    """File-based session storage implementation."""
+    """File-based session storage implementation with compression support."""
     
-    def __init__(self, storage_dir: Optional[Path] = None):
+    def __init__(self, storage_dir: Optional[Path] = None, enable_compression: bool = True, compression_threshold: int = 1024):
         self.storage_dir = storage_dir or Path.cwd() / "sessions"
         self.storage_dir.mkdir(parents=True, exist_ok=True)
         self._lock = threading.Lock()
+        self.enable_compression = enable_compression
+        self.compression_threshold = compression_threshold  # Compress sessions larger than this size (bytes)
+        self.compression_stats = {
+            "compressed_saves": 0,
+            "uncompressed_saves": 0,
+            "total_compressed_size": 0,
+            "total_uncompressed_size": 0
+        }
     
     def _get_session_path(self, session_id: str) -> Path:
         """Get file path for a session."""
         return self.storage_dir / f"{session_id}.json"
     
+    def _get_compressed_session_path(self, session_id: str) -> Path:
+        """Get compressed file path for a session."""
+        return self.storage_dir / f"{session_id}.json.gz"
+    
+    def _should_compress(self, session_data: Dict[str, Any]) -> bool:
+        """Determine if session should be compressed based on size."""
+        if not self.enable_compression:
+            return False
+        
+        # Calculate size of serialized data
+        serialized = json.dumps(session_data).encode('utf-8')
+        return len(serialized) > self.compression_threshold
+    
+    def _compress_data(self, data: str) -> bytes:
+        """Compress data using gzip."""
+        return gzip.compress(data.encode('utf-8'))
+    
+    def _decompress_data(self, compressed_data: bytes) -> str:
+        """Decompress gzip data."""
+        return gzip.decompress(compressed_data).decode('utf-8')
+    
     def save_session(self, session: Session) -> bool:
-        """Save session to file."""
+        """Save session to file with optional compression."""
         try:
-            session_path = self._get_session_path(session.session_id)
             session_data = {
                 "session_id": session.session_id,
                 "user_id": session.user_id,
@@ -93,25 +122,78 @@ class FileSessionStorage(SessionStorage):
                 "metadata": session.metadata
             }
             
-            with open(session_path, 'w') as f:
-                json.dump(session_data, f, indent=2)
+            # Determine if we should compress
+            should_compress = self._should_compress(session_data)
             
-            logger.info(f"Session saved: {session.session_id}")
+            with self._lock:
+                if should_compress:
+                    # Compressed storage
+                    session_path = self._get_compressed_session_path(session.session_id)
+                    serialized_data = json.dumps(session_data)
+                    compressed_data = self._compress_data(serialized_data)
+                    
+                    with open(session_path, 'wb') as f:
+                        f.write(compressed_data)
+                    
+                    # Update stats
+                    self.compression_stats["compressed_saves"] += 1
+                    self.compression_stats["total_compressed_size"] += len(compressed_data)
+                    self.compression_stats["total_uncompressed_size"] += len(serialized_data)
+                    
+                    # Remove uncompressed version if it exists
+                    uncompressed_path = self._get_session_path(session.session_id)
+                    if uncompressed_path.exists():
+                        uncompressed_path.unlink()
+                    
+                    logger.info(f"Session saved (compressed): {session.session_id} - {len(serialized_data)} -> {len(compressed_data)} bytes")
+                else:
+                    # Uncompressed storage
+                    session_path = self._get_session_path(session.session_id)
+                    
+                    with open(session_path, 'w') as f:
+                        json.dump(session_data, f, indent=2)
+                    
+                    # Update stats
+                    self.compression_stats["uncompressed_saves"] += 1
+                    
+                    # Remove compressed version if it exists
+                    compressed_path = self._get_compressed_session_path(session.session_id)
+                    if compressed_path.exists():
+                        compressed_path.unlink()
+                    
+                    logger.info(f"Session saved (uncompressed): {session.session_id}")
+            
             return True
         except Exception as e:
             logger.error(f"Failed to save session {session.session_id}: {e}")
             return False
     
     def load_session(self, session_id: str) -> Optional[Session]:
-        """Load session from file."""
+        """Load session from file with automatic decompression."""
         try:
-            session_path = self._get_session_path(session_id)
-            if not session_path.exists():
-                logger.warning(f"Session file not found: {session_id}")
-                return None
+            # Check for compressed version first
+            compressed_path = self._get_compressed_session_path(session_id)
+            uncompressed_path = self._get_session_path(session_id)
             
-            with open(session_path, 'r') as f:
-                session_data = json.load(f)
+            session_data = None
+            
+            with self._lock:
+                if compressed_path.exists():
+                    # Load and decompress
+                    with open(compressed_path, 'rb') as f:
+                        compressed_data = f.read()
+                    
+                    serialized_data = self._decompress_data(compressed_data)
+                    session_data = json.loads(serialized_data)
+                    logger.info(f"Session loaded (compressed): {session_id}")
+                elif uncompressed_path.exists():
+                    # Load uncompressed
+                    with open(uncompressed_path, 'r') as f:
+                        session_data = json.load(f)
+                    logger.info(f"Session loaded (uncompressed): {session_id}")
+                else:
+                    logger.warning(f"Session file not found: {session_id}")
+                    return None
             
             session = Session(
                 session_id=session_data["session_id"],
@@ -122,33 +204,70 @@ class FileSessionStorage(SessionStorage):
                 metadata=session_data.get("metadata", {})
             )
             
-            logger.info(f"Session loaded: {session.session_id}")
             return session
         except Exception as e:
             logger.error(f"Failed to load session {session_id}: {e}")
             return None
     
     def delete_session(self, session_id: str) -> bool:
-        """Delete session file."""
+        """Delete session file (both compressed and uncompressed versions)."""
         try:
-            session_path = self._get_session_path(session_id)
-            if session_path.exists():
-                session_path.unlink()
-                logger.info(f"Session deleted: {session_id}")
-                return True
-            return False
+            compressed_path = self._get_compressed_session_path(session_id)
+            uncompressed_path = self._get_session_path(session_id)
+            
+            with self._lock:
+                deleted = False
+                if compressed_path.exists():
+                    compressed_path.unlink()
+                    deleted = True
+                if uncompressed_path.exists():
+                    uncompressed_path.unlink()
+                    deleted = True
+                
+                if deleted:
+                    logger.info(f"Session deleted: {session_id}")
+                return deleted
         except Exception as e:
             logger.error(f"Failed to delete session {session_id}: {e}")
             return False
     
     def list_sessions(self) -> List[str]:
-        """List all session IDs."""
+        """List all session IDs (both compressed and uncompressed)."""
         try:
-            session_files = list(self.storage_dir.glob("*.json"))
-            return [f.stem for f in session_files]
+            session_ids = set()
+            
+            # List uncompressed sessions
+            for f in self.storage_dir.glob("*.json"):
+                if not f.name.endswith(".gz"):  # Exclude compressed files
+                    session_ids.add(f.stem)
+            
+            # List compressed sessions
+            for f in self.storage_dir.glob("*.json.gz"):
+                # Remove .json.gz extension to get session ID
+                session_id = f.name[:-8]  # Remove ".json.gz"
+                session_ids.add(session_id)
+            
+            return list(session_ids)
         except Exception as e:
             logger.error(f"Failed to list sessions: {e}")
             return []
+    
+    def get_compression_stats(self) -> Dict[str, Any]:
+        """Get compression statistics."""
+        with self._lock:
+            stats = self.compression_stats.copy()
+            
+            # Calculate compression ratio
+            if stats["total_uncompressed_size"] > 0:
+                stats["compression_ratio"] = stats["total_compressed_size"] / stats["total_uncompressed_size"]
+                stats["space_saved"] = stats["total_uncompressed_size"] - stats["total_compressed_size"]
+                stats["space_saved_percent"] = (stats["space_saved"] / stats["total_uncompressed_size"]) * 100
+            else:
+                stats["compression_ratio"] = 0.0
+                stats["space_saved"] = 0
+                stats["space_saved_percent"] = 0.0
+            
+            return stats
 
 
 class SessionRestorationService(Service):
@@ -163,6 +282,7 @@ class SessionRestorationService(Service):
         self.session_storage: Optional[SessionStorage] = None
         self.active_sessions: Dict[str, Session] = {}
         self._lock = threading.Lock()
+        self.quarantined_sessions: Dict[str, str] = {}  # session_id -> error reason
         
     def init(self, event_bus: EventBus, config: Dict[str, Any]) -> bool:
         """Initialize the session restoration service."""
@@ -171,12 +291,21 @@ class SessionRestorationService(Service):
             self.config = config
             self.state = ServiceState.INITIALIZING
             
-            # Initialize session storage
+            # Initialize session storage with compression configuration
             platform_manager = get_platform_manager()
             data_dir = platform_manager.get_data_directory()
-            self.session_storage = FileSessionStorage(data_dir / "sessions")
             
-            logger.info("Session Restoration Service initialized")
+            # Get compression settings from config
+            enable_compression = config.get("session_compression", {}).get("enabled", True)
+            compression_threshold = config.get("session_compression", {}).get("threshold_bytes", 1024)
+            
+            self.session_storage = FileSessionStorage(
+                data_dir / "sessions",
+                enable_compression=enable_compression,
+                compression_threshold=compression_threshold
+            )
+            
+            logger.info(f"Session Restoration Service initialized (compression: {enable_compression}, threshold: {compression_threshold} bytes)")
             return True
         except Exception as e:
             logger.error(f"Session Restoration Service initialization failed: {e}")
@@ -224,15 +353,21 @@ class SessionRestorationService(Service):
     
     def health(self) -> ServiceHealth:
         """Get session restoration service health."""
+        compression_stats = {}
+        if hasattr(self.session_storage, 'get_compression_stats'):
+            compression_stats = self.session_storage.get_compression_stats()
+        
         return ServiceHealth(
             service=self.name,
             state=self.state,
             healthy=self.state == ServiceState.RUNNING,
-            message=f"Session State: {self.session_state.value}",
+            message=f"Session State: {self.session_state.value} - Active: {len(self.active_sessions)}",
             details={
                 "session_state": self.session_state.value,
                 "active_sessions": len(self.active_sessions),
-                "storage_dir": str(self.session_storage.storage_dir) if self.session_storage else None
+                "quarantined_sessions": len(self.quarantined_sessions),
+                "storage_dir": str(self.session_storage.storage_dir) if self.session_storage else None,
+                "compression_stats": compression_stats
             },
             timestamp=time.time()
         )

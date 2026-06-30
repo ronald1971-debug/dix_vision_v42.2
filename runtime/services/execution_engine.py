@@ -79,29 +79,63 @@ class RiskEnforcer:
 
 
 class OrderQueue:
-    """Order queue for execution engine."""
+    """Order queue for execution engine with backpressure support."""
     
-    def __init__(self):
+    def __init__(self, max_size: int = 100):
+        self.max_size = max_size
         self.queue: List[Order] = []
         self._lock = threading.Lock()
+        self.backpressure_active = False
+        self.backpressure_threshold = 0.8  # 80% of max size triggers backpressure
+        self.rejected_orders = 0
     
-    def add_order(self, order: Order) -> None:
-        """Add order to queue."""
+    def add_order(self, order: Order) -> bool:
+        """Add order to queue with backpressure check."""
         with self._lock:
+            if len(self.queue) >= self.max_size:
+                # Queue is full, reject order
+                self.rejected_orders += 1
+                logger.warning(f"Order rejected - queue full: {order.order_id}")
+                return False
+            
+            # Check backpressure
+            if len(self.queue) >= self.max_size * self.backpressure_threshold:
+                if not self.backpressure_active:
+                    self.backpressure_active = True
+                    logger.warning(f"Backpressure activated - queue size: {len(self.queue)}/{self.max_size}")
+            
             self.queue.append(order)
-            logger.info(f"Order added to queue: {order.order_id}")
+            logger.info(f"Order added to queue: {order.order_id} (queue size: {len(self.queue)}/{self.max_size})")
+            return True
     
     def get_next_order(self) -> Optional[Order]:
         """Get next order from queue."""
         with self._lock:
             if self.queue:
-                return self.queue.pop(0)
+                order = self.queue.pop(0)
+                
+                # Check if backpressure should be released
+                if self.backpressure_active and len(self.queue) < self.max_size * 0.5:
+                    self.backpressure_active = False
+                    logger.info(f"Backpressure released - queue size: {len(self.queue)}/{self.max_size}")
+                
+                return order
             return None
     
     def size(self) -> int:
         """Get queue size."""
         with self._lock:
             return len(self.queue)
+    
+    def is_backpressure_active(self) -> bool:
+        """Check if backpressure is currently active."""
+        with self._lock:
+            return self.backpressure_active
+    
+    def get_queue_utilization(self) -> float:
+        """Get queue utilization as percentage."""
+        with self._lock:
+            return len(self.queue) / self.max_size if self.max_size > 0 else 0.0
 
 
 class ExecutionEngine(Service):
@@ -113,12 +147,13 @@ class ExecutionEngine(Service):
     # Execution timeout configuration
     DEFAULT_EXECUTION_TIMEOUT = 10.0  # seconds
     ORDER_QUEUE_TIMEOUT = 30.0  # seconds for orders waiting in queue
+    DEFAULT_QUEUE_MAX_SIZE = 100  # maximum orders in queue
     
     def __init__(self):
         super().__init__("execution_engine")
         self.execution_state = ExecutionState.IDLE
         self.risk_enforcer = RiskEnforcer()
-        self.order_queue = OrderQueue()
+        self.order_queue = OrderQueue(max_size=self.DEFAULT_QUEUE_MAX_SIZE)
         self._execution_thread: Optional[threading.Thread] = None
         self._stop_event = threading.Event()
         self.executed_orders: Dict[str, ExecutionResult] = {}
@@ -149,7 +184,7 @@ class ExecutionEngine(Service):
             return False
     
     def _handle_ai_decision(self, event: Event) -> None:
-        """Handle AI decision events for trade execution."""
+        """Handle AI decision events for trade execution with backpressure support."""
         try:
             decision_type = event.payload.get("decision_type")
             
@@ -163,10 +198,28 @@ class ExecutionEngine(Service):
                     price=50000.0,  # Placeholder price
                     metadata={"source": "ai_decision", "confidence": event.payload.get("confidence")}
                 )
-                self.order_queue.add_order(order)
-                logger.info(f"Order created from AI decision: {order.order_id}")
+                
+                # Try to add order to queue with backpressure check
+                order_accepted = self.order_queue.add_order(order)
+                
+                if order_accepted:
+                    logger.info(f"Order created from AI decision: {order.order_id}")
+                    self.emit_event("ORDER_ACCEPTED", {
+                        "order_id": order.order_id,
+                        "queue_size": self.order_queue.size(),
+                        "backpressure_active": self.order_queue.is_backpressure_active()
+                    })
+                else:
+                    logger.warning(f"Order rejected due to backpressure: {order.order_id}")
+                    self.emit_event("ORDER_REJECTED", {
+                        "order_id": order.order_id,
+                        "reason": "Queue full / backpressure active",
+                        "queue_size": self.order_queue.size(),
+                        "backpressure_active": self.order_queue.is_backpressure_active()
+                    })
         except Exception as e:
             logger.error(f"Error handling AI decision: {e}")
+            self.emit_event(str(EventType.EXECUTION_ERROR), {"error": str(e)})
     
     def start(self) -> bool:
         """Start the execution engine."""
@@ -218,11 +271,15 @@ class ExecutionEngine(Service):
         return ServiceHealth(
             service=self.name,
             state=self.state,
-            healthy=self.state == ServiceState.RUNNING,
-            message=f"Execution State: {self.execution_state.value}",
+            healthy=self.state == ServiceState.RUNNING and not self.order_queue.is_backpressure_active(),
+            message=f"Execution State: {self.execution_state.value} - Backpressure: {self.order_queue.is_backpressure_active()}",
             details={
                 "execution_state": self.execution_state.value,
                 "queue_size": self.order_queue.size(),
+                "queue_utilization": self.order_queue.get_queue_utilization(),
+                "queue_max_size": self.order_queue.max_size,
+                "backpressure_active": self.order_queue.is_backpressure_active(),
+                "rejected_orders": self.order_queue.rejected_orders,
                 "executed_orders": len(self.executed_orders),
                 "daily_loss": self.risk_enforcer.current_daily_loss
             },

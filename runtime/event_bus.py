@@ -137,7 +137,7 @@ class EventHandler:
 
 
 class EventBus:
-    """Central event bus for all system communication."""
+    """Central event bus for all system communication with backpressure support."""
     
     def __init__(self):
         self.subscribers: Dict[str, List[EventHandler]] = {}
@@ -147,6 +147,18 @@ class EventBus:
         self._async_loop = None
         self._event_queue = None
         self._running = False
+        
+        # Backpressure mechanisms
+        self._queue_capacity = 10000  # Maximum queue size
+        self._backpressure_thresholds = {
+            "elevated": 0.60,  # 60% capacity
+            "high": 0.80,      # 80% capacity
+            "critical": 0.95   # 95% capacity
+        }
+        self._backpressure_state = "NORMAL"
+        self._dropped_events = 0
+        self._processed_events = 0
+        self._queue_size = 0
         
     def subscribe(self, event_type: str, handler: Callable[[Event], None], 
                   service: str = "unknown", priority: int = 0) -> EventHandler:
@@ -174,8 +186,17 @@ class EventBus:
             return False
     
     def publish(self, event: Event) -> None:
-        """Publish an event to all subscribers."""
+        """Publish an event to all subscribers with backpressure checking."""
         with self._lock:
+            # Check backpressure state
+            self._update_backpressure_state()
+            
+            # Apply backpressure - drop low-priority events during critical state
+            if self._backpressure_state == "CRITICAL" and self._is_low_priority_event(event):
+                self._dropped_events += 1
+                logger.warning(f"Event dropped due to backpressure: {event.type}")
+                return
+            
             # Add to history
             self.event_history.append(event)
             if len(self.event_history) > self.max_history:
@@ -183,6 +204,7 @@ class EventBus:
             
             # Get subscribers for this event type
             subscribers = self.subscribers.get(event.type, []).copy()
+            self._processed_events += 1
         
         # Call handlers outside the lock to prevent deadlocks
         for handler in subscribers:
@@ -191,7 +213,7 @@ class EventBus:
             except Exception as e:
                 logger.error(f"Error in event handler for {event.type}: {e}")
         
-        logger.debug(f"Published event {event.type} from {event.source}")
+        logger.debug(f"Published event {event.type} from {event.source} (backpressure: {self._backpressure_state})")
     
     def publish_sync(self, source: str, event_type: str, payload: Dict[str, Any] = None) -> None:
         """Convenience method to publish an event synchronously."""
@@ -226,6 +248,43 @@ class EventBus:
                 return len(self.subscribers.get(event_type, []))
             return sum(len(subs) for subs in self.subscribers.values())
     
+    def _update_backpressure_state(self) -> None:
+        """Update backpressure state based on current queue utilization."""
+        current_size = len(self.event_history)
+        utilization = current_size / self.max_history
+        
+        if utilization >= self._backpressure_thresholds["critical"]:
+            self._backpressure_state = "CRITICAL"
+        elif utilization >= self._backpressure_thresholds["high"]:
+            self._backpressure_state = "HIGH"
+        elif utilization >= self._backpressure_thresholds["elevated"]:
+            self._backpressure_state = "ELEVATED"
+        else:
+            self._backpressure_state = "NORMAL"
+    
+    def _is_low_priority_event(self, event: Event) -> bool:
+        """Determine if an event is low priority and can be dropped during backpressure."""
+        # Low priority events that can be safely dropped
+        low_priority_types = {
+            "AI_STATE_UPDATE",
+            "SERVICE_HEALTH",
+            "MEMORY_WARNING"  # Can be dropped if critical
+        }
+        return event.type in low_priority_types
+    
+    def get_backpressure_status(self) -> Dict[str, Any]:
+        """Get current backpressure status."""
+        with self._lock:
+            return {
+                "state": self._backpressure_state,
+                "queue_size": len(self.event_history),
+                "queue_capacity": self.max_history,
+                "utilization": len(self.event_history) / self.max_history,
+                "dropped_events": self._dropped_events,
+                "processed_events": self._processed_events,
+                "drop_rate": self._dropped_events / max(self._processed_events + self._dropped_events, 1)
+            }
+    
     def start_async_processing(self) -> None:
         """Start async event processing loop."""
         if self._running:
@@ -244,9 +303,16 @@ class EventBus:
         logger.info("Async event processing started")
     
     async def _process_events(self) -> None:
-        """Process events from the queue."""
+        """Process events from the queue with backpressure checking."""
         while self._running:
             try:
+                # Check queue size before accepting new events
+                queue_size = self._event_queue.qsize()
+                if queue_size >= self._queue_capacity:
+                    logger.warning(f"Event queue at capacity ({queue_size}), rejecting new events")
+                    await asyncio.sleep(0.1)  # Backpressure delay
+                    continue
+                
                 event = await self._event_queue.get()
                 await asyncio.get_event_loop().run_in_executor(None, self.publish, event)
             except Exception as e:

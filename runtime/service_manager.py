@@ -168,7 +168,10 @@ class ConfigService(Service):
 
 
 class BackendService(Service):
-    """Python backend service as per Runtime Specification."""
+    """Python backend service as per Runtime Specification with circuit breaker."""
+    
+    # Service dependencies
+    DEPENDENCIES = ["config_service"]
     
     def __init__(self, host: str = "127.0.0.1", port: int = 8000):
         super().__init__("backend_service")
@@ -176,6 +179,13 @@ class BackendService(Service):
         self.port = port
         self.backend_path = None
         self._process = None
+        
+        # Circuit breaker for backend startup failures
+        self._circuit_breaker_state = "CLOSED"
+        self._failure_count = 0
+        self._last_failure_time = 0
+        self._circuit_breaker_threshold = 3
+        self._circuit_breaker_timeout = 60
         
     def init(self, event_bus: EventBus, config: Dict[str, Any]) -> bool:
         """Initialize the backend service."""
@@ -200,8 +210,18 @@ class BackendService(Service):
             return False
         
     def start(self) -> bool:
-        """Start the backend service."""
+        """Start the backend service with circuit breaker protection."""
         try:
+            # Check circuit breaker state
+            if self._circuit_breaker_state == "OPEN":
+                if time.time() - self._last_failure_time < self._circuit_breaker_timeout:
+                    logger.warning(f"Backend service circuit breaker is OPEN, skipping startup")
+                    return False
+                else:
+                    # Try to recover
+                    self._circuit_breaker_state = "HALF_OPEN"
+                    logger.info("Backend service circuit breaker entering HALF_OPEN state")
+            
             self.state = ServiceState.STARTING
             
             # Start backend as subprocess
@@ -219,14 +239,39 @@ class BackendService(Service):
             if self._process.poll() is None:
                 self.state = ServiceState.RUNNING
                 self.emit_event("SERVICE_START", {"service": self.name})
+                
+                # Reset circuit breaker on success
+                if self._circuit_breaker_state == "HALF_OPEN":
+                    self._circuit_breaker_state = "CLOSED"
+                    self._failure_count = 0
+                    logger.info("Backend service circuit breaker recovered to CLOSED state")
+                
                 logger.info(f"Backend service started on {self.host}:{self.port}")
                 return True
             else:
+                # Circuit breaker logic on failure
+                self._failure_count += 1
+                self._last_failure_time = time.time()
+                
+                if self._failure_count >= self._circuit_breaker_threshold:
+                    self._circuit_breaker_state = "OPEN"
+                    logger.error(f"Backend service circuit breaker opened after {self._failure_count} failures")
+                    self.emit_event("CIRCUIT_BREAKER_OPEN", {"service": self.name, "failures": self._failure_count})
+                
                 self.state = ServiceState.ERROR
                 logger.error("Backend service failed to start")
                 return False
                 
         except Exception as e:
+            # Circuit breaker logic on exception
+            self._failure_count += 1
+            self._last_failure_time = time.time()
+            
+            if self._failure_count >= self._circuit_breaker_threshold:
+                self._circuit_breaker_state = "OPEN"
+                logger.error(f"Backend service circuit breaker opened after {self._failure_count} failures")
+                self.emit_event("CIRCUIT_BREAKER_OPEN", {"service": self.name, "failures": self._failure_count})
+            
             logger.error(f"Backend service start failed: {e}")
             self.state = ServiceState.ERROR
             self.emit_event("SERVICE_CRASH", {"service": self.name, "error": str(e)})
@@ -255,7 +300,7 @@ class BackendService(Service):
             return False
         
     def health(self) -> ServiceHealth:
-        """Check backend service health."""
+        """Check backend service health with circuit breaker status."""
         try:
             if not self._process:
                 return ServiceHealth(
@@ -263,7 +308,10 @@ class BackendService(Service):
                     state=self.state,
                     healthy=False,
                     message="Backend process not running",
-                    details={},
+                    details={
+                        "circuit_breaker_state": self._circuit_breaker_state,
+                        "failure_count": self._failure_count
+                    },
                     timestamp=time.time()
                 )
             
@@ -273,7 +321,10 @@ class BackendService(Service):
                     state=ServiceState.CRASHED,
                     healthy=False,
                     message="Backend process has terminated",
-                    details={},
+                    details={
+                        "circuit_breaker_state": self._circuit_breaker_state,
+                        "failure_count": self._failure_count
+                    },
                     timestamp=time.time()
                 )
             
@@ -284,7 +335,9 @@ class BackendService(Service):
                 message=f"Backend running on {self.host}:{self.port}",
                 details={
                     "host": self.host,
-                    "port": self.port
+                    "port": self.port,
+                    "circuit_breaker_state": self._circuit_breaker_state,
+                    "failure_count": self._failure_count
                 },
                 timestamp=time.time()
             )
@@ -294,19 +347,32 @@ class BackendService(Service):
                 state=ServiceState.ERROR,
                 healthy=False,
                 message=f"Backend service unhealthy: {e}",
-                details={},
+                details={
+                    "circuit_breaker_state": self._circuit_breaker_state,
+                    "failure_count": self._failure_count
+                },
                 timestamp=time.time()
             )
 
 
 class DashboardService(Service):
-    """React dashboard service as per Runtime Specification."""
+    """React dashboard service as per Runtime Specification with circuit breaker."""
+    
+    # Service dependencies
+    DEPENDENCIES = ["config_service", "backend_service"]
     
     def __init__(self, port: int = 5173):
         super().__init__("dashboard_service")
         self.port = port
         self.dashboard_path = None
         self._process = None
+        
+        # Circuit breaker for dashboard startup failures
+        self._circuit_breaker_state = "CLOSED"
+        self._failure_count = 0
+        self._last_failure_time = 0
+        self._circuit_breaker_threshold = 3
+        self._circuit_breaker_timeout = 60
         
     def init(self, event_bus: EventBus, config: Dict[str, Any]) -> bool:
         """Initialize the dashboard service."""
@@ -331,8 +397,18 @@ class DashboardService(Service):
             return False
         
     def start(self) -> bool:
-        """Start the dashboard service."""
+        """Start the dashboard service with circuit breaker protection."""
         try:
+            # Check circuit breaker state
+            if self._circuit_breaker_state == "OPEN":
+                if time.time() - self._last_failure_time < self._circuit_breaker_timeout:
+                    logger.warning(f"Dashboard service circuit breaker is OPEN, skipping startup")
+                    return False
+                else:
+                    # Try to recover
+                    self._circuit_breaker_state = "HALF_OPEN"
+                    logger.info("Dashboard service circuit breaker entering HALF_OPEN state")
+            
             self.state = ServiceState.STARTING
             
             # Install dependencies if needed
@@ -357,14 +433,39 @@ class DashboardService(Service):
                 self.state = ServiceState.RUNNING
                 self.emit_event("SERVICE_START", {"service": self.name})
                 self.emit_event("DASHBOARD_READY", {"port": self.port})
+                
+                # Reset circuit breaker on success
+                if self._circuit_breaker_state == "HALF_OPEN":
+                    self._circuit_breaker_state = "CLOSED"
+                    self._failure_count = 0
+                    logger.info("Dashboard service circuit breaker recovered to CLOSED state")
+                
                 logger.info(f"Dashboard service started on port {self.port}")
                 return True
             else:
+                # Circuit breaker logic on failure
+                self._failure_count += 1
+                self._last_failure_time = time.time()
+                
+                if self._failure_count >= self._circuit_breaker_threshold:
+                    self._circuit_breaker_state = "OPEN"
+                    logger.error(f"Dashboard service circuit breaker opened after {self._failure_count} failures")
+                    self.emit_event("CIRCUIT_BREAKER_OPEN", {"service": self.name, "failures": self._failure_count})
+                
                 self.state = ServiceState.ERROR
                 logger.error("Dashboard service failed to start")
                 return False
                 
         except Exception as e:
+            # Circuit breaker logic on exception
+            self._failure_count += 1
+            self._last_failure_time = time.time()
+            
+            if self._failure_count >= self._circuit_breaker_threshold:
+                self._circuit_breaker_state = "OPEN"
+                logger.error(f"Dashboard service circuit breaker opened after {self._failure_count} failures")
+                self.emit_event("CIRCUIT_BREAKER_OPEN", {"service": self.name, "failures": self._failure_count})
+            
             logger.error(f"Dashboard service start failed: {e}")
             self.state = ServiceState.ERROR
             self.emit_event("SERVICE_CRASH", {"service": self.name, "error": str(e)})
@@ -393,7 +494,7 @@ class DashboardService(Service):
             return False
         
     def health(self) -> ServiceHealth:
-        """Check dashboard service health."""
+        """Check dashboard service health with circuit breaker status."""
         try:
             if not self._process:
                 return ServiceHealth(
@@ -401,7 +502,10 @@ class DashboardService(Service):
                     state=self.state,
                     healthy=False,
                     message="Dashboard process not running",
-                    details={},
+                    details={
+                        "circuit_breaker_state": self._circuit_breaker_state,
+                        "failure_count": self._failure_count
+                    },
                     timestamp=time.time()
                 )
             
@@ -411,7 +515,10 @@ class DashboardService(Service):
                     state=ServiceState.CRASHED,
                     healthy=False,
                     message="Dashboard process has terminated",
-                    details={},
+                    details={
+                        "circuit_breaker_state": self._circuit_breaker_state,
+                        "failure_count": self._failure_count
+                    },
                     timestamp=time.time()
                 )
             
@@ -421,7 +528,9 @@ class DashboardService(Service):
                 healthy=True,
                 message=f"Dashboard running on port {self.port}",
                 details={
-                    "port": self.port
+                    "port": self.port,
+                    "circuit_breaker_state": self._circuit_breaker_state,
+                    "failure_count": self._failure_count
                 },
                 timestamp=time.time()
             )
@@ -431,7 +540,10 @@ class DashboardService(Service):
                 state=ServiceState.ERROR,
                 healthy=False,
                 message=f"Dashboard service unhealthy: {e}",
-                details={},
+                details={
+                    "circuit_breaker_state": self._circuit_breaker_state,
+                    "failure_count": self._failure_count
+                },
                 timestamp=time.time()
             )
 
